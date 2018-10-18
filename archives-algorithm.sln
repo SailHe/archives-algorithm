@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "archives-algorithm", "archives-algorithm\archives-algorithm.vcxproj", "{367A10AA-CED9-4A7D-B2BE-D8CF59FF6DB0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AlgorithmLearning", "AlgorithmLearning\AlgorithmLearning.vcxproj", "{818CA3F6-3956-4645-9407-2576764C2282}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,12 @@ Global
 		{367A10AA-CED9-4A7D-B2BE-D8CF59FF6DB0}.Release|x64.Build.0 = Release|x64
 		{367A10AA-CED9-4A7D-B2BE-D8CF59FF6DB0}.Release|x86.ActiveCfg = Release|Win32
 		{367A10AA-CED9-4A7D-B2BE-D8CF59FF6DB0}.Release|x86.Build.0 = Release|Win32
+		{818CA3F6-3956-4645-9407-2576764C2282}.Debug|x64.ActiveCfg = Debug|Win32
+		{818CA3F6-3956-4645-9407-2576764C2282}.Debug|x86.ActiveCfg = Debug|Win32
+		{818CA3F6-3956-4645-9407-2576764C2282}.Debug|x86.Build.0 = Debug|Win32
+		{818CA3F6-3956-4645-9407-2576764C2282}.Release|x64.ActiveCfg = Release|Win32
+		{818CA3F6-3956-4645-9407-2576764C2282}.Release|x86.ActiveCfg = Release|Win32
+		{818CA3F6-3956-4645-9407-2576764C2282}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
