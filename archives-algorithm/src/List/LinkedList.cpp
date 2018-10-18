@@ -3,40 +3,36 @@
 		不带数据的结点称做 头节点 以下函数皆默认参数链表带有头节点 当然也可以使用头节点创建函数自行创建头节点
 */
 /****************************************含头节点的**链表基本操作*******************************************/
-#include <stdio.h>
-#include <string.h>
-#include <malloc.h>
-#define ERROR -1//ERROR应定义为ElementType类型的一个特殊值
-#define MIN -2147483647//ERROR应定义为ElementType类型的最小值
-#define MAX 2147483647//ERROR应定义为ElementType类型的最小值
-typedef int ElementType;
-typedef struct Node *Pnode;
-struct Node
-{
-	int Data;
-	Pnode next;
-};
-typedef Pnode List;
-typedef Node * Position;//特指其地址 位置之意
-const int LEN = sizeof(struct Node);
+//#include <stdio.h>
+//#include <string.h>
+//#include <malloc.h>
+#include "../LinkedList.h"
+#define ERROR_ELE_VALUE LinkedList::ERROR_ELE_VALUE
+typedef LinkedList::ElementType ElementType;
+typedef struct LinkedList::Node LinkedListNode;
+typedef LinkedListNode *LinkedListImpl;
+//特指其位置 用地址表示
+typedef LinkedListNode *Position;
+//const int LEN = sizeof(struct LinkedList::Node);
+const int LEN = sizeof(LinkedListNode);
 /********************************************链表的创建与打印*************/
 //为任意链表创建一个初始化值为0的 头节点
-List CreatHead(List L)
+LinkedListImpl CreatHead(LinkedListImpl L)
 {
-	List Head = (List)malloc(LEN);
+	LinkedListImpl Head = (LinkedListImpl)malloc(LEN);
 	memset(Head, 0, LEN);
 	Head->next = L;
 	return Head;
 }
 //顺序建表
 //旧版
-List Read()
+LinkedListImpl CreateListOld()
 {
-	List plast = NULL, pnow = NULL, head = (List)malloc(LEN);
+	LinkedListImpl plast = NULL, pnow = NULL, head = (LinkedListImpl)malloc(LEN);
 	memset(head, 0, LEN);
 	while (1)
 	{
-		pnow = (List)malloc(LEN);
+		pnow = (LinkedListImpl)malloc(LEN);
 		scanf("%d", &pnow->Data);
 		if (pnow->Data == -1)
 		{
@@ -55,13 +51,13 @@ List Read()
 	return head;
 }
 //相比旧版 少5行更简洁 一个变量一个判断 更快
-List Createlist()
+LinkedListImpl CreateListNew()
 {
-	List Head = (List)malloc(LEN), P = Head;
+	LinkedListImpl Head = (LinkedListImpl)malloc(LEN), P = Head;
 	memset(Head, 0, LEN);
 	while (1)
 	{
-		P->next = (List)malloc(LEN);
+		P->next = (LinkedListImpl)malloc(LEN);
 		scanf("%d", &P->next->Data);
 		if (P->next->Data == -1)
 		{
@@ -74,12 +70,12 @@ List Createlist()
 	return Head/*->next   **以下同**若不需要头节点加上这句即可*/;
 }
 //逆序建表 此法建表头节点是结束标记所带数据
-List RCreatelist()
+LinkedListImpl CreateListRe()
 {
-	List plast = NULL, pnow = NULL;
+	LinkedListImpl plast = NULL, pnow = NULL;
 	while (1)
 	{
-		pnow = (List)malloc(LEN);
+		pnow = (LinkedListImpl)malloc(LEN);
 		scanf("%d", &pnow->Data);
 		pnow->next = plast;
 		plast = pnow;
@@ -88,7 +84,10 @@ List RCreatelist()
 	}
 	return pnow;
 }
-void Print(List L)
+void ReadList(LinkedListImpl *L) {
+	*L = CreateListNew();
+}
+void Print(LinkedListImpl L)
 {
 	int n = 0;
 	if (L->next)
@@ -109,9 +108,9 @@ void Print(List L)
 */
 /***********************************************递增链表操作************下**/
 //返回L1 L2原序合并后的链表头节点
-List Merge(List L1, List L2){
-	List head = (List)malloc(sizeof(List)), p = head;
-	List p1 = L1->next, p2 = L2->next;
+LinkedListImpl Merge(LinkedListImpl L1, LinkedListImpl L2){
+	LinkedListImpl head = (LinkedListImpl)malloc(sizeof(LinkedListImpl)), p = head;
+	LinkedListImpl p1 = L1->next, p2 = L2->next;
 	L1->next = L2->next = NULL;
 	while (p1 && p2){
 		if (p1->Data <= p2->Data){
@@ -128,24 +127,25 @@ List Merge(List L1, List L2){
 	return head;
 }
 
-struct ListNode * newNode(int data){
-	List Head = (List)malloc(LEN);
+LinkedListImpl newNode(ElementType Data){
+	LinkedListImpl Head = (LinkedListImpl)malloc(LEN);
 	memset(Head, 0, LEN);
-	Head->data = data;
+	Head->Data = Data;
 	return Head;
 }
-//list1和list2是两个按data升序链接的链表的头指针；(头指针不是头节点)
-//函数mergelists将两个链表合并成一个按data升序链接的新链表，并返回结果链表的头指针。
-struct ListNode* mergelists(struct ListNode* L1, struct ListNode* L2){
-	struct ListNode* head = newNode(0), *p = head;
-	struct ListNode* p1 = L1, *p2 = L2;
+//list1和list2是两个按Data升序链接的链表的头指针；(头指针不是头节点)
+//函数Mergelists将两个链表合并成一个按Data升序链接的新链表，并返回结果链表的头指针。
+LinkedListNode* Mergelists(LinkedListImpl L1, LinkedListImpl L2){
+	LinkedListImpl head = newNode(0), p = head;
+	//LinkedListNode *p1 = L1, *p2 = L2;
+	LinkedListImpl p1 = L1, p2 = L2;
 	while (p1 && p2){
-		if (p1->data <= p2->data){
-			p->next = newNode(p1->data);
+		if (p1->Data <= p2->Data){
+			p->next = newNode(p1->Data);
 			p1 = p1->next;
 		}
 		else{
-			p->next = newNode(p2->data);
+			p->next = newNode(p2->Data);
 			p2 = p2->next;
 		}
 		p = p->next;
@@ -155,10 +155,10 @@ struct ListNode* mergelists(struct ListNode* L1, struct ListNode* L2){
 }
 
 //返回L1 与L2的交集的头节点
-List intersection(List L1, List L2)
+LinkedListImpl Intersection(LinkedListImpl L1, LinkedListImpl L2)
 {
-	List head = (List)malloc(LEN), p = head;
-	List p1 = L1->next, p2 = L2->next;
+	LinkedListImpl head = (LinkedListImpl)malloc(LEN), p = head;
+	LinkedListImpl p1 = L1->next, p2 = L2->next;
 	L1->next = L2->next = NULL;
 	memset(head, 0, LEN);
 	while (p1 && p2)
@@ -188,35 +188,34 @@ List intersection(List L1, List L2)
 */
 /*******************************************链表的查找与数据操作*********/
 //返回链表储存数据结点个数+1
-int Length(List L){/*此实现基于含头节点的链表*/
-	List p = L;
+int Length(LinkedListImpl L){/*此实现基于含头节点的链表*/
+	LinkedListImpl p = L;
 	int n = 0;
 	while (p)
 		++n, p = p->next;
 	return n;
 }
-//返回链表第k条数据  不存在返回ERROR :: k属于(0, length)
-ElementType FindKth(List L, int k) {
+//返回链表第k条数据  不存在返回NULL :: k属于(0, length)
+Position FindKth(LinkedListImpl L, int k) {
 	int n = 1;
 	while (L = L->next) {
 		if (n < k)
 			++n;
 		else if (n == k)
-			return L->Data;
+			return L;
 		else//k <= 0
 			break;
 	}
-	return ERROR;
+	return NULL;
 }
-//返回链表倒数第k个元素  不存在返回ERROR
-ElementType FindRKth(List L, int k) {
+//返回链表倒数第k个元素  不存在返回ERROR_ELE_VALUE
+Position FindRKth(LinkedListImpl L, int k) {
 	//倒数第k个就是正数第len-k个
 	return FindKth(L, Length(L) - k);//若不带头节点length返回值加1
 }
 //返回线性表中首次出现X的位置 找不到返回NULL
-Position FindData(List L, ElementType X)
-{
-	List p = L;
+Position FindData(LinkedListImpl L, ElementType X){
+	LinkedListImpl p = L;
 	p->Data = -X;
 	while (p)
 	{
@@ -229,9 +228,9 @@ Position FindData(List L, ElementType X)
 	return NULL;
 }
 //将X插入L，并保持该序列的有序性，返回插入后的链表头
-List InsertData(List L, ElementType X)
+LinkedListImpl InsertData(LinkedListImpl L, ElementType X)
 {
-	List pn = NULL, pin = (List)malloc(LEN), ptemp = NULL;
+	LinkedListImpl pn = NULL, pin = (LinkedListImpl)malloc(LEN), ptemp = NULL;
 	pin->Data = X; pin->next = NULL;
 	pn = L;
 	while (pn->next)
@@ -247,9 +246,9 @@ List InsertData(List L, ElementType X)
 	return L;
 }
 //在位置P前插入X  返回链表头 若参数P位置非法返回NULL   自带虚拟头节点 即使传入空结点 NLLL 也可以顺利插入
-List InsertInP(List L, ElementType X, Position P)
+LinkedListImpl InsertInP(LinkedListImpl L, ElementType X, Position P)
 {
-	List pn = NULL, pin = (List)malloc(LEN), head = (List)malloc(LEN);
+	LinkedListImpl pn = NULL, pin = (LinkedListImpl)malloc(LEN), head = (LinkedListImpl)malloc(LEN);
 	pn = head;
 	pn->Data = -X; pn->next = L;
 	pin->Data = X; pin->next = NULL;
@@ -267,34 +266,34 @@ List InsertInP(List L, ElementType X, Position P)
 	return NULL;
 }
 //删除位置P的元素 返回链表头 若参数P位置非法返回NULL
-List DeleteInP(List L, Position P)
-{
-	List pn = L;
+LinkedListImpl DeleteInP(LinkedListImpl L, Position *DelPosition){
+	LinkedListImpl pn = L;
+	Position P = *DelPosition;
 	pn->Data = 0;
-	while (pn->next && P)
-	{
-		if (pn->next == P)
-		{
+	while (pn->next && P){
+		if (pn->next == P){
 			P = P->next;//暂用
 			free(pn->next);
 			pn->next = P;
+			*DelPosition = NULL;
 			return L;
 		}
-		else
+		else {
 			pn = pn->next;
+		}
 	}
 	return NULL;
 }
-//删除链表 所有特定数据
-List Deletelist(List head, int data)
+//删除链表 所有特定数据(此处是小于)
+LinkedListImpl DeleteAllData(LinkedListImpl head, ElementType Data)
 {
-	List plast = NULL, Head = (List)malloc(LEN), p = Head;
+	LinkedListImpl plast = NULL, Head = (LinkedListImpl)malloc(LEN), p = Head;
 	Head->next = head;
 	while (p->next)
 	{
 		plast = p;
 		p = p->next;
-		if (p->Data < data)/*删除条件 此处是小于*/
+		if (p->Data < Data)/*删除条件 此处是小于*/
 		{
 			plast->next = p->next;//连结p两端
 			p == head ? head = plast->next : 0;//当即将删除的结点是head时head要更新
@@ -305,9 +304,9 @@ List Deletelist(List head, int data)
 	return head;
 }
 //销毁单链表 表头P置NULL
-void Destroy(List P)
+void Destroy(LinkedListImpl P)
 {
-	List Ptemp = P->next;
+	LinkedListImpl Ptemp = P->next;
 	P->next = NULL;
 	while (Ptemp)
 	{
@@ -317,13 +316,13 @@ void Destroy(List P)
 	}
 }
 //链表逆置  原链表不变 完全新建 返回新建头节点
-List Reverse(List Head)
+LinkedListImpl Reverse(LinkedListImpl Head)
 {
-	List plast = NULL, pnow = NULL;
+	LinkedListImpl plast = NULL, pnow = NULL;
 	Head = Head->next;/*传入的不是头节点去掉这句*/
 	while (Head)
 	{
-		pnow = (List)malloc(LEN);
+		pnow = (LinkedListImpl)malloc(LEN);
 		pnow->Data = Head->Data;
 		pnow->next = plast;
 		plast = pnow;
@@ -332,30 +331,7 @@ List Reverse(List Head)
 	pnow = CreatHead(pnow);
 	return pnow;
 }
-//仅释放当前结点 并将节点地址改为下一个结点的地址 没有 则NULL
-void DestroyNode(List *P)
-{
-	List Ptemp = NULL;
-	if ((*P)->next)
-		Ptemp = (*P)->next;
-	free(*P);
-	*P = Ptemp;
-}
-//返回一个与参数结点相同的节点 del决定是copy还是cut
-List Clone(List P, bool del)
-{
-	if (P)
-	{
-		List CloneP = (List)malloc(LEN);
-		memcpy(CloneP, P, LEN);
-		if (del)
-			DestroyNode(&P);
-	}
-	else
-		return NULL;
-}
-/*******************************************************************************************************************【DEBUG】********/
-struct stud_node * Reverse(struct stud_node * L)
+LinkedListImpl Reverse_DEBUG(LinkedListImpl L)
 {
 	Position Old_head, New_head, Temp;
 	New_head = NULL;
@@ -371,42 +347,85 @@ struct stud_node * Reverse(struct stud_node * L)
 	L = New_head;
 	return L;
 }/***************/
-int main()
+//仅释放当前结点 并将节点地址改为下一个结点的地址 没有 则NULL
+void DestroyNode(LinkedListImpl *P)
 {
-	List p1 = NULL, p2 = NULL, p = NULL;
-	List pt = NULL;
+	LinkedListImpl Ptemp = NULL;
+	if ((*P)->next)
+		Ptemp = (*P)->next;
+	free(*P);
+	*P = Ptemp;
+}
+//返回一个与参数结点相同的节点 del决定是copy还是cut
+LinkedListImpl Clone(LinkedListImpl P, bool del)
+{
+	if (P)
+	{
+		LinkedListImpl CloneP = (LinkedListImpl)malloc(LEN);
+		memcpy(CloneP, P, LEN);
+		if (del) {
+			DestroyNode(&P);
+		}
+		return CloneP;
+	}
+	else {
+		return NULL;
+	}
+		
+}
+
+int mainForTest(){
+	//freopen("input", "r", stdin);
+	LinkedListImpl p1 = NULL, p2 = NULL, p = NULL;
+	LinkedListImpl pt = NULL;
 	int n;
-	p1 = Createlist();
-	p2 = RCreatelist();
+	puts("输入链表各元素 以-1结尾");
+	p1 = CreateListNew();
+	p2 = CreateListRe();
 	Print(p1); Print(p2);
 	puts("begain\n");
 
+	puts("以反转后的p2作为新的链表p\n");
 	p = Reverse(p2);
+
+	puts("销毁p2\n");
 	Destroy(p2);
+	puts("输出p并将p赋给p2\n");
 	Print(p2 = p);
 
+	puts("p = 合并p1 p2后的新链表\n");
 	p = Merge(p1, p2); Print(p);
 	n = Length(p);
-	int i = 1;
-	while (p->next)
-	{
-		ElementType temp;
-		temp = FindRKth(p, 1);
-		if (temp != -1)
-		{
-			printf("find 倒数第%d个元素%d\n", 1, temp);
-			printf("find 正数第%d个元素%d\n", i++, FindKth(p, i));
-			pt = InsertInP(pt, temp, pt);
+	int i = 0;
+	while (p->next){
+		++i;
+		
+		Position findPosition = FindKth(p, i);
+		if (findPosition != NULL) {
+			pt = InsertInP(pt, findPosition->Data, pt);
+			printf("find 正数第%d个元素%d\n", i, findPosition->Data);
 		}
-		else
+		else {
 			puts("find error");
-		if (DeleteInP(p, FindData(p, temp)))
-		{
-			printf("delete %d\n", temp);
+		}
+		
+		Position findPositionRe = FindRKth(p, 1);
+		if (findPositionRe != NULL){
+			printf("find 倒数第%d个元素%d\n", 1, findPositionRe->Data);
+		}
+		else {
+			puts("find error");
+		}
+		
+		ElementType deleteTemp = findPositionRe->Data;
+		Position findDataPo = FindData(p, deleteTemp);
+		if (DeleteInP(p, &findDataPo) != NULL){
+			printf("delete %d\n", deleteTemp);
 			Print(p);
 		}
-		else
+		else {
 			puts("delete error");
+		}
 	}
 	puts("");
 	pt = CreatHead(pt);
@@ -414,204 +433,76 @@ int main()
 	p = Reverse(pt);
 	Destroy(pt);
 	Print(pt = p);
-
 	return 0;
 }
 /*
 1 3 5 7 9 11 -1
 2 4 6 8 10 12 -1
-
 */
 
-/*********************************************多项式处理*************************************************/
-/*
-										这里的参数P一般是大写
-*/
-/*********************************************多项式处理*************************************************/
-#include <stdio.h>
-#include <string.h>
-#include <malloc.h>
-typedef struct PolyNode *Pnode;
-struct PolyNode
-{
-	int coef;//系数   头必须置0
-	int expon;//指数  头是项数
-	Pnode next;
-};
-typedef Pnode List;
-const int LEN = sizeof(struct PolyNode);
-//仅释放当前结点 并将节点地址改为下一个结点的地址 没有 返回NULL
-void DestroyIt(List *P)
-{
-	List Ptemp = NULL;
-	if ((*P)->next)
-		Ptemp = (*P)->next;
-	free(*P);
-	*P = Ptemp;
-}
-/*****************应该用这个较安全的函数替换上面一个有BUG的**********************/
-//释放结点P-next P->next = P->next->next
-void DestroyNext(List P){
-	List Ptemp = NULL;
-	if (P->next){
-		//if (P->next->next)
-		Ptemp = P->next->next;
-		free(P->next);
-		P->next = Ptemp;
-	}
-	else
-		puts("ERROR");
-}
-//一元多项式求导
-void derivation(List p) {
-	while (p) {/*因为有头节点 可以直接操作p->next*/
-		p->next->coef *= p->next->expon--;
-		if (p->next->coef == 0)
-			DestroyNext(p);
-		p = p->next;
-	}
-}
-// 先读系数 再读指数
-List ReadPoly()
-{
-	List Head = NULL, Pleft = NULL, Pright = NULL;
-	Pleft = Head = (List)malloc(LEN);
-	memset(Head, 0, LEN);
-	scanf("%d", &Head->expon);
-	while (Head->expon-- > 0)
-	{
-		Pright = (List)malloc(LEN);
-		scanf("%d%d", &Pright->coef, &Pright->expon);
-		Pleft->next = Pright;
-		Pleft = Pright;
-		Pright = Pright->next;
-	}
-	Pleft->next = NULL;
-	return Head;
-}
-List Add(List L1, List L2)//参数Dest 用于判断是否销毁源链表
-{
-	List Head = (List)malloc(LEN), P = Head;
-	List p1 = L1->next, p2 = L2->next;
-	int ISAdd = 1;
-	memset(Head, 0, sizeof(LEN));
-	while (p1 && p2)//指数：不等存大挪大 相等存和都挪
-	{
-		if (ISAdd)
-		{
-			P->next = (List)malloc(LEN);
-			ISAdd = 0;
-		}
-		if (p1->expon == p2->expon)/*合并同类项 二之一*/
-		{
-			if (p1->coef + p2->coef)
-			{
-				P->next->coef = p1->coef + p2->coef;
-				P->next->expon = p1->expon;
-				ISAdd = 1;
-			}
-			//p1 = p1->next;
-			//p2 = p2->next;
-			DestroyIt(&p1);
-			DestroyIt(&p2);
-		}
-		else if (p1->expon > p2->expon)
-		{
-			if (p1->coef)
-			{
-				P->next->coef = p1->coef;
-				P->next->expon = p1->expon;
-				ISAdd = 1;
-			}
-			//p1 = p1->next;
-			DestroyIt(&p1);
-		}
-		else
-		{
-			if (p2->coef)
-			{
-				P->next->coef = p2->coef;
-				P->next->expon = p2->expon;
-				ISAdd = 1;
-			}
-			//p2 = p2->next;
-			DestroyIt(&p2);
-		}
-		ISAdd ? P = P->next : 0;
-	}
-	P->next = p1 ? p1 : p2;//兼连结 置NULL一体
-	L1->next = L2->next = NULL;
-	return Head;
-}
-List Muit(List L1, List L2)
-{
-	List SumHead = (List)malloc(LEN);
-	List P1 = L1->next, P2 = L2->next;
-	List Head = (List)malloc(LEN), P = NULL;//中间链表
-	memset(SumHead, 0, LEN);//保证结果链表合法
-	memset(Head, 0, LEN);
-	while (P1)//拆L1
-	{
-		P = Head;
-		P2 = L2->next;
-		while (P2)//分项乘P2 结果存到SumHead
-		{
-			if (P1->coef && P2->coef)
-			{
-				P->next = (List)malloc(LEN);
-				P->next->coef = P1->coef * P2->coef;
-				P->next->expon = P1->expon + P2->expon;
-				P = P->next;
-			}
-			P2 = P2->next;
-		}
-		P->next = NULL;
-		SumHead = Add(SumHead, Head);
-		P1 = P1->next;
-	}
-	return SumHead;
-}
-void PrintPoly(List P)
-{
-	int n = 0;
-	if (P->next)
-	{
-		while (P->next)
-		{
-			if (n++ != 0)
-				printf(" ");
-			P = P->next;
-			printf("%d %d", P->coef, P->expon);
-		}
-	}
-	else
-	{
-		printf("0 0");
-	}
-	puts("");
-}
-int main()
-{
-	//freopen("input", "r", stdin);
-	List P1, P2, PP, PS;
-	P1 = ReadPoly();
-	P2 = ReadPoly();
-	PP = Muit(P1, P2);
-	PrintPoly(PP);
-	PS = Add(P1, P2);
-	PrintPoly(PS);
-	return 0;
-}
-/*
-输入样例:
 
-4
-3 4  -5 2  6 1  -2 0
-3
-5 20 -7 4  3 1
+//类型接口封装
 
-输出样例:
+LinkedList::LinkedList() {
+	headNode_ = CreatHead(NULL);
+}
+LinkedList::LinkedList(LinkedList const &rhs) {
+	headNode_ = Clone(rhs.headNode_, false);
+}
+LinkedList::LinkedList(LinkedList const &&rvalue) {
+	headNode_ = Clone(rvalue.headNode_, true);
+}
+LinkedList::~LinkedList() {
+	Destroy(headNode_);
+}
+LinkedList &LinkedList::input() {
+	ReadList(&headNode_);
+	return *this;
+}
+LinkedList &LinkedList::output() {
+	Print(headNode_);
+	return *this;
+}
+LinkedList &LinkedList::merge(LinkedList &rhs) {
+	Iterator temp = headNode_;
+	headNode_ = Merge(headNode_, rhs.headNode_);
+	Destroy(temp);
+	return *this;
+}
+LinkedList &LinkedList::mergelists(LinkedList &rhs) {
+	Iterator temp = headNode_;
+	headNode_ = Mergelists(headNode_, rhs.headNode_);
+	Destroy(temp);
+	return *this;
+}
+LinkedList::Iterator LinkedList::intersection(LinkedList &rhs) {
+	return Intersection(headNode_, rhs.headNode_);
+}
+int LinkedList::length() {
+	return Length(headNode_);
+}
+LinkedList::Iterator LinkedList::findKth(int k) {
+	return k >= 0 ? FindKth(headNode_, k) : FindRKth(headNode_, -k);
+}
+LinkedList::Iterator LinkedList::findData(LinkedList::ElementType ele) {
+	return FindData(headNode_, ele);
+}
+bool LinkedList::insertData(ElementType ele) {
+	return InsertData(headNode_, ele) != NULL;
+}
+bool LinkedList::insertInP(ElementType ele, LinkedList::Iterator iter) {
+	return InsertInP(headNode_, ele, iter) != NULL;
+}
+bool LinkedList::deleteInP(LinkedList::Iterator &iter) {
+	return DeleteInP(headNode_, &iter) != NULL;
+}
+int LinkedList::deleteAll(ElementType ele) {
+	return DeleteAllData(headNode_, ele) != NULL;
+}
+LinkedList &LinkedList::reverse() {
+	Iterator temp = headNode_;
+	headNode_ = Reverse(headNode_);
+	Destroy(temp);
+	return *this;
+}
 
-15 24 -25 22 30 21 -10 20 -21 8 35 6 -33 5 14 4 -15 3 18 2 -6 1
-5 20 -4 4 -5 2 9 1 -2 0
-*/

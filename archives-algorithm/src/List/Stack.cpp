@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #define size 250
-#define ERROR -1
+#define ERROR_ELE_VALUE -1
 
 typedef int QElemType;
 typedef struct stack *Stack;
@@ -54,7 +54,7 @@ QElemType pop(Stack s)
 	if (IsEmpty(s))
 	{
 		puts("堆栈空");
-		return ERROR;
+		return ERROR_ELE_VALUE;
 	}
 	else
 	{
@@ -256,7 +256,7 @@ int main()
 #include <malloc.h>
 #include <stdlib.h>
 #define SIZE 400
-#define ERROR -1
+#define ERROR_ELE_VALUE -1
 #define Infinity 1e8
 typedef int QElemType;
 typedef struct Stack *PStack;
@@ -297,7 +297,7 @@ QElemType pop(PStack Head)
 	if (IsEmpty(Head))
 	{
 		puts("堆栈空");
-		return ERROR;
+		return ERROR_ELE_VALUE;
 	}
 	else
 	{
