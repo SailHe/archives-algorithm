@@ -15,48 +15,54 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="oj.cpp">
+    <ClCompile Include="src\AlgorithmTrainingLegacy.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="背包算法.cpp">
+    <ClCompile Include="src\BacktraceDemo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="BigInteger.h">
-      <Filter>头文件</Filter>
-    </ClCompile>
-    <ClCompile Include="BacktraceDemo.cpp">
+    <ClCompile Include="src\nitoj.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="pta.cpp">
+    <ClCompile Include="src\nitoj_1.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="streamDemo.cpp">
+    <ClCompile Include="src\oj.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="AlgorithmTrainingLegacy.cpp">
+    <ClCompile Include="src\practicer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Standard.cpp">
+    <ClCompile Include="src\pta.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="practicer.cpp">
+    <ClCompile Include="src\pta_.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nitoj.cpp">
+    <ClCompile Include="src\save007hdu1245.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="nitoj_1.cpp">
+    <ClCompile Include="src\Standard.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\streamDemo.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test_7_17.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\背包算法.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Graph.h">
+    <ClInclude Include="src\BigInteger.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="src\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Standard.h">
+    <ClInclude Include="src\Standard.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
