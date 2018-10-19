@@ -36,13 +36,25 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\SailHeAlgorithm.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\List\Queue.h">
       <Filter>源文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\LinkedList.h">
+    <ClInclude Include="src\stdafx.h">
       <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GetMyDade.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LinkedList.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SailHeAlgorithm.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
