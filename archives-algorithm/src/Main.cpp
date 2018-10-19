@@ -19,7 +19,7 @@ int main() {
 	LinkedList::Iterator iter = list1.findKth(1);
 	n = list1.length();
 	int i = 0;
-	while (iter->next) {
+	while (iter->Next_) {
 		++i;
 
 		LinkedList::Iterator findIter = list1.findKth(i);

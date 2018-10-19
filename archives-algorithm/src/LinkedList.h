@@ -5,12 +5,12 @@ class LinkedList {
 public:
 	using ElementType = int;
 	const ElementType ERROR_ELE_VALUE = -1;
-	//typedef struct Node *PtrToLinkedListNode;
-	struct Node{
+	//typedef struct LinkedListNode *PtrToLinkedListNode;
+	struct LinkedListNode{
 		ElementType Data;
-		Node *next;
+		LinkedListNode *Next_;
 	};
-	using Iterator = Node*;
+	using Iterator = LinkedListNode*;
 
 private:
 	Iterator headNode_;
