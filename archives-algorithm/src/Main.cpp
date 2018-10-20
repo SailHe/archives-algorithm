@@ -9,10 +9,6 @@ using namespace StandardExtend;
 //Demo
 
 int MainForStack() {
-	LinkedList<string> lists = LinkedList<string>();
-	for (int i = 0; i < 1; ++i) {
-		lists.insertData("LinkedListData");
-	}
 	Stack<int> s;
 	for (int i = 0; i < 10; ++i) {
 		s.push(i);
@@ -48,7 +44,7 @@ int MainForLinkedList() {
 	for (int i = 0; i < 10; ++i) {
 		stack<string> s;
 		for (int i = 0; i < 2; ++i) {
-			s.push("Stack data in list");
+			s.push("List data in Stack");
 		}
 		stackList.insertData(s);
 	}
@@ -157,6 +153,8 @@ int mainForDeQueue() {
 		ql.poll().output();
 	}
 	puts("Deque test end");
+	qs.shell();
+	//ql.shell();
 	return 0;
 }
 

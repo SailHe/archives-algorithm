@@ -412,16 +412,14 @@ protected:
 		return head;
 	}
 	//销毁单链表 表头P置NULL
-	void Destroy(LinkedListNodePtr P)
+	void Destroy(LinkedListNodePtr &Head)
 	{
-		LinkedListNodePtr Ptemp = P->Next_;
-		P->Next_ = NULL;
-		while (Ptemp)
-		{
-			P = Ptemp->Next_;
-			deleteNode(P->Next_);
-			Ptemp = P;
-		}
+		LinkedListNodePtr Ptemp = NULL;
+		do{
+			Ptemp = Head;
+			Head = Head->Next_;
+			deleteNode(Ptemp);
+		} while (Head != NULL);
 	}
 	//链表逆置  原链表不变 完全新建 返回新建头节点
 	LinkedListNodePtr Reverse(LinkedListNodePtr Head)
