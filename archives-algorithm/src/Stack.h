@@ -22,7 +22,13 @@ public:
 	bool isEmpty() {
 		return IsEmptyLinkedStack(baseImpl);
 	}
+	
 protected:
+	//²»ÔÊÐí
+	void operator = (Stack const &rhs) const {
+		return *this;
+	}
+	Stack(Stack const &rhs) {}
 	/**********************************************Á´Õ»******Head->Next ÊÇÕ»¶¥**********/
 	typedef StackElementType LinkedStackElementType;
 	typedef struct LinkedStackImpl *LinkedStackPosition;

@@ -16,7 +16,6 @@ protected:
 	typedef LinkedListNode *Position;
 public:
 	//using Iterator = Iterator<LinkedListNode*>;
-	//template<class BaseIter>
 	class Iterator {
 		using BaseIter = LinkedListNodePtr;
 	public:
@@ -62,9 +61,11 @@ public:
 	};
 
 	LinkedList();
+	~LinkedList();
+	//拷贝构造
 	LinkedList(LinkedList const &rhs);
 	LinkedList(LinkedList const &&rvalue);
-	~LinkedList();
+	void operator = (LinkedList const &rhs) const = delete;
 
 	Iterator const &end() const {
 		static Iterator END = Iterator(nullptr);
@@ -170,7 +171,8 @@ protected:
 		while (1)
 		{
 			P->Next_ = newNode();
-			scanf("%d", &P->Next_->Data);
+			//scanf("%d", &P->Next_->Data);
+			cin >> P->Next_->Data;
 			if (P->Next_->Data == -1)
 			{
 				deleteNode(P->Next_);
@@ -207,7 +209,7 @@ protected:
 			while (L = L->Next_)
 			{
 				printf(n++ ? " " : "");
-				printf("%d", L->Data);
+				cout << L->Data;
 			}
 		}
 		else
@@ -462,7 +464,7 @@ protected:
 		*P = Ptemp;
 	}
 	//返回一个与参数结点相同的节点 del决定是copy还是cut
-	LinkedListNodePtr Clone(LinkedListNodePtr P, bool del)
+	LinkedListNodePtr CloneNode(LinkedListNodePtr P, bool del)
 	{
 		if (P)
 		{
@@ -557,11 +559,13 @@ LinkedList<ElementType>::LinkedList() {
 }
 template<class ElementType>
 LinkedList<ElementType>::LinkedList(LinkedList const &rhs) {
-	headNode_ = Clone(rhs.headNode_, false);
+	//@TODO 这里有问题
+	headNode_ = NULL;
+	headNode_ = CloneNode(rhs.headNode_, false);
 }
 template<class ElementType>
 LinkedList<ElementType>::LinkedList(LinkedList const &&rvalue) {
-	headNode_ = Clone(rvalue.headNode_, true);
+	headNode_ = CloneNode(rvalue.headNode_, true);
 }
 template<class ElementType>
 LinkedList<ElementType>::~LinkedList() {

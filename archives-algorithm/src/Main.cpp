@@ -137,7 +137,7 @@ int comput(char const *ansBuf, Stack<int> &ps)
 //返回后缀表达式ansBuf的值 空格分开运算元素 可处理负数
 int evalPostfix(char const *ansBuf) {
 	static char num[50] = { 0 };
-	Stack<char> ps = Stack<char>();
+	Stack<char> ps;
 	int i = 0;
 	char c = 0;
 	char po1, po2;
@@ -191,7 +191,7 @@ void outputValue(char const *inBuf, char *ansBuf, Stack<int> &stackHead) {
 }
 int main___123()
 {
-	Stack<int> stackHead = Stack<int>();
+	Stack<int> stackHead;
 	char ansBuf[100] = { 0 };
 	//454+*2/    18
 	outputValue("4*(5+4)/2", ansBuf, stackHead);
@@ -217,7 +217,7 @@ int main___123()
 }
 
 int MainForStack() {
-	Stack<int> s = Stack<int>();
+	Stack<int> s;
 	for (int i = 0; i < 10; ++i) {
 		s.push(i);
 	}
@@ -239,7 +239,7 @@ int MainForStack() {
 //Demo
 int MainForLinkedList() {
 
-	LinkedList<string> lists;
+	LinkedList<string> lists = LinkedList<string>();
 	for (int i = 0; i < 10; ++i) {
 		lists.insertData("LinkedListData");
 	}
@@ -316,9 +316,9 @@ int MainForLinkedList() {
 	return 0;
 }
 
+
 int main() {
 	MainForStack();
 	MainForLinkedList();
-	int i[10] = {0};
 	return 0;
 }

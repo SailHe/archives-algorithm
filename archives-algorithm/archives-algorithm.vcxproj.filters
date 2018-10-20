@@ -30,9 +30,6 @@
     <ClCompile Include="src\List\Stack.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\List\数组式链表每k个元素的反转.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\Main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -40,6 +37,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Standard.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\List\VirtualList.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\List\Polynomial.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

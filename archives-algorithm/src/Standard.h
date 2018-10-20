@@ -23,12 +23,12 @@ setbase(int b)          Output integers in base 'b'(only 'b' is 8 / 10 / 16 coul
 //#include"E:\Projects\myLib\TreeObject.h"
 //#include"E:\Projects\myLib\Graph.h"
 
-#define MAX_R 1001
-#define MAX_C 1001
 #define ARRAY_TEMPLATE template<class T, class Iterator>
 
 //里面的许多标准输入输出方法模板(iterate系列)只建议用作测试 不建议实际使用
 namespace StandardExtend{
+	const int MAX_R = 1024;
+	const int MAX_C = 1024;
 	using namespace std;
 	/****************Ascll*******************/
 	char toLowerAlph(char c);
