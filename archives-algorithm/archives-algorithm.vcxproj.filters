@@ -39,6 +39,9 @@
     <ClCompile Include="src\SailHeAlgorithm.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Standard.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\List\Queue.h">
@@ -57,6 +60,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Stack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Standard.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

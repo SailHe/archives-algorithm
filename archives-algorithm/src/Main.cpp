@@ -2,6 +2,9 @@
 #include "LinkedList.h"
 #include "Stack.h"
 
+#include "Standard.h"
+using namespace StandardExtend;
+
 
 /*******************************链栈实现 后缀表达式 及其 求值****/
 //返回运算符ch的优先级 in=true表示是栈内优先级  非运算符返回-1
@@ -224,7 +227,7 @@ int MainForStack() {
 	
 	Stack<string> ss;
 	for (int i = 0; i < 10; ++i) {
-		ss.push(string("123456"));
+		ss.push(string("StackData"));
 	}
 	while (!ss.isEmpty()) {
 		cout << ss.pop() << endl;
@@ -238,12 +241,30 @@ int MainForLinkedList() {
 
 	LinkedList<string> lists;
 	for (int i = 0; i < 10; ++i) {
-		lists.insertData("123456");
+		lists.insertData("LinkedListData");
 	}
 	auto it = lists.findKth(1);
-	while (it->Next_ != NULL) {
-		cout << it->Data << endl;
+	while (it) {
+		cout << *it << endl;
+		++it;
 	}
+	
+	LinkedList<stack<string>> stackList;
+	for (int i = 0; i < 10; ++i) {
+		stack<string> s;
+		for (int i = 0; i < 10; ++i) {
+			s.push("Stack data in list");
+		}
+		stackList.insertData(s);
+	}
+	auto it2 = stackList.findKth(1);
+	StandardExtend::iterate(it2, stackList.end(), [&](auto it) {
+		auto s = *it;
+		while (!s.empty()) {
+			cout << s.top() << endl;
+			s.pop();
+		}
+	});
 
 	LinkedList<int> list1 = LinkedList<int>();
 	LinkedList<int> list2 = LinkedList<int>();
@@ -262,29 +283,29 @@ int MainForLinkedList() {
 	LinkedList<int>::Iterator iter = list1.findKth(1);
 	n = list1.length();
 	int i = 0;
-	while (iter->Next_) {
+	while (iter) {
 		++i;
 
 		LinkedList<int>::Iterator findIter = list1.findKth(i);
-		if (findIter != NULL) {
-			list3.insertInP(findIter->Data, findIter);
-			printf("find 正数第%d个元素%d\n", i, findIter->Data);
+		if (findIter) {
+			list3.insertInP(*findIter, findIter);
+			printf("find 正数第%d个元素%d\n", i, *findIter);
 		}
 		else {
 			puts("find error");
 		}
 
 		LinkedList<int>::Iterator findIterRe = list1.findKth(-1);
-		if (findIterRe != NULL) {
-			printf("find 倒数第%d个元素%d\n", 1, findIterRe->Data);
+		if (findIterRe) {
+			printf("find 倒数第%d个元素%d\n", 1, *findIterRe);
 		}
 		else {
 			puts("find error");
 		}
 
-		int deleteTemp = findIterRe->Data;
+		int deleteTemp = *findIterRe;
 		LinkedList<int>::Iterator findDataPo = list1.findData(deleteTemp);
-		if (list1.deleteInP(findDataPo) != NULL) {
+		if (list1.deleteInP(findDataPo)) {
 			printf("delete %d\n", deleteTemp);
 			list1.output();
 		}
@@ -298,5 +319,6 @@ int MainForLinkedList() {
 int main() {
 	MainForStack();
 	MainForLinkedList();
+	int i[10] = {0};
 	return 0;
 }

@@ -1,5 +1,5 @@
 #include "Standard.h" 
-namespace Standard{
+namespace StandardExtend{
 	/****************Ascll*******************/
 
 	char toLowerAlph(char c){
@@ -39,5 +39,4 @@ namespace Standard{
 	bool isAa0Equal(char a, char b){
 		return toLowerAlph(a) == toLowerAlph(b);
 	}
-
-}
+};

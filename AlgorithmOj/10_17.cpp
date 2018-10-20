@@ -27,7 +27,7 @@ setbase(int b)          Output integers in base 'b'(only 'b' is 8 / 10 / 16 coul
 
 using namespace std;
 
-namespace Standard {
+namespace StandardExtend {
 	template<class T>
 	//left <= value < right  EG: inRange(minEle, element, maxEle+1); -> element [minEle, maxEle]
 	bool inRange(T left, T value, T right) {
@@ -272,7 +272,7 @@ int main() {
 		int r = n - 1, c = 0, count = 1,  cn = n * n;
 		for (int i = 0; i < n; ++i) {
 			calcC(r, c, count++, cn);
-			Standard::outPut2DArray(table, n);
+			StandardExtend::outPut2DArray(table, n);
 			printEndLine(4 * n);
 		}
 	}

@@ -157,6 +157,7 @@
     </ClCompile>
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\SailHeAlgorithm.cpp" />
+    <ClCompile Include="src\Standard.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GetMyDade.h" />
@@ -166,6 +167,7 @@
     </ClInclude>
     <ClInclude Include="src\SailHeAlgorithm.h" />
     <ClInclude Include="src\Stack.h" />
+    <ClInclude Include="src\Standard.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

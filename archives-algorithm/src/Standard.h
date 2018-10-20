@@ -1,3 +1,8 @@
+#pragma once
+
+#ifndef _STANDARD_H_
+#define _STANDARD_H_
+//#include "stdafx.h"
 #include<stdio.h>
 #include<string.h>
 #include<string>
@@ -16,20 +21,15 @@ setw(int w)             Read or write value to 'w' characters
 setbase(int b)          Output integers in base 'b'(only 'b' is 8 / 10 / 16 could the function work)
 */
 //#include"E:\Projects\myLib\TreeObject.h"
-#include"E:\Projects\myLib\Graph.h"
-#define EPS 1E-5
-#define MAX_N 505
+//#include"E:\Projects\myLib\Graph.h"
 
 #define MAX_R 1001
 #define MAX_C 1001
-
-//#define MAX_N 1000+5
-#define MAX_INT_NUM 2147483647
-#define MIN_INT_NUM (-MAX_INT_NUM-1)
 #define ARRAY_TEMPLATE template<class T, class Iterator>
-//using namespace std;
 
-namespace Standard{
+//里面的许多标准输入输出方法模板(iterate系列)只建议用作测试 不建议实际使用
+namespace StandardExtend{
+	using namespace std;
 	/****************Ascll*******************/
 	char toLowerAlph(char c);
 
@@ -50,7 +50,7 @@ namespace Standard{
 	template<class Iterator, class Fun>
 	void iterate(Iterator left, Iterator right, Fun visit){
 		while (left != right){
-			visit(left, right);
+			visit(left);
 			++left;
 		}
 	}
@@ -61,7 +61,7 @@ namespace Standard{
 		cout << setfill(coutFillChar);
 		cout << setw(coutWidth) << *left;
 		++left;
-		iterate(left, right, [&](Iterator left, Iterator right){
+		iterate(left, right, [&](Iterator left){
 			cout << " " << setw(coutWidth) << *left;
 		});
 		puts("");
@@ -75,7 +75,7 @@ namespace Standard{
 		++left;
 		int c = 1;
 		lineWrap = lineWrap < 0 ? right - left : lineWrap;
-		iterate(left, right, [&](Iterator left, Iterator right){
+		iterate(left, right, [&](Iterator left){
 			++c;
 			if (c % lineWrap == 0){
 				//最后一个
@@ -105,7 +105,7 @@ namespace Standard{
 		int c = 0;
 		bool pastWrap = false;
 		//lineWrapFun = nullptr == lineWrapFun ? [&](){return right - left; } : lineWrapFun;
-		iterate(left, right, [&](Iterator left, Iterator right){
+		iterate(left, right, [&](Iterator left){
 			++c;
 			pastWrap = lineWrapFun(left, right);
 			if (1 == c){//第一个
@@ -152,7 +152,7 @@ namespace Standard{
 	template<class Iterator>
 	size_t rankStatistics(Iterator left, Iterator right){
 		size_t rank = 1;
-		iterate(left + 1, right, [&](Iterator left, Iterator right){
+		iterate(left + 1, right, [&](Iterator left){
 			rank += *left == *(left - 1) ? 0 : 1;
 		});
 		return rank;
@@ -162,7 +162,7 @@ namespace Standard{
 	template<class T, class Iterator>
 	T minValueStatistics(Iterator left, Iterator right, T MAX_VALUE){
 		T minValue = MAX_VALUE;
-		//iterate(left, right, [&](Iterator left, Iterator right){
+		//iterate(left, right, [&](Iterator left){
 		//	minValue = min(minValue, *left);
 		//});
 		while (left != right){
@@ -185,7 +185,7 @@ namespace Standard{
 	template<class T, class Iterator>
 	T sumValueStatistics(Iterator left, Iterator right, T ZERO_VALUE){
 		T sumValue = ZERO_VALUE;
-		iterate(left, right, [&](Iterator left, Iterator right){
+		iterate(left, right, [&](Iterator left){
 			sumValue += *left;
 		});
 		return sumValue;
@@ -196,5 +196,6 @@ namespace Standard{
 		return sumValueStatistics(left, right, ZERO_VALUE) / (double)(right - left);
 	}
 
-}
+};
 
+#endif

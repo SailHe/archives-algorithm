@@ -21,7 +21,7 @@
 #define MIN_INT_NUM (-MAX_INT_NUM-1)
 #define ARRAY_TEMPLATE template<class T, class Iterator>
 using namespace std;
-namespace Standard{
+namespace StandardExtend{
 	template<class T>
 	//left <= value < right  EG: inRange(minEle, element, maxEle+1); -> element [minEle, maxEle]
 	bool inRange(T left, T value, T right){

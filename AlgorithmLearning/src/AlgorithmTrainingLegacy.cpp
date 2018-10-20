@@ -1,6 +1,6 @@
 #include "Standard.h"
 using namespace std;
-using namespace Standard;
+using namespace StandardExtend;
 
 template<class ElementType>
 //并查集模板类
