@@ -163,9 +163,7 @@
   <ItemGroup>
     <ClInclude Include="src\GetMyDade.h" />
     <ClInclude Include="src\LinkedList.h" />
-    <ClInclude Include="src\List\Queue.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="src\Queue.h" />
     <ClInclude Include="src\SailHeAlgorithm.h" />
     <ClInclude Include="src\Stack.h" />
     <ClInclude Include="src\Standard.h" />
