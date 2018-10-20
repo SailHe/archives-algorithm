@@ -1,8 +1,8 @@
+#pragma warning(disable:4996)
 #include "stdafx.h"
 #include "LinkedList.h"
 #include "Stack.h"
 #include "Queue.h"
-
 #include "Standard.h"
 using namespace StandardExtend;
 
@@ -24,7 +24,7 @@ int MainForStack() {
 	while (!ss.isEmpty()) {
 		cout << ss.pop() << endl;
 	}
-
+	puts("Stack test end");
 	return 0;
 }
 
@@ -108,7 +108,7 @@ int MainForLinkedList() {
 }
 
 int mainForQueue() {
-	Queue q = Queue();
+	Queue<int> q;
 	for (int i = 0; i < 10; ++i) {
 		q.offer(i);
 	}
@@ -119,7 +119,31 @@ int mainForQueue() {
 	return 0;
 }
 
+int mainForDeQueue() {
+	Deque<int> q;
+	for (int i = 0; i < 10; ++i) {
+		q.offer(i);
+	}
+	while (!q.isEmpty()) {
+		cout << q.poll() << endl;
+	}
+
+	Deque<string> qs;
+	for (int i = 0; i < 10; ++i) {
+		qs.offer(string("Deque data"));
+	}
+	while (!qs.isEmpty()) {
+		cout << qs.poll() << endl;
+	}
+	puts("Deque test end");
+	return 0;
+}
+
 int main() {
+	//FILE *inFile = stdin, *outFile;
+	//freopen("input", "r", stdin);
+	//freopen_s(&inFile, "input", "r", stdin);
+	mainForDeQueue();
 	mainForQueue();
 	MainForStack();
 	MainForLinkedList();
