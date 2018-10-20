@@ -1,7 +1,23 @@
 #include "stdafx.h"
 #include "LinkedList.h"
 
-int main() {
+class Stack {
+	using StackElementType = int;
+	LinkedList<StackElementType> baseList;
+public:
+	void push(StackElementType topEle) {
+		
+	}
+	StackElementType pop();
+	bool isEmpty();
+};
+
+int MainForStack() {
+	return 0;
+}
+
+//Demo
+int MainForLinkedList() {
 	LinkedList<int> list1 = LinkedList<int>();
 	LinkedList<int> list2 = LinkedList<int>();
 	LinkedList<int> list3 = LinkedList<int>();
@@ -49,5 +65,10 @@ int main() {
 			puts("delete error");
 		}
 	}
+	return 0;
+}
+
+int main() {
+	MainForStack();
 	return 0;
 }

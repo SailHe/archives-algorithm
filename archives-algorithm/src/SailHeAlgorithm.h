@@ -16,6 +16,7 @@
 #include<list>
 #include<map>
 #include<functional>
+#include<stack>
 using namespace std;
 #define PIL 3.14159265358979//14Î»¦Ð
 #define MileByF(feet) ((feet)/5280.0)//5280 feet in a mile.

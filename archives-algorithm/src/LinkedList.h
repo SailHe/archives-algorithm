@@ -236,8 +236,8 @@ protected:
 		}
 		return NULL;
 	}
-	//将X插入L，并保持该序列的有序性，返回插入后的链表头
-	LinkedListImpl InsertData(LinkedListImpl L, ElementType X)
+	//将X插入L(保持递增序)，并保持该序列的有序性，返回插入后的链表头
+	LinkedListImpl InsertIncreaseData(LinkedListImpl L, ElementType X)
 	{
 		LinkedListImpl pn = NULL, pin = (LinkedListImpl)malloc(LEN), ptemp = NULL;
 		pin->Data = X; pin->Next_ = NULL;
@@ -245,7 +245,7 @@ protected:
 		while (pn->Next_)
 		{
 			if (X < pn->Next_->Data)
-				break;/*保持递增序*/
+				break;
 			else
 				pn = pn->Next_;
 		}
@@ -255,7 +255,7 @@ protected:
 		return L;
 	}
 	//在位置P前插入X  返回链表头 若参数P位置非法返回NULL   自带虚拟头节点 即使传入空结点 NLLL 也可以顺利插入
-	LinkedListImpl InsertInP(LinkedListImpl L, ElementType X, Position P)
+	LinkedListImpl InsertBeforeP(LinkedListImpl L, ElementType X, Position P)
 	{
 		LinkedListImpl pn = NULL, pin = (LinkedListImpl)malloc(LEN), head = (LinkedListImpl)malloc(LEN);
 		pn = head;
@@ -281,7 +281,8 @@ protected:
 		pn->Data = 0;
 		while (pn->Next_ && P) {
 			if (pn->Next_ == P) {
-				P = P->Next_;//暂用
+				//暂用
+				P = P->Next_;
 				free(pn->Next_);
 				pn->Next_ = P;
 				*DelPosition = NULL;
@@ -383,7 +384,11 @@ protected:
 
 	}
 
-	int mainForTest() {
+	/*
+	1 3 5 7 9 11 -1
+	2 4 6 8 10 12 -1
+	*/
+	int mainForLinkedList() {
 		//freopen("input", "r", stdin);
 		LinkedListImpl p1 = NULL, p2 = NULL, p = NULL;
 		LinkedListImpl pt = NULL;
@@ -411,7 +416,7 @@ protected:
 
 			Position findPosition = FindKth(p, i);
 			if (findPosition != NULL) {
-				pt = InsertInP(pt, findPosition->Data, pt);
+				pt = InsertBeforeP(pt, findPosition->Data, pt);
 				printf("find 正数第%d个元素%d\n", i, findPosition->Data);
 			}
 			else {
@@ -444,10 +449,6 @@ protected:
 		Print(pt = p);
 		return 0;
 	}
-	/*
-	1 3 5 7 9 11 -1
-	2 4 6 8 10 12 -1
-	*/
 
 public:
 	LinkedList();
@@ -556,11 +557,11 @@ typename LinkedList<ElementType>::Iterator LinkedList<ElementType>::findData(Ele
 }
 template<class ElementType>
 bool LinkedList<ElementType>::insertData(ElementType ele) {
-	return InsertData(headNode_, ele) != NULL;
+	return InsertIncreaseData(headNode_, ele) != NULL;
 }
 template<class ElementType>
 bool LinkedList<ElementType>::insertInP(ElementType ele, typename LinkedList<ElementType>::Iterator iter) {
-	return InsertInP(headNode_, ele, iter) != NULL;
+	return InsertBeforeP(headNode_, ele, iter) != NULL;
 }
 template<class ElementType>
 bool LinkedList<ElementType>::deleteInP(typename LinkedList<ElementType>::Iterator &iter) {

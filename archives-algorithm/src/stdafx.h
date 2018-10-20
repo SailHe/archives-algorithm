@@ -67,6 +67,8 @@ export(导出/出口/输出) 在定义模板类对象和模板函数时的extern功能
 
 //4字节32位 有符号无穷大0x7FFFFFFF; 双字节无符号整数的最大值是65535
 #define infinity 2147483647
+#define MAX_INT32 2147483647
+#define MIN_INT32 -MAX_INT32-1
 using namespace std;
 using namespace std::placeholders;
 

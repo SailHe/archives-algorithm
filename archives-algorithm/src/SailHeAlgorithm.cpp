@@ -1072,3 +1072,79 @@ public:
 		return this->up / this->dw;
 	}
 };
+
+
+/*判断一个字串是否回文(堆栈实现)*/
+bool plalindrome(char const*str, int len) {
+	stack<char> s;
+	int i = 0;
+	while (i < len) {
+		if (i > len / 2) {
+		nomalJudge:
+			if (s.top() != str[i])
+				return false;
+			else {
+				s.pop();
+			}
+		}
+		else if (i == len / 2) {
+			if (len % 2 == 0) {
+				goto nomalJudge;
+			}
+			else {//当且仅当长度奇数的中间位置需要特别判断
+				//do nothing;
+			}
+		}
+		else {
+			s.push(str[i]);
+		}
+		++i;
+	}
+	return true;
+}
+/*parenthesisMatching(括号匹配)*/
+bool parMat(char const*str, int len) {
+	stack<char> s;
+	for (int i = 0; i < len; ++i) {
+		/*右括号比对*/
+		if (str[i] == ')' || str[i] == ']' || str[i] == '}') {
+			char c = 0;
+			switch (str[i]) {
+			case ')':c = '('; break;
+			case ']':c = '['; break;
+			case '}':c = '{'; break;
+			default:break;
+			}
+			if (s.empty() || s.top() != c)
+				return false;
+			s.pop();
+		}
+		/*左括号压栈*/
+		else if (str[i] == '(' || str[i] == '[' || str[i] == '{') {
+			s.push(str[i]);
+		}
+		else;//do nothing
+	}
+	return s.empty();//可能还有多出来的左括号
+}
+/*返回堆栈操作的合法性*/
+bool validityOfStack(char const*str, int len, int cap) {
+	int size_ = 0;
+	for (size_t i = 0; i < len; i++) {
+		if (str[i] == 'S') {
+			if (size_ < cap)
+				++size_;
+			else
+				return false;
+		}
+		else if (str[i] == 'X') {
+			if (size_ > 0)
+				--size_;
+			else
+				return false;
+		}
+	}
+	return size_ == 0;
+}
+
+

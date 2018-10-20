@@ -83,12 +83,12 @@ int K_ReveList(int k, int *subk, int root, PStack Sta/*基本元素是下标int型*/)
 	int sub = 0;
 	if (root == -1)
 		return root;
-	for (sub = root; k-- >= 0; sub = T[sub].Next){
+	for (sub = root; k-- >= 0; sub = T[sub].Next) {
 		*subk = sub;
 		if (sub == -1 && k >= 0)/*不足k个且不是最后一个*/
 			return root;
 	}
-	for (sub = root; sub != *subk; sub = T[sub].Next){
+	for (sub = root; sub != *subk; sub = T[sub].Next) {
 		Push(Sta, sub);
 		root = sub;
 	}
@@ -105,21 +105,23 @@ int main()
 	int n, k;
 	int root, sub, subk;
 	PStack sta = CreateStack();
-	while (~scanf("%d%d%d\n", &root, &n, &k)){
-		while (n-- > 0){
+	while (~scanf("%d%d%d\n", &root, &n, &k)) {
+		while (n-- > 0) {
 			scanf("%d", &sub);
 			scanf("%d%d", &T[sub].Data, &T[sub].Next);
 		}
+		puts("");
 		root = K_ReveList(k, &subk, root, sta);
-		while (subk != -1 && T[subk].Next != -1){
+		while (subk != -1 && T[subk].Next != -1) {
 			sub = subk;
 			T[sub].Next = K_ReveList(k, &subk, T[subk].Next, sta);
 		}
-		for (sub = root; sub != -1; sub = T[sub].Next){
+		for (sub = root; sub != -1; sub = T[sub].Next) {
 			if (T[sub].Next == -1)
 				break;
 			printf("%05d %d %05d\n", sub, T[sub].Data, T[sub].Next);
-		}printf("%05d %d %d\n", sub, T[sub].Data, T[sub].Next);
+		}
+		printf("%05d %d %d\n", sub, T[sub].Data, T[sub].Next);
 	}
 	return 0;
 }
