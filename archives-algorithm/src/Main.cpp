@@ -1,18 +1,18 @@
 #include "stdafx.h"
 #include "LinkedList.h"
+#include "Stack.h"
 
-class Stack {
-	using StackElementType = int;
-	LinkedList<StackElementType> baseList;
-public:
-	void push(StackElementType topEle) {
-		
-	}
-	StackElementType pop();
-	bool isEmpty();
-};
 
 int MainForStack() {
+	Stack<int> s = Stack<int>();
+	for (int i = 0; i < 10; ++i) {
+		s.push(i);
+	}
+	while (!s.isEmpty()) {
+		printf("%d\n", s.pop());
+	}
+	//printf("%d\n", PopLinkedStack(s));
+
 	return 0;
 }
 
