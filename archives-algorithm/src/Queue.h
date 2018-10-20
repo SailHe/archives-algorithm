@@ -21,7 +21,7 @@ public:
 		DestroyLinkedListQueue(baseImpl);
 	}
 	//入队(提议)
-	void offer(LinkedListQueueElementType &job) {
+	void offer(LinkedListQueueElementType job) {
 		EnqueueLinkedListQueue(baseImpl, job);
 	}
 	//出队(投票)
@@ -45,7 +45,7 @@ protected:
 	};
 	typedef struct LinkedListQueue *PtrLinkedListQueue;
 	PtrLinkedListQueue CreateLinkedListQueue() {
-		PtrLinkedListQueue pq = (PtrLinkedListQueue)malloc(sizeof(struct LinkedListQueue));
+		PtrLinkedListQueue pq = new LinkedListQueue();
 		pq->Front = pq->Rear = NULL;
 		return pq;
 	}
@@ -56,9 +56,8 @@ protected:
 	bool IsEmptyLinkedListQueue(PtrLinkedListQueue PtrQ) {
 		return PtrQ->Front == NULL;
 	}
-	void EnqueueLinkedListQueue(PtrLinkedListQueue PtrQ, LinkedListQueueElementType job) {
-		struct LinkedListQueueNode *New = (struct LinkedListQueueNode*)malloc(sizeof(struct LinkedListQueueNode));
-		memset(New, 0, sizeof(struct LinkedListQueueNode));
+	void EnqueueLinkedListQueue(PtrLinkedListQueue PtrQ, LinkedListQueueElementType &job) {
+		struct LinkedListQueueNode *New = new LinkedListQueueNode();
 		New->Data = job;
 		if (IsEmptyLinkedListQueue(PtrQ))
 			PtrQ->Front = New;
@@ -77,7 +76,7 @@ protected:
 		else
 			PtrQ->Front = PtrQ->Front->Next;
 		FrontItem = FrontCell->Data;
-		free(FrontCell);
+		delete(FrontCell);
 		FrontCell = NULL;
 		return FrontItem;
 	}
@@ -188,9 +187,8 @@ protected:
 	}
 	//Init Dequeue (front始终不变)
 	PtrToDequeImpl CreateDeque() {
-		PtrToDequeImpl pq = (PtrToDequeImpl)malloc(sizeof(struct DequeImpl));
-		pq->Front = (struct DequeLinkedNode*)malloc(sizeof(struct DequeLinkedNode));
-		memset(pq->Front, 0, sizeof(struct DequeLinkedNode));
+		PtrToDequeImpl pq = new DequeImpl();
+		pq->Front = new DequeLinkedNode();
 		pq->Rear = pq->Front;
 		return pq;
 	}
@@ -199,9 +197,9 @@ protected:
 		dQ = nullptr;
 	}
 	//Push(X,D): Insert item X on the front end of deque D.
-	int Push(PtrToDequeImpl dQ, ElementType job) {
+	int Push(PtrToDequeImpl dQ, ElementType &job) {
 		struct DequeLinkedNode* front = dQ->Front;
-		struct DequeLinkedNode *newNode = (struct DequeLinkedNode*)malloc(sizeof(struct DequeLinkedNode));
+		struct DequeLinkedNode *newNode = new DequeLinkedNode();
 		newNode->Element = job;
 		//内存满
 		if (newNode == NULL)
@@ -229,13 +227,13 @@ protected:
 		else
 			de->Next->Last = dQ->Front;
 		dQ->Front->Next = de->Next;
-		free(de); de = NULL;
+		delete(de); de = NULL;
 		return FrontItem;
 	}
 	//Insert item X on the rear end of deque D.
-	int Inject(PtrToDequeImpl dQ, ElementType job) {
+	int Inject(PtrToDequeImpl dQ, ElementType &job) {
 		struct DequeLinkedNode* front = dQ->Front;
-		struct DequeLinkedNode *newNode = (struct DequeLinkedNode*)malloc(sizeof(struct DequeLinkedNode));
+		struct DequeLinkedNode *newNode = new DequeLinkedNode();
 		newNode->Element = job;
 		if (newNode == NULL)//内存满
 			return 0;
@@ -255,7 +253,7 @@ protected:
 		struct DequeLinkedNode* de = dQ->Rear;
 		dQ->Rear = dQ->Rear->Last;
 		dQ->Rear->Next = NULL;
-		free(de); de = NULL;
+		delete(de); de = NULL;
 		return FrontItem;
 	}
 	void PrintDeque(PtrToDequeImpl D) {

@@ -9,6 +9,10 @@ using namespace StandardExtend;
 //Demo
 
 int MainForStack() {
+	LinkedList<string> lists = LinkedList<string>();
+	for (int i = 0; i < 1; ++i) {
+		lists.insertData("LinkedListData");
+	}
 	Stack<int> s;
 	for (int i = 0; i < 10; ++i) {
 		s.push(i);
@@ -115,6 +119,13 @@ int mainForQueue() {
 	while (!q.isEmpty()) {
 		cout << q.poll() << endl;
 	}
+	Queue<string> qs;
+	for (int i = 0; i < 10; ++i) {
+		qs.offer(string("Queue data"));
+	}
+	while (!qs.isEmpty()) {
+		cout << qs.poll() << endl;
+	}
 	puts("Queue test end");
 	return 0;
 }
@@ -135,6 +146,16 @@ int mainForDeQueue() {
 	while (!qs.isEmpty()) {
 		cout << qs.poll() << endl;
 	}
+	
+	Deque<LinkedList<string>> ql;
+	for (int i = 0; i < 10; ++i) {
+		LinkedList<string> temp;
+		temp.insertData(string("Deque data in list"));
+		ql.offer(temp);
+	}
+	while (!ql.isEmpty()) {
+		ql.poll().output();
+	}
 	puts("Deque test end");
 	return 0;
 }
@@ -143,9 +164,9 @@ int main() {
 	//FILE *inFile = stdin, *outFile;
 	//freopen("input", "r", stdin);
 	//freopen_s(&inFile, "input", "r", stdin);
-	mainForDeQueue();
-	mainForQueue();
 	MainForStack();
+	mainForQueue();
+	mainForDeQueue();
 	MainForLinkedList();
 	return 0;
 }

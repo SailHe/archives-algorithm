@@ -65,7 +65,8 @@ public:
 	//拷贝构造
 	LinkedList(LinkedList const &rhs);
 	LinkedList(LinkedList const &&rvalue);
-	void operator = (LinkedList const &rhs) const = delete;
+	//void operator = (LinkedList const &rhs) const = delete;
+	void operator = (LinkedList const &rhs);
 
 	Iterator const &end() const {
 		static Iterator END = Iterator(nullptr);
@@ -477,7 +478,18 @@ protected:
 		else {
 			return NULL;
 		}
+	}
+	LinkedListNodePtr CloneLinkedList(LinkedListNodePtr RhsHead) {
+		assert(RhsHead != NULL);
+		LinkedListNodePtr Head = newNode(RhsHead->Data), P = Head;
+		RhsHead = RhsHead->Next_;
 
+		while (RhsHead != NULL){
+			P->Next_ = newNode(RhsHead->Data);
+			RhsHead = RhsHead->Next_;
+			P = P->Next_;
+		}
+		return Head;
 	}
 
 	/*
@@ -559,13 +571,15 @@ LinkedList<ElementType>::LinkedList() {
 }
 template<class ElementType>
 LinkedList<ElementType>::LinkedList(LinkedList const &rhs) {
-	//@TODO 这里有问题
-	headNode_ = NULL;
-	headNode_ = CloneNode(rhs.headNode_, false);
+	headNode_ = CloneLinkedList(rhs.headNode_);
 }
 template<class ElementType>
 LinkedList<ElementType>::LinkedList(LinkedList const &&rvalue) {
-	headNode_ = CloneNode(rvalue.headNode_, true);
+	headNode_ = CloneLinkedList(rvalue.headNode_);
+}
+template<class ElementType>
+void LinkedList<ElementType>::operator = (LinkedList const &rhs) {
+	headNode_ = CloneLinkedList(rhs.headNode_);
 }
 template<class ElementType>
 LinkedList<ElementType>::~LinkedList() {
