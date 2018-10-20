@@ -37,6 +37,9 @@ extern(ÍâÀ´µÄ) ÎªÁË·ÃÎÊÆäËû±àÒëµ¥Ôª£¨ÈçÁíÒ»´úÂëÎÄ¼þ£©ÖÐµÄ±äÁ¿»ò¶ÔÏó£¬¶ÔÆÕÍ¨ÀàÐÍ£
 export(µ¼³ö/³ö¿Ú/Êä³ö) ÔÚ¶¨ÒåÄ£°åÀà¶ÔÏóºÍÄ£°åº¯ÊýÊ±µÄextern¹¦ÄÜ
 */
 
+//ÓÃÓÚ°²È«Ìæ»»
+#define scanf scanf_s
+#define gets gets_s
 
 //µ÷ÊÔ¿ª¹Ø ¹Ø±Õºó¿É¼õÉÙÒ»Ð©²»±ØÒªµÄÅÐ¶Ï Ìá¸ßÔËÐÐÐ§ÂÊ
 #define DEBUG false

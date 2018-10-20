@@ -13,6 +13,9 @@ public:
 	void push(StackElementType topEle) {
 		PushLinkedStack(topEle, baseImpl);
 	}
+	StackElementType top() {
+		return TopLinkedStack(baseImpl);;
+	}
 	StackElementType pop() {
 		return PopLinkedStack(baseImpl);;
 	}
@@ -32,7 +35,8 @@ protected:
 	//创建一个连在LinkedListNode之前的链栈结点 返回栈头
 	LinkedStack ConnectLinkedListNode(LinkedStack LinkedListNode)
 	{
-		LinkedStack ps = (LinkedStack)malloc(sizeof(struct LinkedStackImpl));
+		//LinkedStack ps = (LinkedStack)malloc(sizeof(struct LinkedStackImpl));
+		LinkedStack ps = new LinkedStackImpl();
 		ps->Next = LinkedListNode;
 		return ps;
 	}
@@ -53,13 +57,20 @@ protected:
 		return Head->Next == NULL;
 	}
 	//返回栈顶
+	LinkedStackElementType TopLinkedStack(LinkedStack Head)
+	{
+		LinkedStack TopItemNode = Head->Next;
+		return TopItemNode->Data;
+	}
+	//删除并返回栈顶
 	LinkedStackElementType PopLinkedStack(LinkedStack Head)
 	{
 		LinkedStack TopItemNode = Head->Next;
 		LinkedStackElementType TopItem = TopItemNode->Data;
 		//如果为空IsEmptyLinkedStack(Head) 此处会异常
 		Head->Next = Head->Next->Next;
-		free(TopItemNode);
+		//free(TopItemNode);
+		delete TopItemNode;
 		TopItemNode = NULL;
 		return TopItem;
 	}
@@ -68,7 +79,8 @@ protected:
 		while (!IsEmptyLinkedStack(*ps)) {
 			PopLinkedStack(*ps);
 		}
-		free(*ps);
+		//free(*ps);
+		delete *ps;
 		*ps = NULL;
 	}
 

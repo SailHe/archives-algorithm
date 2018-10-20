@@ -1,4 +1,5 @@
 ﻿#include "../stdafx.h"
+#include "../Stack.h"
 /*****************************************************堆栈*************************************************************/
 /*
 操作对象集：含>=0个元素的有穷线性表
@@ -71,7 +72,7 @@ enum EnumDeStackTag { DOUBLE_DE_STACK, FIRST_DE_STACK, SECONDE_DE_STACK };//栈�
 typedef int DeElementType;
 typedef struct DeStackImple *DeStack;
 //动态数组实现 && 一组 两栈
-typedef struct DeStackImple
+struct DeStackImple
 {
 	DeElementType *Data;
 	int Top1;//栈标一
@@ -123,6 +124,7 @@ int IsEmptyDeStack(DeStack ps, EnumDeStackTag tag)
 	case 0:return ps->Top1 == -1 && ps->Top2 == ps->MaxSize;
 	case 1:return ps->Top1 == -1;
 	case 2:return ps->Top2 == ps->MaxSize;
+	default:return 0;
 	}
 }
 //返回栈顶
@@ -246,4 +248,3 @@ int MainForDeStack()
 	printf("%d\n", Comput(ansBuf, ps, SECONDE_DE_STACK, FIRST_DE_STACK));
 	return 0;
 }
-
