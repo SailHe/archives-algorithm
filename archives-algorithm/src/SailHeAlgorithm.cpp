@@ -10,334 +10,8 @@ XxKkIiLl 10 oO{}{}
 Pp
 lllll
 11111
-*
-/************逆向*****0*********45*******90*********135*******180********225*******270********315****/
-//int dir[8][2] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 }, { 0, -1 }, { 1, -1 } };
-const int Dir8[8][2] = { { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
-const int Dir4[4][2] = { { 0, -1 /*左*/ }, { 0, 1 /*右*/ }, { -1, 0 /*上*/ }, { 1, 0 /*下*/ } };
+*/
 
-//非聚合  点类
-class MyPoint{
-public:
-	double x, y;
-	MyPoint() = default;
-	MyPoint(double x, double y){
-		x = y, y = y;
-	}
-	MyPoint(istream &in){
-		//scanf("%lf%lf", &(this->x), &(this->y));
-		in >> this->x >> this->y;
-	}
-	MyPoint O(){
-		MyPoint O = { 0.0, 0.0 };
-		return O;
-	}
-};
-
-
-//返回两点间距离
-double dDistance(MyPoint const &p1, MyPoint const &p2){
-	double dx = p2.x - p1.x;
-	double dy = p2.y - p1.y;
-	return sqrt(dx*dx + dy*dy);
-}
-//返回由p1, p2, p3组成的三角形的面积
-double dTriangleArea(MyPoint const &p1, MyPoint const &p2, MyPoint const &p3){
-	double d12 = dDistance(p1, p2)
-		, d13 = dDistance(p1, p3)
-		, d23 = dDistance(p2, p3);
-	//海伦公式
-	double dL = (d12 + d13 + d23) / 2.0;
-	return sqrt(dL * (dL - d12) * (dL - d13) * (dL - d23));
-}
-//若点p位于p1, p2, p3组成的三角形内那么返回true 否则返回false
-bool isInternalTriangle(MyPoint const &p1, MyPoint const &p2, MyPoint const &p3, MyPoint const &p){
-	double a12p = dTriangleArea(p1, p2, p)
-		, a13p = dTriangleArea(p1, p3, p)
-		, a23p = dTriangleArea(p2, p3, p)
-		, a123 = dTriangleArea(p1, p2, p3);
-	//被那个点分割出的所有面积块之和与三角形总面积在误差范围内相等时 则在三角形内部 精度过高可能会被坑 一般1E-5即可
-	return (fabs(a123 - (a12p + a13p + a23p)) < EPS);
-}
-
-void testForTriangle(){
-	//freopen("input", "r", stdin);
-	MyPoint p1, p2, p3, p;
-	while (8 == scanf("%lf%lf%lf%lf%lf%lf%lf%lf"
-		, &p1.x, &p1.y
-		, &p2.x, &p2.y
-		, &p3.x, &p3.y
-		, &p.x, &p.y)){
-		puts(isInternalTriangle(p1, p2, p3, p) ? "Yes" : "No");
-	}
-}
-
-
-/*在一行中打印出二进制的n。递归实现。*/
-void dectobin(int n)
-{
-	if (n < 2)
-		printf("%d", n);
-	else
-	{
-		dectobin(n / 2);
-		printf("%d", n % 2);
-	}
-}
-/* 以eps为精度用 三分法 求函数F在[L, R]的最小值 */
-double divThree(double L, double R, double eps, double(*F)(double))
-{
-	double Ll, Rr;
-	while (R - L > eps)
-	{
-		Ll = (2 * L + R) / 3;/* 三分 */
-		Rr = (2 * R + L) / 3;
-		if (F(Ll) > F(Rr))
-			L = Ll;
-		else
-			R = Rr;
-	}
-	return F(L);/* 返回任一个即可 */
-}/* 练习题HDU2899 */
-/* 返回是否符合勾股定理 */
-int pythTriangle(int a, int b, int c)
-{
-	return a*a == b*b + c*c || b*b == a*a + c*c || c*c == a*a + b*b;
-}
-//ans为s1+s2(s1与s2的并集)(直接ans.push_back(temp)即可没必要建实际生物s1与s2)
-//返回s1与s2并集的中位数, ans为s1+s2(直接push_back即可) a0,a1,a2...an-1的中位数指a[(n-1)/2] (共n个数)即第(n+1)/2个数(a0为第一个数)
-int median(vector<int> ans){
-	sort(ans.begin(), ans.end());
-	if (ans.size() % 2 == 0)
-		return ans[ans.size() / 2 - 1];
-	else
-		return ans[ans.size() / 2];
-}
-/*汉诺塔递归解法*/
-void move(int n, char a, char b, char c)
-{/* Move(n,'A','B','C');*/
-	if (n == 1)
-		printf("%c To %c\n", a, c);    //当n只有1个的时候直接从a移动到c
-	else
-	{
-		move(n - 1, a, c, b);            //第n-1个要从a通过c移动到b
-		printf("%c To %c\n", a, c);
-		move(n - 1, b, a, c);            //n-1个移动过来之后b变开始盘，b通过a移动到c，这边很难理解
-	}
-}
-/*大数整除判断*/
-int divisible(char *Bigint, int MOD)
-{
-	int len = strlen(Bigint);
-	int ans, i;
-	for (ans = i = 0; i < len; i++){
-		ans = (ans * 10 + (Bigint[i] - '0')) % MOD;
-	}
-	return ans == 0 ? true : false;
-}
-/*清空输入流直至遇到end字符*/
-void refresh(char end)
-{
-	while (getchar() != end);
-}
-/*两点间距离*/
-double dis(MyPoint a, MyPoint b)
-{
-	return sqrt((a.x - b.x)*(a.x - b.x) + (a.y - b.y)*(a.y - b.y));
-}
-/*起点-终点-跳跃能力-活动半径*/
-int jump(MyPoint s, MyPoint e, double Power, double R)
-{
-	return dis(s, e) <= R + Power;
-}
-//引用实现 易爆
-void swapMy(int &a, int &b)
-{
-	a += b;
-	b = a - b;
-	a = a - b;
-}
-//返回与参数的时间差（单位：小时）
-double getDifftime(time_t t_start)
-{
-	time_t t;
-	double all;
-	time(&t);
-	all = difftime(t, t_start);
-	return all / 3600;
-	/*
-	clock_t Start = clock();
-	clock_t Stop = clock();
-	printf("矩阵乘法执行时间：%lf\n", (double)(Stop - Start)/CLK_TCK);
-	*/
-}
-/*返回错排表 最大26个*/
-__int64* illArrange()
-{
-	__int64 *M = (__int64*)malloc(26 * sizeof(__int64));
-	M[0] = 0, M[1] = 1, M[2] = 1;
-	for (int n = 3; n < 26; n++)
-		M[n] = (n - 1) * (M[n - 1] + M[n - 2]);
-	return M;
-}
-/*矩阵乘法 Product = Product*a两矩阵不能相同*/
-void matrixMultiply(const int n, int(*a)[25], int Product[][25]/*矩阵积*/)
-{
-	int r, c, i, tmp;
-	int b[25][25];
-	memcpy(b, Product, n*25 * 4);
-	for (r = 0; r < n; r++)
-	{
-		for (c = 0; c < n; c++)
-		{
-			for (tmp = i = 0; i < n; i++)//行列遍历对应相乘 累加给tmp 再赋给 Product
-				tmp += a[r][i] * b[i][c];
-			Product[r][c] = tmp;
-		}
-	}
-}
-
-//输出digit中lhs到rhs的全排列  非字典序
-void penetration(char *digit, int lhs, int rhs){
-	if (lhs == rhs)
-		puts(digit);
-	else{
-		for (int i = lhs; i <= rhs; i++){
-			swap(digit[lhs], digit[i]);
-			penetration(digit, lhs + 1, rhs);
-			swap(digit[lhs], digit[i]);
-		}
-	}
-}
-/*输出数字1-n的全排列*/
-void pentration(int n){
-	char digit[11] = "123456789";
-	digit[n] = '\0';
-	//penetration(digit, 0, n - 1);
-	do{
-		puts(digit);//求下一个排列数 #include<algorithm>
-	} while (next_permutation(digit, digit + n));
-	digit[n] = n + '0';
-}
-//反转maxR行的二维数组a 每行位于区间[列cSt,列cEn)的元素
-void reversal(int a[][105], int cSt, int cEn, int maxR = 1) {
-	for (int r = 0; r < maxR; r++) {
-		for (int c = cSt, i = 0; i < (cEn - cSt) / 2; i++, c++){
-			int temp = a[r][c];
-			a[r][c] = a[r][cEn - i - 1];
-			a[r][cEn - i - 1] = temp;
-		}
-	}
-}
-/*将R行 C列的二维数组向左移k位*/
-void leftMoveK(int a[][105], int R, int C, int k){
-	/*
-	8 3
-	1 2 3 4 5 6 7 8
-	8 7 6 5 4/ 3 2 1
-	4 5 6 7 8/ 1 2 3
-	*/
-	k %= C;
-	reversal(a, 0, C, R);/*反转所有元素*/
-	reversal(a, 0, C - k, R);/*反转前C-k个元素*/
-	reversal(a, C - k, C, R);/*反转后k个元素*/
-}
-/*右移k位<==>左移C-k位 leftMoveK(a, R, C, C-k); <==> rightMoveK(a, R, C, k);*/
-void rightMoveK(int a[][105], int R, int C, int k){
-	/*
-	8 3
-	1 2 3 4 5 6 7 8
-	8 7 6/ 5 4 3 2 1
-	6 7 8/ 1 2 3 4 5
-	*/
-	k %= C;
-	reversal(a, 0, C, R);
-	reversal(a, 0, k, R);/*反转前k个元素*/
-	reversal(a, k, C, R);/*反转后C-k个元素*/
-}
-//逆序数
-int Reverse(int number)
-{
-	int temp = number;
-	int sum = 0, product = 1;
-	int top = 0;
-	int temptop;
-	for (top = 0; temp != 0; temp /= 10, top++);
-	//for (top = 1; temp /= 10; top++);
-	temp = number;
-	while (temp != 0)
-	{
-		temptop = top-- - 1;
-		product = 1;
-		while (temptop-- != 0)
-		{
-			product *= 10;
-		}
-		sum += (temp % 10) * product;
-		temp /= 10;
-	}
-	return sum;
-}
-//返回数字x中D出现的次数
-int digitCountD(const int x, const int D)
-{
-	int temp = x;
-	int count = 0;
-	do
-	{
-		count += ((temp % 10) > 0 ? (temp % 10) : -(temp % 10)) == D ? 1 : 0;
-		temp /= 10;
-	} while (temp != 0);
-	return count;
-}
-//获取整数的位数
-int digitTop(int number)
-{
-	int top = 1;
-	while (number /= 10)top++;
-	return top;
-}
-//删除res中的字符字串del
-void delssInS(char *res, char *del)
-{
-	int i, res_len, del_len;
-	char *p;
-	del_len = strlen(del);
-	res_len = strlen(res);
-
-	for (p = strstr(res, del); p != NULL; p = strstr(res, del))
-	{
-		for (i = p - res; i < res_len - del_len + 1; i++)
-		{
-			res[i] = res[i + del_len];
-		}
-		res_len = strlen(res);
-	}
-}
-/*计算第一个最长连续递增子序列(longest continuous increment sequence)*/
-//返回长度 参数:用于储存最长连续子序列的区间[lhs, rhs)
-size_t lonConIncSeq(const vector<int> a, int &lhs, int &rhs){
-	int maxLen = 0, n = a.size();
-	lhs = 0, rhs = -1;//rhs==-1使计算其初是长度时为0
-	for (int l = 0, r = 0, len = 0;; ++r){
-		len = r - l + 1;
-		maxLen = rhs - lhs + 1;
-		/*更新最长递增子列 (第一个子序列:不取等)*/
-		if (len > maxLen){
-			lhs = l, rhs = r;
-		}
-		else{}
-		if (r >= n - 1)
-			break;//r < n - 1 保证n==1时正确
-		if (a[r] < a[r + 1]){}
-		//当前子列不是递增子列
-		else{
-			l = r + 1;//重置局部递增子列
-		}
-	}
-	++rhs;
-	return maxLen;
-}
 /*********************************************排 序********************************************************/
 
 /*qsort(a, 排序长度, 一个元素的大小, intCmp);*/
@@ -507,8 +181,8 @@ I64* catalanTable(){
 	return cata;
 }
 //tmp = pow(iNum, 2)的后面几位 待研究func
-int f(int iNum, int m){
-	int tmp = 0;
+long long f(int iNum, int m){
+	long long tmp = 0;
 	for (long long w = m; w > 0; w /= 10)
 	{
 		long long d = (iNum / w - (iNum / (10 * w)) * 10)*w;
@@ -518,9 +192,9 @@ int f(int iNum, int m){
 	return tmp;
 }
 /**************************************************************************/
-__int64 Quickfact(__int64 a, __int64 b, __int64 mod)
+I64 Quickfact(I64 a, I64 b, I64 mod)
 {
-	__int64 ans = 0;
+	I64 ans = 0;
 	while (b)
 	{
 		if (b & 1)
@@ -532,9 +206,9 @@ __int64 Quickfact(__int64 a, __int64 b, __int64 mod)
 	}
 	return ans;
 }
-__int64 Quickpow(__int64 C, __int64 R, __int64 k)
+I64 Quickpow(I64 C, I64 R, I64 k)
 {
-	__int64 ans = 1;
+	I64 ans = 1;
 	while (R > 0)
 	{
 		R & 1 ? ans = Quickfact(ans, C, k) : ans;
@@ -755,7 +429,7 @@ void linearEquation(int a, int &x, int b, int &y, int c){
 	int hasSwap = false;
 	if (a < b) swap(a, b), hasSwap = true;
 	I64 x0, y0;
-	int g = gcdEx(a, b, x0, y0);
+	I64 g = gcdEx(a, b, x0, y0);
 	x0 = x0*c / g;
 	y0 = y0*c / g;
 	int tB = y0*g / a;
@@ -1146,5 +820,8 @@ bool validityOfStack(char const*str, int len, int cap) {
 	}
 	return size_ == 0;
 }
+
+
+
 
 

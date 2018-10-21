@@ -33,9 +33,6 @@
     <ClCompile Include="src\SailHeAlgorithm.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Standard.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\List\LinkedList.cpp">
       <Filter>源文件\List</Filter>
     </ClCompile>
@@ -60,15 +57,15 @@
     <ClCompile Include="src\Graph\Graph_C.cpp">
       <Filter>源文件\Graph</Filter>
     </ClCompile>
+    <ClCompile Include="src\ExtendSpace.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GetMyDade.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\SailHeAlgorithm.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Standard.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\LinkedList.h">
@@ -86,9 +83,6 @@
     <ClInclude Include="src\Graph\TreeObject.h">
       <Filter>头文件\Graph</Filter>
     </ClInclude>
-    <ClInclude Include="src\Graph\TreeUtilityh.h">
-      <Filter>头文件\Graph</Filter>
-    </ClInclude>
     <ClInclude Include="src\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -96,6 +90,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Graph\Tree_C.h">
+      <Filter>头文件\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ExtendSpace.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graph\TreeUtility.h">
       <Filter>头文件\Graph</Filter>
     </ClInclude>
   </ItemGroup>

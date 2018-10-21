@@ -163,7 +163,7 @@
     </ClCompile>
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\SailHeAlgorithm.cpp" />
-    <ClCompile Include="src\Standard.cpp" />
+    <ClCompile Include="src\ExtendSpace.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GetMyDade.h" />
@@ -172,13 +172,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="src\Graph\TreeObject.h" />
-    <ClInclude Include="src\Graph\TreeUtilityh.h" />
+    <ClInclude Include="src\Graph\TreeUtility.h" />
     <ClInclude Include="src\JavaContainerExtend.h" />
     <ClInclude Include="src\LinkedList.h" />
     <ClInclude Include="src\Queue.h" />
     <ClInclude Include="src\SailHeAlgorithm.h" />
     <ClInclude Include="src\Stack.h" />
-    <ClInclude Include="src\Standard.h" />
+    <ClInclude Include="src\ExtendSpace.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

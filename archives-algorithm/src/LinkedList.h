@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "Standard.h"
+//#include "ExtendSpace.h"
 
 template<class ElementType>
 class LinkedList {

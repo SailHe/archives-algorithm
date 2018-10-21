@@ -3,7 +3,7 @@
 
 #include"../stdafx.h"
 //#include"../JavaContainerExtend.h"
-#include"../Standard.h"
+#include"../ExtendSpace.h"
 
 /*
 const int DIR4x[] = { -1, 0, 1, 0 };
