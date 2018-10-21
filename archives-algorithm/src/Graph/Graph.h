@@ -2,6 +2,32 @@
 #define __GRAPH_H
 
 #include"../stdafx.h"
+//#include"../JavaContainerExtend.h"
+#include"../Standard.h"
+
+/*
+const int DIR4x[] = { -1, 0, 1, 0 };
+const int DIR4y[] = { 0, 1, 0, -1 };
+extern const int Dir8[8][2];
+extern const int Dir4[4][2];
+*/
+const int DIR84R[] = { 1, 0, -1, 0, 1, -1, -1, 1 };
+const int DIR84C[] = { 0, 1, 0, -1, 1, 1, -1, -1 };
+enum DirCountEnum { DIR4 = 4, DIR8 = 8 };
+typedef pair<int, int> DirectionVector;//在做加法运算时 它的first 与 second与习惯的表示xy rc的意义相同
+const DirectionVector DIR84[8] = {//加了extern 会出现重定义问题
+	/*r轴正方向->第4123象限 便于调试 顺序不能随意更改*/
+	{ 1, 0 }/*下*/,
+	{ 0, 1 }/*右*/,
+	{ -1, 0 }/*上*/,
+	{ 0, -1 }/*左*/,
+
+	{ 1, 1 }/*右下*/,
+	{ 1, -1 }/*右上*/,
+	{ -1, -1 }/*左上*/,
+	{ -1, 1 }/*左下*/,
+};
+
 
 struct Point2Base{
 	//结论：在没有涉及绘图时最好用SubTwain 何况图中存的顶点根本就不是点好嘛。。。
@@ -41,7 +67,7 @@ struct SubTwain{
 	}
 	/**/
 	/*可考虑将实现提出到一个文件这么一来就没必要Point2Base转换了*/
-	SubTwain &SubTwain::operator = (Point2Base const &rhs){
+	SubTwain &operator = (Point2Base const &rhs){
 		r = rhs.y, c = rhs.x;
 		return *this;
 	}
@@ -363,6 +389,10 @@ public:
 	template<class Fun>
 	void setCustomVisit(Fun const &customVisit){
 		this->customVisit = customVisit;
+	}
+	//返回边数
+	size_t getEdgeNum() const {
+		return edgeNum;
 	}
 protected:
 
@@ -702,13 +732,13 @@ public:
 		}
 	}
 	/* 邻接表存储 - 拓扑排序算法: 若图中不存在回路 则计算成功 返回true*/
-	bool topologySort(ArrayList<VertexKey> &topOrderBuffer){
+	bool topologySort(StandardExtend::ArrayList<VertexKey> &topOrderBuffer){
 		/* 对Graph进行拓扑排序,  topOrderBuffer[]顺序存储排序后的顶点下标 */
 		topOrderBuffer.resize(vertexNum);
 		vector<VertexKey> indegree(vertexNum);
 		//queue<VertexKey> q;
 		//保证在同等排名下优先输出序号小的
-		priority_queue<VertexKey, ArrayList<VertexKey>, greater<VertexKey>> q;
+		priority_queue<VertexKey, StandardExtend::ArrayList<VertexKey>, greater<VertexKey>> q;
 	}
 };
 
@@ -811,13 +841,13 @@ public:
 	}
 
 	/* 邻接表存储 - 拓扑排序算法: 若图中不存在回路 则计算成功 返回true*/
-	bool topologySort(ArrayList<VertexKey> &topOrderBuffer){
+	bool topologySort(StandardExtend::ArrayList<VertexKey> &topOrderBuffer){
 		/* 对Graph进行拓扑排序,  topOrderBuffer[]顺序存储排序后的顶点下标 */
 		topOrderBuffer.resize(vertexNum);
 		vector<VertexKey> indegree(vertexNum);
 		//queue<VertexKey> q;
 		//保证在同等排名下优先输出序号小的
-		priority_queue<VertexKey, ArrayList<VertexKey>, greater<VertexKey>> q;
+		priority_queue<VertexKey, StandardExtend::ArrayList<VertexKey>, greater<VertexKey>> q;
 
 		/* 遍历图，得到indegree[] edgeData.size()*/
 		for (size_t v = 0; v < vertexNum; ++v){

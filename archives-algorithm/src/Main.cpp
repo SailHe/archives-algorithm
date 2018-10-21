@@ -5,7 +5,8 @@
 #include "Queue.h"
 #include "Standard.h"
 #include "Graph\TreeObject.h"
-using namespace StandardExtend;
+#include "Graph\Graph.h"
+//using namespace StandardExtend;
 
 //Demo
 
@@ -203,11 +204,69 @@ int mainForBinSearchTree() {
 	return 0;
 }
 
+/*
+小写字母，01反、且2点对换；有2点重合
+7
+A 1 B 1 C 1 D 3 E 3 F 6 G 6
+1
+A 00000
+B 00001
+C 0001
+D 001
+E 00
+F 10
+G 11
+*/
+int mainForHuffumanTree()
+{
+	const int N = 63;
+	int CodeWPL;//标准
+	int i, n, Freq[N + 1] = { 0 };
+	//int j, m;
+	char ch[N + 1], s[N][2 * N];
+	while (~scanf("%d\n", &n)) {
+		Freq[0] = n; memset(s, 0, N*N);
+		memset(ch, 0, N + 1); ch[0] = 32;//初始化
+		for (i = 1; i <= n; i++) {
+			ch[i] = getchar();
+			scanf("%d", Freq + i);
+			getchar();
+		}
+		HuffmanTree<char> T(ch, Freq, n);
+		CodeWPL = T.wpl();
+	}return 0;
+}
+
+int mainForGraph() {
+	Graph *g = new AdjacentMatrixGraph(10);
+	for (int i = 0; i < 10; ++i) {
+		g->insertEdge(Graph::Edge(0, i, 10));
+		//重复添加视为更新
+		g->insertEdge(Graph::Edge(0, i, 11));
+	}
+	for (int i = 0; i < 10; ++i) {
+		g->insertEdge(Graph::Edge(1, i, 5));
+		g->insertEdge(Graph::Edge(i, 1, 5));
+	}
+	cout << "边数: " << g->getEdgeNum() << endl;
+	StandardExtend::ArrayList<Graph::VertexKey> dist, path;
+	g->shortestPath(0, dist, path);
+	cout << "由0号顶点出发的最短距离值: " << endl;
+	StandardExtend::outPutIterable(dist.begin(), dist.end(), 2);
+	cout << "由0号顶点出发的最短路径: " << endl;
+	StandardExtend::outPutIterable(path.begin(), path.end(), 2);
+	delete g; g = nullptr;
+	cout << "Graph test end" << endl;
+	return 0;
+}
+
 int main() {
 	//FILE *inFile = stdin, *outFile;
 	//freopen("input", "r", stdin);
 	//freopen_s(&inFile, "input", "r", stdin);
 	//mainForExpressionTree();
+	//mainForHuffumanTree();
+	mainForGraph();
 	mainForBinSearchTree();
 	MainForStack();
 	mainForQueue();

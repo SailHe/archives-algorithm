@@ -1304,7 +1304,7 @@ protected:
 	int getLeftScaleL(double n){
 		/*2^h - 1 + x = n*/
 		int h = (int)log2(n + 1);/*向下取整*/
-		int x = n + 1 - (int)pow(2.0, h);/*最下层单出的结点数*/
+		int x = (int)(n + 1 - pow(2.0, h));/*最下层单出的结点数*/
 		return (int)pow(2.0, h - 1) - 1 + Min(x, (int)pow(2.0, h - 1));
 	}
 	Position getLeftChild(Position t){
@@ -1505,7 +1505,7 @@ protected:
 	}
 
 	/*下滤函数 将H中以H->Data[p]为根的子堆调整为最大或最小或最小堆*/
-	void PercoDown(int Start, char *Order){
+	void PercoDown(int Start, char const *Order){
 		int Parent, Child;
 		Element x;
 		/*下滤：取出自己          从自己开始找到一个合适的位置*/
@@ -1535,7 +1535,8 @@ protected:
 	//子结点分离:解除父亲结点对孩子结点的链接
 	void unlinkToParent(Position delChild){
 		Position parent = getParent(delChild);
-		if (!empty(parent))
+		//if (!empty(parent))
+		if (parent != nullptr)
 			linkToChildren(parent);//若size已经--那么越界无效valid的子结点会被置NULL
 	}
 };
@@ -1550,7 +1551,8 @@ template<class T>
 class HuffmanTree : public BinTree<T>{
 protected:
 	using BinTree<T>::root;
-	using Position = typename BinTree<T>::Position;//子类需要递归子结点的地方必定用到Left-Right只能用BinTree的Position-论getValue()存在的必要性
+	//子类需要递归子结点的地方必定用到Left-Right只能用BinTree的Position-论getValue()存在的必要性
+	using Position = typename BinTree<T>::Position;
 	using Element = typename BinTree<T>::Element;
 	typedef class HuTrNode : public BinTree<T>::BTNode{
 	public:

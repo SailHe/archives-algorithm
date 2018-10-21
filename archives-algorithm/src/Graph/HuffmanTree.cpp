@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define scanf scanf_s
 #define N 63
-#define ERRORHeap NULL
 typedef struct HuffmanTreeNode *HuffmanTree;/*哈夫曼树*/
 struct HuffmanTreeNode{
 	int Weight;
@@ -77,7 +78,7 @@ void InsertHeap(Heap H, ElementTypeHeap Item, int Cmp(const void *min, const voi
 	H->Data[i] = Item;/*插入*/
 }
 /*下滤函数 将H中以H->Data[p]为根的子堆调整为最大或最小或最小堆*/
-void PercoDown(Heap H, int Start, int Cmp(const void *min, const void *max), char *Order)
+void PercoDown(Heap H, int Start, int Cmp(const void *min, const void *max), char const *Order)
 {
 	int Parent, Child;
 	ElementTypeHeap X;
@@ -103,7 +104,7 @@ ElementTypeHeap DeleteHeap(Heap H, int Cmp(const void *min, const void *max))
 	ElementTypeHeap Item;
 	if (IsEmptyHeap(H)){
 		puts(H->Type == MAXHeap ? "最大堆已空 无法删除" : "最小堆已空 无法删除");
-		return ERRORHeap;
+		return NULL;
 	}
 	Item = H->Data[1];/*取出即将返回的值*/
 	/*矛盾在于:Size--删除的是尾元素 但是根据堆的定义我们应该删除1号元素
@@ -206,63 +207,6 @@ bool JudgeCodePre(int n, char s[/*n*/][2 * N])
 	}
 	return 1;
 }
-
-//返回一个仅含大写英文字母和下划线的句子的哈夫曼编码所占内存,普通编码memory = sentence.length()*8
-int huffmanMemory(string sentence){
-	int freq[MAXN];
-	memset(freq, 0, MAXN * 4);
-
-	for (unsigned i = 0; i < sentence.length(); ++i){
-		if (sentence[i] == '_')
-			freq[26]++;
-		else{
-			freq[sentence[i] - 'A']++;
-		}
-	}
-	priority_queue<int, vector<int>, greater<int> > q;
-
-	for (int i = 0; i < MAXN; ++i){
-		if (freq[i] != 0)
-			q.push(freq[i]);
-	}
-	int tmp = 0, mem = 0;
-	while (q.size() > 1){
-		tmp = q.top(); q.pop();
-		tmp += q.top();
-		q.pop();
-		q.push(tmp);
-		mem += tmp;//其实就是把越小的频率反复多加几次，越大的频率少加几次
-	}
-	return mem == 0 ? sentence.length() : mem;
-}
-/**
-int main()
-{
-	int CodeWPL;//标准
-	int i, j, n, m, Freq[N + 1] = { 0 };
-	HuffmanTree T;
-	char ch[N+1], s[N][2*N];
-	while (~scanf("%d\n", &n)){
-		Freq[0] = n; memset(s, 0, N*N);
-		memset(ch, 0, N + 1); ch[0] = 32;//初始化
-		for(i = 1;i <= n;i++){
-			ch[i] = getchar();
-			scanf("%d", Freq + i);
-			getchar();
-		}
-		T = Huffman(Freq);
-		CodeWPL = WPL(T, 0);
-		scanf("%d\n", &m);//学生数
-		for (i = 0; i < m; i++){
-			for (j = 0; j < n; j++){
-				ch[0] = getchar();
-				scanf("%s", s[j]);
-				getchar();
-			}
-			puts(JudgeCodeLen(n, s, Freq, CodeWPL) && JudgeCodePre(n, s)? "Yes" : "No");
-		}
-	}return 0;
-}
 /*
 小写字母，01反、且2点对换；有2点重合
 7
@@ -275,5 +219,31 @@ D 001
 E 00
 F 10
 G 11
-
 */
+int mainForHuffman_C()
+{
+	int CodeWPL;//标准
+	int i, j, n, m, Freq[N + 1] = { 0 };
+	HuffmanTree T;
+	char ch[N + 1], s[N][2 * N];
+	while (~scanf("%d\n", &n)) {
+		Freq[0] = n; memset(s, 0, N*N);
+		memset(ch, 0, N + 1); ch[0] = 32;//初始化
+		for (i = 1; i <= n; i++) {
+			ch[i] = getchar();
+			scanf("%d", Freq + i);
+			getchar();
+		}
+		T = Huffman(Freq);
+		CodeWPL = WPL(T, 0);
+		scanf("%d\n", &m);//学生数
+		for (i = 0; i < m; i++) {
+			for (j = 0; j < n; j++) {
+				ch[0] = getchar();
+				scanf("%s", s[j], 2*N);
+				getchar();
+			}
+			puts(JudgeCodeLen(n, s, Freq, CodeWPL) && JudgeCodePre(n, s) ? "Yes" : "No");
+		}
+	}return 0;
+}

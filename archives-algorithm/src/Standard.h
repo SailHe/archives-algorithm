@@ -10,18 +10,41 @@
 #include<vector>
 #include<iostream>
 #include<queue>
-#include<functional>//greater
+#include<functional>
 #include<list>
 #include<stack>
 #include<map>
-#include<iomanip>//cout各种操纵器
-/*setfill(char ch)        Fill whitespace with 'ch'
+#include<iomanip>
+/*
+setfill(char ch)        Fill whitespace with 'ch'
 setprecision(int n)     Set floating - point precision to 'n'
 setw(int w)             Read or write value to 'w' characters
 setbase(int b)          Output integers in base 'b'(only 'b' is 8 / 10 / 16 could the function work)
 */
-//#include"E:\Projects\myLib\TreeObject.h"
-//#include"E:\Projects\myLib\Graph.h"
+
+/*与Biology相关的三种类型:人物 怪物 管理员*/
+enum TYPE { PLAYER, PEOPLE, MANAGER, MONSTER };
+enum STATUS { NORMAL, ABNORMAL, CONK, QUIT, BLOCKING, BYPASS };//正常 异常 昏迷(死亡用成员方法判断) 退出 被阻挡 绕行状态
+/*视图: up(向上)->背影, down->正面, left->左, right->右  ViewCount:视图个数*/
+enum View { BACK, FRONT, LEFT, RIGHT, ViewCount };
+//用于指定动画静止时是播放哪一帧(起始帧, 上一帧)
+enum StaticFrameEnum { ORIGIN_FRAME, PAST_FRAME };
+enum STEP { STEP_X_AXIS, STEP_Y_AXIS };//步进方向
+enum MODE { ON, OFF, UNDEFINED };//模式
+//using Package = vector<pair<int, int>>;/*背包类*/
+//constant.h
+const View defaultView = BACK;//默认视图(此值转换为int必须是0)
+
+const double EPSINON = 1e-15;
+const double EPS = 1e-9;
+const double PI = 3.14159265;//八位π
+const double PIA = acos(-1.0);//蓝桥杯可用
+
+typedef int Sub;//下标类型
+typedef Sub RowsSub;//行标类型
+typedef Sub ColsSub;//列标类型
+typedef __int64 I64;
+
 
 #define ARRAY_TEMPLATE template<class T, class Iterator>
 
@@ -30,6 +53,13 @@ namespace StandardExtend{
 	const int MAX_R = 1024;
 	const int MAX_C = 1024;
 	using namespace std;
+	//可变数组
+	template<typename T>using Varrays = vector<T>;
+	//数组表
+	template<typename T>using ArrayList = vector<T>;
+	//邻接表
+	template<typename T>using LinkedList = list<T>;
+
 	/****************Ascll*******************/
 	char toLowerAlph(char c);
 
@@ -57,20 +87,22 @@ namespace StandardExtend{
 
 	template<class Iterator>
 	//coutFillChar表示填充字符 相当于printf的%02d 中的'0' coutWidth表示其中的2
-	void outPutIterable(Iterator left, Iterator right, char coutFillChar = 0, size_t coutWidth = 4){
+	void outPutIterable(Iterator left, Iterator right, size_t coutWidth = 0, char coutFillChar = '\0'){
 		cout << setfill(coutFillChar);
-		cout << setw(coutWidth) << *left;
-		++left;
+		int count = -1;
 		iterate(left, right, [&](Iterator left){
-			cout << " " << setw(coutWidth) << *left;
+			cout << (++count == 0 ? "" : " ") << setw(coutWidth) << *left;
 		});
 		puts("");
 	}
 
 	template<class Iterator>
 	//lineWrap 隔多少行换行 小于0 表示输出结束换行
-	void outPutIterable(Iterator left, Iterator right, char coutFillChar, size_t coutWidth, int lineWrap){
+	void outPutIterable(Iterator left, Iterator right, size_t coutWidth, char coutFillChar, int lineWrap){
 		cout << setfill(coutFillChar);
+		if (left == right) {
+			return;
+		}
 		cout << *left;
 		++left;
 		int c = 1;

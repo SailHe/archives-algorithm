@@ -62,9 +62,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\stdafx.h">
-      <Filter>源文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\GetMyDade.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -94,6 +91,12 @@
     </ClInclude>
     <ClInclude Include="src\Graph\TreeUtilityh.h">
       <Filter>头文件\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\JavaContainerExtend.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

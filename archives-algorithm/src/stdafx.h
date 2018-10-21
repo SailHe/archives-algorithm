@@ -80,55 +80,6 @@ export(导出/出口/输出) 在定义模板类对象和模板函数时的extern功能
 using namespace std;
 using namespace std::placeholders;
 
-/*与Biology相关的三种类型:人物 怪物 管理员*/
-enum TYPE{ PLAYER, PEOPLE, MANAGER, MONSTER };
-enum STATUS{ NORMAL, ABNORMAL, CONK, QUIT, BLOCKING, BYPASS };//正常 异常 昏迷(死亡用成员方法判断) 退出 被阻挡 绕行状态
-/*视图: up(向上)->背影, down->正面, left->左, right->右  ViewCount:视图个数*/
-enum View{ BACK, FRONT, LEFT, RIGHT, ViewCount };
-//用于指定动画静止时是播放哪一帧(起始帧, 上一帧)
-enum StaticFrameEnum{ ORIGIN_FRAME, PAST_FRAME };
-enum STEP{ STEP_X_AXIS, STEP_Y_AXIS };//步进方向
-enum MODE{ ON, OFF, UNDEFINED };//模式
-//constant.h
-const View defaultView = BACK;//默认视图(此值转换为int必须是0)
-const double EPSINON = 1e-15;
-const double EPS = 1e-9;
-const double PI = 3.14159265;//八位π
-const double PIA = acos(-1.0);//蓝桥杯可用
-/*
-const int DIR4x[] = { -1, 0, 1, 0 };
-const int DIR4y[] = { 0, 1, 0, -1 };
-extern const int Dir8[8][2];
-extern const int Dir4[4][2];
-*/
-const int DIR84R[] = { 1, 0, -1, 0, 1, -1, -1, 1 };
-const int DIR84C[] = { 0, 1, 0, -1, 1, 1, -1, -1 };
-enum DirCountEnum{ DIR4 = 4, DIR8 = 8 };
-typedef pair<int, int> DirectionVector;//在做加法运算时 它的first 与 second与习惯的表示xy rc的意义相同
-const DirectionVector DIR84[8] = {//加了extern 会出现重定义问题
-	/*r轴正方向->第4123象限 便于调试 顺序不能随意更改*/
-	{ 1, 0 }/*下*/,
-	{ 0, 1 }/*右*/,
-	{ -1, 0 }/*上*/,
-	{ 0, -1 }/*左*/,
-
-	{ 1, 1 }/*右下*/,
-	{ 1, -1 }/*右上*/,
-	{ -1, -1 }/*左上*/,
-	{ -1, 1 }/*左下*/,
-};
-//可变数组
-//template<typename T>using Varrays = vector<T>;
-////数组表
-//template<typename T>using ArrayList = vector<T>;
-////邻接表
-//template<typename T>using LinkedList = list<T>;
-//
-//using Package = vector<pair<int, int>>;/*背包类*/
-//typedef int Sub;//下标类型
-//typedef Sub RowsSub;//行标类型
-//typedef Sub ColsSub;//列标类型
-//typedef __int64 I64;
 //_ASSERTE(_CrtCheckMemory());//内存检查
 
 #endif
