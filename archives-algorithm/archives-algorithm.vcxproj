@@ -139,13 +139,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Graph\Graph_with_C.cpp">
+    <ClCompile Include="src\Graph\Graph_C.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\Graph\HuffmanTree.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\Graph\Tree.cpp">
+    <ClCompile Include="src\Graph\Tree_C.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\List\LinkedList.cpp" />
@@ -168,7 +168,7 @@
   <ItemGroup>
     <ClInclude Include="src\GetMyDade.h" />
     <ClInclude Include="src\Graph\Graph.h" />
-    <ClInclude Include="src\Graph\Tree.h">
+    <ClInclude Include="src\Graph\Tree_C.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="src\Graph\TreeObject.h" />

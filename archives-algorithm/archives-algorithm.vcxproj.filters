@@ -51,13 +51,13 @@
     <ClCompile Include="src\List\VirtualList.cpp">
       <Filter>源文件\List</Filter>
     </ClCompile>
-    <ClCompile Include="src\Graph\Graph_with_C.cpp">
-      <Filter>源文件\Graph</Filter>
-    </ClCompile>
     <ClCompile Include="src\Graph\HuffmanTree.cpp">
       <Filter>源文件\Graph</Filter>
     </ClCompile>
-    <ClCompile Include="src\Graph\Tree.cpp">
+    <ClCompile Include="src\Graph\Tree_C.cpp">
+      <Filter>源文件\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graph\Graph_C.cpp">
       <Filter>源文件\Graph</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,9 +83,6 @@
     <ClInclude Include="src\Graph\Graph.h">
       <Filter>头文件\Graph</Filter>
     </ClInclude>
-    <ClInclude Include="src\Graph\Tree.h">
-      <Filter>头文件\Graph</Filter>
-    </ClInclude>
     <ClInclude Include="src\Graph\TreeObject.h">
       <Filter>头文件\Graph</Filter>
     </ClInclude>
@@ -97,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="src\JavaContainerExtend.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graph\Tree_C.h">
+      <Filter>头文件\Graph</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

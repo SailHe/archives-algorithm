@@ -1,14 +1,13 @@
 //跟Graph.h没有直接关系
 
-#include "Queue.h"
+#include "../Queue.h"
 #define MaxVertexNum 100/*最大顶点数*/
 #define INFINTY 65535/*无穷大<<双字节无符号整数的最大值*/
+#define MAP_MAX_SIZE 128/*无穷大<<双字节无符号整数的最大值*/
 typedef int Vertex;/*顶点的下标表示顶点*/
 typedef int WeightType;/*边的权值*/
 typedef char DataType;/*顶点储存类型*/
 Vertex Visited[MaxVertexNum];/*初始化为false*/
-
-
 
 /*边的定义*/
 typedef struct ENode{
@@ -198,7 +197,7 @@ void DFSL(LGraph Graph, Vertex V, void (*Visit)(Vertex))
 	}
 }
 /* 从图map中匹配字串Mach */
-void dfs(int r, int c, char *Mach, int *count, char map[SIZE][SIZE])
+void dfs(int r, int c, char *Mach, int *count, char map[MAP_MAX_SIZE][MAP_MAX_SIZE])
 {
 	const int Dir4[4][2] = { { 0, 1 /*右*/ }, { 1, 0 /*下*/ }, { -1, 0 /*上*/ }, { 0, -1 /*左*/ } };
 	if (map[r][c] == *Mach){
