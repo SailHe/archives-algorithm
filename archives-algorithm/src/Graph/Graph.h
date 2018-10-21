@@ -1,7 +1,7 @@
 #ifndef __GRAPH_H
 #define __GRAPH_H
 
-#include"stdafx.h"
+#include"../stdafx.h"
 
 struct Point2Base{
 	//结论：在没有涉及绘图时最好用SubTwain 何况图中存的顶点根本就不是点好嘛。。。
@@ -199,7 +199,7 @@ tips: 如果某种关系下边特别多 可以尝试储存没有关系的
 //(Graph: 图表；曲线图)如果需要无向图 只使用无向插删即可
 class Graph{
 public:
-	const static int INF = infinity / 2;
+	const static int INF = MAX_INT32 / 2;
 
 	typedef int VertexKey;//顶点的键类型
 	typedef int WeightType;//边的权值类型
@@ -534,8 +534,8 @@ protected:
 							}
 							else{
 								/*
-								有负权时: -1 + infinity < infinity
-								若在最外层判断加上dists[i][j] < INF && 会导致最初距离估计为infinity的边无法松弛
+								有负权时: -1 + MAX_INT32 < MAX_INT32
+								若在最外层判断加上dists[i][j] < INF && 会导致最初距离估计为MAX_INT32的边无法松弛
 								在这里加上加数是否存在无穷
 								*/
 								if (dists[i][k] != INF && dists[k][j] != INF){
@@ -543,7 +543,7 @@ protected:
 									predecessors[i][j] = k;
 								}
 								else{
-									//infinity + infinity = infinity;Do nothing
+									//MAX_INT32 + MAX_INT32 = MAX_INT32;Do nothing
 								}
 								
 							}
@@ -977,7 +977,7 @@ public:
 		ArraySub present = { originR, originC }, next;
 
 		const int vertexNum = limitR*limitC;
-		dist.assign(vertexNum, infinity);
+		dist.assign(vertexNum, MAX_INT32);
 		predecessor.assign(vertexNum, -1);
 		dist[present.number(limitR)] = 0;
 		canVisitBuffer.push(present);
@@ -996,7 +996,7 @@ public:
 				FOR(i, 0, dirCount){
 					next = present + DIR84[i];
 					if (canVisit(next.r, next.c)
-						&& dist[next.number(limitR)] == infinity){//若未被访问过
+						&& dist[next.number(limitR)] == MAX_INT32){//若未被访问过
 
 						dist[next.number(limitR)] = dist[present.number(limitR)] + 1;//距离更新
 						predecessor[next.number(limitR)] = present.number(limitR);//路径记录

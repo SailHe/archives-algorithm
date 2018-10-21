@@ -21,93 +21,11 @@
 森林：0个或多个不相交的树组成。对森林加上一个根，森林即成为树；删去根，树即成为森林。
 */
 #include "Tree.h"
+#include "../Stack.h"
+#include "../Queue.h"
 int Max(int a, int b)
 {
 	return a > b ? a : b;
-}
-/***********************************树的底层队列*/
-PQueue CreateQ()
-{
-	PQueue pq = (PQueue)malloc(sizeof(Queue));
-	pq->Front = pq->Rear = NULL;
-	return pq;
-}
-bool IsSemptyQu(PQueue PtrQ)
-{
-	return PtrQ->Front == NULL;
-}
-void AddQ(PQueue PtrQ, ElementTypeQueue job)
-{
-	QNode *New = (QNode*)malloc(sizeof(QNode));
-	memset(New, 0, sizeof(QNode));
-	New->Data = job;
-	if (IsSemptyQu(PtrQ))
-		PtrQ->Front = New;
-	else
-		PtrQ->Rear->Next = New;
-	PtrQ->Rear = New;
-}
-ElementTypeQueue DeleteQ(PQueue PtrQ)
-{
-	QNode *FrontCell = NULL;
-	ElementTypeQueue FrontItem = ERRORQueue;
-	if (IsSemptyQu(PtrQ))
-		puts("队列空");
-	else
-	{
-		FrontCell = PtrQ->Front;
-		if (PtrQ->Front == PtrQ->Rear)//只有一个元素
-			PtrQ->Front = PtrQ->Rear = NULL;
-		else
-			PtrQ->Front = PtrQ->Front->Next;
-		FrontItem = FrontCell->Data;
-		free(FrontCell);
-		FrontCell = NULL;
-	}
-	return FrontItem;
-}
-/************************************树的底层链栈*/
-//创建一个连在PN之前的链栈结点 返回栈头
-PStack ConnectP(PStack PN)
-{
-	PStack Ps = (PStack)malloc(sizeof(Stack));
-	Ps->Next = PN;
-	return Ps;
-}
-//创建并返回头式链栈的地址
-PStack CreateStack()
-{
-	return ConnectP(NULL);
-}
-//压入
-void Push(PStack Head, ElementTypeStack Item)
-{
-	Head->Next = ConnectP(Head->Next);
-	Head->Next->Data = Item;
-}
-//判断链栈是否为空
-bool IsSemptySt(PStack Head)
-{
-	return Head->Next == NULL;
-}
-//返回栈顶
-ElementTypeStack pop(PStack Head)
-{
-	ElementTypeStack Item;
-	PStack SNext = Head->Next;
-	if (IsSemptySt(Head))
-	{
-		puts("堆栈空");
-		return ERRORStack;
-	}
-	else
-	{
-		Item = Head->Next->Data;
-		Head->Next = Head->Next->Next;
-		free(SNext);
-		SNext = NULL;
-		return Item;
-	}
 }
 /***********************************************************二叉树(二度树)*********/
 /*
@@ -129,14 +47,14 @@ void LevelOrderTraversal_WithQueue(BinTree BT)
 {
 	if (!BT)return;
 	BinTree T = BT;
-	PQueue queue = CreateQ();
-	AddQ(queue, T);
-	while (!IsSemptyQu(queue))
+	Queue<ElementTypeQueue> queue;
+	queue.offer(T);
+	while (!queue.isEmpty())
 	{
-		T = DeleteQ(queue);
+		T = queue.poll();
 		printf("%d\n", T->Data);
-		if (T->Left)AddQ(queue, T->Left);
-		if (T->Right)AddQ(queue, T->Right);
+		if (T->Left)queue.offer(T->Left);
+		if (T->Right)queue.offer(T->Right);
 	}
 }
 /*(递归实现)*******************二叉树的遍历*******/
@@ -186,17 +104,17 @@ int Deep(BinTree BT){
 void InOrderTraversal_WithStack(BinTree BT)
 {
 	BinTree T = BT;
-	PStack S = CreateStack();//初始化并创建堆栈
-	while (T || !IsSemptySt(S))
+	Stack<ElementTypeStack> S;
+	while (T || !S.isEmpty())
 	{
 		while (T)//将沿途遇到的所有结点压栈 并去遍历其左子树
 		{
-			Push(S, T);//①
+			S.push(T);//①
 			T = T->Left;
 		}
-		if (!IsSemptySt(S))//当一个左子树遍历完毕后将结点弹出，打印并去遍历其右子树
+		if (!S.isEmpty())//当一个左子树遍历完毕后将结点弹出，打印并去遍历其右子树
 		{
-			T = pop(S);//②将节点弹出并访问结点
+			T = S.pop();//②将节点弹出并访问结点
 			printf("%d\n", T->Data);
 			T = T->Right;//转向右子树
 		}
@@ -352,7 +270,8 @@ int GetData(BinTree_ST T, int MAX_size)
 	ungetc(i, stdin);
 	for (i = 0; i < MAX_size; i++)
 	{
-		scanf("%c %c %c", &T[i].Data, &T[i].Left, &T[i].Right);
+		//scanf("%c %c %c", &T[i].Data, &T[i].Left, &T[i].Right);
+		scanf_s("%c %d %d", &T[i].Data, 1, &T[i].Left, &T[i].Right);
 		if (T[i].Left == '-')
 			T[i].Left = -1;
 		else
@@ -398,24 +317,24 @@ bool Isomorphism(int R1, int R2)
 	}
 }
 /*静态(队列实现 队列的基本类型改为下标类型int即可)层序遍历---从上到下->从左到右*/
-void LevelOrderTraversal_ST(int root)
+void LevelOrderTraversal_ST(BinTree_ST T, int root)
 {
 	if (root == -1)return;
 	BinTree_ST BT = T;
-	PQueue queue = CreateQ();
+	Queue<int> queue;
 	int sub = root, PR = 0;
-	AddQ(queue, sub);
-	while (!IsSemptyQu(queue))
+	queue.offer(sub);
+	while (!queue.isEmpty())
 	{
-		sub = DeleteQ(queue);
+		sub = queue.poll();
 		//printf("%d\n", BT[sub].Data);
 		if (BT[sub].Left == -1 && BT[sub].Right == -1)
 		{
 			printf(PR++ ? " " : "");
 			printf("%d", sub);
 		}
-		if (BT[sub].Left != -1)AddQ(queue, BT[sub].Left);
-		if (BT[sub].Right != -1)AddQ(queue, BT[sub].Right);
+		if (BT[sub].Left != -1)queue.offer(BT[sub].Left);
+		if (BT[sub].Right != -1)queue.offer(BT[sub].Right);
 	}
 	puts("");
 }
@@ -424,8 +343,8 @@ void LevelOrderTraversal_ST(int root)
 int GetScaleL(double n/*总节点数*/)
 {/*2^h - 1 + x = n*/
 	int h = (int)log2(n + 1);/*向下取整*/
-	int x = n + 1 - pow(2.0, h);/*最下层单出的结点数*/
-	return pow(2.0, h - 1) - 1 + Min(x, pow(2.0, h - 1));
+	int x = (int)(n + 1 - pow(2.0, h));/*最下层单出的结点数*/
+	return (int)pow(2.0, h - 1) - 1 + Min(x, (int)pow(2.0, h - 1));
 }
 /*将有序序列A转化为完全二叉搜索树存进数组T中*/
 void CompleteBinTree(int * T, int *ALeft, int *ARight, int TRoot)
@@ -488,7 +407,7 @@ void FreeTrie(Trie p)
 {
 	if (p != NULL)
 	{
-		for (int i = 0; i < MAX; i++)
+		for (int i = 0; i < MAX_ALPHA_COUNT; i++)
 		{
 			FreeTrie(p->Next[i]);
 		}
@@ -504,10 +423,6 @@ n(h) = n(h-1)+n(h-2)+1;
 平衡树的高度O log2(n)
 平衡因子BF(T) = h(L) - h(R);子树高度差
 */
-/**
-#include "C:\Users\魔诃不思议\Documents\One more time  One more chance\C\实用函数\库\树.cpp"
-typedef BinTree AVLTree;//所有二叉树的抽象地址
-/**/
 int GetHeight(AVLTree T)
 {
 	if (!T)

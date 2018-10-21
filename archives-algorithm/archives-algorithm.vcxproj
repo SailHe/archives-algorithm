@@ -139,6 +139,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Graph\Graph_with_C.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\Graph\HuffmanTree.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\Graph\Tree.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\List\LinkedList.cpp" />
     <ClCompile Include="src\List\Queue.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -158,6 +167,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GetMyDade.h" />
+    <ClInclude Include="src\Graph\Graph.h" />
+    <ClInclude Include="src\Graph\Tree.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="src\Graph\TreeObject.h" />
+    <ClInclude Include="src\Graph\TreeUtilityh.h" />
     <ClInclude Include="src\LinkedList.h" />
     <ClInclude Include="src\Queue.h" />
     <ClInclude Include="src\SailHeAlgorithm.h" />

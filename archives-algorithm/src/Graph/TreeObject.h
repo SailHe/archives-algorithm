@@ -1,7 +1,7 @@
 #ifndef _TREEOBJECT_H
 #define _TREEOBJECT_H
 
-#include"stdafx.h"
+#include"../stdafx.h"
 /*
 *结语:
 *树毕竟只是容器 适合于增删查的动态操作 不适合用来作遍历
@@ -66,7 +66,7 @@ public:
 			Left = Right = NULL;
 		}
 		virtual ~BTNode(){
-			DEPRINTF("BTNode析构");
+			DE_PRINTF("BTNode析构");
 		}
 		//赋值 默认的全域赋值
 		BTNode& operator=(const BTNode&) = default;
@@ -113,7 +113,7 @@ public:
 	BinTree(){}
 	//拷贝构造 参数只能是引用(参数的传递本身就是拷贝构造)
 	BinTree(const BinTree &rhs){
-		DEPRINTF("BT拷贝构造");
+		DE_PRINTF("BT拷贝构造");
 		destroy(root);
 		assignment(root, rhs.root);
 	}
@@ -166,7 +166,7 @@ public:
 	//destructor
 	virtual ~BinTree(){
 		destroy(root);
-		DEPRINTF("BT析构");
+		DE_PRINTF("BT析构");
 	}
 
 	virtual void clear(){
@@ -191,7 +191,7 @@ public:
 	}
 
 	template<class Fun>
-	//Θ(2*N)     Tree::ORDER, bool visit(Bintree<T>::BT Node)
+	//Θ(2*N)     Tree::ORDER, bool visit(BinTree<T>::BT node) 只有顺序和逆序的访问带有返回值(允许中止)
 	void traversal(TraversalOrderEnum type, Fun visit){
 		if (type == ORDER_PREFIX_ROOT)
 			preTraversal(root, visit);
@@ -263,7 +263,7 @@ protected:
 	Element* memoryBlock = NULL;//内存块可以将二叉树的局部储存在这里 超出部分使用外部分配的内存
 	//避免二叉树赋值 还有三个字段没有复制
 	BinTree& operator= (const BinTree& rhs){
-		DEPRINTF("BT赋值");
+		DE_PRINTF("BT赋值");
 		//先要析构自己的root
 		destroy(root);
 		assignment(root, rhs.root);
@@ -614,7 +614,7 @@ public:
 	BinSearchTree(){}
 	//拷贝构造 直接调的父类方法
 	BinSearchTree(const BinSearchTree &rhs) :BinTree<T>(rhs)/*这样并未发生强制转换*/{
-		DEPRINTF("BST拷贝构造");
+		DE_PRINTF("BST拷贝构造");
 	}
 	/*只要不改变左右子树各自的先序插入序列其插入结果与先构建左子树或先构建右子树无关
 	先序与普通插入构建序列的区别:
@@ -657,11 +657,11 @@ public:
 	}
 	//析构deleter
 	virtual ~BinSearchTree() override{
-		DEPRINTF("BST析构");
+		DE_PRINTF("BST析构");
 	}
 	//赋值 很费时间 避免无意间的二叉树赋值
 	BinSearchTree& operator= (const BinSearchTree& rhs){
-		DEPRINTF("BST赋值");
+		DE_PRINTF("BST赋值");
 		//<==>两次父类拷贝构造 一次父类赋值 两次父类析构
 		//(BinTree)(*this) = (BinTree)rhs;
 		// ==>强制转换其实是调用的拷贝构造方法(这样效率不高) 所以应当为子类编写自己的赋值函数(即使没有新增加的域)
@@ -962,7 +962,7 @@ class AvlTree :public BinSearchTree<T> {
 				Height = height_;
 			}
 		virtual ~AvlNode()override{
-			DEPRINTF("AvlNode析构");
+			DE_PRINTF("AvlNode析构");
 		}
 	}*AvlTr;
 
@@ -1048,7 +1048,7 @@ class AvlTree :public BinSearchTree<T> {
 public:
 	AvlTree(){}
 	~AvlTree(){
-		DEPRINTF("AVL析构");
+		DE_PRINTF("AVL析构");
 	}
 };
 
@@ -1193,7 +1193,7 @@ public:
 	virtual ~StaBinTree() override{
 		free(struA);//malloc 不能delete?
 		root = NULL;//保证基类的正常析构
-		DEPRINTF("SCT析构");
+		DE_PRINTF("SCT析构");
 	}
 	//返回数组内的结点编号 1号为root 0号为哨兵
 	int index(Position t){
@@ -1249,7 +1249,7 @@ public:
 		size = n;
 	}
 	~StaBinSearchTree() override{
-		DEPRINTF("SCBT析构");
+		DE_PRINTF("SCBT析构");
 	}
 protected:
 	typedef typename BinTree<T>::Position Position;
@@ -1370,7 +1370,7 @@ public:
 			}
 		}
 	~CompleteBinSearchTree() override{
-		DEPRINTF("CBT析构");
+		DE_PRINTF("CBT析构");
 	}
 
 	Position find(Element x){
@@ -1431,7 +1431,7 @@ public:
 			}
 		}
 	~Heap()override{
-		DEPRINTF("Heap析构");
+		DE_PRINTF("Heap析构");
 	}
 
 	Element pop(){
@@ -1471,7 +1471,7 @@ public:
 	从[最后一个子节点的父节点 即 倒数第一个有儿子的结点]
 	每次从左右结点中挑一个"大"的结点做下滤操作开始调整到根节点1*/
 	/*线性堆重构 复杂度O(N)*/
-	//最小堆 参数: maxCmp(大于)哨兵(最小值)	注意: 负数太小减法会变正:传入infinity/2即可
+	//最小堆 参数: maxCmp(大于)哨兵(最小值)	注意: 负数太小减法会变正:传入MAX_INT32/2即可
 	//最大堆 参数: mixCmp(小于)哨兵(最大值)
 	void build(T sentry, int(*cmper_)(const T &min, const T &max)){
 		cmper = cmper_;
@@ -1566,7 +1566,7 @@ protected:
 				Weight = weight_;
 			}
 		~HuTrNode()override{
-			DEPRINTF("HuTrNode析构");
+			DE_PRINTF("HuTrNode析构");
 		}
 	}*HuTr;//哈夫曼树
 	HuTr huffRoot = NULL;
@@ -1574,7 +1574,7 @@ public:
 	/*哈夫曼树的构建 最小堆实现 (字符序列, 权重序列(一般是频值freq), 序列公共大小, huf叶子结点数)*/
 	HuffmanTree(T* character, int *freq, int nHuf) {
 		Heap<HuTr> h = Heap<HuTr>(nHuf);
-		HuTr sentry = new HuTrNode(0, -infinity / 2);//没有赋值方法 只能new?
+		HuTr sentry = new HuTrNode(0, -MAX_INT32 / 2);//没有赋值方法 只能new?
 		//lambda表达式, 匿名函数 p345
 		h.build(sentry, [/*捕获列表*/](const HuTr &min, const HuTr &max){
 			return max->Weight - min->Weight;
@@ -1595,7 +1595,7 @@ public:
 	//对任意句子构造huffman树
 
 	~HuffmanTree()override{
-		DEPRINTF("HuffmanTree析构");
+		DE_PRINTF("HuffmanTree析构");
 	}
 	//清空输入流直到遇见end前所有字符
 	static void flushInput(char end){
@@ -1749,8 +1749,9 @@ private:
 	}
 	//返回一个仅含大写英文字母和下划线的句子的哈夫曼编码所占内存,普通编码memory = sentence.length()*8
 	int huffmanMemory(string sentence){
-		int freq[MAXN];
-		memset(freq, 0, MAXN * 4);
+		static const int MAX_FREQ_SIZE = 128;
+		int freq[MAX_FREQ_SIZE];
+		memset(freq, 0, MAX_FREQ_SIZE * sizeof(int));
 
 		for (unsigned i = 0; i < sentence.length(); ++i){
 			if (sentence[i] == '_')
@@ -1761,7 +1762,7 @@ private:
 		}
 		priority_queue<int, vector<int>, greater<int> > q;
 
-		for (int i = 0; i < MAXN; ++i){
+		for (int i = 0; i < MAX_FREQ_SIZE; ++i){
 			if (freq[i] != 0)
 				q.push(freq[i]);
 		}
@@ -1874,24 +1875,6 @@ class ArrayHuffman{
 	*/
 };
 
-/*
-TEST Fun:
-int main(){
-	freopen("input", "r", stdin);
-	char s[40] = "1 2 +";//自己改改
-	while (gets(s)){
-		ExpressionTree ET = ExpressionTree(s, ExpressionTree::POST_EXPRESSION);
-		auto ans = ET.eval();
-		if (ans == infinity){
-			puts("ERROR");
-		}
-		else{
-			printf("%.1lf\n", ans);
-		}
-	}
-	return 0;
-}
-*/
 //表达式树 @TODO 并未通过PTA测试(主要是后缀表达式计算时的负号问题 考虑添加前缀表达式计算)
 class ExpressionTree : private BinTree<string>{
 public:
@@ -1994,17 +1977,17 @@ public:
 			if (check(POST_EXPRESSION, POST_EXPRESSION))
 				return evalPostfix();
 			else
-				return infinity;
+				return MAX_INT32;
 		}
 		else if (type == PREFIX_EXPRESSION){
 			toPost();
 			return eval();
 		}
 		else if (type == ERROR_EXPRESSION)
-			return infinity;
+			return MAX_INT32;
 		else{
 			_DEBUG_ERROR("无法直接计算中缀表达式");
-			return infinity;
+			return MAX_INT32;
 		}
 	}
 	/*后缀表达式计算*/
@@ -2026,7 +2009,7 @@ public:
 			}
 		}
 	}
-	//返回后缀表达式ans的值 不合法返回infinity
+	//返回后缀表达式ans的值 不合法返回MAX_INT32
 	double evalPostfix(){
 		int i = 0;
 		char c = 0;
@@ -2039,12 +2022,12 @@ public:
 			}
 			else{
 				if (ps.empty()){//运算符号缺少 或者多余
-					return infinity;
+					return MAX_INT32;
 				}
 				po1 = ps.top();
 				ps.pop();
 				if (ps.empty()){
-					return infinity;
+					return MAX_INT32;
 				}
 				po2 = ps.top(); ps.pop();
 				switch (c){
@@ -2053,7 +2036,7 @@ public:
 				case '*':ps.push(po2 * po1); break;
 				case '/':{
 							 if (po1 - 0.0 == 0){//除以0错误
-								 return infinity;
+								 return MAX_INT32;
 							 }
 							 else
 								 ps.push(po2 / po1); break;
@@ -2067,7 +2050,7 @@ public:
 			return re;
 		}
 		else{//运算数多余
-			return infinity;
+			return MAX_INT32;
 		}
 	}
 private:
@@ -2075,259 +2058,6 @@ private:
 	string expression;
 	//表达式当前类型
 	ExpressionTypeEnum type;
-};
-
-template<class Base>
-/*指针数组 可用来实现HashTable 写一个hash()方法做索引即可  管理容器比较方便*/
-/*管理普通结构体要注意  首次访问时要将外部构造的给它管理(自动析构)  赋值时注意不改变原指针*/
-class PtrArray{
-	vector<Base*> table;
-	unsigned size_ = 0;
-public:
-	PtrArray(){}
-	//线性Θ(size)
-	PtrArray(int siz_){
-		size_ = siz_;
-		table.resize(size_);
-	}
-	~PtrArray(){
-		for (size_t i = 0; i < table.size(); ++i){
-			delete table[i];
-		}
-	}
-	int size(){
-		return size_;//vector 的size 计算实际上只是两个指针的相减操作
-	}
-	//重载[]操作符，返回管理的指针作为左值 越界自动申请内存
-	Base*& operator[](unsigned index){
-		if (index >= size_){
-			size_ = index + 1;//实际使用内存
-			table.resize(index * 2 + 1);
-			//_DEBUG_ERROR("PtrArray subscript out of range");
-		}
-		if (table[index] == NULL)table[index] = new Base();
-		return table[index];
-	}
-	//字符串 hash策略示范
-	static int strHash(char *key){
-		//最大为182789
-		return
-			(key[0] - 'A') * 26 * 26 * 10 +
-			(key[1] - 'A') * 26 * 10 +
-			(key[2] - 'A') * 10 +
-			(key[3] - '0');
-	}
-	//纯数字的字符串形式hash策略 5位max=9w
-	int numStrHash(char *key){
-		int sum =
-			(key[0] - '0') * 10000 +
-			(key[1] - '0') * 1000 +
-			(key[2] - '0') * 100 +
-			(key[3] - '0') * 10 +
-			(key[4] - '0') * 1;
-		return sum % 30000;
-	}
-};
-
-//家谱树结点
-struct FamilyTreeNode{
-	int bCnt = -1;//输入前有几个空格 即代表的是属于哪一级
-	string father;
-	string name;
-	bool operator>(FamilyTreeNode const &rhs){
-		return name > rhs.name;
-	}
-	bool operator==(FamilyTreeNode const &rhs){
-		return name == rhs.name;
-	}
-	bool operator<=(FamilyTreeNode const &rhs){
-		return name <= rhs.name;
-	}
-	bool operator>=(FamilyTreeNode const &rhs){
-		return name >= rhs.name;
-	}
-	bool operator<(FamilyTreeNode const &rhs){
-		return name < rhs.name;
-	}
-	FamilyTreeNode(){}
-	FamilyTreeNode(string name_, int cnt){
-		name = name_;
-		bCnt = cnt;
-	}
-	FamilyTreeNode(string name_){
-		name = name_;
-	}
-	~FamilyTreeNode(){}
-	//返回第一个可见字符前的空格数
-	static int blnakCount(){
-		int count = 0;
-		char c;
-		while ((c = getchar()) == ' ' || c == '\n'){
-			if (c == ' ')
-				++count;
-		}
-		ungetc(c, stdin);
-		return count;
-	}
-};
-
-//目录(Catalog)结构
-struct CatalogNode{
-	string name;
-	//(set内的元素是有序的)
-	set<string> subFolder;//子文件夹名集合
-	set<string> file;//文件名集合
-	CatalogNode(){}
-	CatalogNode(string name_){
-		name = name_;
-	}
-	~CatalogNode(){}
-	bool operator==(CatalogNode const &rhs)const{
-		return name == rhs.name;
-	}
-	bool operator!=(CatalogNode const &rhs)const{
-		return !(*this == rhs);
-	}
-	bool operator<(CatalogNode const &rhs)const{
-		return name < rhs.name;
-	}
-	bool operator>(CatalogNode const &rhs)const{
-		return name > rhs.name;
-	}
-	bool operator<=(CatalogNode const &rhs)const{
-		return !(*this > rhs);
-	}
-	bool operator>=(CatalogNode const &rhs)const{
-		return !(*this < rhs);
-	}
-	//从输入流获取一个名字存在对象name内   文件夹名返回true  文件名返回false
-	bool getAName(){
-		name.clear();
-		char c;
-		while ((c = getchar()) != '\n' && c != '\\'){
-			name += c;
-		}
-		return c == '\\';
-	}
-	void print(int blankCnt){
-		for (int i = 0; i < blankCnt; ++i)
-			printf(" ");
-		//cout << name << endl;
-		puts(&(name)[0]);
-	}
-	//输出该文件夹内的所有内容(所属数据树, root输出前的空格缩进)
-	void output(AvlTree<CatalogNode> *t, int blankCnt){
-		static CatalogNode tmp;
-		print(blankCnt);
-		//输出子文件夹
-		for (auto i = subFolder.begin(); i != subFolder.end(); ++i){
-			tmp.name = *i;
-			t->find(tmp)->Data.output(t, blankCnt + 2);
-		}//输出文件name
-		for (auto i = file.begin(); i != file.end(); ++i){
-			for (int j = 0; j < blankCnt + 2; ++j)
-				printf(" ");
-			puts(&(*i)[0]);
-		}
-	}
-};
-
-struct Accounts{
-	using myInt = int;
-	myInt account;//unsigned 无法完全映射10位数 会有冲突
-	string password;
-	bool operator<(Accounts const &rhs)const{
-		return account < rhs.account;
-	}
-	bool operator>(Accounts const &rhs)const{
-		return account > rhs.account;
-	}
-	bool operator==(Accounts const &rhs)const{
-		return account == rhs.account;
-	}
-	//未知地方必须默认构造
-	Accounts(){}
-	//插入用
-	Accounts(myInt a, string &pa){
-		account = a, password = pa;
-	}
-	//查找用
-	Accounts(myInt a){
-		account = a;
-	}
-	myInt hash()const{
-		return account % 70000;//似乎与输入数据量大小差不多时效率最佳
-	}
-	/*
-	map<string, string>
-	0	sample 全部5种输出信息											答案正确	2 ms	252KB
-	1	最大表，全部是新申请，密码全部16位									答案正确	715 ms	19760KB
-	2	N和L指令各一半，随机交错。帐号随机，取到上下界。密码随机，取到上下界	答案正确	669 ms	10576KB
-
-	HashAvlTable<Acounts> t = HashAvlTable<Acounts>(100000)
-	0	sample 全部5种输出信息											答案正确	7.6 ms	8012KB
-	1	最大表，全部是新申请，密码全部16位									答案正确	842 ms	21340KB
-	2	N和L指令各一半，随机交错。帐号随机，取到上下界。密码随机，取到上下界	答案正确	601 ms	15432KB
-
-	AvlTree<Acounts>
-	0	sample 全部5种输出信息											答案正确	2 ms	248KB
-	1	最大表，全部是新申请，密码全部16位									运行超时	0 ms	0KB  > 1200ms
-	2	N和L指令各一半，随机交错。帐号随机，取到上下界。密码随机，取到上下界	运行超时	0 ms	0KB
-	*/
-};
-
-struct Olympic{
-	int id = -1, gold = 0, medal = 0, population = 0;
-	//涉及double比较 重复元素
-	//double data_[5];//0ID 1金牌 2奖牌 3人均金牌 4人均奖牌(per capita)
-	Olympic(){}
-	~Olympic(){}
-	bool operator<(Olympic const &rhs)const{
-		return id < rhs.id;
-	}
-	bool operator>(Olympic const &rhs)const{
-		return id > rhs.id;
-	}
-	bool operator==(Olympic const &rhs)const{
-		return id == rhs.id;
-	}
-};
-
-//主键是score 其次是id
-struct Student{
-	char id[14];//考号(13位整数字)
-	int score = 0;//得分（为[0,100]区间内的整数）
-	int place = 0, rank = 1;//考点编号 排名
-	int localRank = 1;//在该考点的排名
-	Student(){
-		memset(id, 0, 14 * sizeof(char));
-	}
-	Student(Student const&rhs){
-		*this = rhs;
-	}
-	~Student(){}
-	//主键是score 当其相等时按次键从大到小排序
-	//RE_ORDER成绩丛高到低 id从小到大 (重载<时id是 > 所以实际上是大到小 但这里是RE_ORDER 变回小到大)
-	bool operator<(Student const &rhs)const{
-		/*等价写法
-		if (score == rhs.score)
-		return strcmp(id, rhs.id) > 0;
-		return score < rhs.score;
-		*/
-		return score < rhs.score ||
-			score == rhs.score && strcmp(id, rhs.id) > 0;
-	}
-	bool operator>(Student const &rhs)const{
-		return score > rhs.score ||
-			score == rhs.score && strcmp(id, rhs.id) < 0;
-	}
-	bool operator==(Student const &rhs)const{
-		return score == rhs.score && strcmp(id, rhs.id) == 0;
-	}
-	//考号、最终排名、考点编号、在该考点的排名。
-	void outPut(){
-		printf("%s %d %d %d\n", id, rank, place, localRank);
-	}
 };
 
 #endif

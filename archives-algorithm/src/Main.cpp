@@ -4,6 +4,7 @@
 #include "Stack.h"
 #include "Queue.h"
 #include "Standard.h"
+#include "Graph\TreeObject.h"
 using namespace StandardExtend;
 
 //Demo
@@ -152,9 +153,53 @@ int mainForDeQueue() {
 	while (!ql.isEmpty()) {
 		ql.poll().output();
 	}
-	puts("Deque test end");
 	qs.shell();
 	//ql.shell();
+	puts("Deque test end");
+	return 0;
+}
+
+int mainForExpressionTree() {
+	//自己改改
+	char s[40] = "1 2 +";
+	while (gets(s)) {
+		//ExpressionTree ET = ExpressionTree(s, ExpressionTree::POST_EXPRESSION);
+		//ExpressionTree ET = ExpressionTree(s, ExpressionTree::PREFIX_EXPRESSION);
+		ExpressionTree ET = ExpressionTree(s, ExpressionTree::INFIX_EXPRESSION);
+		auto ans = ET.eval();
+		if (ans == MAX_INT32) {
+			puts("ERROR Expression");
+		}
+		else {
+			printf("%.1lf\n", ans);
+		}
+	}
+	return 0;
+}
+
+int mainForBinSearchTree() {
+	BinSearchTree<string> bt = BinSearchTree<string>();
+	for (int i = 0; i < 10; ++i) {
+		bt.insert(string("BST data") + std::to_string(i));
+	}
+	puts("顺序");
+	bt.traversal(Tree::ORDER, [&](BinTree<string>::BT node) {
+		cout << node->Data << endl;
+		return false;
+	});
+	puts("倒序 + 中止");
+	bt.traversal(Tree::RE_ORDER, [&](BinTree<string>::BT node) {
+		cout << node->Data << endl;
+		return node->Data == string("BST data5") ? true : false;
+	});
+	puts("先根序");
+	bt.traversal(Tree::ORDER_INFIX_ROOT, [&](BinTree<string>::BT node) {
+		cout << node->Data << endl;
+		//无效返回值
+		return false;
+	});
+	cout << bt.find(string("BST data5"))->Data << endl;
+	puts("Tree test end");
 	return 0;
 }
 
@@ -162,6 +207,8 @@ int main() {
 	//FILE *inFile = stdin, *outFile;
 	//freopen("input", "r", stdin);
 	//freopen_s(&inFile, "input", "r", stdin);
+	//mainForExpressionTree();
+	mainForBinSearchTree();
 	MainForStack();
 	mainForQueue();
 	mainForDeQueue();

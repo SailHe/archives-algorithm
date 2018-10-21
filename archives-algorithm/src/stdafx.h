@@ -65,7 +65,12 @@ export(导出/出口/输出) 在定义模板类对象和模板函数时的extern功能
 #define DISPLAY(A, lowerBound, terminator) {FOR(i, lowerBound, terminator){printf(i == lowerBound ? "" : " ");cout << A[i] << endl;}}
 
 //调试用打印
-#define DEPRINTF(s){if(DEBUG)printf("---%s\n", s);}
+#define DE_PRINTF(s){if(DEBUG)printf("---%s\n", s);}
+#ifndef  _DEBUG_ERROR
+//_STL_VERIFY(false, s);
+#define _DEBUG_ERROR(s){_ASSERT_EXPR(false, s); }
+#endif //  _DEBUG_ERROR
+
 
 
 //4字节32位 有符号无穷大0x7FFFFFFF; 双字节无符号整数的最大值是65535

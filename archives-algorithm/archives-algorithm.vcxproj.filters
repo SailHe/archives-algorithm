@@ -13,17 +13,20 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="源文件\List">
+      <UniqueIdentifier>{8b470947-e39c-4c55-84d2-194abc0acedd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\List">
+      <UniqueIdentifier>{a1022ac3-4dc7-4847-be69-c4a3087b31c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Graph">
+      <UniqueIdentifier>{40cf7fb8-bcbe-430b-a814-31ddfae19c8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Graph">
+      <UniqueIdentifier>{dfc986b8-6591-499c-81b3-da099771daa9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\List\LinkedList.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\List\Queue.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\List\Stack.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\Main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -33,11 +36,29 @@
     <ClCompile Include="src\Standard.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\List\VirtualList.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="src\List\LinkedList.cpp">
+      <Filter>源文件\List</Filter>
     </ClCompile>
     <ClCompile Include="src\List\Polynomial.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\List</Filter>
+    </ClCompile>
+    <ClCompile Include="src\List\Queue.cpp">
+      <Filter>源文件\List</Filter>
+    </ClCompile>
+    <ClCompile Include="src\List\Stack.cpp">
+      <Filter>源文件\List</Filter>
+    </ClCompile>
+    <ClCompile Include="src\List\VirtualList.cpp">
+      <Filter>源文件\List</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graph\Graph_with_C.cpp">
+      <Filter>源文件\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graph\HuffmanTree.cpp">
+      <Filter>源文件\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graph\Tree.cpp">
+      <Filter>源文件\Graph</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -47,20 +68,32 @@
     <ClInclude Include="src\GetMyDade.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\LinkedList.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\SailHeAlgorithm.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Stack.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Standard.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\LinkedList.h">
+      <Filter>头文件\List</Filter>
+    </ClInclude>
     <ClInclude Include="src\Queue.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\List</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stack.h">
+      <Filter>头文件\List</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graph\Graph.h">
+      <Filter>头文件\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graph\Tree.h">
+      <Filter>头文件\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graph\TreeObject.h">
+      <Filter>头文件\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graph\TreeUtilityh.h">
+      <Filter>头文件\Graph</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

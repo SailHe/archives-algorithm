@@ -8,10 +8,7 @@ using namespace std;
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
-#define MAX 26/*字典树*/
-#define ERRORTree -1
-#define ERRORQueue NULL
-#define ERRORStack NULL
+#define MAX_ALPHA_COUNT 26/*字典树*/
 typedef struct AVLNode *Position;/**当前使用的**/
 typedef Position BinTree;/* 所有二叉树的抽象地址(共用二叉树基本操作集) */
 typedef int ElementTypeTree;
@@ -46,30 +43,12 @@ struct BTree_STNode
 const int LEN_TREE_ST = sizeof(struct BTree_STNode);
 /***********************************树的底层队列*/
 typedef BinTree ElementTypeQueue;
-typedef struct Queue *PQueue;
-struct QNode
-{
-	ElementTypeQueue Data;
-	QNode *Next;
-};
-struct Queue
-{
-	QNode* Front;//头节点
-	QNode* Rear;//尾结点
-};
 /************************************树的底层链栈*/
 typedef BinTree ElementTypeStack;
-typedef struct Stack *PStack;
-struct Stack
-{
-	ElementTypeStack Data;
-	PStack Next;
-};
-/**************************/
 typedef struct TrieNode * Trie;/*字典树类型*/
 struct TrieNode
 {
-	Trie Next[MAX];
+	Trie Next[MAX_ALPHA_COUNT];
 	int v;/*经过词径的单词数目*/
 };
 /**/
