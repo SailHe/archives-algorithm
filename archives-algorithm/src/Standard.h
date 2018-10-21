@@ -91,14 +91,15 @@ namespace StandardExtend{
 		cout << setfill(coutFillChar);
 		int count = -1;
 		iterate(left, right, [&](Iterator left){
-			cout << (++count == 0 ? "" : " ") << setw(coutWidth) << *left;
+			char c = (++count == 0 ? '\0' : ' ');
+			cout << c << setw(coutWidth) << *left;
 		});
 		puts("");
 	}
 
 	template<class Iterator>
 	//lineWrap 隔多少行换行 小于0 表示输出结束换行
-	void outPutIterable(Iterator left, Iterator right, size_t coutWidth, char coutFillChar, int lineWrap){
+	void outPutIterable(Iterator left, Iterator right, size_t coutWidth, char coutFillChar, size_t lineWrap){
 		cout << setfill(coutFillChar);
 		if (left == right) {
 			return;
@@ -163,21 +164,21 @@ namespace StandardExtend{
 	void outPut2DArrayList(vector<vector<T>> const &arrayList2D, char coutFillChar = '0', size_t coutWidth = 2){
 		size_t rows = arrayList2D.size();
 		for (size_t r = 0; r < rows; ++r){
-			outPutIterable(arrayList2D[r].begin(), arrayList2D[r].end(), coutFillChar, coutWidth);
+			outPutIterable(arrayList2D[r].begin(), arrayList2D[r].end(), coutWidth, coutFillChar);
 		}
 	}
 
 	template<class T>
-	void outPut2DArray(T array2D[MAX_R][MAX_C], size_t n, char coutFillChar = '0', size_t coutWidth = 2){
+	void outPut2DArray(T array2D[MAX_R][MAX_C], size_t n, size_t coutWidth = 2, char coutFillChar = '0'){
 		for (size_t r = 0; r < n; ++r){
-			outPutIterable(array2D[r], array2D[r] + n, coutFillChar, coutWidth);
+			outPutIterable(array2D[r], array2D[r] + n, coutWidth, coutFillChar);
 		}
 	}
 
 	template<class T>
-	void outPut2DArrayTrangle(T array2D[MAX_R][MAX_C], size_t n, char coutFillChar = '0', size_t coutWidth = 2){
+	void outPut2DArrayTrangle(T array2D[MAX_R][MAX_C], size_t n, size_t coutWidth = 2, char coutFillChar = '0'){
 		for (size_t r = 0; r < n; ++r){
-			outPutIterable(array2D[r], array2D[r] + r + 1, coutFillChar, coutWidth);
+			outPutIterable(array2D[r], array2D[r] + r + 1, coutWidth, coutFillChar);
 		}
 	}
 

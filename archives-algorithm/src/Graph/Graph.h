@@ -394,6 +394,10 @@ public:
 	size_t getEdgeNum() const {
 		return edgeNum;
 	}
+	//返回顶点数
+	size_t getVertexNum() const {
+		return vertexNum;
+	}
 protected:
 
 	//在2017之下编译会通过 但实际上这样子是不能通过的(有对其进行修改) -> 旧版本的编译可以通过 高版本不一定(功能更加完善了)
@@ -934,6 +938,12 @@ public:
 		operator bool()const{
 			return valid;
 		}
+		//cout<<
+		friend std::ostream &operator<<(std::ostream &os, const CoordinatesMap::Vertex &rhs) {
+			int out = rhs;
+			os << out;
+			return os;
+		}
 	private:
 		bool valid : 1;//有效性(可通过否)
 		int vertexValue : 15;//2e7 = 64; 2e15 = 32768
@@ -949,6 +959,13 @@ public:
 		}
 	}
 	~CoordinatesMap(){}
+
+	//坐标图概览
+	void output(size_t coutWidth = 2) {
+		cout << "坐标图概览(对应坐标点的值为-1表示无效): " << endl;
+		//StandardExtend::outPutIterable(validCoordinates.begin(), validCoordinates.end(), 2, '\0', validCoordinates.size());
+		StandardExtend::outPut2DArrayList(validCoordinates, '\0', coutWidth);
+	}
 
 	//设置目的坐标点
 	void setDest(int r, int c){
@@ -1080,8 +1097,9 @@ public:
 
 	//坐标图一定可以转化为边稀疏的顶点图 可以直接转化然后调用邻接表的API(快过自带方法 但后者可自定义访问)
 	//得到一个可访问的临时等价无向顶点图(但难以物理上继承实现)
+	//isWqualWeighted为true时得到的图是以坐标图中的值作为权重的图 默认是等权图(权值为1)
 	//template<class T>
-	AdjacentListGraph &parityGraph(){
+	AdjacentListGraph &parityGraph(bool isWqualWeighted = false){
 		//static AdjacentMatrixGraph sparseUndirectedGraphBuffer = AdjacentMatrixGraph(0);
 		static AdjacentListGraph sparseUndirectedGraphBuffer = AdjacentListGraph(0);
 		sparseUndirectedGraphBuffer.resize(0);
@@ -1102,7 +1120,7 @@ public:
 							if (canVisit(next.r, next.c)){
 								edge.ownerID = start.number(limitR, limitC);
 								edge.targetID = next.number(limitR, limitC);
-								edge.weight = 1;//等权图
+								edge.weight = isWqualWeighted ? getVertexValue(next.r, next.c) : 1;//等权图
 								sparseUndirectedGraphBuffer.insertEdgeUndirected(edge);
 							}
 						}

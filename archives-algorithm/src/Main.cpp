@@ -237,8 +237,18 @@ int mainForHuffumanTree()
 	}return 0;
 }
 
-int mainForGraph() {
-	Graph *g = new AdjacentMatrixGraph(10);
+void outPutGraph(Graph &g) {
+	cout << "边数: " << g.getEdgeNum() << endl;
+	StandardExtend::ArrayList<Graph::VertexKey> dist, path;
+	g.shortestPath(0, dist, path);
+	cout << "由0号顶点出发的最短距离值: " << endl;
+	StandardExtend::outPutIterable(dist.begin(), dist.end(), 2);
+	cout << "由0号顶点出发的最短路径: " << endl;
+	StandardExtend::outPutIterable(path.begin(), path.end(), 2);
+	puts("");
+}
+
+void NewGraphDemo(Graph *&&g) {
 	for (int i = 0; i < 10; ++i) {
 		g->insertEdge(Graph::Edge(0, i, 10));
 		//重复添加视为更新
@@ -248,14 +258,44 @@ int mainForGraph() {
 		g->insertEdge(Graph::Edge(1, i, 5));
 		g->insertEdge(Graph::Edge(i, 1, 5));
 	}
-	cout << "边数: " << g->getEdgeNum() << endl;
-	StandardExtend::ArrayList<Graph::VertexKey> dist, path;
-	g->shortestPath(0, dist, path);
-	cout << "由0号顶点出发的最短距离值: " << endl;
-	StandardExtend::outPutIterable(dist.begin(), dist.end(), 2);
-	cout << "由0号顶点出发的最短路径: " << endl;
-	StandardExtend::outPutIterable(path.begin(), path.end(), 2);
+	outPutGraph(*g);
 	delete g; g = nullptr;
+}
+
+int mainForGraph() {
+	NewGraphDemo(new AdjacentMatrixGraph(10));
+	NewGraphDemo(new AdjacentListGraph(10));
+	//3*3坐标图 共9个顶点
+	//CoordinatesMap cg(3, 3, Graph::DirCountEnum::DIR8);
+	CoordinatesMap cg(3, 3, DirCountEnum::DIR8);
+	//默认全是无效的坐标点 此句只用于演示API
+	cg.setInvalid(1, 0);
+	//设置是否可以通过 这两个相邻的有效点视为为这两个坐标点之间存在无向边
+	cg.setValid(0, 0);
+	cg.setValid(0, 1);
+	cg.setValid(0, 2);
+	cg.setValid(1, 2);
+	/*
+	01 01 01
+	-- -- 01
+	-- -- --
+	*/
+	cg.output();
+	outPutGraph(cg.parityGraph());
+
+	//设置有效的同时设置顶点值(转换为权重)
+	//由于默认的值可能是任何值(实际是-1 但不应该把这个当成有效值)而没有设置值的有效顶点转换为权值就会出问题, 两个API最好不要混用
+	cg.setValidVertex({ 0, 0 }, 00);
+	cg.setValidVertex({ 0, 1 }, 01);
+	cg.setValidVertex({ 0, 2 }, 02);
+	cg.setValidVertex({ 1, 2 }, 12);
+	/*
+	00 01 02
+	-- -- 12
+	-- -- --
+	*/
+	cg.output();
+	outPutGraph(cg.parityGraph(true));
 	cout << "Graph test end" << endl;
 	return 0;
 }
