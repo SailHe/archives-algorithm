@@ -306,6 +306,7 @@ int main() {
 	//freopen_s(&inFile, "input", "r", stdin);
 	//mainForExpressionTree();
 	//mainForHuffumanTree();
+	MathExtend::pentration(3);
 	mainForGraph();
 	mainForBinSearchTree();
 	MainForStack();

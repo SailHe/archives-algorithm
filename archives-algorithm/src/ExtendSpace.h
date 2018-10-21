@@ -71,6 +71,32 @@ namespace StandardExtend{
 	//'A' == 'a' == '0' ... 'J' == 'j' == '9' 以此类推
 	bool isAa0Equal(char a, char b);
 
+	//清空stdin输入流直至遇到end字符
+	void refreshStdin(char end);
+	//计算与参数的时间差（单位：Minite）
+	double calcDifftime(time_t startTime);
+	//计算与参数的时钟差（单位：ms）
+	double calcDiffClock(clock_t startClock);
+	//用于测试Function 会自动输出Function的执行时钟(单位：ms)
+	template<class Function>
+	void calcDiffClock(Function fun) {
+		clock_t startClock = clock();
+		fun();
+		printf("执行时间：%lf\n", calcDiffClock(startClock));
+	}
+
+	// 可以替换为: destContainer.resize(origin.end() - origin.begin());
+	// std::copy(origin.begin(), origin.end(), destContainer.begin());
+	template<class T, class Iterator>
+	ArrayList<T> toArrayList(Iterator left, Iterator right) {
+		ArrayList<T> result;
+		result.reserve(right - left);
+		iterate(left, right, [&](Iterator it) {
+			result.push_back(*it);
+		});
+		return result;
+	}
+
 	template<class T>
 	//left <= value < right  EG: inRange(minEle, element, maxEle+1); -> element [minEle, maxEle]
 	bool inRange(T left, T value, T right){
@@ -234,7 +260,7 @@ namespace StandardExtend{
 namespace Utility {
 	using namespace StandardExtend;
 	/************逆向*****0*********45*******90*********135*******180********225*******270********315****/
-//int dir[8][2] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 }, { 0, -1 }, { 1, -1 } };
+	//int dir[8][2] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 }, { 0, -1 }, { 1, -1 } };
 	const int Dir8[8][2] = { { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
 	const int Dir4[4][2] = { { 0, -1 /*左*/ }, { 0, 1 /*右*/ }, { -1, 0 /*上*/ }, { 1, 0 /*下*/ } };
 
@@ -251,9 +277,72 @@ namespace Utility {
 			in >> this->x >> this->y;
 		}
 		PointDouble O() {
-			PointDouble O = { 0.0, 0.0 };
-			return O;
+			PointDouble ZERO = { 0.0, 0.0 };
+			return ZERO;
 		}
+
+		//能从起始点'跳跃至'终点返回true
+		static bool canJumpTo(PointDouble const &beganPoint, PointDouble const &endPoint, double jumpPower, double raduis) {
+			//起点 - 终点 - 跳跃能力 - 活动半径
+			return dDistance(beganPoint, endPoint) <= raduis + jumpPower;
+		}
+		//返回两点间距离
+		static double dDistance(PointDouble const &p1, PointDouble const &p2) {
+			return sqrt(dDistance2(p1, p2));
+		}
+		//返回两点间距离的平方
+		static double dDistance2(PointDouble const &p1, PointDouble const &p2) {
+			double dx = p2.x - p1.x;
+			double dy = p2.y - p1.y;
+			return (dx*dx + dy * dy);
+		}
+	};
+
+	class Triangle {
+	public:
+		Triangle(){}
+		Triangle(PointDouble const &p1, PointDouble const &p2, PointDouble const &p3){
+			this->p1 = p1;
+			this->p2 = p2;
+			this->p3 = p3;
+		}
+		~Triangle(){}
+
+		//返回由p1, p2, p3组成的三角形的面积
+		static double dAreaOfTriangle(PointDouble const &p1, PointDouble const &p2, PointDouble const &p3) {
+			double d12 = PointDouble::dDistance(p1, p2)
+				, d13 = PointDouble::dDistance(p1, p3)
+				, d23 = PointDouble::dDistance(p2, p3);
+			//海伦公式
+			double dL = (d12 + d13 + d23) / 2.0;
+			return sqrt(dL * (dL - d12) * (dL - d13) * (dL - d23));
+		}
+		//若点p位于p1, p2, p3组成的三角形内那么返回true 否则返回false
+		static bool isInternalTriangle(PointDouble const &p1, PointDouble const &p2, PointDouble const &p3, PointDouble const &p) {
+			double a12p = dAreaOfTriangle(p1, p2, p)
+				, a13p = dAreaOfTriangle(p1, p3, p)
+				, a23p = dAreaOfTriangle(p2, p3, p)
+				, a123 = dAreaOfTriangle(p1, p2, p3);
+			//被那个点分割出的所有面积块之和与三角形总面积在误差范围内相等时 则在三角形内部 精度过高可能会被坑 一般1E-5即可
+			return (fabs(a123 - (a12p + a13p + a23p)) < EPS);
+		}
+		void mainForTriangle() {
+			//freopen("input", "r", stdin);
+			PointDouble p1, p2, p3, p;
+			while (8 == scanf_s("%lf%lf%lf%lf%lf%lf%lf%lf"
+				, &p1.x, &p1.y
+				, &p2.x, &p2.y
+				, &p3.x, &p3.y
+				, &p.x, &p.y)) {
+				puts(isInternalTriangle(p1, p2, p3, p) ? "Yes" : "No");
+			}
+		}
+		//符合勾股定理 返回true 练习题HDU2899
+		bool isPythagoreanTheorem(int a, int b, int c) {
+			return a * a == b * b + c * c || b * b == a * a + c * c || c * c == a * a + b * b;
+		}
+	private:
+		PointDouble p1, p2, p3;
 	};
 
 	//ans为s1+s2(s1与s2的并集)(直接ans.push_back(temp)即可没必要建实际生物s1与s2)
@@ -266,43 +355,12 @@ namespace Utility {
 		else
 			return ans[ans.size() / 2];
 	}
-	/*汉诺塔递归解法*/
-	void move(int n, char a, char b, char c){
-		/* Move(n,'A','B','C');*/
-		if (n == 1) {
-			//当n只有1个的时候直接从a移动到c
-			printf("%c To %c\n", a, c);
-		}
-		else{
-			//第n-1个要从a通过c移动到b
-			move(n - 1, a, c, b);
-			printf("%c To %c\n", a, c);
-			//n-1个移动过来之后b变开始盘，b通过a移动到c，这边很难理解
-			move(n - 1, b, a, c);
-		}
-	}
-	/*清空stdin输入流直至遇到end字符*/
-	void refreshStdin(char end){
-		while (getchar() != end);
-	}
 	//交换(引用实现 易爆)
-	void swapUnstable(int &a, int &b){
+	template<class T>
+	void swapUnstable(T &a, T &b){
 		a += b;
 		b = a - b;
 		a = a - b;
-	}
-	//返回与参数的时间差（单位：小时）
-	double getDifftime(time_t t_start){
-		time_t t;
-		double all;
-		time(&t);
-		all = difftime(t, t_start);
-		return all / 3600;
-		/*
-		clock_t Start = clock();
-		clock_t Stop = clock();
-		printf("矩阵乘法执行时间：%lf\n", (double)(Stop - Start)/CLK_TCK);
-		*/
 	}
 	//反转reverseRows行的二维数组a 每行位于区间[列leftSub,列rightSub)的元素
 	template<class T>
@@ -343,56 +401,6 @@ namespace Utility {
 		reverse(a, 0, k, R);/*反转前k个元素*/
 		reverse(a, k, C, R);/*反转后C-k个元素*/
 	}
-	//逆序数
-	int reverseOrderNumber(int number){
-		int temp = number;
-		int sum = 0, product = 1;
-		int top = 0;
-		int temptop;
-		for (top = 0; temp != 0; temp /= 10, top++);
-		//for (top = 1; temp /= 10; top++);
-		temp = number;
-		while (temp != 0){
-			temptop = top-- - 1;
-			product = 1;
-			while (temptop-- != 0){
-				product *= 10;
-			}
-			sum += (temp % 10) * product;
-			temp /= 10;
-		}
-		return sum;
-	}
-	//返回数字number中digit出现的次数
-	int digitCountD(const int number, const int digit){
-		int temp = number;
-		int count = 0;
-		do{
-			count += ((temp % 10) > 0 ? (temp % 10) : -(temp % 10)) == digit ? 1 : 0;
-			temp /= 10;
-		} while (temp != 0);
-		return count;
-	}
-	//获取整数的位数
-	int digitTop(int number){
-		int top = 1;
-		while (number /= 10)top++;
-		return top;
-	}
-	//删除resStr中的所有子串delSubStr
-	void eraseAllSubStr(char *resStr, char *delSubStr){
-		int i, res_len, del_len;
-		char *p;
-		del_len = strlen(delSubStr);
-		res_len = strlen(resStr);
-
-		for (p = strstr(resStr, delSubStr); p != NULL; p = strstr(resStr, delSubStr)){
-			for (i = p - resStr; i < res_len - del_len + 1; i++){
-				resStr[i] = resStr[i + del_len];
-			}
-			res_len = strlen(resStr);
-		}
-	}
 	// 计算第一个最长连续递增子序列(longest continuous increment sub sequence)
 	// 返回长度 参数:用于储存最长连续子序列的区间[leftResultSub, rightResultSub)
 	template<class T>
@@ -425,137 +433,74 @@ namespace Utility {
 		++rightResultSub;
 		return maxLen;
 	}
-	//10->2 在一行中打印出二进制的number (递归实现)
-	void decToBin(int number){
-		if (number < 2) {
-			printf("%d", number);
-		}
-		else{
-			decToBin(number / 2);
-			printf("%d", number % 2);
-		}
-	}
-	//起点-终点-跳跃能力-活动半径
-	int jump(PointDouble s, PointDouble e, double Power, double R) {
-		return dDistance(s, e) <= R + Power;
-	}
-	//返回两点间距离
-	double dDistance(PointDouble const &p1, PointDouble const &p2) {
-		double dx = p2.x - p1.x;
-		double dy = p2.y - p1.y;
-		return sqrt(dx*dx + dy*dy);
-	}
 }
-
+/**/
 namespace MathExtend {
 	using namespace Utility;
-	/*
-	//返回由p1, p2, p3组成的三角形的面积
-	double dTriangleArea(PointDouble const &p1, PointDouble const &p2, PointDouble const &p3) {
-		double d12 = dDistance(p1, p2)
-			, d13 = dDistance(p1, p3)
-			, d23 = dDistance(p2, p3);
-		//海伦公式
-		double dL = (d12 + d13 + d23) / 2.0;
-		return sqrt(dL * (dL - d12) * (dL - d13) * (dL - d23));
-	}
-	//若点p位于p1, p2, p3组成的三角形内那么返回true 否则返回false
-	bool isInternalTriangle(PointDouble const &p1, PointDouble const &p2, PointDouble const &p3, PointDouble const &p) {
-		double a12p = dTriangleArea(p1, p2, p)
-			, a13p = dTriangleArea(p1, p3, p)
-			, a23p = dTriangleArea(p2, p3, p)
-			, a123 = dTriangleArea(p1, p2, p3);
-		//被那个点分割出的所有面积块之和与三角形总面积在误差范围内相等时 则在三角形内部 精度过高可能会被坑 一般1E-5即可
-		return (fabs(a123 - (a12p + a13p + a23p)) < EPS);
-	}
-	void mainForTriangle() {
-		//freopen("input", "r", stdin);
-		PointDouble p1, p2, p3, p;
-		while (8 == scanf("%lf%lf%lf%lf%lf%lf%lf%lf"
-			, &p1.x, &p1.y
-			, &p2.x, &p2.y
-			, &p3.x, &p3.y
-			, &p.x, &p.y)) {
-			puts(isInternalTriangle(p1, p2, p3, p) ? "Yes" : "No");
+	
+	//矩阵乘法 productMatrix = productMatrix*originMatrix(两矩阵不能相同)
+	template<class T>
+	void matrixMultiply(const Sub maxRowCol, ArrayList<ArrayList<T>> &originMatrix, ArrayList<ArrayList<T>> &productMatrix) {
+		int r, c, i, tmp;
+		ArrayList<ArrayList<T>> tempMatrix;
+		//memcpy(tempMatrix, productMatrix, maxRowCol * 25 * sizeof(int));
+		tempMatrix = originMatrix;
+		for (r = 0; r < maxRowCol; r++) {
+			for (c = 0; c < maxRowCol; c++) {
+				//行列遍历对应相乘 累加给tmp 再赋给 productMatrix
+				for (tmp = i = 0; i < maxRowCol; i++)
+					tmp += originMatrix[r][i] * tempMatrix[i][c];
+				productMatrix[r][c] = tmp;
+			}
 		}
 	}
-*/
 	// 三分法 求函数fun在[L, R]的最小值 (eps: 精度) 求最大值可通过fun外部实现
-	double trichotomy(double L, double R, double eps, double(*fun)(double)){
-		double Ll, Rr;
-		while (R - L > eps){
-			//三分
-			Ll = (2 * L + R) / 3;
-			Rr = (2 * R + L) / 3;
-			if (fun(Ll) > fun(Rr))
-				L = Ll;
-			else
-				R = Rr;
-		}
-		//返回任一个即可
-		return fun(L);
-	}
-	//符合勾股定理 返回true 练习题HDU2899
-	bool isPythagoreanTheorem(int a, int b, int c){
-		return a * a == b * b + c * c || b * b == a * a + c * c || c * c == a * a + b * b;
-	}
-	//若大数bigInteger能被整除返回true
-	bool isDivisible(char *bigInteger, int MOD){
-		int len = strlen(bigInteger);
-		int ans, i;
-		for (ans = i = 0; i < len; i++) {
-			ans = (ans * 10 + (bigInteger[i] - '0')) % MOD;
-		}
-		return ans == 0 ? true : false;
-	}
-	/*
-	//返回错排表(malloc) 最大26个
-	I64* illArrange(){
-		I64 *M = (I64*)malloc(26 * sizeof(I64));
+	double trichotomy(double L, double R, double eps, double(*fun)(double));
+
+
+	//返回错排表(malloc) 64 bit 二进制位 最多计算26个 T 需要支持四则运算以及自加
+	template<class T>
+	ArrayList<T> calcIllArrangeList(size_t MAX_SIZE = 26) {
+		ArrayList<T> M(MAX_SIZE, 0);
 		M[0] = 0, M[1] = 1, M[2] = 1;
-		for (int n = 3; n < 26; n++)
+		for (size_t n = 3; n < 26; ++n)
 			M[n] = (n - 1) * (M[n - 1] + M[n - 2]);
 		return M;
 	}
-	//矩阵乘法 Product = Product*a两矩阵不能相同 Product: 矩阵积
-	void matrixMultiply(const int n, int(*a)[25], int Product[][25]) {
-		int r, c, i, tmp;
-		int b[25][25];
-		memcpy(b, Product, n * 25 * 4);
-		for (r = 0; r < n; r++) {
-			for (c = 0; c < n; c++) {
-				//行列遍历对应相乘 累加给tmp 再赋给 Product
-				for (tmp = i = 0; i < n; i++)
-					tmp += a[r][i] * b[i][c];
-				Product[r][c] = tmp;
-			}
+	//输出digit中[leftSub, rightSub)的全排列  非字典序
+	template<class T, class Fun>
+	void penetration(ArrayList<T> container, Sub leftSub, Sub rightSub, Fun visit) {
+		if (leftSub == rightSub) {
+			visit(container);
 		}
-	}
-	//输出digit中leftSub到rightSub的全排列  非字典序
-	void penetration(char *digit, Sub leftSub, Sub rightSub) {
-		if (leftSub == rightSub)
-			puts(digit);
 		else {
-			for (int i = leftSub; i <= rightSub; i++) {
-				swap(digit[leftSub], digit[i]);
-				penetration(digit, leftSub + 1, rightSub);
-				swap(digit[leftSub], digit[i]);
+			for (int i = leftSub; i < rightSub; ++i) {
+				swap(container[leftSub], container[i]);
+				penetration(container, leftSub + 1, rightSub, visit);
+				swap(container[leftSub], container[i]);
 			}
 		}
 	}
-	//输出数字1-n的全排列
-	void pentration(int n) {
-		char digit[11] = "123456789";
-		digit[n] = '\0';
-		//penetration(digit, 0, n - 1);
-		do {
-			//求下一个排列数 #include<algorithm>
-			puts(digit);
-		} while (next_permutation(digit, digit + n));
-		digit[n] = n + '0';
-	}
-	*/
-}
+	//输出数字1-maxDigit(1, 9)的全排列  字典序
+	void pentration(int maxDigit);
+	//输出数字1-maxDigit(1, 9)的全排列  非字典序
+	void pentration();
+	//汉诺塔递归解法
+	void hannoTowerMove(int n, char a, char b, char c);
+	//Confined(受限的)
 
+	//将10进制的number转换为radix进制的字符串 (递归实现)
+	std::string decToBin(int number, std::string &result, int radix = 2);
+	//若大数bigInteger能被整除返回true
+	bool isDivisible(char *bigInteger, int MOD);
+	//删除resStr中的所有子串delSubStr
+	void eraseAllSubStr(char *resStr, char *delSubStr);
+	//逆序数
+	int reverseOrderNumber(int number);
+	//计算radix进制整数number中digit出现的次数
+	int calcDigitCountInNumber(const int number, const int digit, int radix = 10);
+	//计算radix进制整数的位数
+	int calcDigitTop(int number, int radix = 10);
+}
 
 #endif
