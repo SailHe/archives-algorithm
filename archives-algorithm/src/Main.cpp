@@ -301,15 +301,96 @@ int mainForGraph() {
 	return 0;
 }
 
+template<class T>
+bool testAndOut(JCE::String const &name, T realValue, T expectValue) {
+	assert(realValue == expectValue);
+	cout << name + " 实际值: " << realValue << "; 期望值: " << expectValue << endl;
+	return true;
+}
+
+int mainForAlgorithm() {
+	puts("全排列: ");
+	MathExtend::pentration(3);
+	puts("阶乘: ");
+	printf("%.2f\n", MathExtend::fact(10));
+	testAndOut("组合数 3取2", MathExtend::C(3, 2), 3);
+	testAndOut("组合数 3取1", MathExtend::C(3, 1), 3);
+	testAndOut("组合数 49取6", MathExtend::C(49, 6), 13983816);
+
+	testAndOut("排列数 3取2", MathExtend::A(3, 2), 6);
+	testAndOut("排列数 8取3", MathExtend::A(8, 3), 336);
+
+	for (I64 i = 0; i < 20; ++i) {
+		testAndOut("快速幂 "+ std::to_string(i) +"^2", MathExtend::quickPow(i, 2), (I64)std::pow(i, 2));
+	}
+	int testCount = 50000;
+	StandardExtend::testAndDiffClock([&]() {
+		for (int i = 0; i < testCount; ++i) {
+			std::pow(2, 62);
+		}
+	}, "std::pow");
+	StandardExtend::testAndDiffClock([&]() {
+		for (int i = 0; i < testCount; ++i) {
+			MathExtend::quickPow(2, 62);
+		}
+	}, "普通快速幂");
+	StandardExtend::testAndDiffClock([&]() {
+		for (int i = 0; i < testCount; ++i) {
+			MathExtend::quickPow(2, 62, MAX_INT64);
+		}
+	}, "带mod的快速幂");
+	StandardExtend::testAndDiffClock([&]() {
+		for (int i = 0; i < testCount; ++i) {
+			MathExtend::quickPow_OLD(2, 62, MAX_INT64);
+		}
+	}, "基于quickFact的快速幂");
+
+	testAndOut("快速幂 10^18", MathExtend::quickPow_OLD(10, 18, MAX_INT64), (I64)std::pow(10, 18));
+
+	auto primeTable = MathExtend::primeSieve(100);
+	for (int i = 2; i < 100; ++i) {
+		testAndOut<bool>("数字" + to_string(i) + " 是否素数:", MathExtend::isPrime(i), primeTable[i] == 0);
+	}
+	free(primeTable);
+
+	auto f1 = [](double x) {
+		return pow(x, 2) + 2 * x + 1;
+	};
+
+	auto x1 = MathExtend::trichotomy<double, double>(-10.0, 10.0, [&](double x) {
+		//当x=-1.0时 y最小=0.0
+		return f1(x);
+	}, EPS);
+
+	Utility::Double::setEPS(EPS_DOUBLE);
+
+	testAndOut("一元二次方程最小近似解: ", Utility::Double(x1), Utility::Double(-1.0));
+	testAndOut("一元二次方程最小近似值: ", Utility::Double(f1(x1)), Utility::Double(0.0));
+
+	auto f2 = [](double x) {
+		return -pow(x, 2) + 2 * x + 1;
+	};
+
+	auto x2 = MathExtend::trichotomy<double, double>(-10.0, 10.0, [&](double x) {
+		//当x=1.0时 y最大=2.0 (此方法只提供最小值 故最前面添'-'号)
+		return -(f2(x));
+	}, EPS);
+
+	testAndOut("一元二次方程最大近似解: ", Utility::Double(x2), Utility::Double(1.0));
+	testAndOut("一元二次方程最大近似值: ", Utility::Double(f2(x2)), Utility::Double(2.0));
+
+	cout << "Algorithm test end" << endl;
+	return 0;
+}
+
 int main() {
 	//FILE *inFile = stdin, *outFile;
 	//freopen("input", "r", stdin);
 	//freopen_s(&inFile, "input", "r", stdin);
 	//mainForExpressionTree();
 	//mainForHuffumanTree();
-	MathExtend::pentration(3);
-	printf("%.2f\n", MathExtend::fact(10));
-	mainForGraph();
+	mainForAlgorithm();
+	StandardExtend::testAndDiffClock(mainForGraph);
 	mainForBinSearchTree();
 	MainForStack();
 	mainForQueue();

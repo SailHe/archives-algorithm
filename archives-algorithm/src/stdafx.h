@@ -71,12 +71,17 @@ export(导出/出口/输出) 在定义模板类对象和模板函数时的extern功能
 #define _DEBUG_ERROR(s){_ASSERT_EXPR(false, s); }
 #endif //  _DEBUG_ERROR
 
-
-
-//4字节32位 有符号无穷大0x7FFFFFFF; 双字节无符号整数的最大值是65535
-#define infinity 2147483647
+//双字节无符号整数(16位)
+#define MAX_INT16 65535
+#define MIN_INT16 (-MAX_INT16-1)
+//4字节32位有符号整数 2^31-1 = 0x7FFFFFFF; 约2e8(9bit)
 #define MAX_INT32 2147483647
 #define MIN_INT32 (-MAX_INT32-1)
+//8字节64位有符号整数 2^63-1 std::to_string(pow(2, 63)) 19bit约9e18
+#define MAX_INT64 9223372036854775807
+#define MIN_INT64 (-MAX_INT64-1)
+
+#define infinity MAX_INT32
 //using namespace std;
 //using namespace std::placeholders;
 

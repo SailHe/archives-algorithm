@@ -56,23 +56,11 @@ namespace StandardExtend{
 	}
 };
 
-namespace MathExtend {
-	// 三分法 求函数fun在[L, R]的最小值 (eps: 精度) 求最大值可通过fun外部实现
-	double trichotomy(double L, double R, double eps, double(*fun)(double)) {
-		double Ll, Rr;
-		while (R - L > eps) {
-			//三分
-			Ll = (2 * L + R) / 3;
-			Rr = (2 * R + L) / 3;
-			if (fun(Ll) > fun(Rr))
-				L = Ll;
-			else
-				R = Rr;
-		}
-		//返回任一个即可
-		return fun(L);
-	}
+namespace Utility {
+	double Double::EPS = EPS_DOUBLE;
+}
 
+namespace MathExtend {
 	//输出数字1-maxDigit(1, 9)的全排列  字典序
 	void pentration(int maxDigit) {
 		char allDigit[11] = "123456789";
@@ -185,7 +173,7 @@ namespace MathExtend {
 
 
 
-	I64 Quickfact(I64 a, I64 b, I64 mod) {
+	I64 quickFact(I64 a, I64 b, I64 mod) {
 		I64 ans = 0;
 		while (b) {
 			if (b & 1) {
@@ -196,11 +184,11 @@ namespace MathExtend {
 		}
 		return ans;
 	}
-	I64 Quickpow(I64 C, I64 R, I64 k) {
+	I64 quickPow_OLD(I64 C, I64 R, I64 k) {
 		I64 ans = 1;
 		while (R > 0) {
-			R & 1 ? ans = Quickfact(ans, C, k) : ans;
-			C = Quickfact(C, C, k);
+			R & 1 ? ans = quickFact(ans, C, k) : ans;
+			C = quickFact(C, C, k);
 			R >>= 1;
 		}
 		return ans;
@@ -251,7 +239,9 @@ namespace MathExtend {
 	 ________________
 	fact(n - m) * fact(m)
 	*/
-	//组合数
+	//组合数 (取出元素不重复出现)
+	//从n个不同元素中，任取m(m≤n)个元素并成一组，叫做从n个不同元素中取出m个元素的一个组合；
+	//ab == ba
 	int C(int n, int m) {
 		int f = 1, i = 1;
 		//n < m时c(n,m) = 0
@@ -266,7 +256,9 @@ namespace MathExtend {
 		}
 		return f;
 	}
-	//排列数
+	//排列数 (取出元素不重复出现)
+	//从n个不同元素中，任取m(m≤n)个元素按照一定的顺序排成一列，叫做从n个不同元素中取出m个元素的一个排列
+	//ab != ba
 	int A(int n, int m) {
 		int d, f = 1;
 		for (d = n - m; d < n && d >= 0; --n) {
@@ -291,7 +283,7 @@ namespace MathExtend {
 	int factorSum(int x) {
 		//1对应x  只加1不加x
 		int sum = 1, i;
-		_DEBUG_ERROR(x != 0, "0没有因子");
+		_ASSERT_EXPR(x != 0, "0没有因子");
 		//i可能爆
 		for (i = 2; i * i <= x; ++i) {
 			if (x % i == 0) {
@@ -336,7 +328,7 @@ namespace MathExtend {
 		}
 		return count;
 	}
-	//开方函数 (eps: 精度)
+	//开方函数 (eps: 精度) 计算精度小于std
 	double sqrtImpl(double x, double eps) {
 		double last, next;
 		for (last = 1, next = 2;;) {

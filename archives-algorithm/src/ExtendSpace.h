@@ -25,6 +25,7 @@ const View defaultView = BACK;//默认视图(此值转换为int必须是0)
 
 const double EPSINON = 1e-15;
 const double EPS = 1e-9;
+const double EPS_DOUBLE = 1e-6;
 const double PI = 3.14159265;//八位π
 const double PIA = acos(-1.0);//蓝桥杯可用
 
@@ -58,14 +59,14 @@ namespace StandardExtend{
 	void refreshStdin(char end);
 	//计算与参数的时间差（单位：Minite）
 	double calcDifftime(time_t startTime);
-	//计算与参数的时钟差（单位：ms）
+	//计算与参数的时钟差（单位：s）
 	double calcDiffClock(clock_t startClock);
-	//用于测试Function 会自动输出Function的执行时钟(单位：ms)
+	//用于测试Function 会自动输出Function的执行时钟(单位：s)
 	template<class Function>
-	void calcDiffClock(Function fun) {
+	void testAndDiffClock(Function fun, JCE::String const &name = "") {
 		clock_t startClock = clock();
 		fun();
-		printf("执行时间：%lf\n", calcDiffClock(startClock));
+		std::cout << name + "执行时间：" << calcDiffClock(startClock) << std::endl;
 	}
 
 	// 可以替换为: destContainer.resize(origin.end() - origin.begin());
@@ -247,6 +248,38 @@ namespace Utility {
 	//int dir[8][2] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 }, { 0, -1 }, { 1, -1 } };
 	const int Dir8[8][2] = { { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
 	const int Dir4[4][2] = { { 0, -1 /*左*/ }, { 0, 1 /*右*/ }, { -1, 0 /*上*/ }, { 1, 0 /*下*/ } };
+
+	//重载了精度比较符的双精度浮点
+	class Double {
+	public:
+		Double() {}
+		Double(int rhs) {
+			value = rhs;
+		}
+		Double(double rhs) {
+			value = rhs;
+		}
+		bool operator==(Double const &rhs) const {
+			return fabs(this->value - rhs.value) < EPS;
+		}
+
+		//cout<<
+		friend std::ostream &operator<<(std::ostream &os, const Double &rhs) {
+			os << rhs.value;
+			return os;
+		}
+
+		static void setEPS(double EPS) {
+			Double::EPS = EPS;
+		}
+		static double getEPS() {
+			return EPS;
+		}
+	private:
+		double value;
+		//1e-6
+		static double EPS;
+	};
 
 	//非聚合  点类
 	class PointDouble {
@@ -439,10 +472,25 @@ namespace MathExtend {
 			}
 		}
 	}
-	// 三分法 求函数fun在[L, R]的最小值 (eps: 精度) 求最大值可通过fun外部实现
-	double trichotomy(double L, double R, double eps, double(*fun)(double));
-
-
+	// 三分法 求一元函数f(x)在区间[left, right]内的的最小解x (eps: 精度, 求最大值可外部实现)
+	template<class TY, class TX, class Fun>
+	//TY(*fun)(TX x)
+	TX trichotomy(TX left, TX right, Fun fun, TX eps) {
+		TX Ll, Rr;
+		while (right - left > eps) {
+			//三分
+			Ll = (2 * left + right) / 3;
+			Rr = (2 * right + left) / 3;
+			if (fun(Ll) > fun(Rr)) {
+				left = Ll;
+			}
+			else {
+				right = Rr;
+			}
+		}
+		//返回left ,right任一个即可(PS: 不应返回f(x)的值 因为fun可能不是用户需要的fun 参见顶部注解)
+		return left;
+	}
 	//返回错排表(malloc) 64 bit 二进制位 最多计算26个 T 需要支持四则运算以及自加
 	template<class T>
 	StandardExtend::ArrayList<T> calcIllArrangeList(StandardExtend::SizeType MAX_SIZE = 26) {
@@ -489,10 +537,12 @@ namespace MathExtend {
 
 
 
-	I64 Quickfact(I64 a, I64 b, I64 mod);
-	I64 Quickpow(I64 C, I64 R, I64 k);
-	//快速幂简易版 m^n % k（k）
+	I64 quickFact(I64 a, I64 b, I64 mod);
+	//快速幂基于quickFact版 效率是简易版的1/5
+	I64 quickPow_OLD(I64 C, I64 R, I64 k);
+	//快速幂简易版 m^n % k 如果用于计算pow效率是普通版的1/20 (普通版效率高)
 	I64 quickPow(I64 m, I64 n, I64 k);
+	//快速幂普通版 m^n; 与std::pow效率各有高低相差不大 std::pow值域更大
 	I64 quickPow(I64 m, I64 n);
 	//任意底数对数
 	double logR(double value, double base = 5);
