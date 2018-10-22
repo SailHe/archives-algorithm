@@ -48,7 +48,7 @@ typedef __int64 I64;
 
 #define ARRAY_TEMPLATE template<class T, class Iterator>
 
-//里面的许多标准输入输出方法模板(iterate系列)只建议用作测试 不建议实际使用
+//标准扩展: 里面的许多标准输入输出方法模板(iterate系列)只建议用作测试 不建议实际使用
 namespace StandardExtend{
 	const int MAX_R = 1024;
 	const int MAX_C = 1024;
@@ -257,6 +257,7 @@ namespace StandardExtend{
 
 };
 
+//效用扩展
 namespace Utility {
 	using namespace StandardExtend;
 	/************逆向*****0*********45*******90*********135*******180********225*******270********315****/
@@ -434,7 +435,8 @@ namespace Utility {
 		return maxLen;
 	}
 }
-/**/
+
+//数学扩展
 namespace MathExtend {
 	using namespace Utility;
 	

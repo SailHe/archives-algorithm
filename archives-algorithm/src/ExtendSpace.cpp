@@ -1,4 +1,5 @@
-#include "ExtendSpace.h" 
+#include "ExtendSpace.h"
+
 namespace StandardExtend{
 	/****************Ascll*******************/
 

@@ -16,13 +16,11 @@ lllll
 
 /*qsort(a, 排序长度, 一个元素的大小, intCmp);*/
 template<class CmpType>
-int lessQsortCmp(const void *min, const void *max)
-{
+int lessQsortCmp(const void *min, const void *max){
 	return ((CmpType*)min)->year - ((CmpType*)max)->year;
 }
 template<class CmpType>
-int structCmp(const void *min, const void *max)
-{
+int structCmp(const void *min, const void *max){
 	int cp = ((CmpType*)min)->value - ((CmpType*)max)->value;//按主价值 从小到大排序
 	if (cp == 0)
 		cp = ((CmpType*)max)->value2 - ((CmpType*)min)->value2;//按次价值 从大到小排序
@@ -30,21 +28,18 @@ int structCmp(const void *min, const void *max)
 }
 /*sort(a, a+n, boolCmp)*/
 template<class CmpType>
-bool lessSortCmp(CmpType min, CmpType max)
-{
+bool lessSortCmp(CmpType min, CmpType max){
 	return min.value < max.value;
 }
 //冒泡排序
-
-void BubbleSort(int a[], int n, int K, int cmp(const void *a, const void *b))
-{
-	int temp = 0;//对数组a中的n个元素进行的第K次
-	for (int i = 0; i < K; i++)//K代表遍数时不能减一
-	{
-		for (int j = 0; j < n - i - 1; j++)//此处必须减一
-		{
-			if (cmp(&a[j + 1], &a[j]))
-			{
+void BubbleSort(int a[], int n, int K, int cmp(const void *a, const void *b)){
+	//对数组a中的n个元素进行的第K次
+	int temp = 0;
+	//K代表遍数时不能减一
+	for (int i = 0; i < K; i++){
+		//此处必须减一
+		for (int j = 0; j < n - i - 1; j++){
+			if (cmp(&a[j + 1], &a[j])){
 				temp = a[j + 1];
 				a[j + 1] = a[j];
 				a[j] = temp;
@@ -54,14 +49,10 @@ void BubbleSort(int a[], int n, int K, int cmp(const void *a, const void *b))
 }
 //选择排序
 template<class CmpType>
-void SlectSort(CmpType a[], CmpType *an, int(*cmp)(CmpType *a, CmpType *b))
-{
-	for (; a < an - 1; a++)
-	{
-		for (CmpType *j = a + 1; j < an; j++)
-		{
-			if (cmp(j, a))
-			{
+void SlectSort(CmpType a[], CmpType *an, int(*cmp)(CmpType *a, CmpType *b)){
+	for (; a < an - 1; ++a){
+		for (CmpType *j = a + 1; j < an; ++j){
+			if (cmp(j, a)){
 				swap(*a, *j);
 			}
 		}
@@ -87,33 +78,30 @@ int dichotomy(int re[], int n, int key) {
 	return -1;
 }
 /*二分枚举+贪心*/
-int canJump(int s[], int n, int m, int jump)
-{
+int canJump(int s[], int n, int m, int jump){
 	int step = 0;
 	int from = 0;
 	int to = 1;
 	int out = true;
-	while (to < n)//到达终点时结束
-	{
+	//到达终点时结束
+	while (to < n){
 		out = true;
-		while (to < n && s[to] - s[from] <= jump)
-		{
+		while (to < n && s[to] - s[from] <= jump){
 			to++;//贪心，通过尽可能多的石头
 			out = false;
 		}
 		from = to - 1;
-		step++;
-		if (out || step > m)//说明jump小了，有的地方跳不过去  || 步数过多
+		++step;
+		//说明jump小了，有的地方跳不过去  || 步数过多
+		if (out || step > m)
 			return false;
 	}
 	return true;
 }
 int st[5/*00002*/];
-int main_1_()
-{
+int main_1_(){
 	int L, M, N;
-	while (cin >> L >> N >> M)
-	{
+	while (cin >> L >> N >> M){
 		N += 2;
 		st[0] = 0;
 		for (int i = 1; i < N - 1; scanf("%d", &st[i++]));
@@ -121,13 +109,15 @@ int main_1_()
 		int left = st[1];
 		int right = st[N - 1] = L;
 		st[0] = 0;
-		while (left < right)
-		{
+		while (left < right){
 			int mid = (left + right) >> 1;
-			if (canJump(st, N, M, mid))//若可以在小于m步的前提下跳过去 那么尝试小一些的jump力,但要保留上一次的jump值：mid不减1
+			//若可以在小于m步的前提下跳过去 那么尝试小一些的jump力,但要保留上一次的jump值：mid不减1
+			if (canJump(st, N, M, mid))
 				right = mid;
-			else//在无法跳过的前提下，mid值无需保留
+			else {
+				//在无法跳过的前提下，mid值无需保留
 				left = mid + 1;
+			}
 		}
 		cout << left << endl;
 	}
@@ -135,13 +125,11 @@ int main_1_()
 }
 /*********************************************DATE********************************************************/
 //闰年判断
-int isIntercalary(int year)
-{
+int isIntercalary(int year){
 	return (year % 4 == 0 && year % 100 != 0 || year % 400 == 0);
 }
 //计算这天是当前年份的第几天
-int today(int year, int month, int day)
-{
+int today(int year, int month, int day){
 	int t, j, month_day[2][13] = {
 		{ 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
 		{ 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 } //闰年
@@ -150,15 +138,12 @@ int today(int year, int month, int day)
 	return t + day;
 }
 //返回t1与t2间的分数时间差min， 并将小时，min结果存于参数指针中  t格式08:05 ==>805
-int timeDiffrence(int t1, int t2, int *t_h, int *t_min)
-{
-	if (t1 % 100 <= t2 % 100)
-	{
+int timeDiffrence(int t1, int t2, int *t_h, int *t_min){
+	if (t1 % 100 <= t2 % 100){
 		*t_h = t2 / 100 - t1 / 100;
 		*t_min = t2 % 100 - t1 % 100;
 	}
-	else
-	{
+	else{
 		*t_h = t2 / 100 - t1 / 100 - 1;
 		*t_min = t2 % 100 - t1 % 100 + 60;
 	}
@@ -192,13 +177,10 @@ long long f(int iNum, int m){
 	return tmp;
 }
 /**************************************************************************/
-I64 Quickfact(I64 a, I64 b, I64 mod)
-{
+I64 Quickfact(I64 a, I64 b, I64 mod){
 	I64 ans = 0;
-	while (b)
-	{
-		if (b & 1)
-		{
+	while (b){
+		if (b & 1){
 			ans = (ans + a) % mod;
 		}
 		a = (a << 1) % mod;
@@ -206,11 +188,9 @@ I64 Quickfact(I64 a, I64 b, I64 mod)
 	}
 	return ans;
 }
-I64 Quickpow(I64 C, I64 R, I64 k)
-{
+I64 Quickpow(I64 C, I64 R, I64 k){
 	I64 ans = 1;
-	while (R > 0)
-	{
+	while (R > 0){
 		R & 1 ? ans = Quickfact(ans, C, k) : ans;
 		C = Quickfact(C, C, k);
 		R >>= 1;
@@ -218,19 +198,16 @@ I64 Quickpow(I64 C, I64 R, I64 k)
 	return ans;
 }
 //快速幂简易版 m^n % k（k）
-I64 quickPow(I64 m, I64 n, I64 k)
-{
+I64 quickPow(I64 m, I64 n, I64 k){
 	I64 ans = 1;
-	while (n > 0)
-	{
+	while (n > 0){
 		n & 1 ? ans = ((ans%k)*(m%k)) % k : ans;
 		m = ((m%k)*(m%k)) % k;
 		n >>= 1;
 	}
 	return ans;
 }
-I64 quickPow(I64 m, I64 n)
-{
+I64 quickPow(I64 m, I64 n){
 	I64 ans = 1;
 	while (n > 0){
 		//n & 1 ? ans = ans*m : ans;
@@ -251,8 +228,8 @@ double fact(int n){
 	while (--n > 0)product *= n;
 	return n == 0 ? 1 : product;//0的阶乘为1
 }
-//int 限度内阶乘表
-int* factTable(int maxN = 13)/*int 13!爆； double和long long int 18!爆*/{
+//int 限度内阶乘表 (int 13!爆； double和long long int 18!爆)
+int* factTable(int maxN = 13) {
 	int *Fact = (int *)malloc(sizeof(int)* maxN);
 	Fact[0] = Fact[1] = 1;
 	for (int n = 2; n < maxN; ++n) 
@@ -270,34 +247,28 @@ int C(int n, int m){
 	int f = 1, i = 1;
 	f = n - m < 0 ? 0 : f;//n < m时c(n,m) = 0
 	m = n - m < m ? n - m : m;//int 防爆n30 m29时   c(30, 29) = c(30, 1)
-	while (i <= m)
-	{
+	while (i <= m){
 		f *= n--;//n * (n - 1) * ...m
 		f /= i++;//1 *    2    * ...m
 	}
 	return f;
 }
 //排列数
-int A(int n, int m)
-{
+int A(int n, int m){
 	int d, f = 1;
-	for (d = n - m; d < n && d >= 0; --n)
-	{
+	for (d = n - m; d < n && d >= 0; --n){
 		f *= n;
 	}
 	return f;
 }
 //生成n行 的杨辉三角
-void buildPtriangle(int n, int table[][30])
-{
+void buildPtriangle(int n, int table[][30]){
 	table[0][0] = 1;
-	for (int r = 1; r < n; r++)
-	{
+	for (int r = 1; r < n; r++){
 		//每行的数字个数=行数+1(行数从0开始)
 		//若需要每行前面的空格的话 每行第一个数字前面的空格数 = 2*[(maxR-currentR(1开始))的那一行的数字数]  ==> 2*(n-r-1)
 		//int blakCnt = 0;
-		for (int c = 0; c < r + 1; c++)
-		{
+		for (int c = 0; c < r + 1; c++){
 			if (c != 0)
 				table[r][c] = table[r - 1][c] + table[r - 1][c - 1];
 			else
@@ -306,16 +277,12 @@ void buildPtriangle(int n, int table[][30])
 	}
 }
 //打印n行的杨辉三角
-void PrintPtriangle(int n, int table[][30])
-{
-	for (int pr = 0; pr < n; pr++)
-	{
-		for (int pc = 0; pc < n; pc++)
-		{
+void PrintPtriangle(int n, int table[][30]){
+	for (int pr = 0; pr < n; pr++){
+		for (int pc = 0; pc < n; pc++){
 			if (table[pr][pc] != 0)
 				printf("%d", table[pr][pc]);
-			if (pc < pr)
-			{
+			if (pc < pr){
 				printf(" ");
 			}
 			else if (pc == pr && pr != n - 1)
@@ -349,14 +316,14 @@ int gcd(int a, int b)
 讨论是否存在一整数k，使得m在k圈后比n大一；就是求解： k*m - n = 1;是否有解
 1 % gcd(m,n) == 0
 */
-int gcdEx_(int a, int b, int &x, int &y){
+int gcdEx_Old(int a, int b, int &x, int &y){
 	if (b == 0){
 		x = 1;
 		y = 0;
 		return a;
 	}
 	else{
-		int g = gcdEx_(b, a%b, x, y);
+		int g = gcdEx_Old(b, a%b, x, y);
 		int t = x;
 		x = y;
 		y = t - (a / b)*y;
@@ -392,7 +359,7 @@ I64 gcdEx(I64 a, I64 b, I64 &x, I64 &y){
 证明:对于方程 a/g*x+b/g*y = c/g	(若x,y是整数解; g = gcd(a, b) ==> 方程左边是个整数 ==> 右边也该是整数 ==> 否则x,y不是整数解)
 <==> a/g*x ≡ c/g (mod b/g)	==> 若方程存在特解x,那么x + k*(b/g)还是方程的解
 */
-//pku1061-青蛙的约会
+//PKU1061-青蛙的约会
 //求线性方程ax+by = c的最小非负整数解x(只能保证x满足条件) 若整数解不存在返回false
 int linearEquation(I64 a, I64 &x, I64 b, I64 &y, I64 c){
 	I64 x0, y0,
@@ -437,7 +404,8 @@ void linearEquation(int a, int &x, int b, int &y, int c){
 	FOR(t, tB - 5, tB + 5){
 		int xT = x0 + b / g*t;
 		int yT = y0 - a / g*t;
-		if (abs(xT) + abs(yT) < abs(x) + abs(y)){//此处取等则错
+		//此处取等则错
+		if (abs(xT) + abs(yT) < abs(x) + abs(y)){
 			x = xT;
 			y = yT;
 		}
@@ -466,7 +434,8 @@ int modInv(int a, int m){
 	if (gcdEx(a, m, t, y) != 1) {
 		cerr << a << " " << m << "不互素 模逆元不存在!" << endl;
 		exit(-1);
-	}return t;
+	}
+	return t;
 }
 /*
 中国剩余定理: ans = sum(a[i] * t[i] * M[i])
@@ -480,19 +449,25 @@ num模m[i]同余代表数组(弱参数)	num ≡ a[i](mod m[i])
 */
 int chineseReminder(int *m, int *a, int n, int mP = 0){
 	int ans, t, y, i;
-	if (mP == 0)//避免重复计算, 但是在必须多次计算的地方又可以选择默认参数, 更具灵活性
-	for (i = 0, mP = 1; i < n; i++) mP *= m[i];//求m[i]的积mProduct
+	//避免重复计算, 但是在必须多次计算的地方又可以选择默认参数, 更具灵活性
+	if (mP == 0) {
+		//求m[i]的积mProduct
+		for (i = 0, mP = 1; i < n; i++) {
+			mP *= m[i];
+		}
+	}
 	for (i = 0, ans = 0; i < n; i++){
-		gcdEx(mP / m[i], m[i], t, y);//求M[i] = mP / m[i]的模逆元t[i](极可能为负)
+		//求M[i] = mP / m[i]的模逆元t[i](极可能为负)
+		gcdEx(mP / m[i], m[i], t, y);
 		ans += (a[i] * t * (mP / m[i]));
 	}
-	ans = (ans + mP) % mP;//ans极有可能为负数
+	//ans极有可能为负数
+	ans = (ans + mP) % mP;
 	return ans;
 }
 
 //素数(质数)判断
-int isPrime_(int num)
-{
+int isPrime_OLD(int num){
 	double k = sqrt((double)num);
 	int i = 0;
 	for (i = 2; i <= k && num % i != 0; i++);
@@ -505,32 +480,30 @@ bool isPrime(int num){
 	return i*i > num && num > 1;
 }
 //真因子和(除本身外的约数）
-int factorSum(int x)
-{
-	int sum = 1, i;//1对应x  只加1不加x
-	assert(x != 0);//0没有因子
-	for (i = 2; i * i <= x; i++)//i可能爆
-	{
-		if (x % i == 0)
-		{
+int factorSum(int x){
+	//1对应x  只加1不加x
+	int sum = 1, i;
+	assert(x != 0, "0没有因子");
+	//i可能爆
+	for (i = 2; i * i <= x; ++i){
+		if (x % i == 0){
 			sum += i;
-			sum += i == x / i ? 0 : x / i;//根号x只加一次
+			//根号x只加一次
+			sum += i == x / i ? 0 : x / i;
 		}
-	}//（因子包括1但不包括本身，特别的0没有因子，1的因子为1）；另外因子和为本身的叫完数
+	}
+	//（因子包括1但不包括本身，特别的0没有因子，1的因子为1）；另外因子和为本身的叫完数
 	return sum;
 }
 //真因子和表(约数 因数) (10^7一千万2.51s)(400w 10^6 900ms)
-void factorSumTableSieve(const int maxn, int a[/*maxn*/])
-{
-	for (int i = 1; i < maxn; i++)
-	{
-		for (int j = i + i; j < maxn; j += i)
-		{
+void factorSumTableSieve(const int maxn, int a[/*maxn*/]){
+	for (int i = 1; i < maxn; i++){
+		for (int j = i + i; j < maxn; j += i){
 			a[j] += i;
 		}
 	}
 }
-//素数(质数) 筛选法 埃拉托色尼(Sieve Eratosthenes)(0 1==-1, a[i]==0表示素数) PS:maxN = 1e7时超过1s了 1e9似乎无法分配内存
+//素数(质数) 筛选法 埃拉托色尼(Sieve Eratosthenes)(0 1==-1, a[i]==0表示素数) maxN[2, 1e9) PS:maxN = 1e7时超过1s了 1e9似乎无法分配内存
 int* primeSieve(const int maxN = 2) {
 	int *prime = (int*)malloc(maxN*sizeof(int));
 	memset(prime, 0, maxN*sizeof(int));
@@ -543,62 +516,54 @@ int* primeSieve(const int maxN = 2) {
 	return prime;
 }
 //因子数目
-int factorCount(int x)
-{
+int factorCount(int x){
 	int i, count = 0;
-	double k = sqrt((double)x);//1 对应 x 计2   k对应k 计1
-	for (i = 1; i <= k; i++)
-	{
-		if (x % i == 0)
-			count += i * i == x ? 1 : 2;//除因子k外   其余因子成对出现
+	//1 对应 x 计2   k对应k 计1
+	double k = sqrt((double)x);
+	for (i = 1; i <= k; i++){
+		if (x % i == 0) {
+			//除因子k外   其余因子成对出现
+			count += i * i == x ? 1 : 2;
+		}
 	}
 	return count;
 }
-
-//开方函数
-double sqrtMy(double x, double eps = 1e-9)/*精度*/
-{
+//开方函数 (eps: 精度)
+double sqrtImpl(double x, double eps = 1e-9){
 	double last, next;
-	for (last = 1, next = 2;;)
-	{
+	for (last = 1, next = 2;;){
 		last = next;
 		next = (last + (x / last)) / 2;
-		if (fabs(next - last) < eps)
-		{
-			return next;/*????*/
+		if (fabs(next - last) < eps){
+			//????
+			return next;
 		}
 	}
 	return -1;
 }
 //求方差
-double variance(float x[], int n)
-{
-
+double variance(float x[], int n){
 	double aver, sum = 0, D = 0;
 	int temp, i;
 	temp = n;
-	while (temp-- != 0)
-	{
+	while (temp-- != 0){
 		sum += x[temp];
 	}
 	aver = sum / n;
-	for (i = 0; i < n; i++)
-	{
+	for (i = 0; i < n; i++){
 		D += (x[i] - aver) * (x[i] - aver) / n;
 	}
 	return D;
 }
+
 // 欧拉函数:在数论中用于求解[1,n]中与n 互质数 的个数 的函数
-int  Eular(int n)
-{
+int  Eular(int n){
 	//通式：φ(x) = x(1-1/p1)*(1-1/p2)*(1-1/p3)…(1-1/pn)
 	//其中p1,p2……pn为x的所有互异质因数(质因子)，x是不为0的整数。
 	int i, ret = n;
 	double k = sqrt((double)n);
-	for (i = 2; i <= k; i++)
-	{
-		if (n%i == 0)
-		{
+	for (i = 2; i <= k; i++){
+		if (n%i == 0){
 			ret = ret / i*(i - 1);
 			while (n%i == 0)
 				n /= i;
@@ -608,8 +573,7 @@ int  Eular(int n)
 	return ret;
 }
 //巴什博弈：取最后一个的人胜
-int BaShen(int n, int min, int max)
-{
+int BaShen(int n, int min, int max){
 	int situation = n % (max + min);
 	if (0 < situation && situation <= min)
 		return 0;//先手负
@@ -617,10 +581,14 @@ int BaShen(int n, int min, int max)
 		return 1;//先手胜
 }
 //返回n条边时最大交点数目
-int pointLine(int n)
-{
+int pointLine(int n){
 	return n*(n - 1) / 2;
 }
+
+
+
+
+
 
 /************************************************背包**********************************************************/
 //01背包 V是背包总容量
