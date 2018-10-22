@@ -472,6 +472,29 @@ namespace MathExtend {
 			}
 		}
 	}
+	// 二分查找origin[n]中key 返回key的迭代器, 若没有返回origin+size迭代器 注意:如果有多个相同元素这个方法返回的元素可能是其中任意一个
+	// origin迭代器所处的容器必须支持索引[]操作(序列式容器，或者数组) 并且容器内[origin, origin+size)范围内元素必须已排序
+	// std有类似二分搜索实现(std::binary_search) 但只是 检查等价于 value 的元素是否出现于范围 [first, last) 中
+	// 类似的还有:	A. count,find
+	//				B.binary_search, lower_bound, upper_bound, equal_range
+	template<class Iterator, class ValueType>
+	Iterator dichotomy(Iterator origin, JCE::SizeType size, ValueType key) {
+		int left = 0, right = size, mid = 0;
+		while (left <= right) {
+			mid = (right + left) / 2;
+			if (origin[mid] < key) {
+				left = mid + 1;
+			}//加1之前若确认mid不合法, 于是可以把这个结果用到下一次的计算中, 若不加1下一次可能会重新计算mid
+			else if (origin[mid] > key) {
+				//同上
+				right = mid - 1;
+			}
+			else {
+				return origin + mid;
+			}
+		}
+		return origin + size;
+	}
 	// 三分法 求一元函数f(x)在区间[left, right]内的的最小解x (eps: 精度, 求最大值可外部实现)
 	template<class TY, class TX, class Fun>
 	//TY(*fun)(TX x)

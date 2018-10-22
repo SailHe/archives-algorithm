@@ -353,31 +353,33 @@ int mainForAlgorithm() {
 	}
 	free(primeTable);
 
+	Utility::Double::setEPS(EPS_DOUBLE);
 	auto f1 = [](double x) {
 		return pow(x, 2) + 2 * x + 1;
 	};
-
 	auto x1 = MathExtend::trichotomy<double, double>(-10.0, 10.0, [&](double x) {
 		//当x=-1.0时 y最小=0.0
 		return f1(x);
 	}, EPS);
-
-	Utility::Double::setEPS(EPS_DOUBLE);
-
 	testAndOut("一元二次方程最小近似解: ", Utility::Double(x1), Utility::Double(-1.0));
 	testAndOut("一元二次方程最小近似值: ", Utility::Double(f1(x1)), Utility::Double(0.0));
 
 	auto f2 = [](double x) {
 		return -pow(x, 2) + 2 * x + 1;
 	};
-
 	auto x2 = MathExtend::trichotomy<double, double>(-10.0, 10.0, [&](double x) {
 		//当x=1.0时 y最大=2.0 (此方法只提供最小值 故最前面添'-'号)
 		return -(f2(x));
 	}, EPS);
-
 	testAndOut("一元二次方程最大近似解: ", Utility::Double(x2), Utility::Double(1.0));
 	testAndOut("一元二次方程最大近似值: ", Utility::Double(f2(x2)), Utility::Double(2.0));
+
+	const int size = 9;
+	int a[size] = { 6, 5, 3, 0, 1, 4, 2, 6, 7};
+	std::sort(a, a + 7);
+	auto it1 = MathExtend::dichotomy(a, size, 6);
+	bool exist = std::binary_search(a, a + size, 6);
+	auto pair = std::equal_range(a, a + size, 6);
 
 	cout << "Algorithm test end" << endl;
 	return 0;

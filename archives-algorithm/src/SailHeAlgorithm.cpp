@@ -59,24 +59,6 @@ void SlectSort(CmpType a[], CmpType *an, int(*cmp)(CmpType *a, CmpType *b)){
 	}
 }
 /*********************************************查 找********************************************************/
-//二分查找re[n]中key
-int dichotomy(int re[], int n, int key) {
-	sort(re, re + n);
-	int left = 0, right = n, mid = 0;
-	while (left <= right) {
-		mid = (right + left) / 2;
-		if (re[mid] < key) {
-			left = mid + 1;
-		}//加1之前若确认mid不合法, 于是可以把这个结果用到下一次的计算中, 若不加1下一次可能会重新计算mid
-		else if (re[mid] > key){
-			right = mid - 1;/**同上**/
-		}
-		else{
-			return mid;
-		}
-	}
-	return -1;
-}
 /*二分枚举+贪心*/
 int canJump(int s[], int n, int m, int jump){
 	int step = 0;
