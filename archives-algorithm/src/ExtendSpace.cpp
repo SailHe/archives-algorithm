@@ -1,8 +1,7 @@
 #include "ExtendSpace.h"
 
 namespace StandardExtend{
-	/****************Ascll*******************/
-
+	// =====Ascll
 	char toLowerAlph(char c){
 		if ('0' <= c && c <= '9'){
 			return 'a' + c - '0';
@@ -16,7 +15,6 @@ namespace StandardExtend{
 			}
 		}
 	}
-
 	int toIntNum(char alphOrCharNum){
 		if ('0' <= alphOrCharNum && alphOrCharNum <= '9'){
 			return alphOrCharNum - '0';
@@ -30,20 +28,14 @@ namespace StandardExtend{
 			}
 		}
 	}
-
-	//10ToA(Alph)
 	char toUppercaseAscllChar(int num){
 		return num > 9 ? num - 10 + 'A' : num + '0';
 	}
-
-	//'A' == 'a' == '0' ... 'J' == 'j' == '9' 以此类推
 	bool isAa0Equal(char a, char b){
 		return toLowerAlph(a) == toLowerAlph(b);
 	}
 
-	void refreshStdin(char end) {
-		while (getchar() != end);
-	}
+	// ====DATE
 	double calcDifftime(time_t startTime) {
 		time_t stopTime;
 		time(&stopTime);
@@ -53,6 +45,33 @@ namespace StandardExtend{
 	double calcDiffClock(clock_t startClock) {
 		clock_t stopClock = clock();
 		return (double)(stopClock - startClock) / CLK_TCK;
+	}
+	int isIntercalary(int year) {
+		return (year % 4 == 0 && year % 100 != 0 || year % 400 == 0);
+	}
+	int calcNumberOfDays(int year, int month, int day) {
+		static int t, j, month_day[2][13] = {
+			{ 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
+			//闰年
+			{ 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
+		};
+		for (t = j = 0; j < month; t += month_day[(year % 4 == 0 && year % 100 != 0 || year % 400 == 0)][j++]);
+		return t + day;
+	}
+	int timeNumDiffrence(int t1, int t2, int *t_h, int *t_min) {
+		if (t1 % 100 <= t2 % 100) {
+			*t_h = t2 / 100 - t1 / 100;
+			*t_min = t2 % 100 - t1 % 100;
+		}
+		else {
+			*t_h = t2 / 100 - t1 / 100 - 1;
+			*t_min = t2 % 100 - t1 % 100 + 60;
+		}
+		return *t_h * 60 + *t_min;
+	}
+
+	void refreshStdin(char end) {
+		while (getchar() != end);
 	}
 };
 

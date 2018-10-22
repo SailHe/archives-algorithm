@@ -58,79 +58,7 @@ void SlectSort(CmpType a[], CmpType *an, int(*cmp)(CmpType *a, CmpType *b)){
 		}
 	}
 }
-/*********************************************查 找********************************************************/
-/*二分枚举+贪心*/
-int canJump(int s[], int n, int m, int jump){
-	int step = 0;
-	int from = 0;
-	int to = 1;
-	int out = true;
-	//到达终点时结束
-	while (to < n){
-		out = true;
-		while (to < n && s[to] - s[from] <= jump){
-			to++;//贪心，通过尽可能多的石头
-			out = false;
-		}
-		from = to - 1;
-		++step;
-		//说明jump小了，有的地方跳不过去  || 步数过多
-		if (out || step > m)
-			return false;
-	}
-	return true;
-}
-int st[5/*00002*/];
-int main_1_(){
-	int L, M, N;
-	while (cin >> L >> N >> M){
-		N += 2;
-		st[0] = 0;
-		for (int i = 1; i < N - 1; scanf("%d", &st[i++]));
-		sort(st + 1, st + N - 1);
-		int left = st[1];
-		int right = st[N - 1] = L;
-		st[0] = 0;
-		while (left < right){
-			int mid = (left + right) >> 1;
-			//若可以在小于m步的前提下跳过去 那么尝试小一些的jump力,但要保留上一次的jump值：mid不减1
-			if (canJump(st, N, M, mid))
-				right = mid;
-			else {
-				//在无法跳过的前提下，mid值无需保留
-				left = mid + 1;
-			}
-		}
-		cout << left << endl;
-	}
-	return 0;
-}
-/*********************************************DATE********************************************************/
-//闰年判断
-int isIntercalary(int year){
-	return (year % 4 == 0 && year % 100 != 0 || year % 400 == 0);
-}
-//计算这天是当前年份的第几天
-int today(int year, int month, int day){
-	int t, j, month_day[2][13] = {
-		{ 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
-		{ 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 } //闰年
-	};
-	for (t = j = 0; j < month; t += month_day[(year % 4 == 0 && year % 100 != 0 || year % 400 == 0)][j++]);
-	return t + day;
-}
-//返回t1与t2间的分数时间差min， 并将小时，min结果存于参数指针中  t格式08:05 ==>805
-int timeDiffrence(int t1, int t2, int *t_h, int *t_min){
-	if (t1 % 100 <= t2 % 100){
-		*t_h = t2 / 100 - t1 / 100;
-		*t_min = t2 % 100 - t1 % 100;
-	}
-	else{
-		*t_h = t2 / 100 - t1 / 100 - 1;
-		*t_min = t2 % 100 - t1 % 100 + 60;
-	}
-	return *t_h * 60 + *t_min;
-}
+
 /*********************************************数 学********************************************************/
 /*卡塔兰数*/
 I64* catalanTable(){
@@ -214,14 +142,14 @@ int gcd(int a, int b)
 讨论是否存在一整数k，使得m在k圈后比n大一；就是求解： k*m - n = 1;是否有解
 1 % gcd(m,n) == 0
 */
-int gcdEx_Old(int a, int b, int &x, int &y){
+int gcdEx_OLD(int a, int b, int &x, int &y){
 	if (b == 0){
 		x = 1;
 		y = 0;
 		return a;
 	}
 	else{
-		int g = gcdEx_Old(b, a%b, x, y);
+		int g = gcdEx_OLD(b, a%b, x, y);
 		int t = x;
 		x = y;
 		y = t - (a / b)*y;
@@ -598,6 +526,69 @@ bool validityOfStack(char const*str, int len, int cap) {
 }
 
 
+
+int st[5/*00002*/];
+/*
+二分枚举+贪心
+http://acm.hdu.edu.cn/showproblem.php?pid=4004
+6 1 2
+2
+
+25 3 3
+11
+2
+18
+*/
+//贪心
+bool canJump(int s[], int n, int m, int jumpPower) {
+	int step = 0;
+	int from = 0;
+	int to = 1;
+	int out = true;
+	//到达终点时结束
+	while (to < n) {
+		out = true;
+		while (to < n && s[to] - s[from] <= jumpPower) {
+			//贪心，通过尽可能多的石头
+			++to;
+			out = false;
+		}
+		from = to - 1;
+		++step;
+		//说明jumpPower小了，有的地方跳不过去  || 步数过多
+		if (out || step > m)
+			return false;
+	}
+	return true;
+}
+int solveFrogJump() {
+	//河宽L, 石头数量为N, 最多跳M次, 求最小所需跳跃力
+	int L, N, M;
+	while (cin >> L >> N >> M) {
+		N += 2;
+		//st[n]表示第n块石头距离起始点的距离
+		st[0] = 0;
+		for (int i = 1; i < N - 1; scanf("%d", &st[i++]));
+		sort(st + 1, st + N - 1);
+		int left = st[1];
+		int right = st[N - 1] = L;
+		st[0] = 0;
+		//二分枚举(取一个使得canJump成立的最小值 jumpPower 初始时是第一块石头的距离)
+		while (left < right) {
+			int mid = (left + right) >> 1;
+			//若可以在小于m步的前提下跳过去 那么尝试小一些的jumpPower,但要保留上一次的jumpPower值：mid不减1
+			if (canJump(st, N, M, mid)) {
+				right = mid;
+			}
+			else {
+				//在无法跳过的前提下，mid值无需保留
+				left = mid + 1;
+			}
+		}
+		cout << left << endl;
+	}
+	return 0;
+}
 
 
 

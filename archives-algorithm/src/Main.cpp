@@ -309,6 +309,9 @@ bool testAndOut(JCE::String const &name, T realValue, T expectValue) {
 }
 
 int mainForAlgorithm() {
+	testAndOut("2018年是否闰年: ", (bool)StandardExtend::isIntercalary(2018), false);
+	testAndOut("2018-10-22是2018年的第几天: ", StandardExtend::calcNumberOfDays(2018, 10, 22), 295);
+
 	puts("全排列: ");
 	MathExtend::pentration(3);
 	puts("阶乘: ");
@@ -384,6 +387,7 @@ int mainForAlgorithm() {
 	cout << "Algorithm test end" << endl;
 	return 0;
 }
+
 
 int main() {
 	//FILE *inFile = stdin, *outFile;

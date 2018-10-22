@@ -46,17 +46,13 @@ namespace StandardExtend{
 
 	//变为小写字符
 	char toLowerAlph(char c);
-
 	int toIntNum(char alphOrCharNum);
-
 	//10ToA(Alph)
 	char toUppercaseAscllChar(int num);
-
 	//'A' == 'a' == '0' ... 'J' == 'j' == '9' 以此类推
 	bool isAa0Equal(char a, char b);
 
-	//清空stdin输入流直至遇到end字符
-	void refreshStdin(char end);
+	// =====DATE
 	//计算与参数的时间差（单位：Minite）
 	double calcDifftime(time_t startTime);
 	//计算与参数的时钟差（单位：s）
@@ -68,7 +64,18 @@ namespace StandardExtend{
 		fun();
 		std::cout << name + "执行时间：" << calcDiffClock(startClock) << std::endl;
 	}
+	//闰年判断
+	int isIntercalary(int year);
+	//计算参数(月, 日)是参数(年)中的第几天 即: 将 年-月-日 转换为 天数
+	//传入 (year, month, day 当前年, 月, 日)
+	//返回天数
+	int calcNumberOfDays(int year, int month, int day);
+	//返回t1与t2间的分数时间差min, 并将h，min结果存于参数指针中
+	//t格式805 (表示08:05)
+	int timeNumDiffrence(int t1, int t2, int *t_h, int *t_min);
 
+	//清空stdin输入流直至遇到end字符
+	void refreshStdin(char end);
 	// 可以替换为: destContainer.resize(origin.end() - origin.begin());
 	// std::copy(origin.begin(), origin.end(), destContainer.begin());
 	template<class T, class Iterator>
@@ -472,6 +479,9 @@ namespace MathExtend {
 			}
 		}
 	}
+
+	// =======查 找
+
 	// 二分查找origin[n]中key 返回key的迭代器, 若没有返回origin+size迭代器 注意:如果有多个相同元素这个方法返回的元素可能是其中任意一个
 	// origin迭代器所处的容器必须支持索引[]操作(序列式容器，或者数组) 并且容器内[origin, origin+size)范围内元素必须已排序
 	// std有类似二分搜索实现(std::binary_search) 但只是 检查等价于 value 的元素是否出现于范围 [first, last) 中
@@ -514,6 +524,9 @@ namespace MathExtend {
 		//返回left ,right任一个即可(PS: 不应返回f(x)的值 因为fun可能不是用户需要的fun 参见顶部注解)
 		return left;
 	}
+
+	// =======受限的(Confined)
+
 	//返回错排表(malloc) 64 bit 二进制位 最多计算26个 T 需要支持四则运算以及自加
 	template<class T>
 	StandardExtend::ArrayList<T> calcIllArrangeList(StandardExtend::SizeType MAX_SIZE = 26) {
@@ -543,8 +556,6 @@ namespace MathExtend {
 	void pentration();
 	//汉诺塔递归解法
 	void hannoTowerMove(int n, char a, char b, char c);
-	//Confined(受限的)
-
 	//将10进制的number转换为radix进制的字符串 (递归实现)
 	std::string decToBin(int number, std::string &result, int radix = 2);
 	//若大数bigInteger能被整除返回true
