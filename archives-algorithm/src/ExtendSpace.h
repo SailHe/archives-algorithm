@@ -16,9 +16,9 @@
 #include<map>
 #include<iomanip>
 /*
-setfill(char ch)        Fill whitespace with 'ch'
+std::setfill(char ch)        Fill whitespace with 'ch'
 setprecision(int n)     Set floating - point precision to 'n'
-setw(int w)             Read or write value to 'w' characters
+std::setw(int w)             Read or write value to 'w' characters
 setbase(int b)          Output integers in base 'b'(only 'b' is 8 / 10 / 16 could the function work)
 */
 
@@ -52,13 +52,15 @@ typedef __int64 I64;
 namespace StandardExtend{
 	const int MAX_R = 1024;
 	const int MAX_C = 1024;
-	using namespace std;
+	//using namespace std;
 	//可变数组
-	template<typename T>using Varrays = vector<T>;
+	template<typename T>using Varrays = std::vector<T>;
 	//数组表
-	template<typename T>using ArrayList = vector<T>;
+	template<typename T>using ArrayList = std::vector<T>;
 	//邻接表
-	template<typename T>using LinkedList = list<T>;
+	template<typename T>using LinkedList = std::list<T>;
+
+	using SizeType = size_t;
 
 	/****************Ascll*******************/
 	char toLowerAlph(char c);
@@ -113,24 +115,24 @@ namespace StandardExtend{
 
 	template<class Iterator>
 	//coutFillChar表示填充字符 相当于printf的%02d 中的'0' coutWidth表示其中的2
-	void outPutIterable(Iterator left, Iterator right, size_t coutWidth = 0, char coutFillChar = '\0'){
-		cout << setfill(coutFillChar);
+	void outPutIterable(Iterator left, Iterator right, SizeType coutWidth = 0, char coutFillChar = '\0'){
+		std::cout << std::setfill(coutFillChar);
 		int count = -1;
 		iterate(left, right, [&](Iterator left){
 			char c = (++count == 0 ? '\0' : ' ');
-			cout << c << setw(coutWidth) << *left;
+			std::cout << c << std::setw(coutWidth) << *left;
 		});
 		puts("");
 	}
 
 	template<class Iterator>
 	//lineWrap 隔多少行换行 小于0 表示输出结束换行
-	void outPutIterable(Iterator left, Iterator right, size_t coutWidth, char coutFillChar, size_t lineWrap){
-		cout << setfill(coutFillChar);
+	void outPutIterable(Iterator left, Iterator right, SizeType coutWidth, char coutFillChar, SizeType lineWrap){
+		std::cout << std::setfill(coutFillChar);
 		if (left == right) {
 			return;
 		}
-		cout << *left;
+		std::cout << *left;
 		++left;
 		int c = 1;
 		lineWrap = lineWrap < 0 ? right - left : lineWrap;
@@ -138,17 +140,17 @@ namespace StandardExtend{
 			++c;
 			if (c % lineWrap == 0){
 				//最后一个
-				//cout << " " << setw(coutWidth) << *left << endl;
-				cout << setw(coutWidth) << *left << endl;
+				//std::cout << " " << std::setw(coutWidth) << *left << std::endl;
+				std::cout << std::setw(coutWidth) << *left << std::endl;
 			}
 			else if (c % lineWrap == 1){
 				//第一个
-				cout << *left;
+				std::cout << *left;
 			}
 			else{
 				//中间的
-				//cout << " " << setw(coutWidth) << *left;
-				cout << setw(coutWidth) << *left;
+				//std::cout << " " << std::setw(coutWidth) << *left;
+				std::cout << std::setw(coutWidth) << *left;
 			}
 		});
 		//最后一次没有换行这里换行
@@ -159,8 +161,8 @@ namespace StandardExtend{
 
 	template<class Iterator, class Fun>
 	//lineWrapFun 返回是否换行  bool(* lineWrapFun)(Iterator left, Iterator right)
-	void outPutIterable(Iterator left, Iterator right, char coutFillChar, size_t coutWidth, Fun lineWrapFun){
-		cout << setfill(coutFillChar);
+	void outPutIterable(Iterator left, Iterator right, char coutFillChar, SizeType coutWidth, Fun lineWrapFun){
+		std::cout << std::setfill(coutFillChar);
 		int c = 0;
 		bool pastWrap = false;
 		//lineWrapFun = nullptr == lineWrapFun ? [&](){return right - left; } : lineWrapFun;
@@ -168,14 +170,14 @@ namespace StandardExtend{
 			++c;
 			pastWrap = lineWrapFun(left, right);
 			if (1 == c){//第一个
-				cout << *left;
+				std::cout << *left;
 			}
 			else{
 				//中间&最后
-				cout << setw(coutWidth) << *left;
+				std::cout << std::setw(coutWidth) << *left;
 			}
 			if (pastWrap){//最后一个
-				cout << endl;
+				std::cout << std::endl;
 				c = 0;
 			}
 		});
@@ -187,30 +189,30 @@ namespace StandardExtend{
 
 
 	template<class T>
-	void outPut2DArrayList(vector<vector<T>> const &arrayList2D, char coutFillChar = '0', size_t coutWidth = 2){
-		size_t rows = arrayList2D.size();
-		for (size_t r = 0; r < rows; ++r){
+	void outPut2DArrayList(ArrayList<ArrayList<T>> const &arrayList2D, char coutFillChar = '0', SizeType coutWidth = 2){
+		SizeType rows = arrayList2D.size();
+		for (SizeType r = 0; r < rows; ++r){
 			outPutIterable(arrayList2D[r].begin(), arrayList2D[r].end(), coutWidth, coutFillChar);
 		}
 	}
 
 	template<class T>
-	void outPut2DArray(T array2D[MAX_R][MAX_C], size_t n, size_t coutWidth = 2, char coutFillChar = '0'){
-		for (size_t r = 0; r < n; ++r){
+	void outPut2DArray(T array2D[MAX_R][MAX_C], SizeType n, SizeType coutWidth = 2, char coutFillChar = '0'){
+		for (SizeType r = 0; r < n; ++r){
 			outPutIterable(array2D[r], array2D[r] + n, coutWidth, coutFillChar);
 		}
 	}
 
 	template<class T>
-	void outPut2DArrayTrangle(T array2D[MAX_R][MAX_C], size_t n, size_t coutWidth = 2, char coutFillChar = '0'){
-		for (size_t r = 0; r < n; ++r){
+	void outPut2DArrayTrangle(T array2D[MAX_R][MAX_C], SizeType n, SizeType coutWidth = 2, char coutFillChar = '0'){
+		for (SizeType r = 0; r < n; ++r){
 			outPutIterable(array2D[r], array2D[r] + r + 1, coutWidth, coutFillChar);
 		}
 	}
 
 	template<class Iterator>
-	size_t rankStatistics(Iterator left, Iterator right){
-		size_t rank = 1;
+	SizeType rankStatistics(Iterator left, Iterator right){
+		SizeType rank = 1;
 		iterate(left + 1, right, [&](Iterator left){
 			rank += *left == *(left - 1) ? 0 : 1;
 		});
@@ -259,7 +261,7 @@ namespace StandardExtend{
 
 //效用扩展
 namespace Utility {
-	using namespace StandardExtend;
+	//using namespace StandardExtend;
 	/************逆向*****0*********45*******90*********135*******180********225*******270********315****/
 	//int dir[8][2] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 }, { 0, -1 }, { 1, -1 } };
 	const int Dir8[8][2] = { { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };
@@ -273,7 +275,7 @@ namespace Utility {
 		PointDouble(double x, double y) {
 			x = y, y = y;
 		}
-		PointDouble(istream &in) {
+		PointDouble(std::istream &in) {
 			//scanf("%lf%lf", &(this->x), &(this->y));
 			in >> this->x >> this->y;
 		}
@@ -349,8 +351,8 @@ namespace Utility {
 	//ans为s1+s2(s1与s2的并集)(直接ans.push_back(temp)即可没必要建实际生物s1与s2)
 	//返回s1与s2并集的中位数, ans为s1+s2(直接push_back即可) a0,a1,a2...an-1的中位数指a[(n-1)/2] (共n个数)即第(n+1)/2个数(a0为第一个数)
 	template<class T>
-	T median(ArrayList<T> ans) {
-		sort(ans.begin(), ans.end());
+	T median(StandardExtend::ArrayList<T> ans) {
+		std::sort(ans.begin(), ans.end());
 		if (ans.size() % 2 == 0)
 			return ans[ans.size() / 2 - 1];
 		else
@@ -365,7 +367,7 @@ namespace Utility {
 	}
 	//反转reverseRows行的二维数组a 每行位于区间[列leftSub,列rightSub)的元素
 	template<class T>
-	void reverse(ArrayList<ArrayList<T>> &a, Sub leftSub, Sub rightSub, size_t reverseRows = 1) {
+	void reverse(StandardExtend::ArrayList<StandardExtend::ArrayList<T>> &a, Sub leftSub, Sub rightSub, StandardExtend::SizeType reverseRows = 1) {
 		for (int r = 0; r < reverseRows; r++) {
 			for (int c = leftSub, i = 0; i < (rightSub - leftSub) / 2; i++, c++) {
 				int temp = a[r][c];
@@ -376,7 +378,7 @@ namespace Utility {
 	}
 	/*将R行 C列的二维数组向左移k位*/
 	template<class T>
-	void leftMoveK(ArrayList<ArrayList<T>> &a, Sub R, Sub C, size_t k) {
+	void leftMoveK(StandardExtend::ArrayList<StandardExtend::ArrayList<T>> &a, Sub R, Sub C, StandardExtend::SizeType k) {
 		/*
 		8 3
 		1 2 3 4 5 6 7 8
@@ -390,7 +392,7 @@ namespace Utility {
 	}
 	/*右移k位<==>左移C-k位 leftMoveK(a, R, C, C-k); <==> rightMoveK(a, R, C, k);*/
 	template<class T>
-	void rightMoveK(ArrayList<ArrayList<T>> &a, int R, int C, int k) {
+	void rightMoveK(StandardExtend::ArrayList<StandardExtend::ArrayList<T>> &a, int R, int C, int k) {
 		/*
 		8 3
 		1 2 3 4 5 6 7 8
@@ -405,7 +407,7 @@ namespace Utility {
 	// 计算第一个最长连续递增子序列(longest continuous increment sub sequence)
 	// 返回长度 参数:用于储存最长连续子序列的区间[leftResultSub, rightResultSub)
 	template<class T>
-	size_t calcFirstLonConIncSubSeq(vector<T> const &sequence, int &leftResultSub, int &rightResultSub) {
+	StandardExtend::SizeType calcFirstLonConIncSubSeq(StandardExtend::ArrayList<T> const &sequence, int &leftResultSub, int &rightResultSub) {
 		int maxLen = 0, sequenceLen = sequence.size();
 		//rightResultSub=-1: 使计算其初是长度时为0
 		leftResultSub = 0, rightResultSub = -1;
@@ -438,13 +440,13 @@ namespace Utility {
 
 //数学扩展
 namespace MathExtend {
-	using namespace Utility;
+	//using namespace Utility;
 	
 	//矩阵乘法 productMatrix = productMatrix*originMatrix(两矩阵不能相同)
 	template<class T>
-	void matrixMultiply(const Sub maxRowCol, ArrayList<ArrayList<T>> &originMatrix, ArrayList<ArrayList<T>> &productMatrix) {
+	void matrixMultiply(const Sub maxRowCol, StandardExtend::ArrayList<StandardExtend::ArrayList<T>> &originMatrix, StandardExtend::ArrayList<StandardExtend::ArrayList<T>> &productMatrix) {
 		int r, c, i, tmp;
-		ArrayList<ArrayList<T>> tempMatrix;
+		StandardExtend::ArrayList<StandardExtend::ArrayList<T>> tempMatrix;
 		//memcpy(tempMatrix, productMatrix, maxRowCol * 25 * sizeof(int));
 		tempMatrix = originMatrix;
 		for (r = 0; r < maxRowCol; r++) {
@@ -462,24 +464,24 @@ namespace MathExtend {
 
 	//返回错排表(malloc) 64 bit 二进制位 最多计算26个 T 需要支持四则运算以及自加
 	template<class T>
-	ArrayList<T> calcIllArrangeList(size_t MAX_SIZE = 26) {
-		ArrayList<T> M(MAX_SIZE, 0);
+	StandardExtend::ArrayList<T> calcIllArrangeList(StandardExtend::SizeType MAX_SIZE = 26) {
+		StandardExtend::ArrayList<T> M(MAX_SIZE, 0);
 		M[0] = 0, M[1] = 1, M[2] = 1;
-		for (size_t n = 3; n < 26; ++n)
+		for (StandardExtend::SizeType n = 3; n < 26; ++n)
 			M[n] = (n - 1) * (M[n - 1] + M[n - 2]);
 		return M;
 	}
 	//输出digit中[leftSub, rightSub)的全排列  非字典序
 	template<class T, class Fun>
-	void penetration(ArrayList<T> container, Sub leftSub, Sub rightSub, Fun visit) {
+	void penetration(StandardExtend::ArrayList<T> container, Sub leftSub, Sub rightSub, Fun visit) {
 		if (leftSub == rightSub) {
 			visit(container);
 		}
 		else {
 			for (int i = leftSub; i < rightSub; ++i) {
-				swap(container[leftSub], container[i]);
+				std::swap(container[leftSub], container[i]);
 				penetration(container, leftSub + 1, rightSub, visit);
-				swap(container[leftSub], container[i]);
+				std::swap(container[leftSub], container[i]);
 			}
 		}
 	}

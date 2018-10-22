@@ -80,17 +80,17 @@ namespace MathExtend {
 		do {
 			//求下一个排列数 #include<algorithm>
 			puts(allDigit);
-		} while (next_permutation(allDigit, allDigit + maxDigit));
+		} while (std::next_permutation(allDigit, allDigit + maxDigit));
 		allDigit[maxDigit] = maxDigit + '0';
 	}
 	//输出数字1-maxDigit(1, 9)的全排列  非字典序
 	void pentration() {
-		string temp = "123456789";
-		ArrayList<char> allDigit(temp.size());
+		std::string temp = "123456789";
+		StandardExtend::ArrayList<char> allDigit(temp.size());
 		//toArrayList<char, std::string::iterator>(temp.begin(), temp.end());
 		std::copy(temp.begin(), temp.end(), allDigit.begin());
-		penetration(allDigit, 0, 9 - 1, [&](auto container) {
-			outPutIterable(container.begin(), container.end());
+		MathExtend::penetration(allDigit, 0, 9 - 1, [&](auto container) {
+			StandardExtend::outPutIterable(container.begin(), container.end());
 		});
 	}
 	//汉诺塔递归解法

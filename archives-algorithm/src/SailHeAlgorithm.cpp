@@ -177,90 +177,6 @@ long long f(int iNum, int m){
 	return tmp;
 }
 /**************************************************************************/
-I64 Quickfact(I64 a, I64 b, I64 mod){
-	I64 ans = 0;
-	while (b){
-		if (b & 1){
-			ans = (ans + a) % mod;
-		}
-		a = (a << 1) % mod;
-		b >>= 1;
-	}
-	return ans;
-}
-I64 Quickpow(I64 C, I64 R, I64 k){
-	I64 ans = 1;
-	while (R > 0){
-		R & 1 ? ans = Quickfact(ans, C, k) : ans;
-		C = Quickfact(C, C, k);
-		R >>= 1;
-	}
-	return ans;
-}
-//快速幂简易版 m^n % k（k）
-I64 quickPow(I64 m, I64 n, I64 k){
-	I64 ans = 1;
-	while (n > 0){
-		n & 1 ? ans = ((ans%k)*(m%k)) % k : ans;
-		m = ((m%k)*(m%k)) % k;
-		n >>= 1;
-	}
-	return ans;
-}
-I64 quickPow(I64 m, I64 n){
-	I64 ans = 1;
-	while (n > 0){
-		//n & 1 ? ans = ans*m : ans;
-		if (n & 1)
-			ans *= m;
-		m *= m;
-		n >>= 1;
-	}
-	return ans;
-}
-/*任意底数对数*/
-double logR(double value, double base = 5) {
-	return log(value) / log(base);
-}
-/*阶 乘*/
-double fact(int n){
-	double product = n;
-	while (--n > 0)product *= n;
-	return n == 0 ? 1 : product;//0的阶乘为1
-}
-//int 限度内阶乘表 (int 13!爆； double和long long int 18!爆)
-int* factTable(int maxN = 13) {
-	int *Fact = (int *)malloc(sizeof(int)* maxN);
-	Fact[0] = Fact[1] = 1;
-	for (int n = 2; n < maxN; ++n) 
-		Fact[n] = Fact[n - 1] * n;
-	return Fact;
-}
-/*
-n < m && m != 0
-	 fact(n)
- ________________
-fact(n - m) * fact(m)
-*/
-//组合数
-int C(int n, int m){
-	int f = 1, i = 1;
-	f = n - m < 0 ? 0 : f;//n < m时c(n,m) = 0
-	m = n - m < m ? n - m : m;//int 防爆n30 m29时   c(30, 29) = c(30, 1)
-	while (i <= m){
-		f *= n--;//n * (n - 1) * ...m
-		f /= i++;//1 *    2    * ...m
-	}
-	return f;
-}
-//排列数
-int A(int n, int m){
-	int d, f = 1;
-	for (d = n - m; d < n && d >= 0; --n){
-		f *= n;
-	}
-	return f;
-}
 //生成n行 的杨辉三角
 void buildPtriangle(int n, int table[][30]){
 	table[0][0] = 1;
@@ -466,6 +382,90 @@ int chineseReminder(int *m, int *a, int n, int mP = 0){
 	return ans;
 }
 
+I64 Quickfact(I64 a, I64 b, I64 mod) {
+	I64 ans = 0;
+	while (b) {
+		if (b & 1) {
+			ans = (ans + a) % mod;
+		}
+		a = (a << 1) % mod;
+		b >>= 1;
+	}
+	return ans;
+}
+I64 Quickpow(I64 C, I64 R, I64 k) {
+	I64 ans = 1;
+	while (R > 0) {
+		R & 1 ? ans = Quickfact(ans, C, k) : ans;
+		C = Quickfact(C, C, k);
+		R >>= 1;
+	}
+	return ans;
+}
+//快速幂简易版 m^n % k（k）
+I64 quickPow(I64 m, I64 n, I64 k) {
+	I64 ans = 1;
+	while (n > 0) {
+		n & 1 ? ans = ((ans%k)*(m%k)) % k : ans;
+		m = ((m%k)*(m%k)) % k;
+		n >>= 1;
+	}
+	return ans;
+}
+I64 quickPow(I64 m, I64 n) {
+	I64 ans = 1;
+	while (n > 0) {
+		//n & 1 ? ans = ans*m : ans;
+		if (n & 1)
+			ans *= m;
+		m *= m;
+		n >>= 1;
+	}
+	return ans;
+}
+/*任意底数对数*/
+double logR(double value, double base = 5) {
+	return log(value) / log(base);
+}
+/*阶 乘*/
+double fact(int n) {
+	double product = n;
+	while (--n > 0)product *= n;
+	return n == 0 ? 1 : product;//0的阶乘为1
+}
+//int 限度内阶乘表 (int 13!爆； double和long long int 18!爆)
+int* factTable(int maxN = 13) {
+	int *Fact = (int *)malloc(sizeof(int)* maxN);
+	Fact[0] = Fact[1] = 1;
+	for (int n = 2; n < maxN; ++n)
+		Fact[n] = Fact[n - 1] * n;
+	return Fact;
+}
+/*
+n < m && m != 0
+	 fact(n)
+ ________________
+fact(n - m) * fact(m)
+*/
+//组合数
+int C(int n, int m) {
+	int f = 1, i = 1;
+	f = n - m < 0 ? 0 : f;//n < m时c(n,m) = 0
+	m = n - m < m ? n - m : m;//int 防爆n30 m29时   c(30, 29) = c(30, 1)
+	while (i <= m) {
+		f *= n--;//n * (n - 1) * ...m
+		f /= i++;//1 *    2    * ...m
+	}
+	return f;
+}
+//排列数
+int A(int n, int m) {
+	int d, f = 1;
+	for (d = n - m; d < n && d >= 0; --n) {
+		f *= n;
+	}
+	return f;
+}
 //素数(质数)判断
 int isPrime_OLD(int num){
 	double k = sqrt((double)num);
