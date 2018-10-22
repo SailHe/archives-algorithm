@@ -19,8 +19,8 @@
 #include<queue>
 #include<list>
 #include<map>
-#include<functional>//greater<int>
-#include<memory>/*智能指针:shared_ptr<>; unique_ptr<>;---p400*/
+#include<functional> //greater<int>
+#include<memory> //智能指针:shared_ptr<>; unique_ptr<>;---P400
 #include <unordered_set>
 #include <unordered_map>
 
@@ -77,9 +77,31 @@ export(导出/出口/输出) 在定义模板类对象和模板函数时的extern功能
 #define infinity 2147483647
 #define MAX_INT32 2147483647
 #define MIN_INT32 (-MAX_INT32-1)
-using namespace std;
-using namespace std::placeholders;
+//using namespace std;
+//using namespace std::placeholders;
 
 //_ASSERTE(_CrtCheckMemory());//内存检查
+
+//java容器类型名扩展空间
+namespace JavaContainerExtend {
+	//可变数组
+	template<typename T> using Varrays = std::vector<T>;
+	//数组表
+	template<typename T> using ArrayList = std::vector<T>;
+	//邻接表
+	template<typename T> using LinkedList = std::list<T>;
+	//字符串
+	using String = std::string;
+
+	using SizeType = size_t;
+
+	template<typename T> using stack = std::stack<T>;
+	template<typename T> using queue = std::queue<T>;
+	template<typename T> using priority_queue = std::priority_queue<T>;
+	template<typename T> using greater = std::greater<T>;
+	template<typename T1, typename T2> using pair = std::pair<T1, T2>;
+}
+
+namespace JCE = JavaContainerExtend;
 
 #endif

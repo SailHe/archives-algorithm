@@ -2,19 +2,7 @@
 
 #ifndef _STANDARD_H_
 #define _STANDARD_H_
-//#include "stdafx.h"
-#include<stdio.h>
-#include<string.h>
-#include<string>
-#include<cmath>
-#include<vector>
-#include<iostream>
-#include<queue>
-#include<functional>
-#include<list>
-#include<stack>
-#include<map>
-#include<iomanip>
+#include "stdafx.h"
 /*
 std::setfill(char ch)        Fill whitespace with 'ch'
 setprecision(int n)     Set floating - point precision to 'n'
@@ -53,16 +41,9 @@ namespace StandardExtend{
 	const int MAX_R = 1024;
 	const int MAX_C = 1024;
 	//using namespace std;
-	//可变数组
-	template<typename T>using Varrays = std::vector<T>;
-	//数组表
-	template<typename T>using ArrayList = std::vector<T>;
-	//邻接表
-	template<typename T>using LinkedList = std::list<T>;
+	using namespace JCE;
 
-	using SizeType = size_t;
-
-	/****************Ascll*******************/
+	//变为小写字符
 	char toLowerAlph(char c);
 
 	int toIntNum(char alphOrCharNum);
@@ -505,6 +486,47 @@ namespace MathExtend {
 	int calcDigitCountInNumber(const int number, const int digit, int radix = 10);
 	//计算radix进制整数的位数
 	int calcDigitTop(int number, int radix = 10);
+
+
+
+	I64 Quickfact(I64 a, I64 b, I64 mod);
+	I64 Quickpow(I64 C, I64 R, I64 k);
+	//快速幂简易版 m^n % k（k）
+	I64 quickPow(I64 m, I64 n, I64 k);
+	I64 quickPow(I64 m, I64 n);
+	//任意底数对数
+	double logR(double value, double base = 5);
+	//阶 乘
+	double fact(int n);
+	//int 限度内阶乘表 (int 13!爆； double和long long int 18!爆)
+	int* factTable(int maxN = 13);
+	/*
+	n < m && m != 0
+		 fact(n)
+	 ________________
+	fact(n - m) * fact(m)
+	*/
+	//组合数
+	int C(int n, int m);
+	//排列数
+	int A(int n, int m);
+	//素数(质数)判断
+	int isPrime_OLD(int num);
+	//素数(质数)判断 sqrt的平方优化版(未实测)
+	bool isPrime(int num);
+	//真因子和(除本身外的约数）
+	int factorSum(int x);
+	//真因子和表(约数 因数) (10^7一千万2.51s)(400w 10^6 900ms)
+	void factorSumTableSieve(const int maxn, int a[]);
+	//素数(质数) 筛选法 埃拉托色尼(Sieve Eratosthenes)(0 1==-1, a[i]==0表示素数) maxN[2, 1e9) PS:maxN = 1e7时超过1s了 1e9似乎无法分配内存
+	int* primeSieve(const int maxN = 2);
+	//因子数目
+	int factorCount(int x);
+	//开方函数 (eps: 精度)
+	double sqrtImpl(double x, double eps = 1e-9);
+	//求方差
+	double variance(float x[], int n);
+
 }
 
 #endif

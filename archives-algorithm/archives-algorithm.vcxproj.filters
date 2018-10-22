@@ -86,9 +86,6 @@
     <ClInclude Include="src\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\JavaContainerExtend.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\Graph\Tree_C.h">
       <Filter>头文件\Graph</Filter>
     </ClInclude>

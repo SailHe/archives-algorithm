@@ -2,6 +2,7 @@
 #define _TREEOBJECT_H
 
 #include"../stdafx.h"
+#include"../ExtendSpace.h"
 /*
 *结语:
 *树毕竟只是容器 适合于增删查的动态操作 不适合用来作遍历
@@ -32,6 +33,15 @@ public:
 	int Max(int a, int b){
 		return a > b ? a : b;
 	}
+protected:
+	//数组表
+	template<typename T> using ArrayList = std::vector<T>;
+	template<typename T> using stack = std::stack<T>;
+	template<typename T> using queue = std::queue<T>;
+	template<typename T> using priority_queue = std::priority_queue<T>;
+	template<typename T> using greater = std::greater<T>;
+	using string = std::string;
+	//template<typename T> using vector = StandardExtend::ArrayList<T>;
 };
 
 /*二叉(度)树*/
@@ -144,7 +154,7 @@ public:
 	[](T* num){scanf("%d", num); });*/
 	//堆栈操作式构造 (堆栈操作获取方法, 结点数据获取方法)
 	BinTree(bool(*getOrder)(char *), void(*getData)(T*)){
-		vector<T> preOrder, inOrder;
+		ArrayList<T> preOrder, inOrder;
 		stack<T> s;
 		char str[5];
 		while (getOrder(str)) {
@@ -247,7 +257,7 @@ public:
 	//tips:1.若为有序数组则填充完毕后是一课二叉搜索树 2.可以利用静态二叉树储存输入结构 或是原结构
 	//完全二叉树可以根据数组直接构造(但只有完全二叉搜索树这样的功能有实际作用)
 	//普通二叉树只能在已知结构的前提下使用类似的将数组填入树结构的功能
-	bool fillData(vector<T> &dataA){
+	bool fillData(ArrayList<T> &dataA){
 		return fillData(dataA, 0, dataA.size(), root);
 	}
 	int size(){
@@ -285,7 +295,7 @@ protected:
 			return 0;//空树深度为零
 	}
 	//(数组, 根结点数据下标, 当前根下的数据个数, 结构来源树)
-	bool fillData(vector<T> &dataA, int dataRootSub, int n, BT t){
+	bool fillData(ArrayList<T> &dataA, int dataRootSub, int n, BT t){
 		if (empty(t))
 			return true;
 		int nl = scaleOf(t->Left), nr = scaleOf(t->Right);//左右子树规模
@@ -387,8 +397,8 @@ protected:
 		prefInBuild(preOrder + 1, inOrder, t->Left, Ln);/*先序遍历数组向左子树遍历一个元素 其余数组保持不变*/
 		prefInBuild(preOrder + Ln + 1, inOrder + Ln + 1, t->Right, n - Ln - 1);/*向右子树遍历一个元素*/
 	}
-	//先中构建vector
-	void prefInBuild(vector<Element> &preOrder, int preRoot, vector<Element> &inOrder, int inRoot, BT &t, int n){
+	//先中构建ArrayList
+	void prefInBuild(ArrayList<Element> &preOrder, int preRoot, ArrayList<Element> &inOrder, int inRoot, BT &t, int n){
 		int Ln;/*左子子树长度*/
 		if (n == 0)return;
 		if (t == NULL)
@@ -630,21 +640,21 @@ public:
 			++preLeft;
 		}
 	}
-	//先序构造 vector
-	BinSearchTree(vector<Element> &preOrder, int eqaul = 0){
+	//先序构造 ArrayList
+	BinSearchTree(JCE::ArrayList<Element> &preOrder, int eqaul = 0){
 		/*若preOrder参数不是引用
 		**会发生:
-		**vector拷贝构造
-		**vector析构
+		**ArrayList拷贝构造
+		**ArrayList析构
 		**BT拷贝构造
 		**BST拷贝构造
 		**BST析构
 		**BT析构
-		**vector析构(不知道究竟是构造两次析构两次 还是构造一次析构一次)
+		**ArrayList析构(不知道究竟是构造两次析构两次 还是构造一次析构一次)
 		(不理解为什么在构造函数里 用传值拷贝参数会调用这一系列 我觉得完全没必要啊
 		尤其是一开始没有写相应函数出错了...)
 		注意!!!
-		即便是BinSearchTree t = BinSearchTree(vector<>);
+		即便是BinSearchTree t = BinSearchTree(ArrayList<>);
 		这样的语句也不会调用赋值函数 而是调用的拷贝构造函数
 		preOrder是引用的话上面所有的屁事都没了
 		*/
@@ -706,8 +716,8 @@ public:
 		return rank;
 	}
 	//计算所有元素的等级 (计算完毕后将total sort一下再用类似的方法遍历一下统计出总排名即可) Θ(2*N)范程
-	//虽然N个insert(O(logN))与N个读取后sort(O(N*logN))的效率差不多 但论遍历效率tree Θ(2*N), vector Θ(N)
-	void calcRank(vector<T> &total, int cnt = -1){
+	//虽然N个insert(O(logN))与N个读取后sort(O(N*logN))的效率差不多 但论遍历效率tree Θ(2*N), ArrayList Θ(N)
+	void calcRank(JCE::ArrayList<T> &total, int cnt = -1){
 		cnt = cnt < 0 ? BinTree<T>::size() : cnt;//默认计算所有人的排名
 		int pastId = 0;//序号
 		int reCnt = 0;//当前元素现在的重复个数
@@ -805,14 +815,14 @@ public:
 		return findOf(root, x, less);
 	}
 	//插入 O(logN)
-	pair<Position, bool> insert(Element const&x){
+	JCE::pair<Position, bool> insert(Element const&x){
 		root = Insert(root, x);
 		//与map的insert返回值类似，重复insert 返回<重复Position, false>，这个技巧在面试如何找出2个数组相同的数字的时候有奇效
 		return{ BinTree<T>::lastInsertPosition, BinTree<T>::isInsert };
 	}
 	//序列插入 局部有序插入O(1) 无序O(logN) 但如果Avl使用此插入会使Avl退化为普通BST(相当于优化的链表: 插入效率变高 查找效率相对Avl退化)
 	//(例如654789)->4 5 [6] Orderly被置false 7 [手动]置true 8 9 可实现局部有序插入
-	pair<Position, bool> insertOrderly(Element const&x, bool &Orderly){
+	JCE::pair<Position, bool> insertOrderly(Element const&x, bool &Orderly){
 		if (!Orderly){//若已经不是有序的插入 则退化为普通插入
 			root = Insert(root, x);
 		}
@@ -1210,8 +1220,8 @@ public:
 		if (lv > height())
 			return -1;
 		int count = 0;
-		queue<pair<BT, int>> q;//t, lv
-		q.push(make_pair(root, 0));
+		JCE::queue<JCE::pair<BT, int>> q;//t, lv
+		q.push(std::make_pair(root, 0));
 		while (!q.empty()){
 			auto p = q.front();
 			q.pop();
@@ -1624,7 +1634,7 @@ public:
 	static int codeLen(char *code){
 		return strlen(code);
 	}
-	static int codeLen(string const&code){
+	static int codeLen(JCE::String const&code){
 		return code.length();
 	}
 	/*tips:
@@ -1633,7 +1643,7 @@ public:
 	(所以: 文本长度=权重*编码长度, WPL=权重*(编码长度+1))
 	*/
 	//返回文本的WPL
-	static int wpl(vector<char*> &s, int *freq){
+	static int wpl(JCE::ArrayList<char*> &s, int *freq){
 		int textLen, i, n = s.size();
 		for (textLen = i = 0; i < n; ++i){
 			textLen += freq[i] * (codeLen(s[i]) + 1);
@@ -1641,15 +1651,15 @@ public:
 		return textLen;
 	}
 	//返回一套编码的文本长度 = freq*codeLen
-	static int textLen(vector<char*> &s, int *freq){
+	static int textLen(JCE::ArrayList<char*> &s, int *freq){
 		int textLen, i, n = s.size();
 		for (textLen = i = 0; i < n; ++i){
 			textLen += freq[i] * codeLen(s[i]);
 		}
 		return textLen;
 	}
-	//检查文本是否前缀码 //string const codes[]-> 与用vector存效果差不多?
-	static bool isPrefixCodes(vector<string> const &codes) {
+	//检查文本是否前缀码 //string const codes[]-> 与用ArrayList存效果差不多?
+	static bool isPrefixCodes(JCE::ArrayList<JCE::String> const &codes) {
 		int n = codes.size();
 		for (size_t i = 0; i < n; i++) {
 			for (size_t j = 0; j != i && j < n; j++) {
@@ -1668,7 +1678,7 @@ public:
 		return textLen(huffRoot, 1);
 	}
 	//判断是否最优编码
-	bool isOptimalCoding(vector<string> &codes, int *freq){
+	bool isOptimalCoding(JCE::ArrayList<JCE::String> &codes, int *freq){
 		//也可以比较wpl
 		int textLen, i, len, n = codes.size();
 		for (textLen = i = 0; i < n; ++i){
@@ -1691,7 +1701,7 @@ private:
 		t = NULL;
 	}
 	//返回给出的编码的前缀编码树 若所给的编码不是前缀码返回 NULL 若有频值则按频值依次填入 否则全部置1(有未知bug 若判断一套编码是否huffman编码)
-	HuTr buildPreCodeTree(vector<string> const &codes, int *freq = NULL){
+	HuTr buildPreCodeTree(JCE::ArrayList<JCE::String> const &codes, int *freq = NULL){
 		int n = codes.size(), sub = 0;
 		HuTr rt = new HuTrNode(0, 0);
 		for (int i = 0; i < n; i++){
@@ -1738,8 +1748,8 @@ private:
 			return textLen(t->Left, depth + 1) + textLen(t->Right, depth + 1);
 	}
 	//返回仅含大写英文句子的频率数组 改为map?
-	vector<int> frequency(string sentence){
-		vector<int> freq;
+	JCE::ArrayList<int> frequency(JCE::String sentence){
+		JCE::ArrayList<int> freq;
 		freq.resize(26);
 		for (unsigned i = 0; i < sentence.length(); ++i){
 			if (sentence[i] == '_')
@@ -1750,7 +1760,7 @@ private:
 		}
 	}
 	//返回一个仅含大写英文字母和下划线的句子的哈夫曼编码所占内存,普通编码memory = sentence.length()*8
-	int huffmanMemory(string sentence){
+	int huffmanMemory(JCE::String sentence){
 		static const int MAX_FREQ_SIZE = 128;
 		int freq[MAX_FREQ_SIZE];
 		memset(freq, 0, MAX_FREQ_SIZE * sizeof(int));
@@ -1762,7 +1772,7 @@ private:
 				freq[sentence[i] - 'A']++;
 			}
 		}
-		priority_queue<int, vector<int>, greater<int> > q;
+		std::priority_queue<int, JCE::ArrayList<int>, JCE::greater<int> > q;
 
 		for (int i = 0; i < MAX_FREQ_SIZE; ++i){
 			if (freq[i] != 0)
@@ -1878,7 +1888,7 @@ class ArrayHuffman{
 };
 
 //表达式树 @TODO 并未通过PTA测试(主要是后缀表达式计算时的负号问题 考虑添加前缀表达式计算)
-class ExpressionTree : private BinTree<string>{
+class ExpressionTree : private BinTree<JCE::String>{
 public:
 	enum ExpressionTypeEnum{ 
 		PREFIX_EXPRESSION,//前缀表达式

@@ -173,7 +173,7 @@ protected:
 		{
 			P->Next_ = newNode();
 			//scanf("%d", &P->Next_->Data);
-			cin >> P->Next_->Data;
+			std::cin >> P->Next_->Data;
 			if (P->Next_->Data == -1)
 			{
 				deleteNode(P->Next_);
@@ -210,7 +210,7 @@ protected:
 			while (L = L->Next_)
 			{
 				printf(n++ ? " " : "");
-				cout << L->Data;
+				std::cout << L->Data;
 			}
 		}
 		else

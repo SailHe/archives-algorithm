@@ -7,6 +7,7 @@
 #include "Graph\TreeObject.h"
 #include "Graph\Graph.h"
 //using namespace StandardExtend;
+using namespace std;
 
 //Demo
 
@@ -307,6 +308,7 @@ int main() {
 	//mainForExpressionTree();
 	//mainForHuffumanTree();
 	MathExtend::pentration(3);
+	printf("%.2f\n", MathExtend::fact(10));
 	mainForGraph();
 	mainForBinSearchTree();
 	MainForStack();

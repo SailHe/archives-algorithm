@@ -173,7 +173,6 @@
     </ClInclude>
     <ClInclude Include="src\Graph\TreeObject.h" />
     <ClInclude Include="src\Graph\TreeUtility.h" />
-    <ClInclude Include="src\JavaContainerExtend.h" />
     <ClInclude Include="src\LinkedList.h" />
     <ClInclude Include="src\Queue.h" />
     <ClInclude Include="src\SailHeAlgorithm.h" />

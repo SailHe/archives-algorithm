@@ -144,7 +144,7 @@ protected:
 		while (done == 0) {
 			switch (GetOp()) {
 			case OP_PUSH_DEQUEUE:
-				cin >> X;
+				std::cin >> X;
 				if (Push(D, X) == 0) {
 					printf("Memory is Full!\n");
 				}
@@ -155,11 +155,11 @@ protected:
 				}
 				else {
 					X = Pop(D);
-					cout << X << endl;
+					std::cout << X << std::endl;
 				}
 				break;
 			case OP_INJECT_DEQUEUE:
-				cin >> X;
+				std::cin >> X;
 				if (Inject(D, X) == 0) {
 					printf("Memory is Full!\n");
 				}
@@ -170,7 +170,7 @@ protected:
 				}
 				else {
 					X = Eject(D);
-					cout << X << endl;
+					std::cout << X << std::endl;
 				}
 				break;
 			case OP_END_DEQUEUE:
@@ -258,7 +258,7 @@ protected:
 	}
 	void PrintDeque(PtrToDequeImpl D) {
 		while (!IsEmptyDeQueue(D)) {
-			cout << Pop(D) << endl;
+			std::cout << Pop(D) << std::endl;
 		}
 		puts("");
 	}

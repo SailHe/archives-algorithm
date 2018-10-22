@@ -14,7 +14,7 @@ extern const int Dir4[4][2];
 const int DIR84R[] = { 1, 0, -1, 0, 1, -1, -1, 1 };
 const int DIR84C[] = { 0, 1, 0, -1, 1, 1, -1, -1 };
 enum DirCountEnum { DIR4 = 4, DIR8 = 8 };
-typedef pair<int, int> DirectionVector;//在做加法运算时 它的first 与 second与习惯的表示xy rc的意义相同
+typedef JCE::pair<int, int> DirectionVector;//在做加法运算时 它的first 与 second与习惯的表示xy rc的意义相同
 const DirectionVector DIR84[8] = {//加了extern 会出现重定义问题
 	/*r轴正方向->第4123象限 便于调试 顺序不能随意更改*/
 	{ 1, 0 }/*下*/,
@@ -172,14 +172,14 @@ list<Edge> Edge 内有一个权值指针 指向邻接矩阵内的权 那么在编辑更改边权值时就可以
 
 //跳表 未实现
 //template<class T>
-class SkipLists : public list<int>{
+class SkipLists : public JCE::LinkedList<int>{
 private:
-	vector<list<int>> indexLevel;//索引层list(或许索引层可以不用list实现)
+	JCE::ArrayList<JCE::LinkedList<int>> indexLevel;//索引层list(或许索引层可以不用list实现)
 };
 
 //最短路结果集
 struct ShortestPathResult{
-	vector<int> dist, path;
+	JCE::ArrayList<int> dist, path;
 	size_t startId = 0, targetId = -1;
 
 	//若已经计算过最短路并且没有到达目的地那么返回true
@@ -292,7 +292,7 @@ public:
 	//插入 无向边
 	void insertEdgeUndirected(Edge &e){
 		insertEdge(e);
-		swap(e.ownerID, e.targetID);
+		std::swap(e.ownerID, e.targetID);
 		insertEdge(e);
 	}
 	//删除 无向边
@@ -318,8 +318,8 @@ public:
 	//		判定方式: 使用 dist对起点 与 目标点的连通性进行判断
 	//效果2:  判断整张图的连通性 返回值是入队的结点数目 在未设置destId时才有意义
 	//		判定方式: 连通图的返回值应与结点数相等
-	int bfs(VertexKey origin, vector<WeightType> &dist, vector<VertexKey> &predecessor){
-		static queue<VertexKey> buffer;
+	int bfs(VertexKey origin, JCE::ArrayList<WeightType> &dist, JCE::ArrayList<VertexKey> &predecessor){
+		static std::queue<VertexKey> buffer;
 		dist.assign(vertexNum, -1);
 		predecessor.assign(vertexNum, -1);
 		dist[origin] = 0;
@@ -369,7 +369,7 @@ public:
 
 	若计算成功(无负权环)返回true
 	*/
-	bool shortestPath(VertexKey startId, vector<WeightType> &dist, vector<VertexKey> &path){
+	bool shortestPath(VertexKey startId, JCE::ArrayList<WeightType> &dist, JCE::ArrayList<VertexKey> &path){
 		if (negativeWeightCount == 0){
 			return Dijkstra(startId, dist, path);
 		}
@@ -378,7 +378,7 @@ public:
 		}
 	}
 	/*多源最短路问题*/
-	bool multisourceShortestPath(vector<vector<WeightType>> &dists, vector<vector<VertexKey>> &paths){
+	bool multisourceShortestPath(JCE::ArrayList<JCE::ArrayList<WeightType>> &dists, JCE::ArrayList<JCE::ArrayList<VertexKey>> &paths){
 		return FloydWarshall(dists, paths);
 	}
 	
@@ -402,9 +402,9 @@ protected:
 
 	//在2017之下编译会通过 但实际上这样子是不能通过的(有对其进行修改) -> 旧版本的编译可以通过 高版本不一定(功能更加完善了)
 	//typedef list<IndexEdge const> EdgesType;
-	typedef list<IndexEdge> EdgesType;
+	typedef JCE::LinkedList<IndexEdge> EdgesType;
 	//顶点数据 顶点无数据可以不用出现 若顶点数量经常改动 可以直接用map<VertexValue>替代
-	vector<VertexValue> vertexData;
+	JCE::ArrayList<VertexValue> vertexData;
 	//顶点数
 	size_t vertexNum;
 	//边数 V个顶点的无向完全图边数=V(V-1)/2
@@ -412,7 +412,7 @@ protected:
 	//负权边个数 (插入一条负权边++ 删除一条-- 当其为0时最短路径会调用dij计算 否则调用spfa)
 	int negativeWeightCount = 0;
 
-	vector<bool> visited;
+	JCE::ArrayList<bool> visited;
 	VertexKey destId = -1;//bdfs目标点 初始不存在目标点(意味着: dfs不会结束 bfs得出的路径是到所有顶点的)
 		//自定义访问
 	void(*customVisit)(VertexKey) = [](VertexKey v){
@@ -442,9 +442,9 @@ protected:
 		目前已知的最快的 非负权有向图单源最短路径算法: 迪科斯彻算法
 		dijkstra算法正确的前提是: 长的路径是由短的路径派生而来的。(因此不能计算负权)
 	*/
-	bool Dijkstra(VertexKey origin, vector<WeightType> &dist, vector<VertexKey> &predecessor){
+	bool Dijkstra(VertexKey origin, JCE::ArrayList<WeightType> &dist, JCE::ArrayList<VertexKey> &predecessor){
 			//最短距离估计dist优先队列 每个顶点入队一次 松弛一次
-			static priority_queue<IndexEdge> q;
+			static std::priority_queue<IndexEdge> q;
 			static VertexKey v = -1;
 			dist.assign(vertexNum, INF);
 			predecessor.assign(vertexNum, -1);
@@ -482,11 +482,11 @@ protected:
 		(队列优化的Bellman–Ford algorithm)
 		SPFA算法在负边权图上可以完全取代Bellman-ford算法，另外在稀疏图中也表现良好。
 		*/
-	bool SPFA(VertexKey origin, vector<WeightType> &dist, vector<VertexKey> &predecessor){
-			static vector<int> countEnQ;//记录各点入队次数，用于判断负权回路
-			static vector<bool> existInQ;//标志数组，判断是否在队列中
-			static vector<int> stepCount;//记录步数
-			static list<VertexKey> q;//处理队列
+	bool SPFA(VertexKey origin, JCE::ArrayList<WeightType> &dist, JCE::ArrayList<VertexKey> &predecessor){
+			static JCE::ArrayList<int> countEnQ;//记录各点入队次数，用于判断负权回路
+			static JCE::ArrayList<bool> existInQ;//标志数组，判断是否在队列中
+			static JCE::ArrayList<int> stepCount;//记录步数
+			static JCE::LinkedList<VertexKey> q;//处理队列
 
 			countEnQ.assign(vertexNum, 0);
 			existInQ.assign(vertexNum, false);
@@ -540,7 +540,7 @@ protected:
 		可以正确处理有向图或负权（但不可存在负权回路）任意两点间的最短路径问题，同时也被用于计算有向图的传递闭包.
 		时间复杂度O(V^3)空间复杂度为O(V^2)
 		*/
-	bool FloydWarshall(vector<vector<WeightType>> &dists, vector<vector<VertexKey>> &predecessors){
+	bool FloydWarshall(JCE::ArrayList<JCE::ArrayList<WeightType>> &dists, JCE::ArrayList<JCE::ArrayList<VertexKey>> &predecessors){
 
 			dists.resize(vertexNum);
 			predecessors.resize(vertexNum);
@@ -598,7 +598,7 @@ private:
 //邻接矩阵图
 class AdjacentMatrixGraph : public Graph{
 	//邻接矩阵
-	vector<vector<WeightType>> edgeData;
+	JCE::ArrayList<JCE::ArrayList<WeightType>> edgeData;
 	//若ownerID与targetID之间存在直接关系(边)(即w是否v的邻接点) 返回true
 	inline bool existEdge(VertexKey v, VertexKey w){
 		return edgeData[v][w] < INF;//不存在的边被初始化为INF
@@ -739,10 +739,10 @@ public:
 	bool topologySort(StandardExtend::ArrayList<VertexKey> &topOrderBuffer){
 		/* 对Graph进行拓扑排序,  topOrderBuffer[]顺序存储排序后的顶点下标 */
 		topOrderBuffer.resize(vertexNum);
-		vector<VertexKey> indegree(vertexNum);
+		JCE::ArrayList<VertexKey> indegree(vertexNum);
 		//queue<VertexKey> q;
 		//保证在同等排名下优先输出序号小的
-		priority_queue<VertexKey, StandardExtend::ArrayList<VertexKey>, greater<VertexKey>> q;
+		std::priority_queue<VertexKey, JCE::ArrayList<VertexKey>, JCE::greater<VertexKey>> q;
 	}
 };
 
@@ -762,7 +762,7 @@ class AdjacentListGraph : public Graph{
 	*/
 	//list遍历快于map
 	//邻接表(链表解决冲突的Hash表)
-	vector<EdgesType> edgeData;
+	JCE::ArrayList<EdgesType> edgeData;
 	EdgesType::iterator &listFind(EdgesType &edgssList, VertexKey keyID){
 		static EdgesType::iterator it;
 		it = find_if(edgssList.begin(), edgssList.end(), [&](IndexEdge const &i){
@@ -848,10 +848,10 @@ public:
 	bool topologySort(StandardExtend::ArrayList<VertexKey> &topOrderBuffer){
 		/* 对Graph进行拓扑排序,  topOrderBuffer[]顺序存储排序后的顶点下标 */
 		topOrderBuffer.resize(vertexNum);
-		vector<VertexKey> indegree(vertexNum);
+		JCE::ArrayList<VertexKey> indegree(vertexNum);
 		//queue<VertexKey> q;
 		//保证在同等排名下优先输出序号小的
-		priority_queue<VertexKey, StandardExtend::ArrayList<VertexKey>, greater<VertexKey>> q;
+		std::priority_queue<VertexKey, JCE::ArrayList<VertexKey>, JCE::greater<VertexKey>> q;
 
 		/* 遍历图，得到indegree[] edgeData.size()*/
 		for (size_t v = 0; v < vertexNum; ++v){
@@ -962,7 +962,7 @@ public:
 
 	//坐标图概览
 	void output(size_t coutWidth = 2) {
-		cout << "坐标图概览(对应坐标点的值为-1表示无效): " << endl;
+		std::cout << "坐标图概览(对应坐标点的值为-1表示无效): " << std::endl;
 		//StandardExtend::outPutIterable(validCoordinates.begin(), validCoordinates.end(), 2, '\0', validCoordinates.size());
 		StandardExtend::outPut2DArrayList(validCoordinates, '\0', coutWidth);
 	}
@@ -1017,10 +1017,10 @@ public:
 	
 	template<class Fun>
 	//API文档见Graph bfs
-	bool bfs(size_t originR, size_t originC, vector<int> &dist, vector<int> &predecessor, 
+	bool bfs(size_t originR, size_t originC, JCE::ArrayList<int> &dist, JCE::ArrayList<int> &predecessor, 
 		Fun const &customVisit){
 
-		static queue<ArraySub> canVisitBuffer;
+		static JCE::queue<ArraySub> canVisitBuffer;
 		ArraySub present = { originR, originC }, next;
 
 		const int vertexNum = limitR*limitC;
@@ -1152,7 +1152,7 @@ private:
 	size_t dirCount;//指定是几个方向
 	size_t limitR, limitC;
 	//用于储存坐标点: 需要支持键值对查询(最好支持[][], 如关联容器map)
-	vector<vector<Vertex>> validCoordinates;
+	JCE::ArrayList<JCE::ArrayList<Vertex>> validCoordinates;
 
 	static const bool validSign = true;//有效坐标点记号
 	static const bool invalidSign = false;//无效坐标点记号
