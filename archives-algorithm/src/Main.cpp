@@ -27,7 +27,7 @@ int MainForStack() {
 	while (!ss.isEmpty()) {
 		cout << ss.pop() << endl;
 	}
-	puts("Stack test end");
+	puts(" ===== Stack test end");
 	return 0;
 }
 
@@ -107,6 +107,8 @@ int MainForLinkedList() {
 			puts("delete error");
 		}
 	}
+
+	cout << " ====== LinkedList test end" << endl;
 	return 0;
 }
 
@@ -125,7 +127,7 @@ int mainForQueue() {
 	while (!qs.isEmpty()) {
 		cout << qs.poll() << endl;
 	}
-	puts("Queue test end");
+	puts(" ====== Queue test end");
 	return 0;
 }
 
@@ -157,7 +159,7 @@ int mainForDeQueue() {
 	}
 	qs.shell();
 	//ql.shell();
-	puts("Deque test end");
+	puts(" ====== Deque test end");
 	return 0;
 }
 
@@ -201,7 +203,7 @@ int mainForBinSearchTree() {
 		return false;
 	});
 	cout << bt.find(string("BST data5"))->Data << endl;
-	puts("Tree test end");
+	puts(" ====== Tree test end");
 	return 0;
 }
 
@@ -297,7 +299,7 @@ int mainForGraph() {
 	*/
 	cg.output();
 	outPutGraph(cg.parityGraph(true));
-	cout << "Graph test end" << endl;
+	cout << " ====== Graph test end" << endl;
 	return 0;
 }
 
@@ -308,7 +310,7 @@ bool testAndOut(JCE::String const &name, T realValue, T expectValue) {
 	return true;
 }
 
-int mainForAlgorithm() {
+int mainForMath() {
 	testAndOut("2018年是否闰年: ", (bool)StandardExtend::isIntercalary(2018), false);
 	testAndOut("2018-10-22是2018年的第几天: ", StandardExtend::calcNumberOfDays(2018, 10, 22), 295);
 
@@ -326,7 +328,7 @@ int mainForAlgorithm() {
 	for (I64 i = 0; i < 20; ++i) {
 		testAndOut("快速幂 "+ std::to_string(i) +"^2", MathExtend::quickPow(i, 2), (I64)std::pow(i, 2));
 	}
-	int testCount = 50000;
+	int testCount = 500;
 	StandardExtend::testAndDiffClock([&]() {
 		for (int i = 0; i < testCount; ++i) {
 			std::pow(2, 62);
@@ -356,7 +358,7 @@ int mainForAlgorithm() {
 
 	auto primeTable = MathExtend::primeSieve(100);
 	int count = 0;
-	for (int i = 2; i < 100; ++i) {
+	for (int i = 0; i < 50; ++i) {
 		bool isP = MathExtend::isPrime(i);
 		testAndOut("数字" + to_string(i) + " 是否素数:", isP, primeTable[i] == 0);
 	}
@@ -407,7 +409,38 @@ int mainForAlgorithm() {
 		testAndOut("最小正整数解: ", minResult, 23);
 	}, "中国剩余定理 求线性同余方程组");
 
-	cout << "Algorithm test end" << endl;
+	cout << " ====== Math test end" << endl;
+	return 0;
+}
+
+int mainForAlgorithm() {
+	//@see http://acm.hdu.edu.cn/showproblem.php?pid=2602
+	//物品数量, 背包容量, 解题用动态规划数组大小
+	const int itemNum = 5, cap = 10, dpSize = cap + 1;
+	int dp[dpSize] = { 0 };
+	int cost[itemNum] = { 5, 4, 3, 2, 1 }, value[itemNum] = { 1, 2, 3, 4, 5 };
+	for (int i = 0; i < itemNum; ++i) {
+		MathExtend::ZeroOneBackpackProcess(dp, cap, cost[i], value[i]);
+		//MathExtend::ZOBackpackProcess(dp, cap, 0, value[i]);
+	}
+	StandardExtend::outPutIterable(dp, dp + dpSize);
+
+	memset(dp, 0, dpSize);
+	for (int i = 0; i < itemNum; ++i) {
+		MathExtend::CompletePackProcess(dp, cap, cost[i], value[i]);
+	}
+	StandardExtend::outPutIterable(dp, dp + dpSize);
+
+	memset(dp, 0, dpSize);
+	//{ 1,2,3,4,5,6,7,8,9,10 };
+	int number[itemNum] = { 1,2,3,4,5 };
+	for (int i = 0; i < itemNum; ++i) {
+		MathExtend::MultiplyPackProcess(dp, cap, cost[i], value[i], number[i]);
+	}
+	StandardExtend::outPutIterable(dp, dp + dpSize);
+
+	cout << " ====== Algorithm test end" << endl;
+
 	return 0;
 }
 
@@ -417,7 +450,8 @@ int main() {
 	//freopen_s(&inFile, "input", "r", stdin);
 	//mainForExpressionTree();
 	//mainForHuffumanTree();
-	mainForAlgorithm();
+	mainForMath();
+	StandardExtend::testAndDiffClock(mainForAlgorithm);
 	StandardExtend::testAndDiffClock(mainForGraph);
 	mainForBinSearchTree();
 	MainForStack();

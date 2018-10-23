@@ -782,6 +782,50 @@ namespace MathExtend {
 	//巴什博弈：取最后一个的人胜
 	int BaShen(int n, int min, int max);
 
+	// ===== Backpack(背包) DP(动态规划) 统一目的: 求解将哪些物品装入背包可使价值总和最大。
+	// 背包总容量: capacity (其余备选词汇 volume: 体积, account: 账户, amount: 总数) <==> backPack.size+1
+	// 单物品价值: value    (其余备选词汇 weight: 权重, 重量, 负重) PS 备选词可能含有歧义, 或易误解
+	
+	// 处理一件[零壹背包]中的物品过程 => 有N种物品和一个容量为capacity的背包backPack。每种物品只能取1次或不取(数量为1)
+	// 放入第i件物品耗费的费用是 C[i],得到的价值是 W[i].
+	template<class Number>
+	void ZeroOneBackpackProcess(Number backPack[], Number capacity, Number currentCost, Number currentValue) {
+		for (Number v = capacity; v >= currentCost; --v) {
+			backPack[v] = max(backPack[v], backPack[v - currentCost] + currentValue);
+		}
+	}
+	// (这个算法有问题) 01背包数量记法 capacity是背包总容量  参数currentValue = 0; backPack[0] = 1;
+	template<class Number>
+	void ZOBackpackProcess(Number backPack[], Number capacity, Number currentCost, Number currentValue) {
+		for (Number v = currentCost; v <= capacity; ++v) {
+			backPack[v] += backPack[v - currentCost] + currentValue;
+		}
+	}
+	// 处理一件[完全背包]中的物品过程 ==> 有N种物品和一个容量为capacity的背包，每种物品都有无限件可用。
+	template<class Number>
+	void CompletePackProcess(Number backPack[], Number capacity, Number currentCost, Number currentValue) {
+		for (Number v = currentCost; v <= capacity; ++v) {
+			backPack[v] = max(backPack[v], backPack[v - currentCost] + currentValue);
+		}
+	}
+	// 处理一件[多重背包]中的物品过程 ==> O(logM) 有N种物品和一个容量为capacity的背包。
+	// 第i种物品最多有currentNum=M[i]件可用，每件耗费的空间是currentCost=C[i]，价值是 currentValue=W[i]。
+	template<class Number>
+	void MultiplyPackProcess(Number backPack[], Number capacity, Number currentCost, Number currentValue, Number currentNum) {
+		if (currentCost*currentNum >= capacity) {
+			CompletePackProcess(backPack, capacity, currentCost, currentValue);
+		}
+		else {
+			Number k = 1;
+			while (k < currentNum) {
+				ZeroOneBackpackProcess(backPack, capacity, k*currentCost, k*currentValue);
+				currentNum -= k;
+				k <<= 1;
+			}
+			ZeroOneBackpackProcess(backPack, capacity, currentNum*currentCost, currentNum*currentValue);
+		}
+	}
+
 }
 
 #endif

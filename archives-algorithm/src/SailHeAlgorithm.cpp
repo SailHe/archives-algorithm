@@ -93,50 +93,6 @@ void PrintPtriangle(int n, int table[][30]){
 
 
 
-
-
-
-// ===== Backpack(背包)
-
-// 01背包 V是背包总容量
-void zoback(int V, int back[], int cost, int value){
-	for (int v = V; v >= cost; --v){
-		back[v] = max(back[v], back[v - cost] + value);
-	}
-}
-// 01背包数量记法 V是背包总容量  参数value = 0; back[0] = 1;
-void ZOBack(int V, int back[], int cost, int value){
-	for (int v = cost; v <= V; ++v){
-		back[v] += back[v - cost] + value;
-	}
-}
-// 多重背包
-void CompletePack(int dp[], int m, int cost, int weight) {
-	for (int i = cost; i <= m; ++i) {
-		dp[i] = max(dp[i], dp[i - cost] + weight);
-	}
-}
-// 01背包
-void ZeroOnePack(int dp[], int m, int cost, int weight) {
-	for (int i = m; i >= cost; --i) {
-		dp[i] = max(dp[i], dp[i - cost] + weight);
-	}
-}
-// 完全背包
-void MultiplyPack(int dp[], int cost, int m, int weight, int amount) {
-	if (cost*amount >= m) {
-		CompletePack(dp, m, cost, weight);
-	}
-	else{
-		int k = 1;
-		while (k<amount) {
-			ZeroOnePack(dp, m, k*cost, k*weight);
-			amount -= k;
-			k <<= 1;
-		}
-		ZeroOnePack(dp, m, amount*cost, amount*weight);
-	}
-}
 /************************************************贪心**********************************************************/
 // 密里根油滴实验程序
 void MiLIGen(double u, double v1){
