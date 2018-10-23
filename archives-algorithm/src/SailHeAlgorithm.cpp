@@ -59,33 +59,6 @@ void SlectSort(CmpType a[], CmpType *an, int(*cmp)(CmpType *a, CmpType *b)){
 	}
 }
 
-/*********************************************Êı Ñ§********************************************************/
-/*¿¨ËşÀ¼Êı*/
-I64* catalanTable(){
-	/*¶¨ÒåÊ½Ê½:fact(2 * n) / (fact(n + 1) * fact(n))ÈôÓĞ³ı·¨,»áµ¼ÖÂ¾«¶È²»×ã.ÒıÆğ²»¿ÉÄæµÄ´íÎó*/
-	/*µİ¹éÊ½1: C(n)=((4*n-2)/(n+1))*C(n-1);´ËÌâ¸Ãµİ¹éÊ½»á±¬*/
-	int maxN = 36;
-	I64 *cata = (I64*)malloc(maxN*sizeof(I64));
-	memset(cata, 0, maxN * sizeof(I64));//C(i)=0±ØĞë³õÊ¼»¯
-	cata[0] = cata[1] = 1;
-	/*µİ¹éÊ½2:C(0)=1, C(1)£½1, n>=2Ê±, C(n)= C(0)*C(n-1) + ... +C(i)*C(n-i-1) + ... + C(n-1)C(0)*/
-	for (int n = 2; n < maxN; n++){
-		for (int i = 0; i < n; i++)
-			cata[n] += cata[i] * cata[n - i - 1];
-	}
-	return cata;
-}
-//tmp = pow(iNum, 2)µÄºóÃæ¼¸Î» ´ıÑĞ¾¿func
-long long f(int iNum, int m){
-	long long tmp = 0;
-	for (long long w = m; w > 0; w /= 10)
-	{
-		long long d = (iNum / w - (iNum / (10 * w)) * 10)*w;
-		long long e = iNum % (10 * m / w);
-		tmp += (d*e);
-	}
-	return tmp;
-}
 /**************************************************************************/
 //Éú³ÉnĞĞ µÄÑî»ÔÈı½Ç
 void buildPtriangle(int n, int table[][30]){
@@ -311,14 +284,18 @@ int  Eular(int n){
 //°ÍÊ²²©ŞÄ£ºÈ¡×îºóÒ»¸öµÄÈËÊ¤
 int BaShen(int n, int min, int max){
 	int situation = n % (max + min);
-	if (0 < situation && situation <= min)
-		return 0;//ÏÈÊÖ¸º
-	else
-		return 1;//ÏÈÊÖÊ¤
+	if (0 < situation && situation <= min) {
+		//ÏÈÊÖ¸º
+		return 0;
+	}
+	else {
+		//ÏÈÊÖÊ¤
+		return 1;
+	}
 }
-//·µ»ØnÌõ±ßÊ±×î´ó½»µãÊıÄ¿
-int pointLine(int n){
-	return n*(n - 1) / 2;
+//·µ»ØlineNumÌõ±ßÊ±×î´ó½»µãÊıÄ¿
+int countMaxIntersection(int lineNum){
+	return lineNum*(lineNum - 1) / 2;
 }
 
 
@@ -370,90 +347,22 @@ void MultiplyPack(int dp[], int cost, int m, int weight, int amount)   //ÍêÈ«±³°
 	}
 }
 /************************************************Ì°ĞÄ**********************************************************/
-/*ÃÜÀï¸ùÓÍµÎÊµÑé³ÌĞò*/
-void MiLIGen(double u, double v1)
-{
+// ÃÜÀï¸ùÓÍµÎÊµÑé³ÌĞò
+void MiLIGen(double u, double v1){
 	printf("Q = %f e-19\n", (1e19*3.16e-8*5e-3 / u*pow(v1, 1.5)));
 }
 
-/*·µ»Ø×Ó´®s1Óës2Æ¥ÅäµÄ×Ö·ûÊı ±È½Ï³¤¶Èlen)*/
-int matching(char *s1, char *s2, int len)
-{
+// ¼ÆÊı: ·µ»Ø×Ó´®s1Óës2Æ¥ÅäµÄ×Ö·ûÊı ±È½Ï³¤¶Èlen)
+int countMatchingChar(char *s1, char *s2, int len){
 	int i, count;
-	for (i = count = 0; s1[i] && s2[i] && len--; i++)
-	{
+	for (i = count = 0; s1[i] && s2[i] && len--; ++i){
 		s1[i] == s2[i] ? count++ : 0;
 	}
 	return count;
 }
 
-class Fraction {
-	double up = 0;//·Ö×Ó
-	double dw = 0;//·ÖÄ¸
-public:
-	Fraction(int up, int dw) {
-		this->up = up;
-		this->dw = dw;
-	}
-
-	Fraction(double up, double dw) {
-		this->up = up;
-		this->dw = dw;
-	}
-
-	~Fraction(){
-		//printf("ÒÑÎö¹¹");
-	}
-
-	static Fraction ZERO() {
-		return Fraction(0, 1);
-	}
-
-	static int gcd(int a, int b) {
-		return a % b == 0 ? b : gcd(b, a % b);
-	}
-
-	double getUp() {
-		return up;
-	}
-
-	void setUp(double up) {
-		this->up = up;
-	}
-
-	double getDw() {
-		return dw;
-	}
-
-	void setDw(double dw) {
-		this->dw = dw;
-	}
-
-	void plash(Fraction *a) {
-		this->up *= a->dw;
-		this->up += a->up * this->dw;
-		this->dw *= a->dw;
-		//Fraction::~Fraction();
-		delete a;
-	}
-
-	void toSimple() {
-		/**¹«±¶Êı*/
-		int Ga = gcd((int) this->up, (int) this->dw);
-		this->up /= Ga;
-		this->dw /= Ga;
-	}
-
-	double toDouble() {
-		if (dw == 0)
-			throw dw;
-		return this->up / this->dw;
-	}
-};
-
-
-/*ÅĞ¶ÏÒ»¸ö×Ö´®ÊÇ·ñ»ØÎÄ(¶ÑÕ»ÊµÏÖ)*/
-bool plalindrome(char const*str, int len) {
+// ÅĞ¶ÏÒ»¸ö×Ö´®ÊÇ·ñ»ØÎÄ(¶ÑÕ»ÊµÏÖ)
+bool isPlalindrome(char const*str, int len) {
 	stack<char> s;
 	int i = 0;
 	while (i < len) {
@@ -480,11 +389,11 @@ bool plalindrome(char const*str, int len) {
 	}
 	return true;
 }
-/*parenthesisMatching(À¨ºÅÆ¥Åä)*/
-bool parMat(char const*str, int len) {
+// ÅĞ¶Ï¸ø¶¨×Ö´®ÊÇ·ñÓµÓĞÆ¥ÅäµÄÀ¨ºÅ
+bool isMatchingParenthesis(char const*str, int len) {
 	stack<char> s;
 	for (int i = 0; i < len; ++i) {
-		/*ÓÒÀ¨ºÅ±È¶Ô*/
+		//ÓÒÀ¨ºÅ±È¶Ô
 		if (str[i] == ')' || str[i] == ']' || str[i] == '}') {
 			char c = 0;
 			switch (str[i]) {
@@ -497,18 +406,21 @@ bool parMat(char const*str, int len) {
 				return false;
 			s.pop();
 		}
-		/*×óÀ¨ºÅÑ¹Õ»*/
+		//×óÀ¨ºÅÑ¹Õ»
 		else if (str[i] == '(' || str[i] == '[' || str[i] == '{') {
 			s.push(str[i]);
 		}
-		else;//do nothing
+		else {
+			//do nothing
+		}
 	}
-	return s.empty();//¿ÉÄÜ»¹ÓĞ¶à³öÀ´µÄ×óÀ¨ºÅ
+	//¿ÉÄÜ»¹ÓĞ¶à³öÀ´µÄ×óÀ¨ºÅ
+	return s.empty();
 }
-/*·µ»Ø¶ÑÕ»²Ù×÷µÄºÏ·¨ĞÔ*/
-bool validityOfStack(char const*str, int len, int cap) {
+// ÅĞ¶Ï¸ø¶¨¶ÑÕ»²Ù×÷ÊÇ·ñºÏ·¨
+bool isValidityOfStack(char const*str, int len, int cap) {
 	int size_ = 0;
-	for (size_t i = 0; i < len; i++) {
+	for (int i = 0; i < len; ++i) {
 		if (str[i] == 'S') {
 			if (size_ < cap)
 				++size_;

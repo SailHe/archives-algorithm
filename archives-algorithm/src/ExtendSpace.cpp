@@ -80,7 +80,6 @@ namespace Utility {
 }
 
 namespace MathExtend {
-	//输出数字1-maxDigit(1, 9)的全排列  字典序
 	void pentration(int maxDigit) {
 		char allDigit[11] = "123456789";
 		allDigit[maxDigit] = '\0';
@@ -90,7 +89,6 @@ namespace MathExtend {
 		} while (std::next_permutation(allDigit, allDigit + maxDigit));
 		allDigit[maxDigit] = maxDigit + '0';
 	}
-	//输出数字1-maxDigit(1, 9)的全排列  非字典序
 	void pentration() {
 		std::string temp = "123456789";
 		StandardExtend::ArrayList<char> allDigit(temp.size());
@@ -100,7 +98,6 @@ namespace MathExtend {
 			StandardExtend::outPutIterable(container.begin(), container.end());
 		});
 	}
-	//汉诺塔递归解法
 	void hannoTowerMove(int n, char a, char b, char c) {
 		// hannoTowerMove(n,'A','B','C');
 		if (n == 1) {
@@ -115,9 +112,9 @@ namespace MathExtend {
 			hannoTowerMove(n - 1, b, a, c);
 		}
 	}
-	//Confined(受限的)
 
-	//将10进制的number转换为radix进制的字符串 (递归实现)
+	// =====受限的(Confined)
+
 	std::string decToBin(int number, std::string &result, int radix) {
 		if (number < radix) {
 			return result += number;
@@ -129,7 +126,6 @@ namespace MathExtend {
 			//printf("%d", number % radix);
 		}
 	}
-	//若大数bigInteger能被整除返回true
 	bool isDivisible(char *bigInteger, int MOD) {
 		int len = strlen(bigInteger);
 		int ans, i;
@@ -138,7 +134,6 @@ namespace MathExtend {
 		}
 		return ans == 0 ? true : false;
 	}
-	//删除resStr中的所有子串delSubStr
 	void eraseAllSubStr(char *resStr, char *delSubStr) {
 		int i, res_len, del_len;
 		char *p;
@@ -152,7 +147,6 @@ namespace MathExtend {
 			res_len = strlen(resStr);
 		}
 	}
-	//逆序数
 	int reverseOrderNumber(int number) {
 		int temp = number;
 		int sum = 0, product = 1;
@@ -172,7 +166,6 @@ namespace MathExtend {
 		}
 		return sum;
 	}
-	//计算radix进制整数number中digit出现的次数
 	int calcDigitCountInNumber(const int number, const int digit, int radix) {
 		int temp = number;
 		int count = 0;
@@ -182,16 +175,13 @@ namespace MathExtend {
 		} while (temp != 0);
 		return count;
 	}
-	//计算radix进制整数的位数
 	int calcDigitTop(int number, int radix) {
 		int top = 1;
 		while (number /= radix)top++;
 		return top;
 	}
 
-
-
-
+	// ===== 数学
 	I64 quickFact(I64 a, I64 b, I64 mod) {
 		I64 ans = 0;
 		while (b) {
@@ -212,7 +202,6 @@ namespace MathExtend {
 		}
 		return ans;
 	}
-	//快速幂简易版 m^n % k（k）
 	I64 quickPow(I64 m, I64 n, I64 k) {
 		I64 ans = 1;
 		while (n > 0) {
@@ -233,18 +222,24 @@ namespace MathExtend {
 		}
 		return ans;
 	}
-	//任意底数对数
+	long long powLastBit(int base, int m) {
+		long long tmp = 0;
+		for (long long w = m; w > 0; w /= 10) {
+			long long d = (base / w - (base / (10 * w)) * 10)*w;
+			long long e = base % (10 * m / w);
+			tmp += (d*e);
+		}
+		return tmp;
+	}
 	double logR(double value, double base) {
 		return log(value) / log(base);
 	}
-	//阶 乘
 	double fact(int n) {
 		double product = n;
 		while (--n > 0)product *= n;
 		//0,1的阶乘为1(此时正好用p判断)
 		return product == 0 ? 1 : product;
 	}
-	//int 限度内阶乘表 (int 13!爆； double和long long int 18!爆)
 	int* factTable(int maxN) {
 		int *Fact = (int *)malloc(sizeof(int)* maxN);
 		Fact[0] = Fact[1] = 1;
@@ -252,15 +247,6 @@ namespace MathExtend {
 			Fact[n] = Fact[n - 1] * n;
 		return Fact;
 	}
-	/*
-	n < m && m != 0
-		 fact(n)
-	 ________________
-	fact(n - m) * fact(m)
-	*/
-	//组合数 (取出元素不重复出现)
-	//从n个不同元素中，任取m(m≤n)个元素并成一组，叫做从n个不同元素中取出m个元素的一个组合；
-	//ab == ba
 	int C(int n, int m) {
 		int f = 1, i = 1;
 		//n < m时c(n,m) = 0
@@ -275,9 +261,6 @@ namespace MathExtend {
 		}
 		return f;
 	}
-	//排列数 (取出元素不重复出现)
-	//从n个不同元素中，任取m(m≤n)个元素按照一定的顺序排成一列，叫做从n个不同元素中取出m个元素的一个排列
-	//ab != ba
 	int A(int n, int m) {
 		int d, f = 1;
 		for (d = n - m; d < n && d >= 0; --n) {
@@ -285,20 +268,17 @@ namespace MathExtend {
 		}
 		return f;
 	}
-	//素数(质数)判断
 	int isPrime_OLD(int num) {
 		double k = sqrt((double)num);
 		int i = 0;
 		for (i = 2; i <= k && num % i != 0; i++);
 		return i > k && num > 1 ? true : false;
 	}
-	//素数(质数)判断 sqrt的平方优化版(未实测)
 	bool isPrime(int num) {
 		int i = 0;
 		for (i = 2; i*i <= num && num % i != 0; i++);
 		return i * i > num && num > 1;
 	}
-	//真因子和(除本身外的约数）
 	int factorSum(int x) {
 		//1对应x  只加1不加x
 		int sum = 1, i;
@@ -314,7 +294,6 @@ namespace MathExtend {
 		//（因子包括1但不包括本身，特别的0没有因子，1的因子为1）；另外因子和为本身的叫完数
 		return sum;
 	}
-	//真因子和表(约数 因数) (10^7一千万2.51s)(400w 10^6 900ms)
 	void factorSumTableSieve(const int maxn, int a[]) {
 		for (int i = 1; i < maxn; i++) {
 			for (int j = i + i; j < maxn; j += i) {
@@ -322,7 +301,6 @@ namespace MathExtend {
 			}
 		}
 	}
-	//素数(质数) 筛选法 埃拉托色尼(Sieve Eratosthenes)(0 1==-1, a[i]==0表示素数) maxN[2, 1e9) PS:maxN = 1e7时超过1s了 1e9似乎无法分配内存
 	int* primeSieve(const int maxN) {
 		int *prime = (int*)malloc(maxN * sizeof(int));
 		memset(prime, 0, maxN * sizeof(int));
@@ -334,7 +312,6 @@ namespace MathExtend {
 		}
 		return prime;
 	}
-	//因子数目
 	int factorCount(int x) {
 		int i, count = 0;
 		//1 对应 x 计2   k对应k 计1
@@ -347,7 +324,6 @@ namespace MathExtend {
 		}
 		return count;
 	}
-	//开方函数 (eps: 精度) 计算精度小于std
 	double sqrtImpl(double x, double eps) {
 		double last, next;
 		for (last = 1, next = 2;;) {
@@ -360,7 +336,6 @@ namespace MathExtend {
 		}
 		return -1;
 	}
-	//求方差
 	double variance(float x[], int n) {
 		double aver, sum = 0, D = 0;
 		int temp, i;
@@ -374,6 +349,19 @@ namespace MathExtend {
 		}
 		return D;
 	}
-
+	I64* catalanTable() {
+		// 定义式:fact(2 * n) / (fact(n + 1) * fact(n))若有除法,会导致精度不足.引起不可逆的错误
+		// 递归式1: C(n)=((4*n-2)/(n+1))*C(n-1);此题该递归式会爆
+		int maxN = 36;
+		I64 *cata = (I64*)malloc(maxN * sizeof(I64));
+		memset(cata, 0, maxN * sizeof(I64));//C(i)=0必须初始化
+		cata[0] = cata[1] = 1;
+		// 递归式2:C(0)=1, C(1)＝1, n>=2时, C(n)= C(0)*C(n-1) + ... +C(i)*C(n-i-1) + ... + C(n-1)C(0)
+		for (int n = 2; n < maxN; n++) {
+			for (int i = 0; i < n; i++)
+				cata[n] += cata[i] * cata[n - i - 1];
+		}
+		return cata;
+	}
 }
 

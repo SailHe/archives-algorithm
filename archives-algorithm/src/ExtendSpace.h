@@ -369,6 +369,74 @@ namespace Utility {
 		PointDouble p1, p2, p3;
 	};
 
+	// 分数
+	class Fraction {
+		//分子
+		double up = 0;
+		//分母
+		double dw = 0;
+	public:
+		Fraction(int up, int dw) {
+			this->up = up;
+			this->dw = dw;
+		}
+
+		Fraction(double up, double dw) {
+			this->up = up;
+			this->dw = dw;
+		}
+
+		~Fraction() {
+			//printf("已析构");
+		}
+
+		static Fraction ZERO() {
+			return Fraction(0, 1);
+		}
+
+		static int gcd(int a, int b) {
+			return a % b == 0 ? b : gcd(b, a % b);
+		}
+
+		double getUp() {
+			return up;
+		}
+
+		void setUp(double up) {
+			this->up = up;
+		}
+
+		double getDw() {
+			return dw;
+		}
+
+		void setDw(double dw) {
+			this->dw = dw;
+		}
+
+		void plash(Fraction *a) {
+			this->up *= a->dw;
+			this->up += a->up * this->dw;
+			this->dw *= a->dw;
+			//Fraction::~Fraction();
+			delete a;
+		}
+
+		void toSimple() {
+			// 公倍数
+			int Ga = gcd((int)this->up, (int)this->dw);
+			this->up /= Ga;
+			this->dw /= Ga;
+		}
+
+		double toDouble() {
+			if (dw == 0)
+				throw dw;
+			return this->up / this->dw;
+		}
+	};
+
+
 	//ans为s1+s2(s1与s2的并集)(直接ans.push_back(temp)即可没必要建实际生物s1与s2)
 	//返回s1与s2并集的中位数, ans为s1+s2(直接push_back即可) a0,a1,a2...an-1的中位数指a[(n-1)/2] (共n个数)即第(n+1)/2个数(a0为第一个数)
 	template<class T>
@@ -569,7 +637,7 @@ namespace MathExtend {
 	//计算radix进制整数的位数
 	int calcDigitTop(int number, int radix = 10);
 
-
+	// ===== 数 学
 
 	I64 quickFact(I64 a, I64 b, I64 mod);
 	//快速幂基于quickFact版 效率是简易版的1/5
@@ -578,6 +646,8 @@ namespace MathExtend {
 	I64 quickPow(I64 m, I64 n, I64 k);
 	//快速幂普通版 m^n; 与std::pow效率各有高低相差不大 std::pow值域更大
 	I64 quickPow(I64 m, I64 n);
+	//返回pow(iNum, 2)的最后m位(实际上貌似只能算最后1bit 可能哪里被无意中修改了) 注意返回值可能包涵多位但只有最后一位有效
+	long long powLastBit(int base, int m);
 	//任意底数对数
 	double logR(double value, double base = 5);
 	//阶 乘
@@ -590,9 +660,13 @@ namespace MathExtend {
 	 ________________
 	fact(n - m) * fact(m)
 	*/
-	//组合数
+	//组合数 (取出元素不重复出现)
+	//从n个不同元素中，任取m(m≤n)个元素并成一组，叫做从n个不同元素中取出m个元素的一个组合；
+	//ab == ba
 	int C(int n, int m);
-	//排列数
+	//排列数 (取出元素不重复出现)
+	//从n个不同元素中，任取m(m≤n)个元素按照一定的顺序排成一列，叫做从n个不同元素中取出m个元素的一个排列
+	//ab != ba
 	int A(int n, int m);
 	//素数(质数)判断
 	int isPrime_OLD(int num);
@@ -610,7 +684,8 @@ namespace MathExtend {
 	double sqrtImpl(double x, double eps = 1e-9);
 	//求方差
 	double variance(float x[], int n);
-
+	// 卡塔兰数
+	I64* catalanTable();
 }
 
 #endif
