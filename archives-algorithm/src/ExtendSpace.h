@@ -573,9 +573,8 @@ namespace MathExtend {
 		}
 		return origin + size;
 	}
-	// 三分法 求一元函数f(x)在区间[left, right]内的的最小解x (eps: 精度, 求最大值可外部实现)
+	// 三分法 求一元函数f(x)在 区间[left, right]内的的最小解x (eps: 精度, 求最大值可外部实现) TY(*fun)(TX x)
 	template<class TY, class TX, class Fun>
-	//TY(*fun)(TX x)
 	TX trichotomy(TX left, TX right, Fun fun, TX eps) {
 		TX Ll, Rr;
 		while (right - left > eps) {
@@ -724,11 +723,9 @@ namespace MathExtend {
 	定理三：若gcd(a, b) = g，则方程ax ≡ c (mod b)在[0, b/g - 1]上有唯一解.
 	证明:对于方程 a/g*x+b/g*y = c/g	(若x,y是整数解; g = gcd(a, b) ==> 方程左边是个整数 ==> 右边也该是整数 ==> 否则x,y不是整数解)
 	<==> a/g*x ≡ c/g (mod b/g)	==> 若方程存在特解x,那么x + k*(b/g)还是方程的解
-	*/
-	//PKU1061-青蛙的约会
+	*/ //PKU1061-青蛙的约会
 	//求线性方程ax+by = c 的最小非负整数解x(只能保证x满足条件) 若整数解不存在返回false
 	int linearEquation(I64 a, I64 &x, I64 b, I64 &y, I64 c);
-	//PKU2142-HDU1356-The Balance
 	/*
 	定理：对于方程ax+by = c
 	通解:	x = x0 + b*t
@@ -745,7 +742,7 @@ namespace MathExtend {
 	若规定	a>b
 	那么		原函数为先减后增的凹图像 (当t满足y0 - a/g*t == 0 时取最小值)
 	即		|x|+|y| 在t = y0*g/a 附近(③)取最小值
-	*/
+	*/ //PKU2142-HDU1356-The Balance
 	//求线性方程ax+by = c 使得|x|+|y|最小的一组解x,y
 	void linearEquation(int a, int &x, int b, int &y, int c);
 	/*
@@ -762,21 +759,23 @@ namespace MathExtend {
 	同余类(congruence class或residue class):由对于模n同余的所有整数组成的一个集合; 若从上下文知道模n，则也可标记为[a]。
 	同余类的代表数(representative):同余类中的拿来代表该同余类的任一元素
 
-	模逆元: t ≡ a^(-1)(mod m) 或 at ≡ 1(mod m); 若at与1模m同余, 则t是a的对同余m的模逆元, 也叫做模m的数论倒数;
+	模逆元: t ≡ a^(-1)(mod m) 或 at ≡ 1(mod m); 若at与1模m同余, 则t是a的对同余m的[模逆元], 也叫做模m的[数论倒数];
 	若ax + my = 1 <==> (1 ≡ 1) ax+my ≡ 1 ≡ ax(mod m) ==> ax ≡ 1; 根据定义, x即是a关于模m的一个模逆元。
 	*/
 	int modInv(int a, int m);
 	/*
-	中国剩余定理: ans = sum(a[i] * t[i] * M[i])
-	+ k*ans(在模mP的意义下方程组只有ans一个解)
-	返回值:满足同时%模数组分别等于余数组的整数num
-	已知参数m:模数组(要求m中任两数互质, 无参数检查)
-	已知参数a:余数组(强参数)				num%m[i] = r[i]
-	num模m[i]同余代表数组(弱参数)	num ≡ a[i](mod m[i])
+	@see https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%89%A9%E4%BD%99%E5%AE%9A%E7%90%86
+	中国剩余定理: 说明了一元线性同余方程组有解的准则以及求解方法
+	通解以及算法: ansNum = sum(remainderS[i]*M[i]*t[i]) + k*product(modS[i])
+	(其中: M[i]是模数两两相乘的结果 t[i]是其数论倒数(模逆元), 在模mP的意义下方程组只有ansNum一个解)
 	经典问题:
-	物不知数(xx数之x就是模数), 生理周期(周期是模数 上一次外显的日期是同余代表数)
+	孙子定理, 韩信点兵, 物不知数(xx数之x就是模数), 生理周期(周期是模数 上一次外显的日期是同余代表数)
 	*/
-	int chineseReminder(int *m, int *a, int n, int mP = 0);
+	// 已知参数modS(简称m):									模数组(要求modS的元素两两互质, 无参数检查)
+	// 已知参数remainderS(简称a): 余数组(强参数)				remainderS[i] = ansNum%modS[i]
+	// 返回值:		同时满足%模数组的所有元素的值分别等于余数组对应元素 的最小正整数ansNum
+	// ansNum模modS[i]同余代表数组(弱参数)	ansNum ≡ remainderS[i](mod modS[i])
+	int chineseReminder(int *modS, int *remainderS, int sizeNum, int mP = 0);
 
 	// 欧拉函数:在数论中用于求解[1,n]中与n 互质数 的个数 的函数
 	int  Eular(int n);

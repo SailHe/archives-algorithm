@@ -355,8 +355,10 @@ int mainForAlgorithm() {
 	}
 
 	auto primeTable = MathExtend::primeSieve(100);
+	int count = 0;
 	for (int i = 2; i < 100; ++i) {
-		testAndOut<bool>("数字" + to_string(i) + " 是否素数:", MathExtend::isPrime(i), primeTable[i] == 0);
+		bool isP = MathExtend::isPrime(i);
+		testAndOut("数字" + to_string(i) + " 是否素数:", isP, primeTable[i] == 0);
 	}
 	free(primeTable);
 
@@ -397,6 +399,13 @@ int mainForAlgorithm() {
 		testAndOut("解x: ", x, 0LL);
 		testAndOut("解y: ", y, 5LL);
 	}, "二元一次线性方程最小非负整数解");
+	
+	StandardExtend::testAndDiffClock([&]() {
+		int m[] = {3, 5, 7};
+		int a[] = {2, 3, 2};
+		int minResult = MathExtend::chineseReminder(m, a, 3, 0);
+		testAndOut("最小正整数解: ", minResult, 23);
+	}, "中国剩余定理 求线性同余方程组");
 
 	cout << "Algorithm test end" << endl;
 	return 0;

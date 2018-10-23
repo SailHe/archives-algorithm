@@ -426,7 +426,7 @@ namespace MathExtend {
 		x0 = x0 * c / g;
 		y0 = y0 * c / g;
 		int tB = y0 * g / a;
-		x = infinity / 2, y = x;
+		x = MAX_INT32 / 2, y = x;
 		FOR(t, tB - 5, tB + 5) {
 			int xT = x0 + b / g * t;
 			int yT = y0 - a / g * t;
@@ -446,19 +446,19 @@ namespace MathExtend {
 		}
 		return t;
 	}
-	int chineseReminder(int *m, int *a, int n, int mP) {
+	int chineseReminder(int *modS, int *remainderS, int sizeNum, int mP) {
 		int ans, t, y, i;
 		//避免重复计算, 但是在必须多次计算的地方又可以选择默认参数, 更具灵活性
 		if (mP == 0) {
-			//求m[i]的积mProduct
-			for (i = 0, mP = 1; i < n; i++) {
-				mP *= m[i];
+			//求modS[i]的积mProduct
+			for (i = 0, mP = 1; i < sizeNum; i++) {
+				mP *= modS[i];
 			}
 		}
-		for (i = 0, ans = 0; i < n; i++) {
-			//求M[i] = mP / m[i]的模逆元t[i](极可能为负)
-			gcdEx(mP / m[i], m[i], t, y);
-			ans += (a[i] * t * (mP / m[i]));
+		for (i = 0, ans = 0; i < sizeNum; i++) {
+			//求M[i] = mP / modS[i]的模逆元t[i](极可能为负)
+			gcdEx(mP / modS[i], modS[i], t, y);
+			ans += (remainderS[i] * t * (mP / modS[i]));
 		}
 		//ans极有可能为负数
 		ans = (ans + mP) % mP;
