@@ -363,5 +363,134 @@ namespace MathExtend {
 		}
 		return cata;
 	}
+	int countMaxIntersection(int lineNum) {
+		return lineNum * (lineNum - 1) / 2;
+	}
+
+	int gcd(int a, int b)
+	{
+		return b == 0 ? a : gcd(b, a % b);
+	}
+	int gcdEx_OLD(int a, int b, int &x, int &y) {
+		if (b == 0) {
+			x = 1;
+			y = 0;
+			return a;
+		}
+		else {
+			int g = gcdEx_OLD(b, a%b, x, y);
+			int t = x;
+			x = y;
+			y = t - (a / b)*y;
+			return g;
+		}
+
+	}
+	int gcdEx(int a, int b, int &x, int &y) {
+		if (b == 0) {
+			x = 1; y = 0;
+			return a;
+		}
+		int g = gcdEx(b, a%b, y, x);
+		y -= a / b * x;
+		return g;
+	}
+	I64 gcdEx(I64 a, I64 b, I64 &x, I64 &y) {
+		if (b == 0) {
+			x = 1; y = 0;
+			return a;
+		}
+		I64 g = gcdEx(b, a%b, y, x);
+		y -= a / b * x;
+		return g;
+	}
+	//求线性方程ax+by = c 的最小非负整数解x(只能保证x满足条件) 若整数解不存在返回false
+	int linearEquation(I64 a, I64 &x, I64 b, I64 &y, I64 c) {
+		I64 x0, y0,
+			g = gcdEx(a, b, x0, y0);
+		if (c%g != 0)
+			return false;
+		I64 rx = b / g;
+		x = x0 * c / g;
+		x = (x%rx + rx) % rx;
+		//while (x < 0 && rx > 0) x += rx; x %= rx;
+		y = (c - a * x) / b;
+		return true;
+	}
+	//求线性方程ax+by = c 使得|x|+|y|最小的一组解x,y
+	void linearEquation(int a, int &x, int b, int &y, int c) {
+		int hasSwap = false;
+		if (a < b) std::swap(a, b), hasSwap = true;
+		I64 x0, y0;
+		I64 g = gcdEx(a, b, x0, y0);
+		x0 = x0 * c / g;
+		y0 = y0 * c / g;
+		int tB = y0 * g / a;
+		x = infinity / 2, y = x;
+		FOR(t, tB - 5, tB + 5) {
+			int xT = x0 + b / g * t;
+			int yT = y0 - a / g * t;
+			//此处取等则错
+			if (abs(xT) + abs(yT) < abs(x) + abs(y)) {
+				x = xT;
+				y = yT;
+			}
+		}
+		if (hasSwap) std::swap(x, y);
+	}
+	int modInv(int a, int m) {
+		int t, y;
+		if (gcdEx(a, m, t, y) != 1) {
+			std::cerr << a << " " << m << "不互素 模逆元不存在!" << std::endl;
+			exit(-1);
+		}
+		return t;
+	}
+	int chineseReminder(int *m, int *a, int n, int mP) {
+		int ans, t, y, i;
+		//避免重复计算, 但是在必须多次计算的地方又可以选择默认参数, 更具灵活性
+		if (mP == 0) {
+			//求m[i]的积mProduct
+			for (i = 0, mP = 1; i < n; i++) {
+				mP *= m[i];
+			}
+		}
+		for (i = 0, ans = 0; i < n; i++) {
+			//求M[i] = mP / m[i]的模逆元t[i](极可能为负)
+			gcdEx(mP / m[i], m[i], t, y);
+			ans += (a[i] * t * (mP / m[i]));
+		}
+		//ans极有可能为负数
+		ans = (ans + mP) % mP;
+		return ans;
+	}
+
+	int  Eular(int n) {
+		//通式：φ(x) = x(1-1/p1)*(1-1/p2)*(1-1/p3)…(1-1/pn)
+		//其中p1,p2……pn为x的所有互异质因数(质因子)，x是不为0的整数。
+		int i, ret = n;
+		double k = sqrt((double)n);
+		for (i = 2; i <= k; i++) {
+			if (n%i == 0) {
+				ret = ret / i * (i - 1);
+				while (n%i == 0)
+					n /= i;
+			}
+		}
+		n > 1 ? ret = ret / n * (n - 1) : 0;
+		return ret;
+	}
+	int BaShen(int n, int min, int max) {
+		int situation = n % (max + min);
+		if (0 < situation && situation <= min) {
+			//先手负
+			return 0;
+		}
+		else {
+			//先手胜
+			return 1;
+		}
+	}
+
 }
 

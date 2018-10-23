@@ -637,6 +637,7 @@ namespace MathExtend {
 	//计算radix进制整数的位数
 	int calcDigitTop(int number, int radix = 10);
 
+
 	// ===== 数 学
 
 	I64 quickFact(I64 a, I64 b, I64 mod);
@@ -686,6 +687,102 @@ namespace MathExtend {
 	double variance(float x[], int n);
 	// 卡塔兰数
 	I64* catalanTable();
+	//返回lineNum条边时最大交点数目
+	int countMaxIntersection(int lineNum);
+
+
+	//辗转相除求公约数, 互素(互质)判定
+	int gcd(int a, int b);
+	/*
+	扩展的欧几里得算法（辗转相除法）Extended Euclidean algorithm:
+	功能:
+		已知整数a、b, 在求得a、b的最大公约数的同时, 可找到满足贝祖等式ax + by = gcd(a, b)的整数x、y;（也称裴蜀数, 其中一个很可能是负数）
+	若a是负数，可以把问题转化成|a|(-x) + by = gcd(|a|, b)，然后令 x' = (-x)
+		利用定理求线性方程的解*//*
+	返回值      :最大公 约数,因数,因子 gcd(greatest common divisor) 或 hcf(highest common factor)
+	已知参数a, b:任意非负整数(若是负数可能要更新算法)
+	返回参数x, y:贝祖数 或 模逆元...
+	*//*
+	贝祖等式(裴蜀定理)大意:两数的最大公约数的倍数可以用两数的整数倍相加来表示
+	关于未知数x和y的方程 ax + by = m有整数解<==>m是d的倍数。(d是任意整数a、b的最大公约数)
+	裴蜀等式有解时必然有无穷多个整数解，每组解x y都称为裴蜀数，可用扩展欧几里得算法求得。
+	应用:
+	对于不定整数方程ax+by=c，若c 是 gcd(a,b)的整数倍则该方程存在整数解
+	否则不存在 x , y 整数解。
+	讨论是否存在一整数k，使得m在k圈后比n大一；就是求解： k*m - n = 1;是否有解
+	1 % gcd(m,n) == 0
+	*/
+	int gcdEx_OLD(int a, int b, int &x, int &y);
+	//扩展欧几里得算法精简正式版
+	int gcdEx(int a, int b, int &x, int &y);
+	I64 gcdEx(I64 a, I64 b, I64 &x, I64 &y);
+	/*
+	定理一(贝祖定理)：ax + by = gcd(a, b)必有整数解
+	定理二：若gcd(a, b) = 1，则方程ax ≡ c (mod b)在[0, b-1]上有唯一解.
+	证明:对于方程 ax + by = c
+	<==> ax ≡ c (mod b)			==> 若方程存在特解x,那么x + k*b还是方程的解
+	定理三：若gcd(a, b) = g，则方程ax ≡ c (mod b)在[0, b/g - 1]上有唯一解.
+	证明:对于方程 a/g*x+b/g*y = c/g	(若x,y是整数解; g = gcd(a, b) ==> 方程左边是个整数 ==> 右边也该是整数 ==> 否则x,y不是整数解)
+	<==> a/g*x ≡ c/g (mod b/g)	==> 若方程存在特解x,那么x + k*(b/g)还是方程的解
+	*/
+	//PKU1061-青蛙的约会
+	//求线性方程ax+by = c 的最小非负整数解x(只能保证x满足条件) 若整数解不存在返回false
+	int linearEquation(I64 a, I64 &x, I64 b, I64 &y, I64 c);
+	//PKU2142-HDU1356-The Balance
+	/*
+	定理：对于方程ax+by = c
+	通解:	x = x0 + b*t
+	y = y0 - a*t
+	(①:x0, y0为方程的一组解; ②:gcd(a, b) = 1; ③:t为任一整数.)
+
+	①:	g = gcdEx(a, b, x0, y0);
+	x0 = x0*c / g;
+	y0 = y0*c / g;
+	②:	x = x0 + b / g*t
+	y = y0 - a / g*t
+	于是		|x|+|y| = |x0+b/g*t| + |y0-a/g*t|
+	易知		|x0+b/g*t|单调递增，|y0-a/g*t|单调递减.
+	若规定	a>b
+	那么		原函数为先减后增的凹图像 (当t满足y0 - a/g*t == 0 时取最小值)
+	即		|x|+|y| 在t = y0*g/a 附近(③)取最小值
+	*/
+	//求线性方程ax+by = c 使得|x|+|y|最小的一组解x,y
+	void linearEquation(int a, int &x, int b, int &y, int c);
+	/*
+	modulo inverse
+	功能:返回a的模m逆元t, 不存在打印错误并结束程序;
+	a*modInv(a, m) % m = 1
+	因为at%m=1：要求余数2的话，2*at，要求余数为3的话，3*at
+	定义
+
+	同余号 ≡: 若一个正整数除两个整数 得相同余数，则称二整数[同余]。
+	同余关系(离散数学):aRb <==> a与b用m除时具有相同的余数r, 此时, 称m是模数, 记a≡b(mod m); (modulo); 读作:a与b模m同余
+	同余关系是一个[等价关系]:自反,对称,传递
+
+	同余类(congruence class或residue class):由对于模n同余的所有整数组成的一个集合; 若从上下文知道模n，则也可标记为[a]。
+	同余类的代表数(representative):同余类中的拿来代表该同余类的任一元素
+
+	模逆元: t ≡ a^(-1)(mod m) 或 at ≡ 1(mod m); 若at与1模m同余, 则t是a的对同余m的模逆元, 也叫做模m的数论倒数;
+	若ax + my = 1 <==> (1 ≡ 1) ax+my ≡ 1 ≡ ax(mod m) ==> ax ≡ 1; 根据定义, x即是a关于模m的一个模逆元。
+	*/
+	int modInv(int a, int m);
+	/*
+	中国剩余定理: ans = sum(a[i] * t[i] * M[i])
+	+ k*ans(在模mP的意义下方程组只有ans一个解)
+	返回值:满足同时%模数组分别等于余数组的整数num
+	已知参数m:模数组(要求m中任两数互质, 无参数检查)
+	已知参数a:余数组(强参数)				num%m[i] = r[i]
+	num模m[i]同余代表数组(弱参数)	num ≡ a[i](mod m[i])
+	经典问题:
+	物不知数(xx数之x就是模数), 生理周期(周期是模数 上一次外显的日期是同余代表数)
+	*/
+	int chineseReminder(int *m, int *a, int n, int mP = 0);
+
+	// 欧拉函数:在数论中用于求解[1,n]中与n 互质数 的个数 的函数
+	int  Eular(int n);
+	//巴什博弈：取最后一个的人胜
+	int BaShen(int n, int min, int max);
+
 }
 
 #endif

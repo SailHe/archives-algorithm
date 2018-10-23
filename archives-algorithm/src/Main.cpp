@@ -390,6 +390,14 @@ int mainForAlgorithm() {
 	bool exist = std::binary_search(a, a + size, 6);
 	auto pair = std::equal_range(a, a + size, 6);
 
+
+	StandardExtend::testAndDiffClock([&]() {
+		I64 x, y;
+		testAndOut("2*x + 1*y + 5 = 0的最小非负整数解x是否存在: ", (bool)MathExtend::linearEquation(2, x, 1, y, 5LL), true);
+		testAndOut("解x: ", x, 0LL);
+		testAndOut("解y: ", y, 5LL);
+	}, "二元一次线性方程最小非负整数解");
+
 	cout << "Algorithm test end" << endl;
 	return 0;
 }

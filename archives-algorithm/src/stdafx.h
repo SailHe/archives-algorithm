@@ -74,10 +74,10 @@ export(导出/出口/输出) 在定义模板类对象和模板函数时的extern功能
 //双字节无符号整数(16位)
 #define MAX_INT16 65535
 #define MIN_INT16 (-MAX_INT16-1)
-//4字节32位有符号整数 2^31-1 = 0x7FFFFFFF; 约2e8(9bit)
+//4字节32位有符号整数 2^31-1 = 0x7FFFFFFF; 约2e9(10bit)
 #define MAX_INT32 2147483647
 #define MIN_INT32 (-MAX_INT32-1)
-//8字节64位有符号整数 2^63-1 std::to_string(pow(2, 63)) 19bit约9e18
+//8字节64位有符号整数 2^63-1 std::to_string(pow(2, 63)); 约9e18(19bit)
 #define MAX_INT64 9223372036854775807
 #define MIN_INT64 (-MAX_INT64-1)
 
