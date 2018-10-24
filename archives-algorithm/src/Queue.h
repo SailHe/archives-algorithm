@@ -133,8 +133,7 @@ protected:
 	void PrintDeque(PtrToDequeImpl D);
 	*/
 
-	int ShellForDeQueue()
-	{
+	int ShellForDeQueue(){
 		ElementType X;
 		PtrToDequeImpl D;
 		int done = 0;

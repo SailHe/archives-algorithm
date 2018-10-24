@@ -95,7 +95,7 @@ public:
 	原链表完全不变
 	*/
 	/*******************************************链表的查找与数据操作*********/
-	//返回链表储存数据结点个数+1
+	//返回链表储存数据的结点个数
 	int length();
 	//返回链表第k条数据  不存在返回ERROR_ELE_VALUE :: k属于(-length, length)
 	Iterator findKth(int k);
@@ -294,11 +294,11 @@ protected:
 	原链表完全不变
 	*/
 	/*******************************************链表的查找与数据操作*********/
-	//返回链表储存数据结点个数+1
-	int Length(LinkedListNodePtr L) {/*此实现基于含头节点的链表*/
+	//返回结点L及其之后结点个数
+	int Length(LinkedListNodePtr L) {
 		LinkedListNodePtr p = L;
 		int n = 0;
-		while (p)
+		while (p != NULL)
 			++n, p = p->Next_;
 		return n;
 	}
@@ -373,15 +373,16 @@ protected:
 		return NULL;
 	}
 	//删除位置P的元素 返回链表头 若参数P位置非法返回NULL
-	LinkedListNodePtr DeleteInP(LinkedListNodePtr L, Position *DelPosition) {
+	LinkedListNodePtr DeleteInP(LinkedListNodePtr L, Position *DelPosition) 
+	{
 		LinkedListNodePtr pn = L;
 		Position P = *DelPosition;
 		pn->Data = 0;
 		while (pn->Next_ && P) {
 			if (pn->Next_ == P) {
-				//暂用
+				//暂存即将删除结点的下一个
 				P = P->Next_;
-				deleteNode(P->Next_);
+				deleteNode(pn->Next_);
 				pn->Next_ = P;
 				*DelPosition = NULL;
 				return L;
@@ -613,7 +614,7 @@ typename LinkedList<ElementType>::Iterator LinkedList<ElementType>::intersection
 }
 template<class ElementType>
 int LinkedList<ElementType>::length() {
-	return Length(headNode_);
+	return Length(headNode_->Next_);
 }
 template<class ElementType>
 typename LinkedList<ElementType>::Iterator LinkedList<ElementType>::findKth(int k) {

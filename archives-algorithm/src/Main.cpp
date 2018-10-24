@@ -34,7 +34,7 @@ int MainForStack() {
 int MainForLinkedList() {
 
 	LinkedList<string> lists = LinkedList<string>();
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		lists.insertData("LinkedListData");
 	}
 	auto it = lists.findKth(1);
@@ -44,7 +44,7 @@ int MainForLinkedList() {
 	}
 	
 	LinkedList<stack<string>> stackList;
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		stack<string> s;
 		for (int i = 0; i < 2; ++i) {
 			s.push("List data in Stack");
@@ -64,20 +64,27 @@ int MainForLinkedList() {
 	LinkedList<int> list2 = LinkedList<int>();
 	LinkedList<int> list3 = LinkedList<int>();
 	int n;
-	puts("输入链表各元素 以-1结尾");
-	list1.input().output();
-	list2.input().output();
+	JCE::ArrayList<int> listData1 = { -1, 1, 3, 5, 7, 9, 11, 13 };
+	JCE::ArrayList<int> listData2 = { -2, 2, 4, 6, 8, 10, 12, 14 };
+	for (JCE::SizeType i = 0; i < listData1.size(); ++i) {
+		list1.insertData(listData1[i]);
+		list2.insertData(listData2[i]);
+	}
+	list1.output();
+	list2.output();
 	puts("begain\n");
 
 	puts("反转后list2\n");
 	list2.reverse().output();
+	puts("再次反转list2\n");
+	list2.reverse().output();
 
-	puts("合并list1 list2\n");
+	puts("有序合并list2到list1\n");
 	list1.merge(list2).output();
 	LinkedList<int>::Iterator iter = list1.findKth(1);
 	n = list1.length();
 	int i = 0;
-	while (iter) {
+	while (true) {
 		++i;
 
 		LinkedList<int>::Iterator findIter = list1.findKth(i);
@@ -89,15 +96,16 @@ int MainForLinkedList() {
 			puts("find error");
 		}
 
-		LinkedList<int>::Iterator findIterRe = list1.findKth(-1);
-		if (findIterRe) {
-			printf("find 倒数第%d个元素%d\n", 1, *findIterRe);
+		iter = list1.findKth(-1);
+		if (iter) {
+			printf("find 倒数第%d个元素%d\n", 1, *iter);
 		}
 		else {
-			puts("find error");
+			puts("last element is not exist, exit!");
+			break;
 		}
 
-		int deleteTemp = *findIterRe;
+		int deleteTemp = *iter;
 		LinkedList<int>::Iterator findDataPo = list1.findData(deleteTemp);
 		if (list1.deleteInP(findDataPo)) {
 			printf("delete %d\n", deleteTemp);
@@ -157,7 +165,7 @@ int mainForDeQueue() {
 	while (!ql.isEmpty()) {
 		ql.poll().output();
 	}
-	qs.shell();
+	//qs.shell();
 	//ql.shell();
 	puts(" ====== Deque test end");
 	return 0;
@@ -325,7 +333,7 @@ int mainForMath() {
 	testAndOut("排列数 8取3", MathExtend::A(8, 3), 336);
 
 
-	for (I64 i = 0; i < 20; ++i) {
+	for (I64 i = 0; i < 10; ++i) {
 		testAndOut("快速幂 "+ std::to_string(i) +"^2", MathExtend::quickPow(i, 2), (I64)std::pow(i, 2));
 	}
 	int testCount = 500;
@@ -358,7 +366,7 @@ int mainForMath() {
 
 	auto primeTable = MathExtend::generateSievePrimeS(100);
 	int count = 0;
-	for (int i = 0; i < 50; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		bool isP = MathExtend::isPrime(i);
 		testAndOut("数字" + to_string(i) + " 是否素数:", isP, primeTable[i] == 0);
 	}
@@ -519,14 +527,14 @@ int main() {
 	//freopen_s(&inFile, "input", "r", stdin);
 	//mainForExpressionTree();
 	//mainForHuffumanTree();
-	mainForMath();
-	StandardExtend::testAndDiffClock(mainForAlgorithm);
-	StandardExtend::testAndDiffClock(mainForGraph);
-	mainForBinSearchTree();
+	MainForLinkedList();
 	MainForStack();
 	mainForQueue();
 	mainForDeQueue();
-	MainForLinkedList();
+	mainForBinSearchTree();
+	mainForMath();
+	StandardExtend::testAndDiffClock(mainForAlgorithm);
+	StandardExtend::testAndDiffClock(mainForGraph);
 	return 0;
 }
 
