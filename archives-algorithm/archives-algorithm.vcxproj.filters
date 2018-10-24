@@ -30,9 +30,6 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\SailHeAlgorithm.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\List\LinkedList.cpp">
       <Filter>源文件\List</Filter>
     </ClCompile>

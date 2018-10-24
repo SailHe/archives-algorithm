@@ -80,52 +80,7 @@ namespace Utility {
 }
 
 namespace MathExtend {
-	void pentration(int maxDigit) {
-		char allDigit[11] = "123456789";
-		allDigit[maxDigit] = '\0';
-		do {
-			//求下一个排列数 #include<algorithm>
-			puts(allDigit);
-		} while (std::next_permutation(allDigit, allDigit + maxDigit));
-		allDigit[maxDigit] = maxDigit + '0';
-	}
-	void pentration() {
-		std::string temp = "123456789";
-		StandardExtend::ArrayList<char> allDigit(temp.size());
-		//toArrayList<char, std::string::iterator>(temp.begin(), temp.end());
-		std::copy(temp.begin(), temp.end(), allDigit.begin());
-		MathExtend::penetration(allDigit, 0, 9 - 1, [&](auto container) {
-			StandardExtend::outPutIterable(container.begin(), container.end());
-		});
-	}
-	void hannoTowerMove(int n, char a, char b, char c) {
-		// hannoTowerMove(n,'A','B','C');
-		if (n == 1) {
-			//当n只有1个的时候直接从a移动到c
-			printf("%c To %c\n", a, c);
-		}
-		else {
-			//第n-1个要从a通过c移动到b
-			hannoTowerMove(n - 1, a, c, b);
-			printf("%c To %c\n", a, c);
-			//n-1个移动过来之后b变开始盘，b通过a移动到c，这边很难理解
-			hannoTowerMove(n - 1, b, a, c);
-		}
-	}
-
-	// =====受限的(Confined)
-
-	std::string decToBin(int number, std::string &result, int radix) {
-		if (number < radix) {
-			return result += number;
-			//printf("%d", number);
-		}
-		else {
-			decToBin(number / radix, result, radix);
-			return result += (number % radix);
-			//printf("%d", number % radix);
-		}
-	}
+	
 	bool isDivisible(char *bigInteger, int MOD) {
 		int len = strlen(bigInteger);
 		int ans, i;
@@ -240,12 +195,12 @@ namespace MathExtend {
 		//0,1的阶乘为1(此时正好用p判断)
 		return product == 0 ? 1 : product;
 	}
-	int* factTable(int maxN) {
-		int *Fact = (int *)malloc(sizeof(int)* maxN);
-		Fact[0] = Fact[1] = 1;
+	int* generateFactList(int maxN) {
+		int *factList = (int *)malloc(sizeof(int)* maxN);
+		factList[0] = factList[1] = 1;
 		for (int n = 2; n < maxN; ++n)
-			Fact[n] = Fact[n - 1] * n;
-		return Fact;
+			factList[n] = factList[n - 1] * n;
+		return factList;
 	}
 	int C(int n, int m) {
 		int f = 1, i = 1;
@@ -294,23 +249,23 @@ namespace MathExtend {
 		//（因子包括1但不包括本身，特别的0没有因子，1的因子为1）；另外因子和为本身的叫完数
 		return sum;
 	}
-	void factorSumTableSieve(const int maxn, int a[]) {
-		for (int i = 1; i < maxn; i++) {
-			for (int j = i + i; j < maxn; j += i) {
-				a[j] += i;
+	void buildSieveFactorSumS(const int maxN, int bufferS[]) {
+		for (int i = 1; i < maxN; i++) {
+			for (int j = i + i; j < maxN; j += i) {
+				bufferS[j] += i;
 			}
 		}
 	}
-	int* primeSieve(const int maxN) {
-		int *prime = (int*)malloc(maxN * sizeof(int));
-		memset(prime, 0, maxN * sizeof(int));
-		prime[0] = prime[1] = -1;
+	int* generateSievePrimeS(const int maxN) {
+		int *primeS = (int*)malloc(maxN * sizeof(int));
+		memset(primeS, 0, maxN * sizeof(int));
+		primeS[0] = primeS[1] = -1;
 		for (int i = 2; i < maxN; i++) {
 			for (int j = i + i; j < maxN; j += i) {
-				prime[j] += i;
+				primeS[j] += i;
 			}
 		}
-		return prime;
+		return primeS;
 	}
 	int factorCount(int x) {
 		int i, count = 0;
@@ -386,43 +341,13 @@ namespace MathExtend {
 		}
 
 	}
-	int gcdEx(int a, int b, int &x, int &y) {
-		if (b == 0) {
-			x = 1; y = 0;
-			return a;
-		}
-		int g = gcdEx(b, a%b, y, x);
-		y -= a / b * x;
-		return g;
-	}
-	I64 gcdEx(I64 a, I64 b, I64 &x, I64 &y) {
-		if (b == 0) {
-			x = 1; y = 0;
-			return a;
-		}
-		I64 g = gcdEx(b, a%b, y, x);
-		y -= a / b * x;
-		return g;
-	}
-	//求线性方程ax+by = c 的最小非负整数解x(只能保证x满足条件) 若整数解不存在返回false
-	int linearEquation(I64 a, I64 &x, I64 b, I64 &y, I64 c) {
-		I64 x0, y0,
-			g = gcdEx(a, b, x0, y0);
-		if (c%g != 0)
-			return false;
-		I64 rx = b / g;
-		x = x0 * c / g;
-		x = (x%rx + rx) % rx;
-		//while (x < 0 && rx > 0) x += rx; x %= rx;
-		y = (c - a * x) / b;
-		return true;
-	}
+	
 	//求线性方程ax+by = c 使得|x|+|y|最小的一组解x,y
-	void linearEquation(int a, int &x, int b, int &y, int c) {
+	void linearEquationCondition2(int a, int &x, int b, int &y, int c) {
 		int hasSwap = false;
 		if (a < b) std::swap(a, b), hasSwap = true;
-		I64 x0, y0;
-		I64 g = gcdEx(a, b, x0, y0);
+		int x0, y0;
+		int g = gcdEx(a, b, x0, y0);
 		x0 = x0 * c / g;
 		y0 = y0 * c / g;
 		int tB = y0 * g / a;
@@ -492,5 +417,146 @@ namespace MathExtend {
 		}
 	}
 
+	// =====受限的(Confined)
+	void MiLIGen(double u, double v1) {
+		printf("Q = %f e-19\n", (1e19*3.16e-8*5e-3 / u * pow(v1, 1.5)));
+	}
+	void pentration(int maxDigit) {
+		char allDigit[11] = "123456789";
+		allDigit[maxDigit] = '\0';
+		do {
+			//求下一个排列数 #include<algorithm>
+			puts(allDigit);
+		} while (std::next_permutation(allDigit, allDigit + maxDigit));
+		allDigit[maxDigit] = maxDigit + '0';
+	}
+	void pentration() {
+		std::string temp = "123456789";
+		StandardExtend::ArrayList<char> allDigit(temp.size());
+		//toArrayList<char, std::string::iterator>(temp.begin(), temp.end());
+		std::copy(temp.begin(), temp.end(), allDigit.begin());
+		MathExtend::penetration(allDigit, 0, 9 - 1, [&](auto container) {
+			StandardExtend::outPutIterable(container.begin(), container.end());
+		});
+	}
+	void hannoTowerMove(int n, char a, char b, char c) {
+		// hannoTowerMove(n,'A','B','C');
+		if (n == 1) {
+			//当n只有1个的时候直接从a移动到c
+			printf("%c To %c\n", a, c);
+		}
+		else {
+			//第n-1个要从a通过c移动到b
+			hannoTowerMove(n - 1, a, c, b);
+			printf("%c To %c\n", a, c);
+			//n-1个移动过来之后b变开始盘，b通过a移动到c，这边很难理解
+			hannoTowerMove(n - 1, b, a, c);
+		}
+	}
+	std::string decToBin(int number, std::string &result, int radix) {
+		if (number < radix) {
+			return result += number;
+			//printf("%d", number);
+		}
+		else {
+			decToBin(number / radix, result, radix);
+			return result += (number % radix);
+			//printf("%d", number % radix);
+		}
+	}
+	int countMatchingChar(char *s1, char *s2, int len) {
+		int i, count;
+		for (i = count = 0; s1[i] && s2[i] && len--; ++i) {
+			s1[i] == s2[i] ? count++ : 0;
+		}
+		return count;
+	}
+	bool isPlalindrome(char const*str, int len) {
+		std::stack<char> s;
+		int i = 0;
+		while (i < len) {
+			if (i > len / 2) {
+			nomalJudge:
+				if (s.top() != str[i])
+					return false;
+				else {
+					s.pop();
+				}
+			}
+			else if (i == len / 2) {
+				//当且仅当长度奇数的中间位置需要特别判断
+				if (len % 2 == 0) {
+					goto nomalJudge;
+				}
+				else {
+					//do nothing;
+				}
+			}
+			else {
+				s.push(str[i]);
+			}
+			++i;
+		}
+		return true;
+	}
+	bool isMatchingParenthesis(char const*str, int len) {
+		std::stack<char> s;
+		for (int i = 0; i < len; ++i) {
+			//右括号比对
+			if (str[i] == ')' || str[i] == ']' || str[i] == '}') {
+				char c = 0;
+				switch (str[i]) {
+				case ')':c = '('; break;
+				case ']':c = '['; break;
+				case '}':c = '{'; break;
+				default:break;
+				}
+				if (s.empty() || s.top() != c)
+					return false;
+				s.pop();
+			}
+			//左括号压栈
+			else if (str[i] == '(' || str[i] == '[' || str[i] == '{') {
+				s.push(str[i]);
+			}
+			else {
+				//do nothing
+			}
+		}
+		//可能还有多出来的左括号
+		return s.empty();
+	}
+	bool isValidityOfStack(char const*str, int len, int cap) {
+		int size_ = 0;
+		for (int i = 0; i < len; ++i) {
+			if (str[i] == 'S') {
+				if (size_ < cap)
+					++size_;
+				else
+					return false;
+			}
+			else if (str[i] == 'X') {
+				if (size_ > 0)
+					--size_;
+				else
+					return false;
+			}
+		}
+		return size_ == 0;
+	}
+	void buildPtriangleTable(int tableBuffer[][StandardExtend::MAX_C], int n) {
+		tableBuffer[0][0] = 1;
+		for (int r = 1; r < n; ++r) {
+			//每行的数字个数=行数+1(行数从0开始)
+			//若需要每行前面的空格的话 每行第一个数字前面的空格数 = 2*[(maxR-currentR(1开始))的那一行的数字数]  ==> 2*(n-r-1)
+			//int blakCnt = 0;
+			for (int c = 0; c < r + 1; ++c) {
+				if (c != 0)
+					tableBuffer[r][c] = tableBuffer[r - 1][c] + tableBuffer[r - 1][c - 1];
+				else
+					tableBuffer[r][c] = tableBuffer[r - 1][c];
+			}
+		}
+	}
 }
 

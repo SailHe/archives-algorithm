@@ -1,6 +1,19 @@
 #ifndef __MYALGORITHM_H
 #define __MYALGORITHM_H
-//#include "E:\Projects\myLib\myAlgorithm.cpp"
+//包涵了几乎所有文件
+//#include<bits/stdc++.h>
+/*
+__int64 I64 (use long long in acm oj)
+Rows = r;Cols  = c;//报表行列数
+1s 一般可以执行 10 ^ 7 次操作
+DP:动态规划
+D:\LaberDate\
+字体测试
+XxKkIiLl 10 oO{}{}
+Pp
+lllll
+11111
+*/
 #include <setjmp.h>
 #include <assert.h>
 #include <time.h>
@@ -18,6 +31,7 @@
 #include<functional>
 #include<stack>
 using namespace std;
+
 #define PIL 3.14159265358979//14位π
 #define MileByF(feet) ((feet)/5280.0)//5280 feet in a mile.
 #define FootByI(inches) ((inches)/12.0)//12 inches in a foot.
@@ -44,4 +58,5 @@ const int DIR4y[] = { 0, 1, 0, -1 };
 extern const int Dir8[8][2];
 extern const int Dir4[4][2];
 typedef __int64 I64;
+
 #endif

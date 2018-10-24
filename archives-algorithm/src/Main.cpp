@@ -356,7 +356,7 @@ int mainForMath() {
 		testAndOut(std::to_string(i) + "^2" + "的最后1bit", a, b);
 	}
 
-	auto primeTable = MathExtend::primeSieve(100);
+	auto primeTable = MathExtend::generateSievePrimeS(100);
 	int count = 0;
 	for (int i = 0; i < 50; ++i) {
 		bool isP = MathExtend::isPrime(i);
@@ -389,18 +389,67 @@ int mainForMath() {
 
 	const int size = 9;
 	int a[size] = { 6, 5, 3, 0, 1, 4, 2, 6, 7};
-	std::sort(a, a + 7);
+	Utility::BubbleSort(a, size, size, Utility::lessQsortCmp<int>);
+	Utility::SlectSort(a, a + size, Utility::moreQsortCmp<int>);
+	std::sort(a, a + size);
 	auto it1 = MathExtend::dichotomy(a, size, 6);
 	bool exist = std::binary_search(a, a + size, 6);
 	auto pair = std::equal_range(a, a + size, 6);
 
-
 	StandardExtend::testAndDiffClock([&]() {
 		I64 x, y;
-		testAndOut("2*x + 1*y + 5 = 0的最小非负整数解x是否存在: ", (bool)MathExtend::linearEquation(2, x, 1, y, 5LL), true);
+		testAndOut("2*x + 1*y + 5 = 0的最小非负整数解x是否存在: ", (bool)MathExtend::linearEquationCondition1(2LL, x, 1LL, y, 5LL), true);
 		testAndOut("解x: ", x, 0LL);
 		testAndOut("解y: ", y, 5LL);
 	}, "二元一次线性方程最小非负整数解");
+	
+	int aaInput[][3] = {
+		{700 ,300, 200 },
+		{500 ,200, 300 },
+		{500 ,200, 500 },
+		{275 ,110, 330 },
+		{275 ,110, 385 },
+		{648 ,375, 4002},
+		{3, 1 ,10000 }
+	};
+	int aaOutput[][2] = {
+		{1, 3},
+		{1, 1},
+		{1, 0},
+		{0, 3},
+		{1, 1},
+		{49, 74},
+		{3333, 1}
+	};
+	StandardExtend::testAndDiffClock([&]() {
+		int x, y;
+		for (int i = 0; i < 7; ++i) {
+			MathExtend::linearEquationCondition2(aaInput[i][0], x, aaInput[i][1], y, aaInput[i][2]);
+			x = abs(x);
+			y = abs(y);
+			testAndOut("解x: ", x, aaOutput[i][0]);
+			testAndOut("解y: ", y, aaOutput[i][1]);
+		}
+	}, "二元一次线性方程 满足|x| + |y|最小的解");
+	StandardExtend::testAndDiffClock([&]() {
+		int x, y, x1, y1, x2, y2;
+		for (int i = 0; i < 7; ++i) {
+			MathExtend::linearEquationCondition1(aaInput[i][0], x1, aaInput[i][1], y1, aaInput[i][2]);
+			//反的
+			MathExtend::linearEquationCondition1(aaInput[i][1], x2, aaInput[i][0], y2, aaInput[i][2]);
+			if ((abs(x1) + abs(y1)) < (abs(x2) + abs(y2))) {
+				x = abs(x1);
+				y = abs(y1);
+			}
+			else {
+				//这里是反的
+				x = abs(y2);
+				y = abs(x2);
+			}
+			testAndOut("解x: ", x, aaOutput[i][0]);
+			testAndOut("解y: ", y, aaOutput[i][1]);
+		}
+	}, "二元一次线性方程 满足|x| + |y|最小的解");
 	
 	StandardExtend::testAndDiffClock([&]() {
 		int m[] = {3, 5, 7};
@@ -408,6 +457,26 @@ int mainForMath() {
 		int minResult = MathExtend::chineseReminder(m, a, 3, 0);
 		testAndOut("最小正整数解: ", minResult, 23);
 	}, "中国剩余定理 求线性同余方程组");
+
+	StandardExtend::testAndDiffClock([&]() {
+		I64 illTable[] = {0, 0, 1, 2, 9, 44, 265, 1854 };
+		JCE::ArrayList<I64> illArrangeList;
+		MathExtend::buildIllArrangeList(illArrangeList);
+		for (JCE::SizeType i = 0; i < 8; ++i) {
+			testAndOut("错排Value: ", illArrangeList[i], illTable[i]);
+		}
+		StandardExtend::outPutIterable(illArrangeList.begin(), illArrangeList.end(), 0, '\0', ',');
+		StandardExtend::outPutIterable(illArrangeList.begin(), illArrangeList.end(), 20, '\0', (JCE::SizeType)5);
+		StandardExtend::outPutIterable(illArrangeList.begin(), illArrangeList.end(), 20, '\0', [](auto left) {
+			static int count = 0;
+			return ++count % 5 == 0;
+		});
+	}, "错排表");
+
+	cout << "打印n行的杨辉三角" << endl;
+	int table[10][StandardExtend::MAX_C] = { 0 };
+	MathExtend::buildPtriangleTable(table, 10);
+	StandardExtend::outPut2DArrayTrangle(table, 10, 3);
 
 	cout << " ====== Math test end" << endl;
 	return 0;

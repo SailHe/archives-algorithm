@@ -23,6 +23,15 @@ enum MODE { ON, OFF, UNDEFINED };//模式
 //constant.h
 const View defaultView = BACK;//默认视图(此值转换为int必须是0)
 
+//un used
+#define PI_14 3.14159265358979//14位π
+#define MileByF(feet) ((feet)/5280.0)//5280 feet in a mile.
+#define FootByI(inches) ((inches)/12.0)//12 inches in a foot.
+#define HourByM(minutes) ((minutes)/60.0)//60 minutes in an hour.
+#define MinuteByS(seconds) ((seconds)/60.0)//60 seconds in a minute.
+#define FurlongByM(meters) ((meters)/201.168)//201.168 meters in a furlong(mile).
+#define CALC_ARRAY_LEN(array, length) { length =  sizeof(array) / sizeof(array[0]); }//求数组长度
+
 const double EPSINON = 1e-15;
 const double EPS = 1e-9;
 const double EPS_DOUBLE = 1e-6;
@@ -104,11 +113,11 @@ namespace StandardExtend{
 
 	template<class Iterator>
 	//coutFillChar表示填充字符 相当于printf的%02d 中的'0' coutWidth表示其中的2
-	void outPutIterable(Iterator left, Iterator right, SizeType coutWidth = 0, char coutFillChar = '\0'){
+	void outPutIterable(Iterator left, Iterator right, SizeType coutWidth = 0, char coutFillChar = '\0', char intervalCahr = ' '){
 		std::cout << std::setfill(coutFillChar);
 		int count = -1;
 		iterate(left, right, [&](Iterator left){
-			char c = (++count == 0 ? '\0' : ' ');
+			char c = (++count == 0 ? '\0' : intervalCahr);
 			std::cout << c << std::setw(coutWidth) << *left;
 		});
 		puts("");
@@ -121,7 +130,9 @@ namespace StandardExtend{
 		if (left == right) {
 			return;
 		}
-		std::cout << *left;
+		//设置left对齐
+		std::cout << std::setiosflags(std::ios::left);
+		std::cout << std::setw(coutWidth) << *left;
 		++left;
 		int c = 1;
 		lineWrap = lineWrap < 0 ? right - left : lineWrap;
@@ -134,7 +145,7 @@ namespace StandardExtend{
 			}
 			else if (c % lineWrap == 1){
 				//第一个
-				std::cout << *left;
+				std::cout << std::setw(coutWidth) << *left;
 			}
 			else{
 				//中间的
@@ -146,34 +157,40 @@ namespace StandardExtend{
 		if (c % lineWrap != 0){
 			puts("");
 		}
+		//取消对齐方式
+		std::cout << std::resetiosflags(std::ios::left);
 	}
 
 	template<class Iterator, class Fun>
 	//lineWrapFun 返回是否换行  bool(* lineWrapFun)(Iterator left, Iterator right)
-	void outPutIterable(Iterator left, Iterator right, char coutFillChar, SizeType coutWidth, Fun lineWrapFun){
+	void outPutIterable(Iterator left, Iterator right, SizeType coutWidth, char coutFillChar, Fun lineWrapFun){
 		std::cout << std::setfill(coutFillChar);
+		//设置left对齐
+		std::cout << std::setiosflags(std::ios::left);
 		int c = 0;
-		bool pastWrap = false;
+		bool isPastWrap = false;
 		//lineWrapFun = nullptr == lineWrapFun ? [&](){return right - left; } : lineWrapFun;
 		iterate(left, right, [&](Iterator left){
 			++c;
-			pastWrap = lineWrapFun(left, right);
+			isPastWrap = lineWrapFun(left);
 			if (1 == c){//第一个
-				std::cout << *left;
+				std::cout << std::setw(coutWidth) << *left;
 			}
 			else{
 				//中间&最后
 				std::cout << std::setw(coutWidth) << *left;
 			}
-			if (pastWrap){//最后一个
-				std::cout << std::endl;
+			if (isPastWrap){//最后一个
+				std::cout << std::setw(coutWidth) << std::endl;
 				c = 0;
 			}
 		});
 		//最后一次没有换行这里换行
-		if (!pastWrap){
+		if (!isPastWrap){
 			puts("");
 		}
+		//取消对齐方式
+		std::cout << std::resetiosflags(std::ios::left);
 	}
 
 
@@ -525,6 +542,62 @@ namespace Utility {
 		++rightResultSub;
 		return maxLen;
 	}
+
+
+	// ===== 排 序 less more greater
+
+	//qsort(a, 排序长度, 一个元素的大小, intCmp);
+	template<class Numeric>
+	int lessQsortCmp(const void *lhs, const void *rhs) {
+		return *((Numeric*)lhs) - *((Numeric*)rhs);
+	}
+	template<class Numeric>
+	int moreQsortCmp(const void *lhs, const void *rhs) {
+		return -lessQsortCmp<Numeric>(lhs, rhs);
+	}
+	template<class CmpAble>
+	int structQsortCmp(const void *lhs, const void *rhs) {
+		//按主价值 从小到大排序
+		int cp = ((CmpAble*)lhs)->value - ((CmpAble*)rhs)->value;
+		if (cp == 0) {
+			//按次价值 从大到小排序
+			cp = ((CmpAble*)rhs)->value2 - ((CmpAble*)lhs)->value2;
+		}
+		return cp;
+	}
+	// sort(a, a+n, boolCmp)
+	template<class CmpAble>
+	bool lessSortCmp(CmpAble lhs, CmpAble rhs) {
+		return lhs.value < rhs.value;
+	}
+	//冒泡排序 对数组a中的n个元素进行的第K次排序
+	template<class CmpAble>
+	void BubbleSort(CmpAble a[], int n, int K, int cmp(const void *lhs, const void *rhs)) {
+		CmpAble temp = 0;
+		//K代表遍数时不能减一
+		for (int i = 0; i < K; ++i) {
+			//此处必须减一
+			for (int j = 0; j < n - i - 1; ++j) {
+				if (cmp(&a[j + 1], &a[j]) < 0) {
+					temp = a[j + 1];
+					a[j + 1] = a[j];
+					a[j] = temp;
+				}
+			}
+		}
+	}
+	//选择排序
+	template<class CmpAble>
+	void SlectSort(CmpAble *left, CmpAble *right, int(*cmp)(void const *lhs, void const *rhs)) {
+		// something bug here if left is a LinkedList::Iterator
+		for (; left < right - 1; ++left) {
+			for (CmpAble *j = left + 1; j < right; ++j) {
+				if (cmp(j, left) < 0) {
+					std::swap(*left, *j);
+				}
+			}
+		}
+	}
 }
 
 //数学扩展
@@ -592,39 +665,15 @@ namespace MathExtend {
 		return left;
 	}
 
-	// =======受限的(Confined)
-
-	//返回错排表(malloc) 64 bit 二进制位 最多计算26个 T 需要支持四则运算以及自加
-	template<class T>
-	StandardExtend::ArrayList<T> calcIllArrangeList(StandardExtend::SizeType MAX_SIZE = 26) {
-		StandardExtend::ArrayList<T> M(MAX_SIZE, 0);
-		M[0] = 0, M[1] = 1, M[2] = 1;
-		for (StandardExtend::SizeType n = 3; n < 26; ++n)
-			M[n] = (n - 1) * (M[n - 1] + M[n - 2]);
-		return M;
+	//返回错排表 64 bit 二进制位 最多算 D[23] IntegerNum 需要支持 + * 运算
+	//最小的几个错排数是：D1 = 0，D2 = 1，D3=2，D4 = 9，D5 = 44，D6 = 265，D7 = 1854
+	template<class IntegerNum>
+	void buildIllArrangeList(JCE::ArrayList<IntegerNum> &D, JCE::SizeType MAX_SIZE = 23) {
+		D.assign(MAX_SIZE, 0);
+		D[0] = 0, D[1] = 0, D[2] = 1;
+		for (JCE::SizeType n = 3; n < MAX_SIZE; ++n)
+			D[n] = (n - 1) * (D[n - 1] + D[n - 2]);
 	}
-	//输出digit中[leftSub, rightSub)的全排列  非字典序
-	template<class T, class Fun>
-	void penetration(StandardExtend::ArrayList<T> container, Sub leftSub, Sub rightSub, Fun visit) {
-		if (leftSub == rightSub) {
-			visit(container);
-		}
-		else {
-			for (int i = leftSub; i < rightSub; ++i) {
-				std::swap(container[leftSub], container[i]);
-				penetration(container, leftSub + 1, rightSub, visit);
-				std::swap(container[leftSub], container[i]);
-			}
-		}
-	}
-	//输出数字1-maxDigit(1, 9)的全排列  字典序
-	void pentration(int maxDigit);
-	//输出数字1-maxDigit(1, 9)的全排列  非字典序
-	void pentration();
-	//汉诺塔递归解法
-	void hannoTowerMove(int n, char a, char b, char c);
-	//将10进制的number转换为radix进制的字符串 (递归实现)
-	std::string decToBin(int number, std::string &result, int radix = 2);
 	//若大数bigInteger能被整除返回true
 	bool isDivisible(char *bigInteger, int MOD);
 	//删除resStr中的所有子串delSubStr
@@ -653,7 +702,7 @@ namespace MathExtend {
 	//阶 乘
 	double fact(int n);
 	//int 限度内阶乘表 (int 13!爆； double和long long int 18!爆)
-	int* factTable(int maxN = 13);
+	int* generateFactList(int maxN = 13);
 	/*
 	n < m && m != 0
 		 fact(n)
@@ -675,9 +724,9 @@ namespace MathExtend {
 	//真因子和(除本身外的约数）
 	int factorSum(int x);
 	//真因子和表(约数 因数) (10^7一千万2.51s)(400w 10^6 900ms)
-	void factorSumTableSieve(const int maxn, int a[]);
+	void buildSieveFactorSumS(const int maxn, int a[]);
 	//素数(质数) 筛选法 埃拉托色尼(Sieve Eratosthenes)(0 1==-1, a[i]==0表示素数) maxN[2, 1e9) PS:maxN = 1e7时超过1s了 1e9似乎无法分配内存
-	int* primeSieve(const int maxN = 2);
+	int* generateSievePrimeS(const int maxN = 2);
 	//因子数目
 	int factorCount(int x);
 	//开方函数 (eps: 精度)
@@ -713,8 +762,16 @@ namespace MathExtend {
 	*/
 	int gcdEx_OLD(int a, int b, int &x, int &y);
 	//扩展欧几里得算法精简正式版
-	int gcdEx(int a, int b, int &x, int &y);
-	I64 gcdEx(I64 a, I64 b, I64 &x, I64 &y);
+	template<class IntegerNum>
+	IntegerNum gcdEx(IntegerNum a, IntegerNum b, IntegerNum &x, IntegerNum &y) {
+		if (b == 0) {
+			x = 1; y = 0;
+			return a;
+		}
+		IntegerNum g = gcdEx(b, a%b, y, x);
+		y -= a / b * x;
+		return g;
+	}
 	/*
 	定理一(贝祖定理)：ax + by = gcd(a, b)必有整数解
 	定理二：若gcd(a, b) = 1，则方程ax ≡ c (mod b)在[0, b-1]上有唯一解.
@@ -725,7 +782,19 @@ namespace MathExtend {
 	<==> a/g*x ≡ c/g (mod b/g)	==> 若方程存在特解x,那么x + k*(b/g)还是方程的解
 	*/ //PKU1061-青蛙的约会
 	//求线性方程ax+by = c 的最小非负整数解x(只能保证x满足条件) 若整数解不存在返回false
-	int linearEquation(I64 a, I64 &x, I64 b, I64 &y, I64 c);
+	template<class IntegerNum>
+	bool linearEquationCondition1(IntegerNum a, IntegerNum &x, IntegerNum b, IntegerNum &y, IntegerNum c) {
+		IntegerNum x0, y0,
+			g = gcdEx(a, b, x0, y0);
+		if (c%g != 0)
+			return false;
+		IntegerNum rx = b / g;
+		x = x0 * c / g;
+		x = (x%rx + rx) % rx;
+		//while (x < 0 && rx > 0) x += rx; x %= rx;
+		y = (c - a * x) / b;
+		return true;
+	}
 	/*
 	定理：对于方程ax+by = c
 	通解:	x = x0 + b*t
@@ -744,7 +813,7 @@ namespace MathExtend {
 	即		|x|+|y| 在t = y0*g/a 附近(③)取最小值
 	*/ //PKU2142-HDU1356-The Balance
 	//求线性方程ax+by = c 使得|x|+|y|最小的一组解x,y
-	void linearEquation(int a, int &x, int b, int &y, int c);
+	void linearEquationCondition2(int a, int &x, int b, int &y, int c);
 	/*
 	modulo inverse
 	功能:返回a的模m逆元t, 不存在打印错误并结束程序;
@@ -788,9 +857,9 @@ namespace MathExtend {
 	
 	// 处理一件[零壹背包]中的物品过程 => 有N种物品和一个容量为capacity的背包backPack。每种物品只能取1次或不取(数量为1)
 	// 放入第i件物品耗费的费用是 C[i],得到的价值是 W[i].
-	template<class Number>
-	void ZeroOneBackpackProcess(Number backPack[], Number capacity, Number currentCost, Number currentValue) {
-		for (Number v = capacity; v >= currentCost; --v) {
+	template<class Numeric>
+	void ZeroOneBackpackProcess(Numeric backPack[], Numeric capacity, Numeric currentCost, Numeric currentValue) {
+		for (Numeric v = capacity; v >= currentCost; --v) {
 			backPack[v] = max(backPack[v], backPack[v - currentCost] + currentValue);
 		}
 	}
@@ -826,6 +895,42 @@ namespace MathExtend {
 		}
 	}
 
+	// =======受限的(Confined) ===== 递归 ===== 贪心 ===== 分治
+
+	// 密里根油滴实验程序
+	void MiLIGen(double u, double v1);
+	//输出digit中[leftSub, rightSub)的全排列  非字典序
+	template<class T, class Fun>
+	void penetration(StandardExtend::ArrayList<T> container, Sub leftSub, Sub rightSub, Fun visit) {
+		if (leftSub == rightSub) {
+			visit(container);
+		}
+		else {
+			for (int i = leftSub; i < rightSub; ++i) {
+				std::swap(container[leftSub], container[i]);
+				penetration(container, leftSub + 1, rightSub, visit);
+				std::swap(container[leftSub], container[i]);
+			}
+		}
+	}
+	//输出数字1-maxDigit(1, 9)的全排列  字典序
+	void pentration(int maxDigit);
+	//输出数字1-maxDigit(1, 9)的全排列  非字典序
+	void pentration();
+	//汉诺塔递归解法
+	void hannoTowerMove(int n, char a, char b, char c);
+	//将10进制的number转换为radix进制的字符串 (递归实现)
+	std::string decToBin(int number, std::string &result, int radix = 2);
+	// 计数: 返回子串s1与s2匹配的字符数 比较长度len)
+	int countMatchingChar(char *s1, char *s2, int len);
+	// 判断一个字串是否回文(堆栈实现)
+	bool isPlalindrome(char const*str, int len);
+	// 判断给定字串是否拥有匹配的括号
+	bool isMatchingParenthesis(char const*str, int len);
+	// 判断给定堆栈操作是否合法
+	bool isValidityOfStack(char const*str, int len, int cap);
+	//生成n行 的杨辉三角
+	void buildPtriangleTable(int tableBuffer[][StandardExtend::MAX_C], int n);
 }
 
 #endif

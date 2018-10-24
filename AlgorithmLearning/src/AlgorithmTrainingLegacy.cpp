@@ -391,6 +391,10 @@ int MainChoseBabies(){
 }
 
 /*
+公共交通
+http://139.196.145.92/contest_show.php?cid=350#problem/C
+难的一版
+http://139.196.145.92/contest_show.php?cid=354#problem/E
 5
 14 12 2 18 15
 6
@@ -1395,6 +1399,70 @@ int main___45(){
 	cout << maxValueStatistics(d2[0].begin(), d2[0].end(), MIN_INT_NUM) << endl;
 	cout << sumValueStatistics(d2[0].begin(), d2[0].end(), 0) << endl;
 	cout << avlValueStatistics(d2[0].begin(), d2[0].end(), 0) << endl;
+	return 0;
+}
+
+/*
+二分枚举+贪心
+http://acm.hdu.edu.cn/showproblem.php?pid=4004
+6 1 2
+2
+
+25 3 3
+11
+2
+18
+*/
+//贪心
+bool canJump(int s[], int n, int m, int jumpPower) {
+	int step = 0;
+	int from = 0;
+	int to = 1;
+	int out = true;
+	//到达终点时结束
+	while (to < n) {
+		out = true;
+		while (to < n && s[to] - s[from] <= jumpPower) {
+			//贪心，通过尽可能多的石头
+			++to;
+			out = false;
+		}
+		from = to - 1;
+		++step;
+		//说明jumpPower小了，有的地方跳不过去  || 步数过多
+		if (out || step > m)
+			return false;
+	}
+	return true;
+}
+int solveFrogJump() {
+	// it is to big when it to be 500002 size
+	int st[5/*00002*/];
+	//河宽L, 石头数量为N, 最多跳M次, 求最小所需跳跃力
+	int L, N, M;
+	while (cin >> L >> N >> M) {
+		N += 2;
+		//st[n]表示第n块石头距离起始点的距离
+		st[0] = 0;
+		for (int i = 1; i < N - 1; scanf("%d", &st[i++]));
+		sort(st + 1, st + N - 1);
+		int left = st[1];
+		int right = st[N - 1] = L;
+		st[0] = 0;
+		//二分枚举(取一个使得canJump成立的最小值 jumpPower 初始时是第一块石头的距离)
+		while (left < right) {
+			int mid = (left + right) >> 1;
+			//若可以在小于m步的前提下跳过去 那么尝试小一些的jumpPower,但要保留上一次的jumpPower值：mid不减1
+			if (canJump(st, N, M, mid)) {
+				right = mid;
+			}
+			else {
+				//在无法跳过的前提下，mid值无需保留
+				left = mid + 1;
+			}
+		}
+		cout << left << endl;
+	}
 	return 0;
 }
 
