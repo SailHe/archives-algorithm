@@ -2,7 +2,6 @@
 #define __GRAPH_H
 
 #include"../stdafx.h"
-//#include"../JavaContainerExtend.h"
 #include"../ExtendSpace.h"
 
 /*
@@ -738,7 +737,7 @@ public:
 		}
 	}
 	/* 邻接表存储 - 拓扑排序算法: 若图中不存在回路 则计算成功 返回true*/
-	bool topologySort(StandardExtend::ArrayList<VertexKey> &topOrderBuffer){
+	bool topologySort(JCE::ArrayList<VertexKey> &topOrderBuffer){
 		/* 对Graph进行拓扑排序,  topOrderBuffer[]顺序存储排序后的顶点下标 */
 		topOrderBuffer.resize(vertexNum);
 		JCE::ArrayList<VertexKey> indegree(vertexNum);
@@ -847,7 +846,7 @@ public:
 	}
 
 	/* 邻接表存储 - 拓扑排序算法: 若图中不存在回路 则计算成功 返回true*/
-	bool topologySort(StandardExtend::ArrayList<VertexKey> &topOrderBuffer){
+	bool topologySort(JCE::ArrayList<VertexKey> &topOrderBuffer){
 		/* 对Graph进行拓扑排序,  topOrderBuffer[]顺序存储排序后的顶点下标 */
 		topOrderBuffer.resize(vertexNum);
 		JCE::ArrayList<VertexKey> indegree(vertexNum);

@@ -51,7 +51,7 @@ namespace StandardExtend{
 	const int MAX_R = 1024;
 	const int MAX_C = 1024;
 	//using namespace std;
-	using namespace JCE;
+	//using namespace JCE;
 
 	//变为小写字符
 	char toLowerAlph(char c);
@@ -88,8 +88,8 @@ namespace StandardExtend{
 	// 可以替换为: destContainer.resize(origin.end() - origin.begin());
 	// std::copy(origin.begin(), origin.end(), destContainer.begin());
 	template<class T, class Iterator>
-	ArrayList<T> toArrayList(Iterator left, Iterator right) {
-		ArrayList<T> result;
+	JCE::ArrayList<T> toArrayList(Iterator left, Iterator right) {
+		JCE::ArrayList<T> result;
 		result.reserve(right - left);
 		iterate(left, right, [&](Iterator it) {
 			result.push_back(*it);
@@ -113,7 +113,7 @@ namespace StandardExtend{
 
 	template<class Iterator>
 	//coutFillChar表示填充字符 相当于printf的%02d 中的'0' coutWidth表示其中的2
-	void outPutIterable(Iterator left, Iterator right, SizeType coutWidth = 0, char coutFillChar = '\0', char intervalCahr = ' '){
+	void outPutIterable(Iterator left, Iterator right, JCE::SizeType coutWidth = 0, char coutFillChar = '\0', char intervalCahr = ' '){
 		std::cout << std::setfill(coutFillChar);
 		int count = -1;
 		iterate(left, right, [&](Iterator left){
@@ -125,7 +125,7 @@ namespace StandardExtend{
 
 	template<class Iterator>
 	//lineWrap 隔多少行换行 小于0 表示输出结束换行
-	void outPutIterable(Iterator left, Iterator right, SizeType coutWidth, char coutFillChar, SizeType lineWrap){
+	void outPutIterable(Iterator left, Iterator right, JCE::SizeType coutWidth, char coutFillChar, JCE::SizeType lineWrap){
 		std::cout << std::setfill(coutFillChar);
 		if (left == right) {
 			return;
@@ -163,7 +163,7 @@ namespace StandardExtend{
 
 	template<class Iterator, class Fun>
 	//lineWrapFun 返回是否换行  bool(* lineWrapFun)(Iterator left, Iterator right)
-	void outPutIterable(Iterator left, Iterator right, SizeType coutWidth, char coutFillChar, Fun lineWrapFun){
+	void outPutIterable(Iterator left, Iterator right, JCE::SizeType coutWidth, char coutFillChar, Fun lineWrapFun){
 		std::cout << std::setfill(coutFillChar);
 		//设置left对齐
 		std::cout << std::setiosflags(std::ios::left);
@@ -195,30 +195,30 @@ namespace StandardExtend{
 
 
 	template<class T>
-	void outPut2DArrayList(ArrayList<ArrayList<T>> const &arrayList2D, char coutFillChar = '0', SizeType coutWidth = 2){
-		SizeType rows = arrayList2D.size();
-		for (SizeType r = 0; r < rows; ++r){
+	void outPut2DArrayList(JCE::ArrayList<JCE::ArrayList<T>> const &arrayList2D, char coutFillChar = '0', JCE::SizeType coutWidth = 2){
+		JCE::SizeType rows = arrayList2D.size();
+		for (JCE::SizeType r = 0; r < rows; ++r){
 			outPutIterable(arrayList2D[r].begin(), arrayList2D[r].end(), coutWidth, coutFillChar);
 		}
 	}
 
 	template<class T>
-	void outPut2DArray(T array2D[MAX_R][MAX_C], SizeType n, SizeType coutWidth = 2, char coutFillChar = '0'){
-		for (SizeType r = 0; r < n; ++r){
+	void outPut2DArray(T array2D[MAX_R][MAX_C], JCE::SizeType n, JCE::SizeType coutWidth = 2, char coutFillChar = '0'){
+		for (JCE::SizeType r = 0; r < n; ++r){
 			outPutIterable(array2D[r], array2D[r] + n, coutWidth, coutFillChar);
 		}
 	}
 
 	template<class T>
-	void outPut2DArrayTrangle(T array2D[MAX_R][MAX_C], SizeType n, SizeType coutWidth = 2, char coutFillChar = '0'){
-		for (SizeType r = 0; r < n; ++r){
+	void outPut2DArrayTrangle(T array2D[MAX_R][MAX_C], JCE::SizeType n, JCE::SizeType coutWidth = 2, char coutFillChar = '0'){
+		for (JCE::SizeType r = 0; r < n; ++r){
 			outPutIterable(array2D[r], array2D[r] + r + 1, coutWidth, coutFillChar);
 		}
 	}
 
 	template<class Iterator>
-	SizeType rankStatistics(Iterator left, Iterator right){
-		SizeType rank = 1;
+	JCE::SizeType rankStatistics(Iterator left, Iterator right){
+		JCE::SizeType rank = 1;
 		iterate(left + 1, right, [&](Iterator left){
 			rank += *left == *(left - 1) ? 0 : 1;
 		});
@@ -475,7 +475,7 @@ namespace Utility {
 	//ans为s1+s2(s1与s2的并集)(直接ans.push_back(temp)即可没必要建实际生物s1与s2)
 	//返回s1与s2并集的中位数, ans为s1+s2(直接push_back即可) a0,a1,a2...an-1的中位数指a[(n-1)/2] (共n个数)即第(n+1)/2个数(a0为第一个数)
 	template<class T>
-	T median(StandardExtend::ArrayList<T> ans) {
+	T median(JCE::ArrayList<T> ans) {
 		std::sort(ans.begin(), ans.end());
 		if (ans.size() % 2 == 0)
 			return ans[ans.size() / 2 - 1];
@@ -491,7 +491,7 @@ namespace Utility {
 	}
 	//反转reverseRows行的二维数组a 每行位于区间[列leftSub,列rightSub)的元素
 	template<class T>
-	void reverse(StandardExtend::ArrayList<StandardExtend::ArrayList<T>> &a, Sub leftSub, Sub rightSub, StandardExtend::SizeType reverseRows = 1) {
+	void reverse(JCE::ArrayList<JCE::ArrayList<T>> &a, Sub leftSub, Sub rightSub, JCE::SizeType reverseRows = 1) {
 		for (int r = 0; r < reverseRows; r++) {
 			for (int c = leftSub, i = 0; i < (rightSub - leftSub) / 2; i++, c++) {
 				int temp = a[r][c];
@@ -502,7 +502,7 @@ namespace Utility {
 	}
 	/*将R行 C列的二维数组向左移k位*/
 	template<class T>
-	void leftMoveK(StandardExtend::ArrayList<StandardExtend::ArrayList<T>> &a, Sub R, Sub C, StandardExtend::SizeType k) {
+	void leftMoveK(JCE::ArrayList<JCE::ArrayList<T>> &a, Sub R, Sub C, JCE::SizeType k) {
 		/*
 		8 3
 		1 2 3 4 5 6 7 8
@@ -516,7 +516,7 @@ namespace Utility {
 	}
 	/*右移k位<==>左移C-k位 leftMoveK(a, R, C, C-k); <==> rightMoveK(a, R, C, k);*/
 	template<class T>
-	void rightMoveK(StandardExtend::ArrayList<StandardExtend::ArrayList<T>> &a, int R, int C, int k) {
+	void rightMoveK(JCE::ArrayList<JCE::ArrayList<T>> &a, int R, int C, int k) {
 		/*
 		8 3
 		1 2 3 4 5 6 7 8
@@ -531,7 +531,7 @@ namespace Utility {
 	// 计算第一个最长连续递增子序列(longest continuous increment sub sequence)
 	// 返回长度 参数:用于储存最长连续子序列的区间[leftResultSub, rightResultSub)
 	template<class T>
-	StandardExtend::SizeType calcFirstLonConIncSubSeq(StandardExtend::ArrayList<T> const &sequence, int &leftResultSub, int &rightResultSub) {
+	JCE::SizeType calcFirstLonConIncSubSeq(JCE::ArrayList<T> const &sequence, int &leftResultSub, int &rightResultSub) {
 		int maxLen = 0, sequenceLen = sequence.size();
 		//rightResultSub=-1: 使计算其初是长度时为0
 		leftResultSub = 0, rightResultSub = -1;
@@ -624,9 +624,9 @@ namespace MathExtend {
 	
 	//矩阵乘法 productMatrix = productMatrix*originMatrix(两矩阵不能相同)
 	template<class T>
-	void matrixMultiply(const Sub maxRowCol, StandardExtend::ArrayList<StandardExtend::ArrayList<T>> &originMatrix, StandardExtend::ArrayList<StandardExtend::ArrayList<T>> &productMatrix) {
+	void matrixMultiply(const Sub maxRowCol, JCE::ArrayList<JCE::ArrayList<T>> &originMatrix, JCE::ArrayList<JCE::ArrayList<T>> &productMatrix) {
 		int r, c, i, tmp;
-		StandardExtend::ArrayList<StandardExtend::ArrayList<T>> tempMatrix;
+		JCE::ArrayList<JCE::ArrayList<T>> tempMatrix;
 		//memcpy(tempMatrix, productMatrix, maxRowCol * 25 * sizeof(int));
 		tempMatrix = originMatrix;
 		for (r = 0; r < maxRowCol; r++) {
@@ -919,7 +919,7 @@ namespace MathExtend {
 	void MiLIGen(double u, double v1);
 	//输出digit中[leftSub, rightSub)的全排列  非字典序
 	template<class T, class Fun>
-	void penetration(StandardExtend::ArrayList<T> container, Sub leftSub, Sub rightSub, Fun visit) {
+	void penetration(JCE::ArrayList<T> container, Sub leftSub, Sub rightSub, Fun visit) {
 		if (leftSub == rightSub) {
 			visit(container);
 		}

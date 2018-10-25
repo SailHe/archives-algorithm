@@ -1,4 +1,5 @@
 #include"stdafx.h"
+//#include"../../archives-algorithm/src/ExtendSpace.h"
 /*
 (对隐式图的深度优先搜索算法)
 回溯算法实际上一个类似枚举的搜索尝试过程，
@@ -34,7 +35,7 @@ void dfs(int depth = 0) {
 }
 
 
-//何帆 1494: 7.装载问题
+//1494: 7.装载问题
 /* 另参 最大个数:http://blog.csdn.net/helihui123/article/details/4476624 */
 /*
 5(n货物数) 10(c最大承载量)
@@ -484,11 +485,10 @@ int solution(){
 	return 0;
 }
 
-
-#define N 105
 int n;
 //打印素数环: 每个环都从第二个数(即depth=1)开始搜索(否则会出现重复的环 而且难以查重)
 void dfs(int depth = 1){
+	static const int N = 105;
 	static auto prime = primeSieve(25);//此算法见myAlgorithm.h
 	static bool visited[N] = { false };
 	static int ansTemp[N] = { 1 };//第一个数是1 vector<int> ansTemp(N, 1)

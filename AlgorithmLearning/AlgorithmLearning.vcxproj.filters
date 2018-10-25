@@ -21,19 +21,10 @@
     <ClCompile Include="src\AlgorithmTrainingLegacy.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\BacktraceDemo.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\practicer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\streamDemo.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\背包算法.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MaxSum_2for.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\topologySort.cpp">
@@ -41,6 +32,9 @@
     </ClCompile>
     <ClCompile Include="src\save007hdu1245.cpp">
       <Filter>源文件\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BacktraceSubject.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

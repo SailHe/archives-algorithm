@@ -1,6 +1,7 @@
-#include "ExtendSpace.h"
-using namespace std;
+#include "../../archives-algorithm/src/ExtendSpace.h"
+#include "../../archives-algorithm/src/Graph/Graph.h"
 using namespace StandardExtend;
+using namespace std;
 
 template<class ElementType>
 //并查集模板类
@@ -488,7 +489,7 @@ int MainTenanceHighway(){
 		cntDFS = ansCntDFS = 0;
 		//简单来说 就是找到所有的最优子段 将每一个子段作为一个单位计数 最后输出总数
 		for (int i = 0; i < n;){
-			int rightSubI = i, maxCntI = MIN_INT_NUM, cntI = 0;
+			int rightSubI = i, maxCntI = MIN_INT32, cntI = 0;
 			for (int j = rightSubI; j < n; ++j){
 				if (arrayA[j] - arrayA[i] <= minLen){
 					++cntI;
@@ -658,7 +659,7 @@ int MainFindTheWeightOfTheKthEdge(){
 		array2D.resize(n);
 		arrayA.clear();
 		//arrayA.resize(n);
-		int minE = MAX_INT_NUM;
+		int minE = MAX_INT32;
 		for (int r = 0; r < n; ++r){
 			array2D[r].clear();
 			array2D[r].resize(n);
@@ -926,7 +927,7 @@ int MainGraphInPutAndOutPut(){
 				graph[rightE][leftE] = weightE;
 			}
 		}
-		int minWeight = MAX_INT_NUM, maxWeight = -1, edgeCnt = 0;
+		int minWeight = MAX_INT32, maxWeight = -1, edgeCnt = 0;
 		for (int v = 0; v < n; ++v){
 			for (auto it = graph[v].begin(); it != graph[v].end(); ++it){
 				//it->first, it->second.rightE, it->second.weightE
@@ -1307,7 +1308,7 @@ int MainCharacterStatisticsQuestionTwo(){
 		} printf(" %d:%c\n", str.size(), str[str.size()-1]);
 		*/
 
-		int fromSub = 1, toSub = 1, len = 1, maxLen = MIN_INT_NUM;
+		int fromSub = 1, toSub = 1, len = 1, maxLen = MIN_INT32;
 		for (size_t i = 0; i < str.size(); ++i){
 			len = 1;
 			int minCharA = 255, maxCharA = -1;
@@ -1334,52 +1335,9 @@ int MainCharacterStatisticsQuestionTwo(){
 	return 0;
 }
 
-
-using ticket = int;
-class VirtualTable {  // example class  
-public:
-	virtual void VirtualFunction01(ticket);
-};
-
-void VirtualTable::VirtualFunction01(ticket)  {
-	printf("VirtualFunction01 called");
-}
-
-typedef void(__thiscall* VirtualFunction01_t)(ticket* thisptr);
-VirtualFunction01_t g_org_VirtualFunction01;
-
-//our detour function  
-void __fastcall hk_VirtualFunction01(ticket* thisptr, int edx)  {
-	printf("Custom function called");
-	//call the original function  
-	g_org_VirtualFunction01(thisptr);
-}
-int _tmain(int argc, TCHAR* argv[])  {
-
-	DWORD oldProtection;
-	//https://zh.wikipedia.org/wiki/%E9%92%A9%E5%AD%90%E7%BC%96%E7%A8%8B
-	VirtualTable* myTable = new VirtualTable();
-	void** base = *(void***)myTable;
-	//处理被拦截的函数调用、事件、消息的代码，被称为钩子（hook）。
-	//C++使用虚函数，因此可在运行时直接修改虚函数表的内容来挂钩。
-	VirtualProtect(&base[0], 4, PAGE_EXECUTE_READWRITE, &oldProtection);
-	//save the original function  
-	g_org_VirtualFunction01 = (VirtualFunction01_t)base[0];
-	//overwrite  
-	base[0] = &hk_VirtualFunction01;
-	VirtualProtect(&base[0], 4, oldProtection, 0);
-
-	//call the virtual function (now hooked) from our class instance  
-	myTable->VirtualFunction01(10);
-
-	return 0;
-}
-
 int main___45(){
-	//虚函数拦截
-	//_tmain(0, nullptr);
 	srand(time(0));
-	//取消cin与stdin的同步(是cin与scanf效率接近; 但此时两者不能混用)
+	//取消cin与stdin的同步(时cin与scanf效率接近; 但此时两者不能混用)
 	//ios::sync_with_stdio(false);
 	puts("PTA 算法集训遗产(Algorithm training legacy) url: http://139.196.145.92/index.php");
 	freopen("input", "r", stdin);
@@ -1395,8 +1353,8 @@ int main___45(){
 	}
 	toLowerAlph(10);
 	outPut2DArrayList(d2);
-	cout << minValueStatistics(d2[0].begin(), d2[0].end(), MAX_INT_NUM) << endl;
-	cout << maxValueStatistics(d2[0].begin(), d2[0].end(), MIN_INT_NUM) << endl;
+	cout << minValueStatistics(d2[0].begin(), d2[0].end(), MAX_INT32) << endl;
+	cout << maxValueStatistics(d2[0].begin(), d2[0].end(), MIN_INT32) << endl;
 	cout << sumValueStatistics(d2[0].begin(), d2[0].end(), 0) << endl;
 	cout << avlValueStatistics(d2[0].begin(), d2[0].end(), 0) << endl;
 	return 0;
@@ -1464,5 +1422,32 @@ int solveFrogJump() {
 		cout << left << endl;
 	}
 	return 0;
+}
+
+
+int mainForMaxSum_1() {
+	int arr[1000 + 5];
+	//freopen("input", "r", stdin);
+	int n = 0;
+	while (1 == scanf("%d", &n)) {
+		int leftSub = 0, rightSub = 0;
+		int sum = 0, maxSum = 0;
+
+		for (int i = 0; i < n; ++i) {
+			scanf("%d", arr + i);
+		}
+		for (int i = 0; i < n; ++i) {
+			sum = 0;
+			for (int j = i; j < n; ++j) {
+				sum += arr[j];
+				if (sum > maxSum) {
+					maxSum = sum;
+					leftSub = i;
+					rightSub = j;
+				}
+			}
+		}
+		printf("From=%d,To=%d\nMaxSum=%d\n", leftSub + 1, rightSub + 1, maxSum > 0 ? maxSum : 0);
+	}
 }
 

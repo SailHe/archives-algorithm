@@ -251,7 +251,7 @@ int mainForHuffumanTree()
 
 void outPutGraph(Graph &g) {
 	cout << "边数: " << g.getEdgeNum() << endl;
-	StandardExtend::ArrayList<Graph::VertexKey> dist, path;
+	JCE::ArrayList<Graph::VertexKey> dist, path;
 	g.shortestPath(0, dist, path);
 	cout << "由0号顶点出发的最短距离值: " << endl;
 	StandardExtend::outPutIterable(dist.begin(), dist.end(), 2);

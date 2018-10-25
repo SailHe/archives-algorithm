@@ -432,7 +432,7 @@ namespace MathExtend {
 	}
 	void pentration() {
 		std::string temp = "123456789";
-		StandardExtend::ArrayList<char> allDigit(temp.size());
+		JCE::ArrayList<char> allDigit(temp.size());
 		//toArrayList<char, std::string::iterator>(temp.begin(), temp.end());
 		std::copy(temp.begin(), temp.end(), allDigit.begin());
 		MathExtend::penetration(allDigit, 0, 9 - 1, [&](auto container) {
