@@ -14,8 +14,10 @@ extern const int Dir4[4][2];
 const int DIR84R[] = { 1, 0, -1, 0, 1, -1, -1, 1 };
 const int DIR84C[] = { 0, 1, 0, -1, 1, 1, -1, -1 };
 enum DirCountEnum { DIR4 = 4, DIR8 = 8 };
-typedef JCE::pair<int, int> DirectionVector;//在做加法运算时 它的first 与 second与习惯的表示xy rc的意义相同
-const DirectionVector DIR84[8] = {//加了extern 会出现重定义问题
+//在做加法运算时 它的first 与 second与习惯的表示xy rc的意义相同
+typedef JCE::pair<int, int> DirectionVector;
+//加了extern 会出现重定义问题
+const DirectionVector DIR84[8] = {
 	/*r轴正方向->第4123象限 便于调试 顺序不能随意更改*/
 	{ 1, 0 }/*下*/,
 	{ 0, 1 }/*右*/,

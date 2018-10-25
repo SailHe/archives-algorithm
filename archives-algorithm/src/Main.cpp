@@ -517,6 +517,22 @@ int mainForAlgorithm() {
 	}
 	StandardExtend::outPutIterable(dp, dp + dpSize);
 
+	StandardExtend::testAndDiffClock([&]() {
+		double a = 3.0, b = 4.0, c = 5.0;
+		vector<Utility::Double> temper;
+		temper.push_back(a);
+		temper.push_back(b);
+		temper.push_back(c);
+		if (Utility::Triangle::isTrangle(a, b, c)) {
+			unsigned count = Utility::Triangle::equalityElementCount(temper);
+			puts(0 == count ? "yb"
+				: (count == 3 ? "db" : "dy"));
+		}
+		else {
+			puts("no");
+		}
+	}, "三角形类型判断");
+
 	cout << " ====== Algorithm test end" << endl;
 
 	return 0;

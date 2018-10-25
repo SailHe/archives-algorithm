@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="源文件\memory">
+      <UniqueIdentifier>{e3e0e781-c575-4ca1-ac23-4af842ef7035}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AlgorithmTrainingLegacy.cpp">
@@ -21,13 +24,7 @@
     <ClCompile Include="src\BacktraceDemo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\nitoj.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\practicer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\save007hdu1245.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\streamDemo.cpp">
@@ -40,10 +37,10 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\topologySort.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\memory</Filter>
     </ClCompile>
-    <ClCompile Include="src\oj_pre_del.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="src\save007hdu1245.cpp">
+      <Filter>源文件\memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

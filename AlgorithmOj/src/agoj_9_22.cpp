@@ -178,59 +178,6 @@ namespace StandardExtend{
 	}
 };
 
-//判断由传入的参数是否能组成三角形 若可以 返回true 否则返回false
-bool isTrangle(double a, double b, double c){
-	//三角形边长不等式
-	return a + b > c && a + c > b && b + c > a
-		&& fabs(a - b) < c && fabs(a - c) < b && fabs(b - c) < a;
-}
-
-class Double{
-public:
-	double value;
-	Double(){}
-	Double(int rhs){
-		value = rhs;
-	}
-	Double(double rhs){
-		value = rhs;
-	}
-	bool operator==(Double const &rhs) const {
-		return fabs(this->value - rhs.value) < EPS;
-	}
-};
-
-//返回相等元素的个数
-template<class T>
-unsigned equalityElementCount(vector<T> const &tempeList){
-	unsigned count = 0;
-	for (int i = tempeList.size() - 1; i > -1; --i){
-		for (int j = i - 1; j > -1; --j){
-			count += (tempeList[i] == tempeList[j]) ? 1 : 0;
-		}
-	}
-	return count;
-}
-
-int main_isTrangle(){
-	int a, b, c;
-	while (3 == scanf("%d%d%d", &a, &b, &c)){
-		vector<Double> temper;
-		temper.push_back(a);
-		temper.push_back(b);
-		temper.push_back(c);
-		if (isTrangle(a, b, c)){
-			unsigned count = equalityElementCount(temper);
-			puts(0 == count ? "yb"
-				: (count == 3 ? "db" : "dy"));
-		}
-		else{
-			puts("no");
-		}
-	}
-	return 0;
-}
-
 int rows, group;
 int array2D[MAX_R][MAX_C];
 int arrayAAO[MAX_R][MAX_C];
@@ -289,6 +236,7 @@ void TrangleMaxValueAndPath(){
 	vTrangleMaxValueAndPathOutput(resultPath);
 }
 
+//数塔问题 http://139.196.145.92/contest_show.php?cid=556#problem/B
 int main_TrangleMaxValueAndPath(){
 	while (1 == scanf("%d", &rows)){
 		for (int r = 0; r < rows; ++r){
@@ -308,6 +256,7 @@ int gcd(long long a, long long b)
 	return b == 0 ? a : gcd(b, a % b);
 }
 
+//求解 3/2+2/3+5/12+…+(m+2)/[m*(m+1)]的和不超过n的最大m问题 http://139.196.145.92/contest_show.php?cid=556#problem/A
 int main(){
 	int n;
 	double sum, pastSum;

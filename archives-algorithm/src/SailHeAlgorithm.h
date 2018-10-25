@@ -9,6 +9,10 @@ Rows = r;Cols  = c;//报表行列数
 1s 一般可以执行 10 ^ 7 次操作
 DP:动态规划
 D:\LaberDate\
+
+Online Judge在线评测系统(例如pta, hdu等等)
+
+
 字体测试
 XxKkIiLl 10 oO{}{}
 Pp

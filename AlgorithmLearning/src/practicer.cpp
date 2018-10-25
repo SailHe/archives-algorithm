@@ -10,10 +10,11 @@
 #include <map>
 #include <random>
 #include <time.h>
-#include "ExtendSpace.h"
+
+#include"../../archives-algorithm/src/ExtendSpace.h"
+#include "../../archives-algorithm/src/BigInteger.h"
 using namespace std;
 
-#include "BigInteger.h"
 
 void randomTest(){
 	random_device rd;   // non-deterministic generator  
