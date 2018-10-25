@@ -92,5 +92,8 @@
     <ClInclude Include="src\Graph\TreeUtility.h">
       <Filter>头文件\Graph</Filter>
     </ClInclude>
+    <ClInclude Include="src\BigInteger.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

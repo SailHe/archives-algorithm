@@ -22,7 +22,7 @@ class BinaryTransition{
 	typedef int *Varray;
 	typedef Varray VarrayIterator;
 	*/
-	typedef vector<int> Varray;
+	typedef std::vector<int> Varray;
 	typedef Varray::iterator VarrayIterator;
 	Varray repository;// = NULL
 	VarrayIterator binNumberPointer;// = NULL
@@ -41,7 +41,7 @@ public:
 		//memset(repository, 0, targetBitLeast*sizeof(int));//预留的一段必须初始化
 	}
 	//以二进制为中间储存的进制大数转换 ans储存最终的结果(不会出现多余的0)
-	void transition(char *origin, vector<int> &ans){
+	void transition(char *origin, std::vector<int> &ans){
 		char oneBit = 0;
 		binNumberPointer = repository.begin() + targetBitLeast;
 		//binNumberPointer = repository + targetBitLeast;
@@ -68,7 +68,7 @@ public:
 			//注意: 每originBitLeast位的逆序储存 无法转换为每targetBitLeast位的逆序储存 因此这个逆序是必须的
 			int reTopBit = max(bit, originBitLeast);
 			for (int i = 0; i < reTopBit / 2; i++){
-				swap(currentBinNumberPointer[i], currentBinNumberPointer[reTopBit - i - 1]);
+				std::swap(currentBinNumberPointer[i], currentBinNumberPointer[reTopBit - i - 1]);
 			}
 			currentBinNumberPointer += reTopBit;
 		}
@@ -219,11 +219,11 @@ class BigInteger{
 	const static int ZERO = 0;
 	//数字位元的类型(必须能够存下两个进制最大值相乘的值)
 	typedef int BitType;
-	typedef vector<BitType> Base;
+	typedef std::vector<BitType> Base;
 	//正负号标识 输出时正号不输出
 	char symbol = 0;
 	//储存数字位元 的数组(为了支持数字的直接构造这样存比较方便 对字符串构造影响不大)
-	vector<BitType> digitLowTop;
+	std::vector<BitType> digitLowTop;
 
 	//返回内置数字类型的总位数 0: 1bit; 10: 2bit
 	static int totalBitOf(BitType originNumber){
@@ -260,7 +260,7 @@ class BigInteger{
 		} while (originNumber != 0);*/
 	}
 	//将源字符串表示的数字转换为本地格式储存
-	void transitionToLocalRadix(string const &originNumberTopLow){
+	void transitionToLocalRadix(std::string const &originNumberTopLow){
 		int numTotalBit = originNumberTopLow.length(), wordBit = totalBitOf(radix) - 1;
 		//总储存位
 		int storeTotalBit = numTotalBit / wordBit;
@@ -327,7 +327,7 @@ public:
 	BigInteger(BitType originNumber){
 		transitionToLocalRadix(originNumber);
 	}
-	BigInteger(string const &originNumberTopLow){
+	BigInteger(std::string const &originNumberTopLow){
 		transitionToLocalRadix(originNumberTopLow);
 	}
 
@@ -474,32 +474,7 @@ public:
 };
 
 /*
-int main(){
-	//freopen("input", "r", stdin);
-	char num[25];
-	char out[25] = { 0 };
-	while (cin >> num){
-		bool yes = true;
-		BigInteger bnum = BigInteger(num);
-		bnum.print(out);
-		string num1 = string(out);
-		bnum.muity(2).print(out);
-		string num2 = string(out);
-		for (int i = 0; i < num1.size();i++){
-			char c = num2[i];
-			int sub = num1.find(c);
-			if (sub == num1.npos){
-				yes = false;
-				break;
-			}
-			else{
-				num1[sub] = ' ';
-			}
-		}
-		puts(yes ? "Yes" : "No");
-		bnum.print();
-	}
-}
+
 */
 
 #endif

@@ -6,6 +6,7 @@
 #include "ExtendSpace.h"
 #include "Graph\TreeObject.h"
 #include "Graph\Graph.h"
+#include "BigInteger.h"
 //using namespace StandardExtend;
 using namespace std;
 
@@ -521,6 +522,34 @@ int mainForAlgorithm() {
 	return 0;
 }
 
+int mainForBigInteger() {
+	//freopen("input", "r", stdin);
+	char num[25];
+	char out[25] = { 0 };
+	while (cin >> num) {
+		bool yes = true;
+		BigInteger bnum = BigInteger(num);
+		bnum.print(out);
+		string num1 = string(out);
+		bnum.muity(2).print(out);
+		string num2 = string(out);
+		for (JCE::SizeType i = 0; i < num1.size(); ++i) {
+			char c = num2[i];
+			int sub = num1.find(c);
+			if (sub == num1.npos) {
+				yes = false;
+				break;
+			}
+			else {
+				num1[sub] = ' ';
+			}
+		}
+		puts(yes ? "Yes" : "No");
+		bnum.print();
+	}
+	return 0;
+}
+
 int main() {
 	//FILE *inFile = stdin, *outFile;
 	//freopen("input", "r", stdin);
@@ -535,6 +564,7 @@ int main() {
 	mainForMath();
 	StandardExtend::testAndDiffClock(mainForAlgorithm);
 	StandardExtend::testAndDiffClock(mainForGraph);
+	StandardExtend::testAndDiffClock(mainForBigInteger);
 	return 0;
 }
 
