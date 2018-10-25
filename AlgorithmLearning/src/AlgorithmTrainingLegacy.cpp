@@ -1,5 +1,7 @@
 #include "../../archives-algorithm/src/ExtendSpace.h"
 #include "../../archives-algorithm/src/Graph/Graph.h"
+//#include "ExtendSpace.h"
+//#include "Graph.h"
 using namespace StandardExtend;
 using namespace std;
 
@@ -1245,8 +1247,8 @@ void calcSwitchDoorProblem(){
 }
 
 void DebugPrintSwitchDoorProblem(){
-	outPutIterable(arrayDTable.begin(), arrayDTable.end(), ' ', 2, 10);
-	outPutIterable(arrayDTable.begin(), arrayDTable.end(), ' ', 2, [&](vector<int>::iterator left, vector<int>::iterator right){
+	outPutIterable(arrayDTable.begin(), arrayDTable.end(), 2, ' ', (JCE::SizeType)10);
+	outPutIterable(arrayDTable.begin(), arrayDTable.end(), 2, ' ', [&](vector<int>::iterator left){
 		return 1 == *left;
 	});
 	puts("---DebugPrintSwitchDoorProblem end");
@@ -1335,7 +1337,7 @@ int MainCharacterStatisticsQuestionTwo(){
 	return 0;
 }
 
-int main___45(){
+int main(){
 	srand(time(0));
 	//取消cin与stdin的同步(时cin与scanf效率接近; 但此时两者不能混用)
 	//ios::sync_with_stdio(false);
@@ -1347,11 +1349,12 @@ int main___45(){
 	MainJudgeConnectivity();
 	vector<vector<int>> d2(10, vector<int>(10, 1));
 	for (size_t r = 0; r < d2.size(); ++r){
-		iterate(d2[r].begin(), d2[r].end(), [&](vector<int>::iterator left, vector<int>::iterator right){
+		iterate(d2[r].begin(), d2[r].end(), [&](vector<int>::iterator left){
 			*left = rand() % 100;
 		});
 	}
-	toLowerAlph(10);
+	//toLowerAlph(10);
+	StandardExtend::toLowerAlph(10);
 	outPut2DArrayList(d2);
 	cout << minValueStatistics(d2[0].begin(), d2[0].end(), MAX_INT32) << endl;
 	cout << maxValueStatistics(d2[0].begin(), d2[0].end(), MIN_INT32) << endl;
@@ -1449,5 +1452,6 @@ int mainForMaxSum_1() {
 		}
 		printf("From=%d,To=%d\nMaxSum=%d\n", leftSub + 1, rightSub + 1, maxSum > 0 ? maxSum : 0);
 	}
+	return 0;
 }
 

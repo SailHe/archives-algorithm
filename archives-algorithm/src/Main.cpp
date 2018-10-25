@@ -7,6 +7,7 @@
 #include "Graph\TreeObject.h"
 #include "Graph\Graph.h"
 #include "BigInteger.h"
+#include "MathLibrary.h"
 //using namespace StandardExtend;
 using namespace std;
 
@@ -583,12 +584,33 @@ int mainForBigInteger() {
 	return 0;
 }
 
+int mainForDllTest() {
+	cout << helloWorld() << endl;
+	cout << TestNameSpace::helloWorldInNameSpace() << endl;
+	//TestNameSpace::BigInteger(MAX_INT64).muity(2).print();
+	auto temp = TestNameSpace::TestClass(2);
+	cout << TestNameSpace::TestClass(2).toString() << endl;
+	// Initialize a Fibonacci relation sequence.
+	fibonacci_init(1, 1);
+	// Write out the sequence values until overflow.
+	do {
+		std::cout << fibonacci_index() << ": "
+			<< fibonacci_current() << std::endl;
+	} while (fibonacci_next());
+	// Report count of values written before overflow.
+	std::cout << fibonacci_index() + 1 <<
+		" Fibonacci sequence values fit in an " <<
+		"unsigned 64-bit integer." << std::endl;
+	return 0;
+}
+
 int main() {
 	//FILE *inFile = stdin, *outFile;
 	//freopen("input", "r", stdin);
 	//freopen_s(&inFile, "input", "r", stdin);
 	//mainForExpressionTree();
 	//mainForHuffumanTree();
+	mainForDllTest();
 	MainForLinkedList();
 	MainForStack();
 	mainForQueue();
