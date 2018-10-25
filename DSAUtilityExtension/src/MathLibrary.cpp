@@ -1,7 +1,9 @@
 // MathLibrary.cpp : Defines the exported functions for the DLL.
 // @see https://docs.microsoft.com/zh-cn/cpp/build/walkthrough-creating-and-using-a-dynamic-link-library-cpp?view=vs-2017
-#define MATHLIBRARY_EXPORTS
+// 项目属性的C/C++预处理器中已经有了 DSAUTILITYEXTENSION_EXPORTS 但如果使用的是不同的宏名 则需在此处手动定义(否则与普通CPP文件无异)
+//#define MATHLIBRARY_EXPORTS
 //#include "stdafx.h"
+
 #include <utility>
 #include <limits.h>
 #include <string>
@@ -58,13 +60,13 @@ unsigned fibonacci_index()
 	return index_;
 }
 
-std::string helloWorld() {
+std::string DllHelloWorld() {
 	return "Hello World!";
 }
 
-namespace TestNameSpace {
-	std::string helloWorldInNameSpace() {
-		return helloWorld();
+namespace DllTestNameSpace {
+	std::string dllHelloWorldInNameSpace() {
+		return DllHelloWorld();
 	}
 }
 

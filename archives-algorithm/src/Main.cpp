@@ -585,11 +585,10 @@ int mainForBigInteger() {
 }
 
 int mainForDllTest() {
-	cout << helloWorld() << endl;
-	cout << TestNameSpace::helloWorldInNameSpace() << endl;
-	//TestNameSpace::BigInteger(MAX_INT64).muity(2).print();
-	auto temp = TestNameSpace::TestClass(2);
-	cout << TestNameSpace::TestClass(2).toString() << endl;
+	cout << DllHelloWorld() << endl;
+	cout << DllTestNameSpace::dllHelloWorldInNameSpace() << endl;
+	auto temp = DllTestNameSpace::DllTestClass(200);
+	cout << DllTestNameSpace::DllTestClass(1221).toString() << endl;
 	// Initialize a Fibonacci relation sequence.
 	fibonacci_init(1, 1);
 	// Write out the sequence values until overflow.
@@ -610,7 +609,6 @@ int main() {
 	//freopen_s(&inFile, "input", "r", stdin);
 	//mainForExpressionTree();
 	//mainForHuffumanTree();
-	mainForDllTest();
 	MainForLinkedList();
 	MainForStack();
 	mainForQueue();
@@ -620,6 +618,9 @@ int main() {
 	StandardExtend::testAndDiffClock(mainForAlgorithm);
 	StandardExtend::testAndDiffClock(mainForGraph);
 	StandardExtend::testAndDiffClock(mainForBigInteger);
+
+	mainForDllTest();
+
 	return 0;
 }
 
