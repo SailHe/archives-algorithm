@@ -523,8 +523,15 @@ int mainForAlgorithm() {
 }
 
 int mainForBigInteger() {
+	string ill100 = "34332795984163804765195977526776142032365783805375784983543400282685180793327632432791396429850988990237345920155783984828001486412574060553756854137069878601";
+	char ill100RealS[500] = "";
+	JCE::ArrayList<BigInteger> illList;
+	MathExtend::buildIllArrangeList(illList, 1001);
+	illList[100].print(ill100RealS);
+	string ill100Real = ill100RealS;
+	testAndOut("整型以内的大数错排 100时候的错排数", ill100Real, ill100);
 	//freopen("input", "r", stdin);
-	char num[25];
+	/*char num[25];
 	char out[25] = { 0 };
 	while (cin >> num) {
 		bool yes = true;
@@ -546,7 +553,7 @@ int mainForBigInteger() {
 		}
 		puts(yes ? "Yes" : "No");
 		bnum.print();
-	}
+	}*/
 	return 0;
 }
 

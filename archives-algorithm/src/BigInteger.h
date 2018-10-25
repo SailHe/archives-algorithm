@@ -430,13 +430,19 @@ public:
 	BigInteger operator+(BigInteger const &rhs){
 		return BigInteger(*this).plus(rhs);
 	}
-	//乘法(为了少一个临时变量是单独实现的)
+	// 基于加法的乘法
 	BigInteger operator*(BigInteger const &rhs){
+		/// 乘法(没有直接 muity 为了少一个临时变量是单独实现的)
 		BigInteger addValue(*this);
 		for (BigInteger i = 1; i < rhs; ++i){
 			addValue.plus(*this);
 		}
 		return addValue;
+	}
+	// 基于非大数的右操作数的快速乘法
+	BigInteger operator*(BitType const &muityBit){
+		BigInteger result = this->muity(muityBit);
+		return result;
 	}
 	BigInteger operator*=(BigInteger const &rhs){
 		return muity(rhs);

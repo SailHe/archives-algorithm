@@ -30,14 +30,11 @@
     <ClCompile Include="src\temp.cpp">
       <Filter>源文件\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\test.cpp">
-      <Filter>源文件\src</Filter>
-    </ClCompile>
     <ClCompile Include="agoj_10_24.cpp">
       <Filter>源文件\src</Filter>
     </ClCompile>
-    <ClCompile Include="agoj_10_24_2.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="src\cppHomeWork.cpp">
+      <Filter>源文件\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

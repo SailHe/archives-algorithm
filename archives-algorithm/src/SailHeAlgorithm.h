@@ -4,6 +4,7 @@
 //#include<bits/stdc++.h>
 /*
 __int64 I64 (use long long in acm oj)
+ps: ACM OJ应该是开了编译器优化的
 Rows = r;Cols  = c;//报表行列数
 1s 一般可以执行 10 ^ 7 次操作
 DP:动态规划

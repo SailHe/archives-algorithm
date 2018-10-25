@@ -22,6 +22,7 @@
 #define ARRAY_TEMPLATE template<class T, class Iterator>
 using namespace std;
 
+// 字符串大数加法
 string bigPlush(string &topLowNumA, string &topLowNumB, string &topLowSum) {
 	size_t lenA = topLowNumA.size(), lenB = topLowNumB.size(), lenAB;
 	//补0用

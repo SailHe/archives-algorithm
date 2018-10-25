@@ -672,7 +672,7 @@ namespace MathExtend {
 		D.assign(MAX_SIZE, 0);
 		D[0] = 0, D[1] = 0, D[2] = 1;
 		for (JCE::SizeType n = 3; n < MAX_SIZE; ++n)
-			D[n] = (n - 1) * (D[n - 1] + D[n - 2]);
+			D[n] = (D[n - 1] + D[n - 2]) * (n - 1);
 	}
 	//若大数bigInteger能被整除返回true
 	bool isDivisible(char *bigInteger, int MOD);
