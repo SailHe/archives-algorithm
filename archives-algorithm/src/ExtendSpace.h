@@ -379,9 +379,27 @@ namespace Utility {
 			}
 		}
 		//符合勾股定理 返回true 练习题HDU2899
-		bool isPythagoreanTheorem(int a, int b, int c) {
+		static bool isPythagoreanTheorem(int a, int b, int c) {
 			return a * a == b * b + c * c || b * b == a * a + c * c || c * c == a * a + b * b;
 		}
+		//判断由传入的参数是否能组成三角形 若可以 返回true 否则返回false
+		static bool isTrangle(double a, double b, double c) {
+			//三角形边长不等式
+			return a + b > c && a + c > b && b + c > a
+				&& fabs(a - b) < c && fabs(a - c) < b && fabs(b - c) < a;
+		}
+		//返回相等元素的个数
+		template<class T>
+		static unsigned equalityElementCount(JCE::ArrayList<T> const &tempeList) {
+			unsigned count = 0;
+			for (int i = tempeList.size() - 1; i > -1; --i) {
+				for (int j = i - 1; j > -1; --j) {
+					count += (tempeList[i] == tempeList[j]) ? 1 : 0;
+				}
+			}
+			return count;
+		}
+
 	private:
 		PointDouble p1, p2, p3;
 	};

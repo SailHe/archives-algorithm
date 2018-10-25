@@ -6,8 +6,8 @@
 #include<iostream>
 #include<queue>
 #include<functional>//greater
-//#include"E:\Projects\myLib\TreeObject.h"
-#include"E:\Projects\myLib\Graph.h"
+#include"../../archives-algorithm/src/Graph/Graph.h"
+#include"../../archives-algorithm/src/Graph/TreeObject.h"
 #define EPS 1E-5
 #define MAX_N 505
 using namespace std;

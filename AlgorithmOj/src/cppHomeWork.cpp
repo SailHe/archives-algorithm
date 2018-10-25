@@ -27,7 +27,7 @@ double toFahrenheit(double tCelsius) {
 	return (9 / 5.0) * tCelsius + 32;
 }
 
-int main__65() {
+int mainForTemperatureTranslate() {
 	double t;
 	while (cin>>t) {
 		cout << toFahrenheit(t) << endl;
@@ -44,12 +44,18 @@ char toUpper(char c) {
 	return islower(c) ? (c - 'a') + 'A' : c;
 }
 
-int main() {
+int mainForAlphTranslate() {
 	string upperCase;
 	while (cin >> upperCase) {
 		transform(upperCase.begin(), upperCase.end(), upperCase.begin(), toUpper);
 		cout << upperCase << endl;
 	}
+	return 0;
+}
+
+int main() {
+	mainForTemperatureTranslate();
+	mainForAlphTranslate();
 	return 0;
 }
 
