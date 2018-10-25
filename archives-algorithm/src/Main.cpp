@@ -530,6 +530,16 @@ int mainForBigInteger() {
 	illList[100].print(ill100RealS);
 	string ill100Real = ill100RealS;
 	testAndOut("整型以内的大数错排 100时候的错排数", ill100Real, ill100);
+
+	StandardExtend::testAndDiffClock([&]() {
+		string a = to_string(MAX_INT64), b = to_string(MAX_INT64);
+		char result[128] = "";
+		BigInteger ba(a), bb(b);
+		(ba + bb).print(result);
+		BigInteger::bigPlush(a, b, a);
+		testAndOut("64位有符号整型最大值相加: ", BigInteger::formatString(a), string(result));
+	}, "字符串大数加法");
+	
 	//freopen("input", "r", stdin);
 	/*char num[25];
 	char out[25] = { 0 };

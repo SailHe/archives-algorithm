@@ -336,6 +336,46 @@ public:
 		digitLowTop.reserve(newSize);
 	}
 
+	// 字符串大数加法
+	static std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB, std::string &topLowSum) {
+		std::size_t lenA = topLowNumA.size(), lenB = topLowNumB.size(), lenAB;
+		//补0用
+		std::string temp;
+		//低位在右, 短者高位0补齐
+		if (lenA > lenB) {
+			temp.resize(lenA - lenB, '0');
+			topLowNumB = temp + topLowNumB;
+			lenAB = lenA;
+		}
+		else {
+			temp.resize(lenB - lenA, '0');
+			topLowNumA = temp + topLowNumA;
+			lenAB = lenB;
+		}
+		if (topLowSum.size() < lenA) {
+			topLowSum.resize(lenA, '0');
+		}
+		int ia = -1, c = 0;
+		//反转后左边是低位
+		for (int i = lenAB - 1; i >= 0; --i) {
+			int sumBit = (topLowNumA[i] - '0') + (topLowNumB[i] - '0') + c;
+			topLowSum[i] = sumBit % 10 + '0';
+			c = sumBit / 10;
+		}
+		return c == 0 ? topLowSum : (topLowSum = "1" + topLowSum);
+	}
+	//去除前导0 若值为0 返回"0"
+	static std::string formatString(std::string const &num) {
+		int sp = -1;
+		for (auto it = num.begin(); it != num.end(); ++it) {
+			++sp;
+			if (*it != '0') {
+				break;
+			}
+		}
+		return sp == num.size() ? "0" : num.substr(sp);
+	}
+
 	//<==> += 
 	BigInteger &plus(BigInteger const &rhs){
 		BitType subLhs, subRhs, subSum;
