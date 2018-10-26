@@ -618,6 +618,28 @@ namespace Utility {
 			}
 		}
 	}
+	//希尔排序
+	template<class T>
+	void shellSort(T a[], int n) {
+		int si;
+		int sedgewick[] = { 929, 505, 109, 41, 19, 5, 1, 0 };
+		//找到第一个小于排序元素个数的增量
+		for (si = 0; sedgewick[si] >= n; ++si);
+
+		for (int d = sedgewick[si]; d > 0; d = sedgewick[++si]) {
+			//插入排序
+			for (int p = d, i; p < n; ++p) {
+				T tmp = a[p];
+				for (i = p; i >= d && a[i - d] > tmp; i -= d) {
+					//i属于[d, p], 将前面"大于"a[p]的值后移
+					a[i] = a[i - d];
+				}
+				//a[i - d] <= tmp时 因为前面都是局部有序的 [0, i-d]区间内的值 <= a[p]一定成立, (i, p]内的值>a[p]一定成立
+				//于是i就是a[p]的位置 ps这句放里面也行 只是会多做几次无用的交换
+				a[i] = tmp;
+			}
+		}
+	}
 }
 
 //数学扩展

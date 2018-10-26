@@ -32,7 +32,6 @@ int MainForStack() {
 	puts(" ===== Stack test end");
 	return 0;
 }
-
 int MainForLinkedList() {
 
 	LinkedList<string> lists = LinkedList<string>();
@@ -121,7 +120,6 @@ int MainForLinkedList() {
 	cout << " ====== LinkedList test end" << endl;
 	return 0;
 }
-
 int mainForQueue() {
 	Queue<int> q;
 	for (int i = 0; i < 10; ++i) {
@@ -140,7 +138,6 @@ int mainForQueue() {
 	puts(" ====== Queue test end");
 	return 0;
 }
-
 int mainForDeQueue() {
 	Deque<int> q;
 	for (int i = 0; i < 10; ++i) {
@@ -173,6 +170,7 @@ int mainForDeQueue() {
 	return 0;
 }
 
+
 int mainForExpressionTree() {
 	//自己改改
 	char s[40] = "1 2 +";
@@ -190,8 +188,19 @@ int mainForExpressionTree() {
 	}
 	return 0;
 }
+int lessCmper(int const &lhs, int const &rhs) {
+	return lhs - rhs;
+}
+int moreCmper(int const &lhs, int const &rhs) {
+	return -lessCmper(lhs, rhs);
+}
+int mainForTree() {
+	char post[10] = "hfbdcea";
+	char in[10] = "hbfadec";
+	char pre[10] = "";
+	BinTree<char> binTreeIns;
+	binTreeIns.orderTranslation(pre, nullptr, in, post, 7);
 
-int mainForBinSearchTree() {
 	BinSearchTree<string> bt = BinSearchTree<string>();
 	for (int i = 0; i < 10; ++i) {
 		bt.insert(string("BST data") + std::to_string(i));
@@ -213,10 +222,37 @@ int mainForBinSearchTree() {
 		return false;
 	});
 	cout << bt.find(string("BST data5"))->Data << endl;
+
+	int b[10] = { 2, 1, 4, 5, 9, 3, 6, 7 };
+	AvlTree<int> avlTreeIns = AvlTree<int>();
+	for (int i = 0; i < 8; ++i) {
+		avlTreeIns.insert(b[i]);
+	}
+	puts("avl-倒序");
+	avlTreeIns.traversal(Tree::RE_ORDER, [&](BinTree<int>::BT node) {
+		cout << node->Data << endl;
+		return false;
+	});
+
+	JCE::ArrayList<int> a = { 6, 15, 3, 9, 7, 4, 12, 10, 15, 14, 5, 13 };
+	Heap<int> heapIns = Heap<int>(a.size() + 5);
+	heapIns.build(-1, moreCmper);
+	for (JCE::SizeType i = 0; i < a.size(); heapIns.push(a[i++]));
+	heapIns.pop();
+	heapIns.pop();
+	heapIns.pop();
+	heapIns.push(8);
+	heapIns.push(11);
+	puts("堆-层序");
+	heapIns.traversal(heapIns.ORDER_LEVEL, [&](BinTree<int>::BT b) {
+		printf("%d ", b->Data);
+		return false;
+	});
+
+	puts("");
 	puts(" ====== Tree test end");
 	return 0;
 }
-
 /*
 小写字母，01反、且2点对换；有2点重合
 7
@@ -250,6 +286,7 @@ int mainForHuffumanTree()
 	}return 0;
 }
 
+
 void outPutGraph(Graph &g) {
 	cout << "边数: " << g.getEdgeNum() << endl;
 	JCE::ArrayList<Graph::VertexKey> dist, path;
@@ -260,7 +297,6 @@ void outPutGraph(Graph &g) {
 	StandardExtend::outPutIterable(path.begin(), path.end(), 2);
 	puts("");
 }
-
 void NewGraphDemo(Graph *&&g) {
 	for (int i = 0; i < 10; ++i) {
 		g->insertEdge(Graph::Edge(0, i, 10));
@@ -274,7 +310,6 @@ void NewGraphDemo(Graph *&&g) {
 	outPutGraph(*g);
 	delete g; g = nullptr;
 }
-
 int mainForGraph() {
 	NewGraphDemo(new AdjacentMatrixGraph(10));
 	NewGraphDemo(new AdjacentListGraph(10));
@@ -313,12 +348,14 @@ int mainForGraph() {
 	return 0;
 }
 
+
 template<class T>
 bool testAndOut(JCE::String const &name, T realValue, T expectValue) {
 	assert(realValue == expectValue);
 	cout << name + " 实际值: " << realValue << "; 期望值: " << expectValue << endl;
 	return true;
 }
+
 
 int mainForMath() {
 	testAndOut("2018年是否闰年: ", (bool)StandardExtend::isIntercalary(2018), false);
@@ -398,9 +435,13 @@ int mainForMath() {
 	testAndOut("一元二次方程最大近似值: ", Utility::Double(f2(x2)), Utility::Double(2.0));
 
 	const int size = 9;
+	//顺便排序测试
 	int a[size] = { 6, 5, 3, 0, 1, 4, 2, 6, 7};
 	Utility::BubbleSort(a, size, size, Utility::lessQsortCmp<int>);
 	Utility::SlectSort(a, a + size, Utility::moreQsortCmp<int>);
+	int aa[] = { 44, 12, 59, 36, 62, 43, 94, 7, 35, 52, 85 };
+	Utility::shellSort<int>(aa, 11);
+
 	std::sort(a, a + size);
 	auto it1 = MathExtend::dichotomy(a, size, 6);
 	bool exist = std::binary_search(a, a + size, 6);
@@ -583,7 +624,7 @@ int mainForBigInteger() {
 	}*/
 	return 0;
 }
-
+/*
 int mainForDllTest() {
 	cout << DllHelloWorld() << endl;
 	cout << DllTestNameSpace::dllHelloWorldInNameSpace() << endl;
@@ -601,7 +642,7 @@ int mainForDllTest() {
 		" Fibonacci sequence values fit in an " <<
 		"unsigned 64-bit integer." << std::endl;
 	return 0;
-}
+}*/
 
 int main() {
 	//FILE *inFile = stdin, *outFile;
@@ -613,13 +654,13 @@ int main() {
 	MainForStack();
 	mainForQueue();
 	mainForDeQueue();
-	mainForBinSearchTree();
+	mainForTree();
 	mainForMath();
 	StandardExtend::testAndDiffClock(mainForAlgorithm);
 	StandardExtend::testAndDiffClock(mainForGraph);
 	StandardExtend::testAndDiffClock(mainForBigInteger);
 
-	mainForDllTest();
+	//mainForDllTest();
 
 	return 0;
 }

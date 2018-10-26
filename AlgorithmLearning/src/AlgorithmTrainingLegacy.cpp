@@ -1,5 +1,7 @@
 #include "ExtendSpace.h"
 #include "Graph/Graph.h"
+#include "Graph/TreeObject.h"
+#include "Graph/TreeUtility.h"
 using namespace StandardExtend;
 using namespace std;
 
@@ -1425,7 +1427,6 @@ int solveFrogJump() {
 	return 0;
 }
 
-
 int mainForMaxSum_1() {
 	int arr[1000 + 5];
 	//freopen("input", "r", stdin);
@@ -1449,6 +1450,66 @@ int mainForMaxSum_1() {
 			}
 		}
 		printf("From=%d,To=%d\nMaxSum=%d\n", leftSub + 1, rightSub + 1, maxSum > 0 ? maxSum : 0);
+	}
+	return 0;
+}
+
+int mainForRankStudent() {
+	freopen("input", "r", stdin);
+	int n;//考点数 树
+	srand(0);
+	while (true) {
+		//scanf("%d", &n);
+		n = rand() % 10000;
+		using T = Student;
+		//n个考场
+		PtrArray<AvlTree<T>> data = PtrArray<AvlTree<T>>(n);
+		vector<T> total;
+		T in;
+		for (int t = 0; t < n; ++t) {
+			int k;
+			//scanf("%d", &k);
+			k = rand() % 100;
+			in.place = t + 1;
+			for (int i = 0; i < k; ++i) {
+				//scanf("%s%d", &in.id, &in.score);
+				in.id[0] = char(rand() % 'Z' + 'A');
+				in.score = rand() % 100;
+				data[t]->insert(in);
+			}//O(N*K*logK)
+			int pastId = 0;
+			//当前元素现在的重复个数
+			int reCnt = 0;
+			AvlTree<T>::Position pastP = NULL;
+			data[t]->traversal(Tree::RE_ORDER, [&](AvlTree<T>::Position bt) {
+				if (pastP != NULL && pastP->Data.score == bt->Data.score)
+					++reCnt;
+				else
+					reCnt = 0;
+				//等级 = 序号 - 重复个数
+				bt->Data.rank = ++pastId - reCnt;
+				total.push_back(bt->Data);
+				pastP = bt;
+				return false;
+			});//O(N*K*logK)
+		}
+		sort(total.begin(), total.end());//O(log(N*K))
+		int len = total.size();
+		printf("%d\n", len);
+		int pastId = 0;
+		//当前元素现在的重复个数
+		int reCnt = 0;
+		for (int i = len - 1; i >= 0; --i) {
+			if (i != len - 1 && total[i + 1].score == total[i].score)
+				++reCnt;
+			else
+				reCnt = 0;
+			//本地排名
+			total[i].localRank = total[i].rank;
+			//总排名
+			total[i].rank = ++pastId - reCnt;
+			total[i].outPut();
+		}//O(N*K)
 	}
 	return 0;
 }

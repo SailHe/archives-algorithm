@@ -13,78 +13,57 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="头文件\DllDemo">
-      <UniqueIdentifier>{7679c61d-4f3c-4723-b9df-4e190f04f609}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="源文件\DllDemo">
-      <UniqueIdentifier>{eba64502-ca2f-4273-bc52-bb4061fa72de}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\Lib">
-      <UniqueIdentifier>{568a513d-c1b1-4080-abb9-24ee33075dfc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="源文件\Lib">
-      <UniqueIdentifier>{d59a17bd-bac2-49e5-89e2-6e6a2404f32b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="源文件\Lib\Graph">
-      <UniqueIdentifier>{43fb1901-ad39-4396-bbcf-7afcb387740f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="源文件\Lib\List">
-      <UniqueIdentifier>{28d147b2-7b27-4662-85d8-28ba9c5aa4ce}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\MathLibrary.h">
-      <Filter>头文件\DllDemo</Filter>
+    <ClInclude Include="src\BigInteger.h">
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\DSAUEdll.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\BigInteger.h">
-      <Filter>头文件\Lib</Filter>
-    </ClInclude>
     <ClInclude Include="src\ExtendSpace.h">
-      <Filter>头文件\Lib</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\GetMyDade.h">
-      <Filter>头文件\Lib</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\LinkedList.h">
-      <Filter>头文件\Lib</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Queue.h">
-      <Filter>头文件\Lib</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\SailHeAlgorithm.h">
-      <Filter>头文件\Lib</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Stack.h">
-      <Filter>头文件\Lib</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\stdafx.h">
-      <Filter>头文件\Lib</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Graph\Graph.h">
-      <Filter>头文件\Lib</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Graph\TreeObject.h">
-      <Filter>头文件\Lib</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\Graph\TreeUtility.h">
-      <Filter>头文件\Lib</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\MathLibrary.cpp">
-      <Filter>源文件\DllDemo</Filter>
-    </ClCompile>
     <ClCompile Include="src\ExtendSpace.cpp">
-      <Filter>头文件\Lib</Filter>
+      <Filter>头文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Graph\HuffmanTree.cpp">
-      <Filter>源文件\Lib\Graph</Filter>
+    <ClCompile Include="src\List\LinkedList.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\List\Stack.cpp">
-      <Filter>源文件\Lib\List</Filter>
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graph\HuffmanTree.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

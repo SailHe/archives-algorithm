@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{503A4BB9-0AD1-4CC9-B807-619BEB5D0251}</ProjectGuid>
+    <ProjectGuid>{ED399AF9-6051-4825-BC67-EBC339E8E1CC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>DSAUtilityExtension</RootNamespace>
+    <RootNamespace>DotNetDllTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -71,26 +71,26 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>DSAUTILITYEXTENSION</TargetName>
+    <TargetName>DOTNETDLLTEST</TargetName>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>DSAUTILITYEXTENSION</TargetName>
+    <TargetName>DOTNETDLLTEST</TargetName>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>DSAUTILITYEXTENSION</TargetName>
+    <TargetName>DOTNETDLLTEST</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>DSAUTILITYEXTENSION</TargetName>
+    <TargetName>DOTNETDLLTEST</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;DSAUTILITYEXTENSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DOTNETDLLTEST_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -102,7 +102,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;DSAUTILITYEXTENSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;DOTNETDLLTEST_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -116,7 +116,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;DSAUTILITYEXTENSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;DOTNETDLLTEST_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -132,7 +132,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;DSAUTILITYEXTENSION_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;DOTNETDLLTEST_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -143,24 +143,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\BigInteger.h" />
-    <ClInclude Include="src\DSAUEdll.h" />
-    <ClInclude Include="src\ExtendSpace.h" />
-    <ClInclude Include="src\GetMyDade.h" />
-    <ClInclude Include="src\Graph\Graph.h" />
-    <ClInclude Include="src\Graph\TreeObject.h" />
-    <ClInclude Include="src\Graph\TreeUtility.h" />
-    <ClInclude Include="src\LinkedList.h" />
-    <ClInclude Include="src\Queue.h" />
-    <ClInclude Include="src\SailHeAlgorithm.h" />
-    <ClInclude Include="src\Stack.h" />
-    <ClInclude Include="src\stdafx.h" />
+    <ClCompile Include="MathLibrary.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ExtendSpace.cpp" />
-    <ClCompile Include="src\Graph\HuffmanTree.cpp" />
-    <ClCompile Include="src\List\LinkedList.cpp" />
-    <ClCompile Include="src\List\Stack.cpp" />
+    <ClInclude Include="MathLibrary.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
