@@ -1,7 +1,5 @@
-#include "../../archives-algorithm/src/ExtendSpace.h"
-#include "../../archives-algorithm/src/Graph/Graph.h"
-//#include "ExtendSpace.h"
-//#include "Graph.h"
+#include "ExtendSpace.h"
+#include "Graph/Graph.h"
 using namespace StandardExtend;
 using namespace std;
 

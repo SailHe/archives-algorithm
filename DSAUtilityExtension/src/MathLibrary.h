@@ -1,6 +1,8 @@
 // MathLibrary.h - Contains declarations of math functions
 #pragma once
 
+//#include "stdafx.h"
+
 #ifdef DSAUTILITYEXTENSION_EXPORTS
 #define DSAUTILITYEXTENSION_API __declspec(dllexport)
 #else

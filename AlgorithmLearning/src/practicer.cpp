@@ -11,8 +11,10 @@
 #include <random>
 #include <time.h>
 
-#include"../../archives-algorithm/src/ExtendSpace.h"
-#include "../../archives-algorithm/src/BigInteger.h"
+//#include "MathLibrary.h"
+#include "ExtendSpace.h"
+//#include"../../archives-algorithm/src/ExtendSpace.h"
+#include "BigInteger.h"
 using namespace std;
 
 
@@ -129,7 +131,9 @@ void fibonacciBuffer(Integer *buffer, int length){
 	}
 }
 
-int main(){
+int mainForFib(){
+	//cout << DllHelloWorld() << endl;
+	StandardExtend::toLowerAlph('c');
 	double temp_ = 0.375;
 	printf("%.4f\n", temp_);
 	printf("%.2f\n", temp_);

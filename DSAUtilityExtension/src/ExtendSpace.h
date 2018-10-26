@@ -3,6 +3,8 @@
 #ifndef _STANDARD_H_
 #define _STANDARD_H_
 #include "stdafx.h"
+#include "DSAUEdll.h"
+
 /*
 std::setfill(char ch)        Fill whitespace with 'ch'
 setprecision(int n)     Set floating - point precision to 'n'
@@ -54,18 +56,18 @@ namespace StandardExtend{
 	//using namespace JCE;
 
 	//变为小写字符
-	char toLowerAlph(char c);
-	int toIntNum(char alphOrCharNum);
+	DSAUTILITYEXTENSION_API char toLowerAlph(char c);
+	DSAUTILITYEXTENSION_API int toIntNum(char alphOrCharNum);
 	//10ToA(Alph)
-	char toUppercaseAscllChar(int num);
+	DSAUTILITYEXTENSION_API char toUppercaseAscllChar(int num);
 	//'A' == 'a' == '0' ... 'J' == 'j' == '9' 以此类推
-	bool isAa0Equal(char a, char b);
+	DSAUTILITYEXTENSION_API bool isAa0Equal(char a, char b);
 
 	// =====DATE
 	//计算与参数的时间差（单位：Minite）
-	double calcDifftime(time_t startTime);
+	DSAUTILITYEXTENSION_API double calcDifftime(time_t startTime);
 	//计算与参数的时钟差（单位：s）
-	double calcDiffClock(clock_t startClock);
+	DSAUTILITYEXTENSION_API double calcDiffClock(clock_t startClock);
 	//用于测试Function 会自动输出Function的执行时钟(单位：s)
 	template<class Function>
 	void testAndDiffClock(Function fun, JCE::String const &name = "") {
@@ -74,17 +76,17 @@ namespace StandardExtend{
 		std::cout << name + "执行时间：" << calcDiffClock(startClock) << std::endl;
 	}
 	//闰年判断
-	int isIntercalary(int year);
+	DSAUTILITYEXTENSION_API int isIntercalary(int year);
 	//计算参数(月, 日)是参数(年)中的第几天 即: 将 年-月-日 转换为 天数
 	//传入 (year, month, day 当前年, 月, 日)
 	//返回天数
-	int calcNumberOfDays(int year, int month, int day);
+	DSAUTILITYEXTENSION_API int calcNumberOfDays(int year, int month, int day);
 	//返回t1与t2间的分数时间差min, 并将h，min结果存于参数指针中
 	//t格式805 (表示08:05)
-	int timeNumDiffrence(int t1, int t2, int *t_h, int *t_min);
+	DSAUTILITYEXTENSION_API int timeNumDiffrence(int t1, int t2, int *t_h, int *t_min);
 
 	//清空stdin输入流直至遇到end字符
-	void refreshStdin(char end);
+	DSAUTILITYEXTENSION_API void refreshStdin(char end);
 	// 可以替换为: destContainer.resize(origin.end() - origin.begin());
 	// std::copy(origin.begin(), origin.end(), destContainer.begin());
 	template<class T, class Iterator>
@@ -274,7 +276,7 @@ namespace Utility {
 	const int Dir4[4][2] = { { 0, -1 /*左*/ }, { 0, 1 /*右*/ }, { -1, 0 /*上*/ }, { 1, 0 /*下*/ } };
 
 	//重载了精度比较符的双精度浮点
-	class Double {
+	class DSAUTILITYEXTENSION_API Double {
 	public:
 		Double() {}
 		Double(int rhs) {
@@ -306,7 +308,7 @@ namespace Utility {
 	};
 
 	//非聚合  点类
-	class PointDouble {
+	class DSAUTILITYEXTENSION_API PointDouble {
 	public:
 		double x, y;
 		PointDouble() = default;
@@ -339,7 +341,7 @@ namespace Utility {
 		}
 	};
 
-	class Triangle {
+	class DSAUTILITYEXTENSION_API Triangle {
 	public:
 		Triangle(){}
 		Triangle(PointDouble const &p1, PointDouble const &p2, PointDouble const &p3){
@@ -405,7 +407,7 @@ namespace Utility {
 	};
 
 	// 分数
-	class Fraction {
+	class DSAUTILITYEXTENSION_API Fraction {
 		//分子
 		double up = 0;
 		//分母
@@ -693,34 +695,34 @@ namespace MathExtend {
 			D[n] = (D[n - 1] + D[n - 2]) * (n - 1);
 	}
 	//若大数bigInteger能被整除返回true
-	bool isDivisible(char *bigInteger, int MOD);
+	DSAUTILITYEXTENSION_API bool isDivisible(char *bigInteger, int MOD);
 	//删除resStr中的所有子串delSubStr
-	void eraseAllSubStr(char *resStr, char *delSubStr);
+	DSAUTILITYEXTENSION_API void eraseAllSubStr(char *resStr, char *delSubStr);
 	//逆序数
-	int reverseOrderNumber(int number);
+	DSAUTILITYEXTENSION_API int reverseOrderNumber(int number);
 	//计算radix进制整数number中digit出现的次数
-	int calcDigitCountInNumber(const int number, const int digit, int radix = 10);
+	DSAUTILITYEXTENSION_API int calcDigitCountInNumber(const int number, const int digit, int radix = 10);
 	//计算radix进制整数的位数
-	int calcDigitTop(int number, int radix = 10);
+	DSAUTILITYEXTENSION_API int calcDigitTop(int number, int radix = 10);
 
 
 	// ===== 数 学
 
-	I64 quickFact(I64 a, I64 b, I64 mod);
+	DSAUTILITYEXTENSION_API I64 quickFact(I64 a, I64 b, I64 mod);
 	//快速幂基于quickFact版 效率是简易版的1/5
-	I64 quickPow_OLD(I64 C, I64 R, I64 k);
+	DSAUTILITYEXTENSION_API I64 quickPow_OLD(I64 C, I64 R, I64 k);
 	//快速幂简易版 m^n % k 如果用于计算pow效率是普通版的1/20 (普通版效率高)
-	I64 quickPow(I64 m, I64 n, I64 k);
+	DSAUTILITYEXTENSION_API I64 quickPow(I64 m, I64 n, I64 k);
 	//快速幂普通版 m^n; 与std::pow效率各有高低相差不大 std::pow值域更大
-	I64 quickPow(I64 m, I64 n);
+	DSAUTILITYEXTENSION_API I64 quickPow(I64 m, I64 n);
 	//返回pow(iNum, 2)的最后m位(实际上貌似只能算最后1bit 可能哪里被无意中修改了) 注意返回值可能包涵多位但只有最后一位有效
-	long long powLastBit(int base, int m);
+	DSAUTILITYEXTENSION_API long long powLastBit(int base, int m);
 	//任意底数对数
-	double logR(double value, double base = 5);
+	DSAUTILITYEXTENSION_API double logR(double value, double base = 5);
 	//阶 乘
-	double fact(int n);
+	DSAUTILITYEXTENSION_API double fact(int n);
 	//int 限度内阶乘表 (int 13!爆； double和long long int 18!爆)
-	int* generateFactList(int maxN = 13);
+	DSAUTILITYEXTENSION_API int* generateFactList(int maxN = 13);
 	/*
 	n < m && m != 0
 		 fact(n)
@@ -730,35 +732,35 @@ namespace MathExtend {
 	//组合数 (取出元素不重复出现)
 	//从n个不同元素中，任取m(m≤n)个元素并成一组，叫做从n个不同元素中取出m个元素的一个组合；
 	//ab == ba
-	int C(int n, int m);
+	DSAUTILITYEXTENSION_API int C(int n, int m);
 	//排列数 (取出元素不重复出现)
 	//从n个不同元素中，任取m(m≤n)个元素按照一定的顺序排成一列，叫做从n个不同元素中取出m个元素的一个排列
 	//ab != ba
-	int A(int n, int m);
+	DSAUTILITYEXTENSION_API int A(int n, int m);
 	//素数(质数)判断
-	int isPrime_OLD(int num);
+	DSAUTILITYEXTENSION_API int isPrime_OLD(int num);
 	//素数(质数)判断 sqrt的平方优化版(未实测)
-	bool isPrime(int num);
+	DSAUTILITYEXTENSION_API bool isPrime(int num);
 	//真因子和(除本身外的约数）
-	int factorSum(int x);
+	DSAUTILITYEXTENSION_API int factorSum(int x);
 	//真因子和表(约数 因数) (10^7一千万2.51s)(400w 10^6 900ms)
-	void buildSieveFactorSumS(const int maxn, int a[]);
+	DSAUTILITYEXTENSION_API void buildSieveFactorSumS(const int maxn, int a[]);
 	//素数(质数) 筛选法 埃拉托色尼(Sieve Eratosthenes)(0 1==-1, a[i]==0表示素数) maxN[2, 1e9) PS:maxN = 1e7时超过1s了 1e9似乎无法分配内存
-	int* generateSievePrimeS(const int maxN = 2);
+	DSAUTILITYEXTENSION_API int* generateSievePrimeS(const int maxN = 2);
 	//因子数目
-	int factorCount(int x);
+	DSAUTILITYEXTENSION_API int factorCount(int x);
 	//开方函数 (eps: 精度)
-	double sqrtImpl(double x, double eps = 1e-9);
+	DSAUTILITYEXTENSION_API double sqrtImpl(double x, double eps = 1e-9);
 	//求方差
-	double variance(float x[], int n);
+	DSAUTILITYEXTENSION_API double variance(float x[], int n);
 	// 卡塔兰数
-	I64* catalanTable();
+	DSAUTILITYEXTENSION_API I64* catalanTable();
 	//返回lineNum条边时最大交点数目
-	int countMaxIntersection(int lineNum);
+	DSAUTILITYEXTENSION_API int countMaxIntersection(int lineNum);
 
 
 	//辗转相除求公约数, 互素(互质)判定
-	int gcd(int a, int b);
+	DSAUTILITYEXTENSION_API int gcd(int a, int b);
 	/*
 	扩展的欧几里得算法（辗转相除法）Extended Euclidean algorithm:
 	功能:
@@ -778,7 +780,7 @@ namespace MathExtend {
 	讨论是否存在一整数k，使得m在k圈后比n大一；就是求解： k*m - n = 1;是否有解
 	1 % gcd(m,n) == 0
 	*/
-	int gcdEx_OLD(int a, int b, int &x, int &y);
+	DSAUTILITYEXTENSION_API int gcdEx_OLD(int a, int b, int &x, int &y);
 	//扩展欧几里得算法精简正式版
 	template<class IntegerNum>
 	IntegerNum gcdEx(IntegerNum a, IntegerNum b, IntegerNum &x, IntegerNum &y) {
@@ -831,7 +833,7 @@ namespace MathExtend {
 	即		|x|+|y| 在t = y0*g/a 附近(③)取最小值
 	*/ //PKU2142-HDU1356-The Balance
 	//求线性方程ax+by = c 使得|x|+|y|最小的一组解x,y
-	void linearEquationCondition2(int a, int &x, int b, int &y, int c);
+	DSAUTILITYEXTENSION_API void linearEquationCondition2(int a, int &x, int b, int &y, int c);
 	/*
 	modulo inverse
 	功能:返回a的模m逆元t, 不存在打印错误并结束程序;
@@ -849,7 +851,7 @@ namespace MathExtend {
 	模逆元: t ≡ a^(-1)(mod m) 或 at ≡ 1(mod m); 若at与1模m同余, 则t是a的对同余m的[模逆元], 也叫做模m的[数论倒数];
 	若ax + my = 1 <==> (1 ≡ 1) ax+my ≡ 1 ≡ ax(mod m) ==> ax ≡ 1; 根据定义, x即是a关于模m的一个模逆元。
 	*/
-	int modInv(int a, int m);
+	DSAUTILITYEXTENSION_API int modInv(int a, int m);
 	/*
 	@see https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9B%BD%E5%89%A9%E4%BD%99%E5%AE%9A%E7%90%86
 	中国剩余定理: 说明了一元线性同余方程组有解的准则以及求解方法
@@ -862,12 +864,12 @@ namespace MathExtend {
 	// 已知参数remainderS(简称a): 余数组(强参数)				remainderS[i] = ansNum%modS[i]
 	// 返回值:		同时满足%模数组的所有元素的值分别等于余数组对应元素 的最小正整数ansNum
 	// ansNum模modS[i]同余代表数组(弱参数)	ansNum ≡ remainderS[i](mod modS[i])
-	int chineseReminder(int *modS, int *remainderS, int sizeNum, int mP = 0);
+	DSAUTILITYEXTENSION_API int chineseReminder(int *modS, int *remainderS, int sizeNum, int mP = 0);
 
 	// 欧拉函数:在数论中用于求解[1,n]中与n 互质数 的个数 的函数
-	int  Eular(int n);
+	DSAUTILITYEXTENSION_API int  Eular(int n);
 	//巴什博弈：取最后一个的人胜
-	int BaShen(int n, int min, int max);
+	DSAUTILITYEXTENSION_API int BaShen(int n, int min, int max);
 
 	// ===== Backpack(背包) DP(动态规划) 统一目的: 求解将哪些物品装入背包可使价值总和最大。
 	// 背包总容量: capacity (其余备选词汇 volume: 体积, account: 账户, amount: 总数) <==> backPack.size+1
@@ -916,7 +918,7 @@ namespace MathExtend {
 	// =======受限的(Confined) ===== 递归 ===== 贪心 ===== 分治
 
 	// 密里根油滴实验程序
-	void MiLIGen(double u, double v1);
+	DSAUTILITYEXTENSION_API void MiLIGen(double u, double v1);
 	//输出digit中[leftSub, rightSub)的全排列  非字典序
 	template<class T, class Fun>
 	void penetration(JCE::ArrayList<T> container, Sub leftSub, Sub rightSub, Fun visit) {
@@ -932,23 +934,23 @@ namespace MathExtend {
 		}
 	}
 	//输出数字1-maxDigit(1, 9)的全排列  字典序
-	void pentration(int maxDigit);
+	DSAUTILITYEXTENSION_API void pentration(int maxDigit);
 	//输出数字1-maxDigit(1, 9)的全排列  非字典序
-	void pentration();
+	DSAUTILITYEXTENSION_API void pentration();
 	//汉诺塔递归解法
-	void hannoTowerMove(int n, char a, char b, char c);
+	DSAUTILITYEXTENSION_API void hannoTowerMove(int n, char a, char b, char c);
 	//将10进制的number转换为radix进制的字符串 (递归实现)
-	std::string decToBin(int number, std::string &result, int radix = 2);
+	DSAUTILITYEXTENSION_API std::string decToBin(int number, std::string &result, int radix = 2);
 	// 计数: 返回子串s1与s2匹配的字符数 比较长度len)
-	int countMatchingChar(char *s1, char *s2, int len);
+	DSAUTILITYEXTENSION_API int countMatchingChar(char *s1, char *s2, int len);
 	// 判断一个字串是否回文(堆栈实现)
-	bool isPlalindrome(char const*str, int len);
+	DSAUTILITYEXTENSION_API bool isPlalindrome(char const*str, int len);
 	// 判断给定字串是否拥有匹配的括号
-	bool isMatchingParenthesis(char const*str, int len);
+	DSAUTILITYEXTENSION_API bool isMatchingParenthesis(char const*str, int len);
 	// 判断给定堆栈操作是否合法
-	bool isValidityOfStack(char const*str, int len, int cap);
+	DSAUTILITYEXTENSION_API bool isValidityOfStack(char const*str, int len, int cap);
 	//生成n行 的杨辉三角
-	void buildPtriangleTable(int tableBuffer[][StandardExtend::MAX_C], int n);
+	DSAUTILITYEXTENSION_API void buildPtriangleTable(int tableBuffer[][StandardExtend::MAX_C], int n);
 }
 
 #endif

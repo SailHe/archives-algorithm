@@ -139,10 +139,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ExtendSpace.cpp" />
+    <ClCompile Include="src\Graph\HuffmanTree.cpp" />
+    <ClCompile Include="src\List\Stack.cpp" />
     <ClCompile Include="src\MathLibrary.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\BigInteger.h" />
+    <ClInclude Include="src\DSAUEdll.h" />
+    <ClInclude Include="src\ExtendSpace.h" />
+    <ClInclude Include="src\GetMyDade.h" />
+    <ClInclude Include="src\Graph\Graph.h" />
+    <ClInclude Include="src\Graph\TreeObject.h" />
+    <ClInclude Include="src\Graph\TreeUtility.h" />
+    <ClInclude Include="src\LinkedList.h" />
     <ClInclude Include="src\MathLibrary.h" />
+    <ClInclude Include="src\Queue.h" />
+    <ClInclude Include="src\SailHeAlgorithm.h" />
+    <ClInclude Include="src\Stack.h" />
+    <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
