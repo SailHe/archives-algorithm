@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{503A4BB9-0AD1-4CC9-B807-619BEB5D0251}</ProjectGuid>
+    <ProjectGuid>{4A4EE524-F73D-4126-9DFE-CB165C205564}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>DSAUtilityExtension</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
@@ -71,19 +71,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>DSAUTILITYEXTENSION</TargetName>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>DSAUTILITYEXTENSION</TargetName>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>DSAUTILITYEXTENSION</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>DSAUTILITYEXTENSION</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -151,6 +147,7 @@
     <ClInclude Include="src\Graph\TreeObject.h" />
     <ClInclude Include="src\Graph\TreeUtility.h" />
     <ClInclude Include="src\LinkedList.h" />
+    <ClInclude Include="src\MathLibrary.h" />
     <ClInclude Include="src\Queue.h" />
     <ClInclude Include="src\SailHeAlgorithm.h" />
     <ClInclude Include="src\Stack.h" />
@@ -158,9 +155,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ExtendSpace.cpp" />
-    <ClCompile Include="src\Graph\HuffmanTree.cpp" />
     <ClCompile Include="src\List\LinkedList.cpp" />
     <ClCompile Include="src\List\Stack.cpp" />
+    <ClCompile Include="src\MathLibrary.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

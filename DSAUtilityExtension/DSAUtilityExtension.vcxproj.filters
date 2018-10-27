@@ -30,6 +30,9 @@
     <ClInclude Include="src\LinkedList.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\MathLibrary.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="src\Queue.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -53,16 +56,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\MathLibrary.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="src\ExtendSpace.cpp">
-      <Filter>头文件</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\List\LinkedList.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\List\Stack.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graph\HuffmanTree.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
