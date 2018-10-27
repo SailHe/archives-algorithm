@@ -624,7 +624,7 @@ int mainForBigInteger() {
 	}*/
 	return 0;
 }
-/*
+
 int mainForDllTest() {
 	cout << DllHelloWorld() << endl;
 	cout << DllTestNameSpace::dllHelloWorldInNameSpace() << endl;
@@ -642,7 +642,7 @@ int mainForDllTest() {
 		" Fibonacci sequence values fit in an " <<
 		"unsigned 64-bit integer." << std::endl;
 	return 0;
-}*/
+}
 
 int main() {
 	//FILE *inFile = stdin, *outFile;
@@ -660,7 +660,7 @@ int main() {
 	StandardExtend::testAndDiffClock(mainForGraph);
 	StandardExtend::testAndDiffClock(mainForBigInteger);
 
-	//mainForDllTest();
+	mainForDllTest();
 
 	return 0;
 }
