@@ -1,11 +1,12 @@
 #pragma once
 #include "TreeObject.h"
+#include "../ExtendSpace.h"
 
 template<class Base>
 /*指针数组 可用来实现HashTable 写一个hash()方法做索引即可  管理容器比较方便*/
 /*管理普通结构体要注意  首次访问时要将外部构造的给它管理(自动析构)  赋值时注意不改变原指针*/
 class PtrArray {
-	vector<Base*> table;
+	JCE::ArrayList<Base*> table;
 	unsigned size_ = 0;
 public:
 	PtrArray() {}
@@ -15,7 +16,7 @@ public:
 		table.resize(size_);
 	}
 	~PtrArray() {
-		for (size_t i = 0; i < table.size(); ++i) {
+		for (JCE::SizeType i = 0; i < table.size(); ++i) {
 			delete table[i];
 		}
 	}
@@ -56,8 +57,8 @@ public:
 //家谱树结点
 struct FamilyTreeNode {
 	int bCnt = -1;//输入前有几个空格 即代表的是属于哪一级
-	string father;
-	string name;
+	JCE::String father;
+	JCE::String name;
 	bool operator>(FamilyTreeNode const &rhs) {
 		return name > rhs.name;
 	}
@@ -74,11 +75,11 @@ struct FamilyTreeNode {
 		return name < rhs.name;
 	}
 	FamilyTreeNode() {}
-	FamilyTreeNode(string name_, int cnt) {
+	FamilyTreeNode(JCE::String name_, int cnt) {
 		name = name_;
 		bCnt = cnt;
 	}
-	FamilyTreeNode(string name_) {
+	FamilyTreeNode(JCE::String name_) {
 		name = name_;
 	}
 	~FamilyTreeNode() {}
@@ -97,12 +98,12 @@ struct FamilyTreeNode {
 
 //目录(Catalog)结构
 struct CatalogNode {
-	string name;
+	JCE::String name;
 	//(set内的元素是有序的)
-	set<string> subFolder;//子文件夹名集合
-	set<string> file;//文件名集合
+	std::set<JCE::String> subFolder;//子文件夹名集合
+	std::set<JCE::String> file;//文件名集合
 	CatalogNode() {}
-	CatalogNode(string name_) {
+	CatalogNode(JCE::String name_) {
 		name = name_;
 	}
 	~CatalogNode() {}
@@ -159,7 +160,7 @@ struct CatalogNode {
 struct Accounts {
 	using myInt = int;
 	myInt account;//unsigned 无法完全映射10位数 会有冲突
-	string password;
+	JCE::String password;
 	bool operator<(Accounts const &rhs)const {
 		return account < rhs.account;
 	}
@@ -172,7 +173,7 @@ struct Accounts {
 	//未知地方必须默认构造
 	Accounts() {}
 	//插入用
-	Accounts(myInt a, string &pa) {
+	Accounts(myInt a, JCE::String &pa) {
 		account = a, password = pa;
 	}
 	//查找用
@@ -183,7 +184,7 @@ struct Accounts {
 		return account % 70000;//似乎与输入数据量大小差不多时效率最佳
 	}
 	/*
-	map<string, string>
+	map<JCE::String, JCE::String>
 	0	sample 全部5种输出信息											答案正确	2 ms	252KB
 	1	最大表，全部是新申请，密码全部16位									答案正确	715 ms	19760KB
 	2	N和L指令各一半，随机交错。帐号随机，取到上下界。密码随机，取到上下界	答案正确	669 ms	10576KB

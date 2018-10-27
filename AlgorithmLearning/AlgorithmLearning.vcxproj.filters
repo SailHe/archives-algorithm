@@ -16,6 +16,9 @@
     <Filter Include="源文件\memory">
       <UniqueIdentifier>{e3e0e781-c575-4ca1-ac23-4af842ef7035}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\oj">
+      <UniqueIdentifier>{62ad5fa4-11bb-408b-befb-1b3a4d27be19}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AlgorithmTrainingLegacy.cpp">
@@ -35,6 +38,21 @@
     </ClCompile>
     <ClCompile Include="src\BacktraceSubject.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj_9_22.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj_10_10.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj_10_17.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj_10_24.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\cppHomeWork.cpp">
+      <Filter>源文件\oj</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

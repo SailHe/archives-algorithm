@@ -13,25 +13,24 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="源文件\src">
-      <UniqueIdentifier>{df8197d8-26bb-48b7-8711-c46f268a0045}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\agoj_10_10.cpp">
-      <Filter>源文件\src</Filter>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\agoj_10_17.cpp">
-      <Filter>源文件\src</Filter>
+    <ClCompile Include="InterfaceForDotNet.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\cppHomeWork.cpp">
-      <Filter>源文件\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj_9_22.cpp">
-      <Filter>源文件\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj_10_24.cpp">
-      <Filter>源文件\src</Filter>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
