@@ -134,12 +134,12 @@ public:
 
 
 	/*(lowBitIter: 低位向高位逼近的迭代器 rbegain() )*/
-	static int radixToTen(VarrayIterator lowBitIter, int radix, int totalBit){
+	static int radixToTen(VarrayIterator lowBitIter, int radix, int totalSizeNum){
 		static int number;
 		int powNum = 1;
 		number = 0;
 		//从低位向高位按权展开 i是幂
-		for (int i = 0; i < totalBit; ++i){
+		for (int i = 0; i < totalSizeNum; ++i){
 			number += lowBitIter[i] * powNum;
 			//powNum = radix^i
 			powNum *= radix;
@@ -148,12 +148,12 @@ public:
 	}
 	//返回任意进制的加权10进制数
 	//(tenToRadix参数返回值可以直接用此方法直接的到10进制的值)
-	static int baseLowTopToTen(VarrayIterator numLowTop, int radix, int totalBit){
+	static int baseLowTopToTen(VarrayIterator numLowTop, int radix, int totalSizeNum){
 		static int number;
 		int powNum = 1;
 		number = 0;
 		//从低位(左侧是低位)向高位按权展开 i是幂
-		for (int i = 0; i < totalBit; ++i){
+		for (int i = 0; i < totalSizeNum; ++i){
 			number += numLowTop[i] * powNum;
 			//powNum = radix^i
 			powNum *= radix;
@@ -162,12 +162,12 @@ public:
 	}
 	//存储方式是top->low
 	template<class BaseT>//支持基本运算的类型(通常指int __int64)
-	static BaseT baseTopLowToTen(VarrayIterator numTopLow, BaseT radix, int totalBit){
+	static BaseT baseTopLowToTen(VarrayIterator numTopLow, BaseT radix, int totalSizeNum){
 		static BaseT number;
 		BaseT powNum = 1;
 		number = 0;
 		//从低位(右侧是低位)向高位按权展开 i是幂
-		for (int i = totalBit - 1; i >= 0; --i){
+		for (int i = totalSizeNum - 1; i >= 0; --i){
 			number += numTopLow[i] * powNum;
 			//powNum = radix^i
 			powNum *= radix;
@@ -188,17 +188,17 @@ public:
 	}
 
 	//对每一位二进制取反
-	static void reverseCode(VarrayIterator numBin, size_t totalBit){
-		for (size_t i = 0; i < totalBit; ++i){
+	static void reverseCode(VarrayIterator numBin, size_t totalSizeNum){
+		for (size_t i = 0; i < totalSizeNum; ++i){
 			*numBin = !*numBin;
 			++numBin;
 		}
 	}
 
 	//10进制以上进制会带符号输出 10进制以下正常输出 10对应A
-	static void outputWithSymbol(Varray &numLowTop, int totalBit){
-		for (int i = 0; i < totalBit; ++i){
-			int pSub = totalBit - i - 1;
+	static void outputWithSymbol(Varray &numLowTop, int totalSizeNum){
+		for (int i = 0; i < totalSizeNum; ++i){
+			int pSub = totalSizeNum - i - 1;
 			if (numLowTop[pSub] > 9){
 				printf("%c", numLowTop[pSub] - 10 + 'A');
 			}
@@ -211,129 +211,72 @@ public:
 };
 
 
-/*不支持产生借位, 变号的负数运算*/
+/*
+@除歧:
+如果bit是指位的话 于数组而言每个元素可称作bit;
+但于最终结果而言每个字符才是bit(10进制位), 数组中一个元素应称作Byte(万进制中的字)
+但是换一个角度每个元素其实也可以不是多个字符, 这么一来其称为bit也无可厚非(最初的做法)
+问题在于bit, byte实际上是计算机的术语, 其中bit专指二进位制信息单位, byte专指字节, 表示一个8位(bit)元组
+
+这么争论是没有结果的, 那么由于历史遗留原因, 折衷:
+对外暴露的接口一律:10进制字符串长度: length; 数组大小(size): totalByteNum; 内部实现时一个数组元素: byte
+
+*/
+
+/*
+基于万进制的10进制大数类
+不支持产生借位, 变号的负数运算
+*/
 class BigInteger{
-	//表示数字位元的进制
-	//@Bug 2进制时会报错
-	const static int radix = 10000;
+	//数字位元(字)的类型(必须能够存下两个进制最大值相乘的值)
+	typedef int ByteType;
+	typedef JCE::ArrayList<ByteType> BaseImpl;
 	const static int ONE = 1;
 	const static int ZERO = 0;
-	//数字位元的类型(必须能够存下两个进制最大值相乘的值)
-	typedef int BitType;
-	typedef std::vector<BitType> Base;
-	//正负号标识 输出时正号不输出
-	char symbol = 0;
-	//储存数字位元 的数组(为了支持数字的直接构造这样存比较方便 对字符串构造影响不大)
-	std::vector<BitType> digitLowTop;
-
-	//返回内置数字类型的总位数 0: 1bit; 10: 2bit
-	static int totalBitOf(BitType originNumber){
-		int totalBit = 0;
-		do{
-			originNumber /= 10;
-			++totalBit;
-		}while (originNumber != 0);
-		return totalBit;
-	}
-
-	//void setRadix(int r){radix = r;}
-
-	//设置这个大数的储存位数 (grow:只增长(advance only) 小于原位数时不更新大小)
-	void setTotalBit(size_t totalBit, bool grow = true){
-		//若已知该数字的大概位数 可以提前指定 减少内存分配
-		if (grow && totalBit <= digitLowTop.size())
-			return;
-		digitLowTop.resize(totalBit);
-	}
-	//将源数字转换为本地格式储存
-	void transitionToLocalRadix(int originNumber){
-		int numTotalBit = totalBitOf(originNumber);
-		//一个字的位数: 储存位(字位)比进制的总位数少一
-		int wordBit = totalBitOf(radix) - 1;
-		//当传入数字无法用整字储存时需要多用一个字来储存(即溢出位)
-		setTotalBit(numTotalBit / wordBit + (numTotalBit % wordBit == 0 ? 0 : 1));
-		symbol = BinaryTransition::toAbs(originNumber);
-		BinaryTransition::tenToRadix(originNumber, digitLowTop.begin(), radix);
-		/*int i = -1;
-		do{
-			digitLowTop[++i] = originNumber % radix;
-			originNumber /= radix;
-		} while (originNumber != 0);*/
-	}
-	//将源字符串表示的数字转换为本地格式储存
-	void transitionToLocalRadix(std::string const &originNumberTopLow){
-		int numTotalBit = 0, wordBit = totalBitOf(radix) - 1;
-		Utility::toSignedNum(originNumberTopLow.length(), numTotalBit);
-		//总储存位
-		int storeTotalBit = numTotalBit / wordBit;
-		//溢出位
-		int overflowingBit = numTotalBit % wordBit;
-		storeTotalBit += overflowingBit == 0 ? 0 : 1;
-		setTotalBit(storeTotalBit);
-
-		int currentSub = 0;
-		if (overflowingBit > 0){
-			digitLowTop[--storeTotalBit] = atoi(originNumberTopLow.substr(currentSub, overflowingBit).c_str());
-			currentSub += overflowingBit;
-		}
-		while (storeTotalBit > 0){
-			digitLowTop[--storeTotalBit] = atoi(originNumberTopLow.substr(currentSub, wordBit).c_str());
-			currentSub += wordBit;
-		}
-	}
-	//小于返回-1 大于返回1 等于返回0
-	int compare(const BigInteger& rhs) const{
-		int topBit1 = -1, topBit2 = -1;
-		Utility::toSignedNum(digitLowTop.size(), topBit1);
-		Utility::toSignedNum(rhs.digitLowTop.size(), topBit2);
-		if (topBit1 < topBit2)
-			return -1;
-		else if (topBit1 > topBit2)
-			return 1;
-		else{
-			for (int i = topBit1 - 1; i >= 0; --i){
-				if (digitLowTop[i] < rhs.digitLowTop[i])
-					return -1;
-				else if (digitLowTop[i] > rhs.digitLowTop[i])
-					return 1;
-			}
-			return 0;
-		}
-	}
-	int getTotalDigitBit() const {
-		int totalBit = -1;
-		Utility::toSignedNum(digitLowTop.size(), totalBit);
-		return totalBit;
-	}
 public:
-	//返回实际位数
-	int getTotalRealBit() const {
-		//字数 * 一字的位数(不减1?)
-		return getTotalDigitBit()*totalBitOf(radix);
+	//返回对应实际字符串的数字的总位数
+	int calcTotalBitNum() const {
+		int totalByteNum = getTotalByteNum();
+		//首字的位数 + 剩余字数 * 一字的位数-1
+		return
+			totalBitOf(digitLowTop[totalByteNum - 1]) +
+			(totalByteNum - 1)*(totalBitOf(radix)-1);
 	}
-	void print(){
+	void print() const {
 		const char map[17] = "0123456789ABCDEF";
-		int totalBit = getTotalDigitBit();
+		int totalByteNum = getTotalByteNum();
 		printf(symbol == '-' ? "-" : "");
-		printf("%d", digitLowTop[totalBit - 1]);
-		for (int i = 1; i < totalBit; i++){
-			printf("%04d", digitLowTop[totalBit - i - 1]);
+		printf("%d", digitLowTop[totalByteNum - 1]);
+		for (int i = 1; i < totalByteNum; i++){
+			printf("%04d", digitLowTop[totalByteNum - i - 1]);
 		}
 		puts("");
 	}
-	void print(char *out){
-		int totalBit = getTotalDigitBit();
-		sprintf(out, symbol == '-' ? "-" : "");
-		sprintf(out, "%d", digitLowTop[totalBit - 1]);
-		out += totalBitOf(digitLowTop[totalBit - 1]);
-		for (int i = 1; i < totalBit; i++){
-			sprintf(out, "%04d", digitLowTop[totalBit - i - 1]);
-			out += totalBitOf(radix)-1;
+	void print(char *outBuffer, JCE::SizeType bufferSize) const {
+		int totalByteNum = getTotalByteNum();
+		sprintf_s(outBuffer, bufferSize, symbol == '-' ? "-" : "");
+		sprintf_s(outBuffer, bufferSize, "%d", digitLowTop[totalByteNum - 1]);
+		bufferSize -= strnlen_s(outBuffer, bufferSize);
+		outBuffer += totalBitOf(digitLowTop[totalByteNum - 1]);
+		const int radixTotalbit = totalBitOf(radix);
+		const int radixZerobit = radixTotalbit - 1;
+		std::string format = "%0" + std::to_string(radixZerobit) + "d";
+		for (int i = 1; i < totalByteNum; ++i){
+			//"%04d"
+			sprintf_s(outBuffer, bufferSize, format.c_str(), digitLowTop[totalByteNum - i - 1]);
+			outBuffer += radixZerobit;
+			bufferSize -= radixZerobit;
 		}
-		out[0] = '\0';
+		outBuffer[0] = '\0';
 	}
-
-	BigInteger(BitType originNumber){
+	std::string const &toString() const {
+		int length = calcTotalBitNum() + 1;
+		static std::string result("\0", length);
+		result.assign(length, '\0');
+		print(&result[0], length);
+		return result;
+	}
+	BigInteger(ByteType originNumber){
 		transitionToLocalRadix(originNumber);
 	}
 	BigInteger(std::string const &originNumberTopLow){
@@ -386,13 +329,13 @@ public:
 		return sp == num.size() ? "0" : num.substr(sp);
 	}
 
-	//<==> += 
+	//<==> +=
 	BigInteger &plus(BigInteger const &rhs){
-		BitType subLhs, subRhs, subSum;
+		ByteType subLhs, subRhs, subSum;
 		//右手边对应位的值 进位 addValue(加数) = rhsBit + carryBit
-		BitType rhsBit, carryBit = 0;
+		ByteType rhsBit, carryBit = 0;
 		//字数
-		int wordCntLhs = getTotalDigitBit(), wordCntRhs = rhs.getTotalDigitBit();
+		int wordCntLhs = getTotalByteNum(), wordCntRhs = rhs.getTotalByteNum();
 
 		for (subSum = subLhs = subRhs = 0; subLhs < wordCntLhs || subRhs < wordCntRhs || carryBit != 0; ++subSum){
 			//计算加数 若rhs读取完毕还可能存在进位数 此时加数置为0就好
@@ -412,22 +355,32 @@ public:
 		}
 		return *this;
 	}
-	//大数乘法 加法实现
-	BigInteger &muity(BigInteger const &rhs){
+	//加数乘法 (基于加法) 返回值和操作数都是自己(返回值是为了便于连续操作 下面的简写操作方法同)
+	BigInteger &muity(BigInteger const &rhs) {
 		BigInteger addValue(*this);
 		for (BigInteger i = 1; i < rhs; ++i){
 			plus(addValue);
 		}
 		return *this;
 	}
-	//快速乘法 (乘数位 <= 10000) 由于push_back的存在不开优化必定比不上直接写得算法 开了优化虽仍要慢一点 但好在此类功能齐全
-	BigInteger &muity(BitType muityBit){
+	//返回乘法后的临时操作数(同java API)
+	BigInteger multiply(BigInteger const &rhs) const {
+		///不直接调muity: 少一个临时变量
+		BigInteger result(*this);
+		for (BigInteger i = 1; i < rhs; ++i) {
+			result.plus(*this);
+		}
+		return result;
+	}
+	//快速乘法 (乘数位 <= 10000)
+	BigInteger &muity(ByteType muityBit){
+		//由于push_back的存在不开优化必定比不上直接写得算法 开了优化虽仍要慢一点 但好在此类功能齐全
 		//int units = 1计量单位: 表示muityBit的一单位代表多大
-		BitType carryBit = 0;
-		BitType subProduct;
-		int totalBit = getTotalDigitBit();
-		for (subProduct = 0; subProduct < totalBit || carryBit; subProduct++){
-			if (subProduct < totalBit)
+		ByteType carryBit = 0;
+		ByteType subProduct;
+		int totalByteNum = getTotalByteNum();
+		for (subProduct = 0; subProduct < totalByteNum || carryBit; subProduct++){
+			if (subProduct < totalByteNum)
 				digitLowTop[subProduct] = digitLowTop[subProduct] * muityBit + carryBit;
 			else{
 				//位乘法只可能是进位
@@ -438,6 +391,12 @@ public:
 		}
 		return *this;
 	}
+	BigInteger multiply(ByteType const &rhs) const {
+		BigInteger result(*this);
+		result.muity(rhs);
+		return result;
+	}
+	//快速阶乘 (基于快速乘法 n<=10000)
 	BigInteger &fact(int n){
 		++n;
 		while (--n > 0){
@@ -445,20 +404,21 @@ public:
 		}
 		return *this;
 	}
-	//大数阶乘 (数值<=10000时建议使用快速乘法在外部计算 不过事实上这个算法在即使开了优化的情况下1000!已经需要大约1s了)
+	//加数阶乘 (基于加数乘法 开优化的情况下1000!约1s)
 	BigInteger &fact(){
+		static BigInteger One(1), Zero(0);
 		//为了不使用减法 只能这么玩了 使用减法的话这个变量可以不用定义
 		BigInteger product = 1;
-		if (*this > ZERO){
+		if (*this > One){
 			++*this;
 			for (BigInteger i(1); i < *this; ++i){
 				product.muity(i);
 			}
 			*this = product;
 		}
-		else if(*this == ZERO){
+		else if(*this == Zero){
 			//0的阶乘为1
-			(*this) = ONE;
+			(*this) = One;
 		}
 		else{
 			//负数没有阶乘
@@ -477,21 +437,24 @@ public:
 	bool operator!=(const BigInteger& rhs) const{
 		return compare(rhs) != 0;
 	}
-	BigInteger operator+(BigInteger const &rhs){
+	BigInteger operator+(BigInteger const &rhs) const {
 		return BigInteger(*this).plus(rhs);
 	}
-	// 基于加法的乘法
-	BigInteger operator*(BigInteger const &rhs){
-		/// 乘法(没有直接 muity 为了少一个临时变量是单独实现的)
-		BigInteger addValue(*this);
-		for (BigInteger i = 1; i < rhs; ++i){
-			addValue.plus(*this);
-		}
-		return addValue;
+	BigInteger operator+=(BigInteger const &rhs) {
+		return plus(rhs);
 	}
-	// 基于非大数的右操作数的快速乘法
-	BigInteger operator*(BitType const &muityBit){
-		BigInteger result = this->muity(muityBit);
+	// 基于加数乘法
+	BigInteger operator*(BigInteger const &rhs) const {
+		BigInteger result(*this);
+		for (BigInteger i = 1; i < rhs; ++i){
+			result.plus(*this);
+		}
+		return result;
+	}
+	// 基于快速乘法
+	BigInteger operator*(ByteType const &muityBit) const {
+		BigInteger result = *this;
+		result.muity(muityBit);
 		return result;
 	}
 	BigInteger operator*=(BigInteger const &rhs){
@@ -507,6 +470,32 @@ public:
 		++(*this);
 		return tmp;
 	}
+
+	//cin>> (只实现了int范围读入)
+	friend std::istream &operator>>(std::istream &is, BigInteger &rhs) {
+		ByteType temp;
+		is >> temp;
+		rhs = BigInteger(temp);
+		return is;
+	}
+	//cout<<
+	friend std::ostream &operator<<(std::ostream &os, const BigInteger &rhs) {
+		os << rhs.toString();
+		return os;
+	}
+	//只需重载基本类型在左侧的情况 在右边时会隐式调用构造方法
+	friend BigInteger operator+(const ByteType lhs, const BigInteger &rhs) {
+		return rhs + lhs;
+	}
+	friend BigInteger operator*(const ByteType lhs, const BigInteger &rhs) {
+		return rhs * lhs;
+	}
+	//向double转换
+	/*operator double()const {
+		int iValue = std::atof(toString().c_str());
+		return iValue;
+	}*/
+
 
 	/*万进制似乎没法用补码实现减法  可借位减法(唯一可行的应该是模拟减法)*/
 	BigInteger operator-(BigInteger const &rhs){
@@ -526,27 +515,96 @@ public:
 		--(*this);
 		return tmp;
 	}
-	void minus();//负号 减法
+	//负号 减法
+	void minus();
+
+private:
+	//表示数字位元的进制 @Bug 2进制时会报错
+	const static int radix = 10000;
+	//正负号标识 输出时正号不输出
+	char symbol = 0;
+	//储存数字位元 的数组(为了支持数字的直接构造这样存比较方便 对字符串构造影响不大)
+	std::vector<ByteType> digitLowTop;
+
+	//返回内置数字类型的总10进制位数 0: 1bit; 10: 2bit
+	static int totalBitOf(ByteType originNumber) {
+		int totalBit = 0;
+		do {
+			originNumber /= 10;
+			++totalBit;
+		} while (originNumber != 0);
+		return totalBit;
+	}
+
+	//void setRadix(int r){radix = r;}
+
+	//设置这个大数的储存位数 (grow:只增长(advance only) 小于原位数时不更新大小)
+	void setTotalByteNum(JCE::SizeType totalByteNum, bool grow = true) {
+		//若已知该数字的大概位数 可以提前指定 减少内存分配
+		if (grow && totalByteNum <= digitLowTop.size())
+			return;
+		digitLowTop.resize(totalByteNum);
+	}
+	//将源数字转换为本地格式储存
+	void transitionToLocalRadix(int originNumber) {
+		int numTotalBit = totalBitOf(originNumber);
+		//一个字的位数: 储存位(字位)比进制的总位数少一
+		int wordBit = totalBitOf(radix) - 1;
+		//当传入数字无法用整字储存时需要多用一个字来储存(即溢出字)
+		setTotalByteNum(numTotalBit / wordBit + (numTotalBit % wordBit == 0 ? 0 : 1));
+		symbol = BinaryTransition::toAbs(originNumber);
+		BinaryTransition::tenToRadix(originNumber, digitLowTop.begin(), radix);
+	}
+	/*static BigInteger valueOf(int value) {
+		return BigInteger(value);
+	}*/
+	//将源字符串表示的数字转换为本地格式储存
+	void transitionToLocalRadix(std::string const &originNumberTopLow) {
+		int numTotalBit = 0, wordBit = totalBitOf(radix) - 1;
+		Utility::toSignedNum(originNumberTopLow.length(), numTotalBit);
+		//总储存位数(字数)
+		int storeTotalByteNum = numTotalBit / wordBit;
+		//溢出位
+		int overflowingBit = numTotalBit % wordBit;
+		storeTotalByteNum += overflowingBit == 0 ? 0 : 1;
+		setTotalByteNum(storeTotalByteNum);
+
+		int currentSub = 0;
+		if (overflowingBit > 0) {
+			digitLowTop[--storeTotalByteNum] = atoi(originNumberTopLow.substr(currentSub, overflowingBit).c_str());
+			currentSub += overflowingBit;
+		}
+		while (storeTotalByteNum > 0) {
+			digitLowTop[--storeTotalByteNum] = atoi(originNumberTopLow.substr(currentSub, wordBit).c_str());
+			currentSub += wordBit;
+		}
+	}
+	//小于返回-1 大于返回1 等于返回0
+	int compare(const BigInteger& rhs) const {
+		int topBit1 = -1, topBit2 = -1;
+		Utility::toSignedNum(digitLowTop.size(), topBit1);
+		Utility::toSignedNum(rhs.digitLowTop.size(), topBit2);
+		if (topBit1 < topBit2)
+			return -1;
+		else if (topBit1 > topBit2)
+			return 1;
+		else {
+			for (int i = topBit1 - 1; i >= 0; --i) {
+				if (digitLowTop[i] < rhs.digitLowTop[i])
+					return -1;
+				else if (digitLowTop[i] > rhs.digitLowTop[i])
+					return 1;
+			}
+			return 0;
+		}
+	}
+	//返回总的字数
+	int getTotalByteNum() const {
+		int totalByteNum = -1;
+		Utility::toSignedNum(digitLowTop.size(), totalByteNum);
+		return totalByteNum;
+	}
 };
-
-/*
-
-*/
 
 #endif
 
-/*
-100
-93326215443944152681699238856266700490715968264381621468592963
-895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000
-500
-12201368259911100687012387854230469262535743428031928421924
-1023
-5291532027401227815504806586605326892579642542517591254377802998714072863352906839
-2300
-1502[0]4882700144063261010037638111251819477735600118435480095
-5行0最后一个对着5
-10000
-28462596809170545189[0]64132121198688901480514017027992307941
-79994274411340003764443772990786757784775815884062142317528830042339940153518739052421161382716
-*/

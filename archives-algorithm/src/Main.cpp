@@ -581,26 +581,76 @@ int mainForAlgorithm() {
 }
 
 int mainForBigInteger() {
+	int d = 3;
+	BigInteger a(1), b(2), c(d);
+	//int d = c;
+	//d *= a;
+	testAndOut("大数四则测试 加法: ", a + b == c, true);
+	testAndOut("大数四则测试 乘法: ", a * b == b, true);
+	testAndOut("大数加法交换律1: ", a + b == b + a, true);
+	testAndOut("大数加法交换律2: ", 1 + c == c + 1, true);
+	testAndOut("大数四则测试 +=: ", a.plus(b) == (c += 0), true);
+	testAndOut("大数四则测试 ==以及上一次的效果: ", a == c, true);
+	testAndOut("大数乘法交换律1: ", (b * a) == c*2, true);
+	testAndOut("大数乘法交换律2: ", (a * b) == 2*c, true);
+	testAndOut("大数四则测试: ", c + 1 == 4, true);
+	//cin >> c;
+	cout << "cout 测试: " << c << endl;
+
+
 	string illResultStr = "34332795984163804765195977526776142032365783805375784983543400282685180793327632432791396429850988990237345920155783984828001486412574060553756854137069878601";
 	BigInteger bigNumForIllResilt = BigInteger(illResultStr);
 	char ill100ReslS[500] = "";
 	JCE::ArrayList<BigInteger> illList;
 	MathExtend::buildIllArrangeList(illList, 1001);
-	illList[100].print(ill100ReslS);
+	// 158 bit(字符)
+	int tbit = illList[100].calcTotalBitNum();
+	illList[100].print(ill100ReslS, tbit+1);
 	string ill100ReslStr = ill100ReslS;
 	testAndOut("整型以内的大数错排 100时候的错排数", ill100ReslStr, illResultStr);
 	testAndOut("大数==比较: ", bigNumForIllResilt == illList[100], true);
 	testAndOut("大数>比较: ", bigNumForIllResilt > illList[99], true);
 	testAndOut("大数<比较: ", bigNumForIllResilt < illList[101], true);
+	cout << "cout 测试: " << bigNumForIllResilt << endl;
+	cout << "cout 测试: " << c << endl;
 
 	StandardExtend::testAndDiffClock([&]() {
 		string a = to_string(MAX_INT64), b = to_string(MAX_INT64);
 		char result[128] = "";
 		BigInteger ba(a), bb(b);
-		(ba + bb).print(result);
+		(ba + bb).print(result, 128);
 		BigInteger::bigPlush(a, b, a);
 		testAndOut("64位有符号整型最大值相加: ", BigInteger::formatString(a), string(result));
 	}, "字符串大数加法");
+	/*
+	python:
+		a = 1
+		n = 10000
+		for i in range(1,n+1):
+			a = a * i
+
+		print(a)
+	*/
+	StandardExtend::testAndDiffClock([&]() {
+		string resultOfFact100 = "93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000";
+		string resultOfFact500 = "1220136825991110068701238785423046926253574342803192842192413588385845373153881997605496447502203281863013616477148203584163378722078177200480785205159329285477907571939330603772960859086270429174547882424912726344305670173270769461062802310452644218878789465754777149863494367781037644274033827365397471386477878495438489595537537990423241061271326984327745715546309977202781014561081188373709531016356324432987029563896628911658974769572087926928871281780070265174507768410719624390394322536422605234945850129918571501248706961568141625359056693423813008856249246891564126775654481886506593847951775360894005745238940335798476363944905313062323749066445048824665075946735862074637925184200459369692981022263971952597190945217823331756934581508552332820762820023402626907898342451712006207714640979456116127629145951237229913340169552363850942885592018727433795173014586357570828355780158735432768888680120399882384702151467605445407663535984174430480128938313896881639487469658817504506926365338175055478128640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+		//1000阶乘共3w多位 这是前59位 28462596809170545189[0]
+		string resultOfFact10000 = "28462596809170545189064132121198688901480514017027992307941";
+		char *buffer = new char[42560];
+		BigInteger(1).fact(100).print(buffer, 256);
+		testAndOut("100的阶乘: ", string(buffer), resultOfFact100);
+
+		BigInteger(1).fact(500).print(buffer, 2560);
+		testAndOut("500的阶乘: ", string(buffer), resultOfFact500);
+		
+		/*//DEBUG模式下要算1min左右
+		BigInteger(1).fact(10000).print(buffer, 40000);
+		buffer[59] = '\0';
+		testAndOut("10000的阶乘的前59位: ", string(buffer), resultOfFact10000);
+		*/
+		delete buffer;
+		buffer = nullptr;
+	}, "大数快速阶乘");
 	
 	//freopen("input", "r", stdin);
 	/*char num[25];
