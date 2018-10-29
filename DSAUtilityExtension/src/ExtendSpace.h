@@ -563,6 +563,18 @@ namespace Utility {
 		return maxLen;
 	}
 
+	// uNum->resultNum 无符号转为有符号
+	// (PS 使用assert作为判断的 如果assert无效那么等价于强制转换; 无返回值)
+	template<class UnT, class T>
+	void toSignedNum(UnT uNum, T &resultNum) {
+		//确认是无符号
+		assert(uNum - uNum - 1 > 0);
+		resultNum = (T)uNum;
+		//确认是有符号
+		assert(resultNum - resultNum - 1 < 0);
+		//确认转换后结果正确
+		assert(resultNum > 0);
+	}
 
 	// ===== 排 序 less more greater
 

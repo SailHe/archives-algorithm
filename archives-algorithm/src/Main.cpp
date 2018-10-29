@@ -581,13 +581,17 @@ int mainForAlgorithm() {
 }
 
 int mainForBigInteger() {
-	string ill100 = "34332795984163804765195977526776142032365783805375784983543400282685180793327632432791396429850988990237345920155783984828001486412574060553756854137069878601";
-	char ill100RealS[500] = "";
+	string illResultStr = "34332795984163804765195977526776142032365783805375784983543400282685180793327632432791396429850988990237345920155783984828001486412574060553756854137069878601";
+	BigInteger bigNumForIllResilt = BigInteger(illResultStr);
+	char ill100ReslS[500] = "";
 	JCE::ArrayList<BigInteger> illList;
 	MathExtend::buildIllArrangeList(illList, 1001);
-	illList[100].print(ill100RealS);
-	string ill100Real = ill100RealS;
-	testAndOut("整型以内的大数错排 100时候的错排数", ill100Real, ill100);
+	illList[100].print(ill100ReslS);
+	string ill100ReslStr = ill100ReslS;
+	testAndOut("整型以内的大数错排 100时候的错排数", ill100ReslStr, illResultStr);
+	testAndOut("大数==比较: ", bigNumForIllResilt == illList[100], true);
+	testAndOut("大数>比较: ", bigNumForIllResilt > illList[99], true);
+	testAndOut("大数<比较: ", bigNumForIllResilt < illList[101], true);
 
 	StandardExtend::testAndDiffClock([&]() {
 		string a = to_string(MAX_INT64), b = to_string(MAX_INT64);

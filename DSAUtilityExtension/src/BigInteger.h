@@ -1,7 +1,8 @@
 #ifndef _BIGINTEGER_H
 #define _BIGINTEGER_H
 
-#include"stdafx.h"
+#include "stdafx.h"
+#include "ExtendSpace.h"
 
 /*
 例子: 39h先将其每一位转为2进制: 3->0011b, 9->1001b   即0011 1001b 然后转为目标进制 111 001b->71o
@@ -261,7 +262,8 @@ class BigInteger{
 	}
 	//将源字符串表示的数字转换为本地格式储存
 	void transitionToLocalRadix(std::string const &originNumberTopLow){
-		int numTotalBit = originNumberTopLow.length(), wordBit = totalBitOf(radix) - 1;
+		int numTotalBit = 0, wordBit = totalBitOf(radix) - 1;
+		Utility::toSignedNum(originNumberTopLow.length(), numTotalBit);
 		//总储存位
 		int storeTotalBit = numTotalBit / wordBit;
 		//溢出位
@@ -281,13 +283,15 @@ class BigInteger{
 	}
 	//小于返回-1 大于返回1 等于返回0
 	int compare(const BigInteger& rhs) const{
-		size_t topBit1 = digitLowTop.size(), topBit2 = rhs.digitLowTop.size();
+		int topBit1 = -1, topBit2 = -1;
+		Utility::toSignedNum(digitLowTop.size(), topBit1);
+		Utility::toSignedNum(rhs.digitLowTop.size(), topBit2);
 		if (topBit1 < topBit2)
 			return -1;
 		else if (topBit1 > topBit2)
 			return 1;
 		else{
-			for (int i = topBit1 - 1; i >= 0; i--){
+			for (int i = topBit1 - 1; i >= 0; --i){
 				if (digitLowTop[i] < rhs.digitLowTop[i])
 					return -1;
 				else if (digitLowTop[i] > rhs.digitLowTop[i])
@@ -296,15 +300,20 @@ class BigInteger{
 			return 0;
 		}
 	}
+	int getTotalDigitBit() const {
+		int totalBit = -1;
+		Utility::toSignedNum(digitLowTop.size(), totalBit);
+		return totalBit;
+	}
 public:
 	//返回实际位数
-	int getTotalBit(){
-		//字数*一字的位数(不减1?)
-		return digitLowTop.size()*totalBitOf(radix);
+	int getTotalRealBit() const {
+		//字数 * 一字的位数(不减1?)
+		return getTotalDigitBit()*totalBitOf(radix);
 	}
 	void print(){
 		const char map[17] = "0123456789ABCDEF";
-		int totalBit = digitLowTop.size();
+		int totalBit = getTotalDigitBit();
 		printf(symbol == '-' ? "-" : "");
 		printf("%d", digitLowTop[totalBit - 1]);
 		for (int i = 1; i < totalBit; i++){
@@ -313,7 +322,7 @@ public:
 		puts("");
 	}
 	void print(char *out){
-		int totalBit = digitLowTop.size();
+		int totalBit = getTotalDigitBit();
 		sprintf(out, symbol == '-' ? "-" : "");
 		sprintf(out, "%d", digitLowTop[totalBit - 1]);
 		out += totalBitOf(digitLowTop[totalBit - 1]);
@@ -357,7 +366,8 @@ public:
 		}
 		int ia = -1, c = 0;
 		//反转后左边是低位
-		for (int i = lenAB - 1; i >= 0; --i) {
+		int i = -1;
+		for (Utility::toSignedNum(lenAB - 1, i); i >= 0; --i) {
 			int sumBit = (topLowNumA[i] - '0') + (topLowNumB[i] - '0') + c;
 			topLowSum[i] = sumBit % 10 + '0';
 			c = sumBit / 10;
@@ -382,7 +392,7 @@ public:
 		//右手边对应位的值 进位 addValue(加数) = rhsBit + carryBit
 		BitType rhsBit, carryBit = 0;
 		//字数
-		int wordCntLhs = digitLowTop.size(), wordCntRhs = rhs.digitLowTop.size();
+		int wordCntLhs = getTotalDigitBit(), wordCntRhs = rhs.getTotalDigitBit();
 
 		for (subSum = subLhs = subRhs = 0; subLhs < wordCntLhs || subRhs < wordCntRhs || carryBit != 0; ++subSum){
 			//计算加数 若rhs读取完毕还可能存在进位数 此时加数置为0就好
@@ -415,7 +425,7 @@ public:
 		//int units = 1计量单位: 表示muityBit的一单位代表多大
 		BitType carryBit = 0;
 		BitType subProduct;
-		int totalBit = digitLowTop.size();
+		int totalBit = getTotalDigitBit();
 		for (subProduct = 0; subProduct < totalBit || carryBit; subProduct++){
 			if (subProduct < totalBit)
 				digitLowTop[subProduct] = digitLowTop[subProduct] * muityBit + carryBit;
