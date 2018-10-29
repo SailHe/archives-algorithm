@@ -270,10 +270,12 @@ public:
 		outBuffer[0] = '\0';
 	}
 	std::string const &toString() const {
-		int length = calcTotalBitNum() + 1;
-		static std::string result("\0", length);
-		result.assign(length, '\0');
-		print(&result[0], length);
+		// std::string的length和size 是完全一样的
+		// 此处size和length取char[]中的含义 length:'\0'之前, size: 整个数组
+		int size = calcTotalBitNum() + 1;
+		static std::string result("\0", size);
+		result.assign(size, '\0');
+		print(&result[0], size);
 		return result;
 	}
 	BigInteger(ByteType originNumber){

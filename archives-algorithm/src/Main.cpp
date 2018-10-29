@@ -607,6 +607,9 @@ int mainForBigInteger() {
 	int tbit = illList[100].calcTotalBitNum();
 	illList[100].print(ill100ReslS, tbit+1);
 	string ill100ReslStr = ill100ReslS;
+	string tempStr(10, '\0');
+	tempStr[0] = '1';
+	testAndOut("std::string length() 和 size一样:", tempStr.length(), tempStr.size());
 	testAndOut("整型以内的大数错排 100时候的错排数", ill100ReslStr, illResultStr);
 	testAndOut("大数==比较: ", bigNumForIllResilt == illList[100], true);
 	testAndOut("大数>比较: ", bigNumForIllResilt > illList[99], true);
