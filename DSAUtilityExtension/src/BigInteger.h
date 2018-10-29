@@ -290,7 +290,7 @@ public:
 		digitLowTop.reserve(newSize);
 	}
 	//判断是否偶数 是返回true
-	bool isEvenNumber() {
+	bool isEvenNumber() const {
 		return this->digitLowTop[0] % 2 == 0;
 	}
 
@@ -393,6 +393,27 @@ public:
 		}
 		return *this;
 	}
+	//倍加乘法
+	BigInteger &muityDouble(ByteType rhs) {
+		if (rhs == 0) {
+			*this = BigInteger(0);
+		}
+		else if (rhs == 1) {
+			// do nothing
+		}
+		else {
+			//乘一个奇数时最后要多加一个自己
+			BigInteger temp = rhs % 2 == 0 ? 0 : *this;
+			//乘数rhs大于2时循环: 每次加倍
+			while (rhs > 1) {
+				muity2();
+				//此处可换为减法
+				rhs /= 2;
+			}
+			plus(temp);
+		}
+		return *this;
+	}
 	//返回乘法后的临时操作数(同java API)
 	BigInteger multiply(BigInteger const &rhs) const {
 		///不直接调muity: 少一个临时变量
@@ -402,7 +423,7 @@ public:
 		}
 		return result;
 	}
-	//快速乘法 (乘数位 <= 10000)
+	//字元乘法 (乘数位 <= 10000)
 	BigInteger &muity(ByteType muityBit){
 		//由于push_back的存在不开优化必定比不上直接写得算法 开了优化虽仍要慢一点 但好在此类功能齐全
 		//int units = 1计量单位: 表示muityBit的一单位代表多大
@@ -426,7 +447,7 @@ public:
 		result.muity(rhs);
 		return result;
 	}
-	//快速阶乘 (基于快速乘法 n<=10000)
+	//快速阶乘 (基于字元乘法 n<=10000)
 	BigInteger &fact(int n){
 		++n;
 		while (--n > 0){
@@ -481,7 +502,7 @@ public:
 		}
 		return result;
 	}
-	// 基于快速乘法
+	// 基于字元乘法
 	BigInteger operator*(ByteType const &muityBit) const {
 		BigInteger result = *this;
 		result.muity(muityBit);
@@ -635,6 +656,10 @@ private:
 		int totalByteNum = -1;
 		Utility::toSignedNum(digitLowTop.size(), totalByteNum);
 		return totalByteNum;
+	}
+	//this*=2
+	void muity2() {
+		this->plus(*this);
 	}
 };
 

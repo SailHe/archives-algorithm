@@ -638,6 +638,32 @@ int mainForBigInteger() {
 	cout << "cout 测试: " << c << endl;
 
 	StandardExtend::testAndDiffClock([&]() {
+		testAndOut("10*3", BigInteger(10).muityDouble(3), BigInteger(30));
+		testAndOut("10*4", BigInteger(10).muityDouble(4), BigInteger(40));
+
+		testAndOut("bigNumForIllResilt*bigNumForIllResilt"
+			, BigInteger(bigNumForIllResilt).muityDouble(1024), bigNumForIllResilt*1024);
+		testAndOut("1024*0", BigInteger(1024).muityDouble(0), BigInteger(0));
+		testAndOut("1024*1", BigInteger(1024).muityDouble(1), BigInteger(1024));
+		testAndOut("512*2", BigInteger(512).muityDouble(2), BigInteger(1024));
+		testAndOut("256*4", BigInteger(256).muityDouble(4), BigInteger(1024));
+		testAndOut("128*8", BigInteger(128).muityDouble(8), BigInteger(1024));
+	}, "基于右侧减法运算符的乘法(有时比字乘法快)");
+	
+	StandardExtend::testAndDiffClock([&]() {
+		testAndOut("10*3", BigInteger(10).muity(3), BigInteger(30));
+		testAndOut("10*4", BigInteger(10).muity(4), BigInteger(40));
+
+		testAndOut("bigNumForIllResilt*bigNumForIllResilt"
+			, BigInteger(bigNumForIllResilt).muity(1024), bigNumForIllResilt*1024);
+		testAndOut("1024*0", BigInteger(1024).muity(0), BigInteger(0));
+		testAndOut("1024*1", BigInteger(1024).muity(1), BigInteger(1024));
+		testAndOut("512*2", BigInteger(512).muity(2), BigInteger(1024));
+		testAndOut("256*4", BigInteger(256).muity(4), BigInteger(1024));
+		testAndOut("128*8", BigInteger(128).muity(8), BigInteger(1024));
+	}, "字乘法");
+
+	StandardExtend::testAndDiffClock([&]() {
 		string a = to_string(MAX_INT64), b = to_string(MAX_INT64);
 		char result[128] = "";
 		BigInteger ba(a), bb(b);
