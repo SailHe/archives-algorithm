@@ -597,6 +597,23 @@ int mainForBigInteger() {
 	//cin >> c;
 	cout << "cout 测试: " << c << endl;
 
+	a = 1;
+	//2=a*2
+	a.plus(a);
+	//4=a*=4
+	a.plus(a);
+	testAndOut("自运算", a, BigInteger(4));
+
+	testAndOut("自运算", a.multiply(a), BigInteger(16));
+	testAndOut("自运算", a, BigInteger(4));
+	//16=4*4
+	a.muity(a);
+	testAndOut("自运算", a, BigInteger(16));
+	//256 = 16*16
+	a *= a;
+	testAndOut("自运算", a, BigInteger(256));
+	a = a * a;
+	testAndOut("自运算", a, BigInteger(65536));
 
 	string illResultStr = "34332795984163804765195977526776142032365783805375784983543400282685180793327632432791396429850988990237345920155783984828001486412574060553756854137069878601";
 	BigInteger bigNumForIllResilt = BigInteger(illResultStr);

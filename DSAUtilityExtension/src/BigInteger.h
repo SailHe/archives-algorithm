@@ -357,10 +357,34 @@ public:
 		}
 		return *this;
 	}
+	/**
+	 * Returns a BigInteger whose value is {@code (this - val)}.
+	 *
+	 * @param  val value to be subtracted from this BigInteger.
+	 * @return {@code this - val}
+	 */
+	/*BigInteger subtract(BigInteger const &val) {
+		if (val.signum == 0)
+			return *this;
+		if (signum == 0)
+			return val.negate();
+		if (val.signum != signum)
+			return BigInteger(add(mag, val.mag), signum);
+
+		int cmp = compareMagnitude(val);
+		if (cmp == 0)
+			return ZERO;
+		int[] resultMag = (cmp > 0 ? subtract(mag, val.mag)
+			: subtract(val.mag, mag));
+		resultMag = trustedStripLeadingZeroInts(resultMag);
+		return new BigInteger(resultMag, cmp == signum ? 1 : -1);
+	}*/
 	//加数乘法 (基于加法) 返回值和操作数都是自己(返回值是为了便于连续操作 下面的简写操作方法同)
 	BigInteger &muity(BigInteger const &rhs) {
 		BigInteger addValue(*this);
-		for (BigInteger i = 1; i < rhs; ++i){
+		// 防止自己乘自己
+		BigInteger rhsTemp(rhs);
+		for (BigInteger i = 1; i < rhsTemp; ++i){
 			plus(addValue);
 		}
 		return *this;
@@ -525,6 +549,8 @@ private:
 	const static int radix = 10000;
 	//正负号标识 输出时正号不输出
 	char symbol = 0;
+	//java api -1表示小于0; 0表示等于0; 1表示大于0
+	int signum = 0;
 	//储存数字位元 的数组(为了支持数字的直接构造这样存比较方便 对字符串构造影响不大)
 	std::vector<ByteType> digitLowTop;
 
