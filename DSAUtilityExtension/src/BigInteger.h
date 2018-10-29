@@ -289,6 +289,10 @@ public:
 	void reserve(size_t newSize){
 		digitLowTop.reserve(newSize);
 	}
+	//判断是否偶数 是返回true
+	bool isEvenNumber() {
+		return this->digitLowTop[0] % 2 == 0;
+	}
 
 	// 字符串大数加法
 	static std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB, std::string &topLowSum) {
