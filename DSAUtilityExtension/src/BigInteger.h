@@ -234,7 +234,11 @@ class BigInteger{
 	const static int ONE = 1;
 	const static int ZERO = 0;
 public:
-	//返回对应实际字符串的数字的总位数
+	//返回对应实际字符串长度(包括符号) size = length + 1
+	int length() const {
+		return calcTotalBitNum() + (symbol() == '\0' ? 0 : 1);
+	}
+	//  返回对应实际字符串的数字的总位数(不包括符号)
 	int calcTotalBitNum() const {
 		int totalByteNum = getTotalByteNum();
 		//首字的位数 + 剩余字数 * 一字的位数-1
@@ -245,7 +249,7 @@ public:
 	void print() const {
 		const char map[17] = "0123456789ABCDEF";
 		int totalByteNum = getTotalByteNum();
-		printf(symbol == '-' ? "-" : "");
+		putchar(symbol());
 		printf("%d", digitLowTop[totalByteNum - 1]);
 		for (int i = 1; i < totalByteNum; i++){
 			printf("%04d", digitLowTop[totalByteNum - i - 1]);
@@ -254,7 +258,15 @@ public:
 	}
 	void print(char *outBuffer, JCE::SizeType bufferSize) const {
 		int totalByteNum = getTotalByteNum();
-		sprintf_s(outBuffer, bufferSize, symbol == '-' ? "-" : "");
+		//sprintf_s(outBuffer, bufferSize, symbol());
+		*outBuffer = symbol();
+		if (*outBuffer == '\0') {
+			// do nothing
+		}
+		else {
+			++outBuffer;
+			--bufferSize;
+		}
 		sprintf_s(outBuffer, bufferSize, "%d", digitLowTop[totalByteNum - 1]);
 		bufferSize -= strnlen_s(outBuffer, bufferSize);
 		outBuffer += totalBitOf(digitLowTop[totalByteNum - 1]);
@@ -272,7 +284,7 @@ public:
 	std::string const &toString() const {
 		// std::string的length和size 是完全一样的
 		// 此处size和length取char[]中的含义 length:'\0'之前, size: 整个数组
-		int size = calcTotalBitNum() + 1;
+		int size = length() + 1;
 		static std::string result("\0", size);
 		result.assign(size, '\0');
 		print(&result[0], size);
@@ -383,6 +395,58 @@ public:
 		resultMag = trustedStripLeadingZeroInts(resultMag);
 		return new BigInteger(resultMag, cmp == signum ? 1 : -1);
 	}*/
+
+	/**
+	 * Returns a BigInteger whose value is {@code (-this)}.
+	 *
+	 * @return {@code -this}
+	 */
+	 //负号 减法
+	void minus();
+	BigInteger negate() const {
+		BigInteger neg(*this);
+		neg.signum = -signum;
+		return neg;
+	}
+	
+	BigInteger sub(BigInteger const &rhs) {
+		// (减, 减去, 负的)是否小减大
+		bool minus = *this < rhs;
+		ByteType subLhs, subRhs, subSum;
+		//subValue(减数) = rhsBit + borrowBit(借位)
+		ByteType rhsBit, borrowBit = 0;
+		//字数
+		int wordCntLhs = getTotalByteNum(), wordCntRhs = rhs.getTotalByteNum();
+		//运算数都读取完毕(不用管借位 可能无法再向上借位) -> 中止
+		for (subSum = subLhs = subRhs = 0; subLhs < wordCntLhs || subRhs < wordCntRhs; ++subSum) {
+			//计算加数 若rhs读取完毕还可能存在进位数 此时加数置为0就好
+			rhsBit = subRhs < wordCntRhs ? rhs.digitLowTop[subLhs] : 0;
+			rhsBit *= -1;
+
+			if (subLhs < wordCntLhs) {
+				digitLowTop[subSum] += rhsBit + borrowBit;
+			}
+			else {
+				//若两者的字数lhs < rhs的话进位是0但是addvalue不是0
+				digitLowTop.push_back(rhsBit);
+			}
+
+			borrowBit = digitLowTop[subSum] < 0 ? 1 : 0;
+			borrowBit *= -1;
+			digitLowTop[subSum] %= radix;
+			++subLhs, ++subRhs;
+		}
+		//signum = -signum;
+		//plus(rhs.negate());
+		if (minus) {
+			for (JCE::SizeType i = 0; i < digitLowTop.size(); ++i) {
+				digitLowTop[i] = -digitLowTop[i];
+			}
+			//小减大 自己的符号要变化
+			signum = -signum;
+		}
+		return *this;
+	}
 	//加数乘法 (基于加法) 返回值和操作数都是自己(返回值是为了便于连续操作 下面的简写操作方法同)
 	BigInteger &muity(BigInteger const &rhs) {
 		BigInteger addValue(*this);
@@ -522,6 +586,24 @@ public:
 		return tmp;
 	}
 
+	/*万进制似乎没法用补码实现减法  可借位减法(唯一可行的应该是模拟减法)*/
+	BigInteger operator-(BigInteger const &rhs){
+		return BigInteger(*this).sub(rhs);
+	}
+	BigInteger operator/(BigInteger const &rhs){
+		this->plus(rhs);
+		return *this;
+	}
+	BigInteger operator--(){//前置版
+		this->plus(BigInteger(-1));
+		return *this;
+	}
+	BigInteger operator--(int){
+		BigInteger tmp = *this;
+		--(*this);
+		return tmp;
+	}
+
 	//cin>> (只实现了int范围读入)
 	friend std::istream &operator>>(std::istream &is, BigInteger &rhs) {
 		ByteType temp;
@@ -547,34 +629,12 @@ public:
 		return iValue;
 	}*/
 
-
-	/*万进制似乎没法用补码实现减法  可借位减法(唯一可行的应该是模拟减法)*/
-	BigInteger operator-(BigInteger const &rhs){
-		this->plus(rhs);
-		return *this;
-	}
-	BigInteger operator/(BigInteger const &rhs){
-		this->plus(rhs);
-		return *this;
-	}
-	BigInteger operator--(){//前置版
-		this->plus(BigInteger(-1));
-		return *this;
-	}
-	BigInteger operator--(int){
-		BigInteger tmp = *this;
-		--(*this);
-		return tmp;
-	}
-	//负号 减法
-	void minus();
-
 private:
 	//表示数字位元的进制 @Bug 2进制时会报错
 	const static int radix = 10000;
 	//正负号标识 输出时正号不输出
-	char symbol = 0;
-	//java api -1表示小于0; 0表示等于0; 1表示大于0
+	//char symbol = 0;
+	//-1表示小于0; 0表示等于0; 1表示大于0(同Java实现)
 	int signum = 0;
 	//储存数字位元 的数组(为了支持数字的直接构造这样存比较方便 对字符串构造影响不大)
 	std::vector<ByteType> digitLowTop;
@@ -605,7 +665,9 @@ private:
 		int wordBit = totalBitOf(radix) - 1;
 		//当传入数字无法用整字储存时需要多用一个字来储存(即溢出字)
 		setTotalByteNum(numTotalBit / wordBit + (numTotalBit % wordBit == 0 ? 0 : 1));
-		symbol = BinaryTransition::toAbs(originNumber);
+		signum = originNumber > 0 ? 1
+			: originNumber == 0 ? 0 : -1;
+		/*symbol = */BinaryTransition::toAbs(originNumber);
 		BinaryTransition::tenToRadix(originNumber, digitLowTop.begin(), radix);
 	}
 	/*static BigInteger valueOf(int value) {
@@ -633,23 +695,35 @@ private:
 		}
 	}
 	//小于返回-1 大于返回1 等于返回0
-	int compare(const BigInteger& rhs) const {
-		int topBit1 = -1, topBit2 = -1;
+	int compare(const BigInteger &rhs) const {
+		int topBit1 = -1, topBit2 = -1, result = 0;
 		Utility::toSignedNum(digitLowTop.size(), topBit1);
 		Utility::toSignedNum(rhs.digitLowTop.size(), topBit2);
-		if (topBit1 < topBit2)
-			return -1;
-		else if (topBit1 > topBit2)
-			return 1;
-		else {
-			for (int i = topBit1 - 1; i >= 0; --i) {
-				if (digitLowTop[i] < rhs.digitLowTop[i])
-					return -1;
-				else if (digitLowTop[i] > rhs.digitLowTop[i])
-					return 1;
-			}
-			return 0;
+		if (signum != rhs.signum) {
+			result = signum < rhs.signum ? -1 : 1;
 		}
+		else {
+			if (topBit1 < topBit2) {
+				result = -1;
+			}
+			else if (topBit1 > topBit2) {
+				result = 1;
+			}
+			else {
+				for (int i = topBit1 - 1; i >= 0; --i) {
+					if (digitLowTop[i] < rhs.digitLowTop[i]) {
+						result = -1;
+						break;
+					}
+					else if (digitLowTop[i] > rhs.digitLowTop[i]) {
+						result = 1;
+						break;
+					}
+				}
+				//result = 0;
+			}
+		}
+		return result;
 	}
 	//返回总的字数
 	int getTotalByteNum() const {
@@ -660,6 +734,10 @@ private:
 	//this*=2
 	void muity2() {
 		this->plus(*this);
+	}
+	//返回此数的符号 >= 0 没有符号
+	char symbol() const {
+		return signum == -1 ? '-' : signum == 1 ? '\0' : '\0';
 	}
 };
 

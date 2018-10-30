@@ -617,15 +617,18 @@ int mainForBigInteger() {
 
 	testAndOut("偶数判断", a.isEvenNumber(), true);
 	testAndOut("偶数判断", (++a).isEvenNumber(), false);
+	testAndOut("大数减法 小 - 大: ", c - a, BigInteger(3 - 65537));
+	testAndOut("大数减法 大 - 小: ", a - c, BigInteger(65537 - 3));
+	testAndOut("大数减法 多次借位: ", BigInteger(1) - BigInteger(1000), BigInteger(1 - 1000));
 
 	string illResultStr = "34332795984163804765195977526776142032365783805375784983543400282685180793327632432791396429850988990237345920155783984828001486412574060553756854137069878601";
 	BigInteger bigNumForIllResilt = BigInteger(illResultStr);
 	char ill100ReslS[500] = "";
 	JCE::ArrayList<BigInteger> illList;
 	MathExtend::buildIllArrangeList(illList, 1001);
-	// 158 bit(字符)
-	int tbit = illList[100].calcTotalBitNum();
-	illList[100].print(ill100ReslS, tbit+1);
+	// 158 位10进制数字符
+	int length = illList[100].length();
+	illList[100].print(ill100ReslS, length+1);
 	string ill100ReslStr = ill100ReslS;
 	string tempStr(10, '\0');
 	tempStr[0] = '1';
