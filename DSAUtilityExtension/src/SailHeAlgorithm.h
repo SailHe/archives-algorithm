@@ -53,6 +53,8 @@ using namespace std;
 #define ALL(object) object.begin(), object.end()
 #define FOR(i, bound, limit) for (int i = bound; i < limit; ++i)
 #define infinity 2147483647
+#define MAX_IN32 2147483647
+#define MIN_IN32 (-MAX_IN32-1)
 #define MAXN 1000000+2
 const double EPSINON = 1e-15;
 const double EPS = 1e-9;

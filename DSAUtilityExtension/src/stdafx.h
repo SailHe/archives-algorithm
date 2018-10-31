@@ -55,7 +55,7 @@ export(导出/出口/输出) 在定义模板类对象和模板函数时的extern功能
 #define FOR_LIMIT_UNSIGNED(i, lowerBound, limit) for (size_t i = lowerBound; i < limit; ++i)
 
 //it是用户指定的一个名字, 其类型由下界(lowerBound)决定, 迭代范围(bound)内必须保证会出现终止符(terminator: 终结者)
-//终止for 宏参数: 指定的名字, 变量1, 量2 (量12需支持!=运算)
+//终止for 宏参数: 指定的名字, 变量1, 量2 (量12需支持!=运算) 只能用于遍历(对于std::vector)
 #define FOR(it, lowerBound, terminator) for (auto it = lowerBound; it != terminator; ++it)
 
 //for容器内所有元素 宏参数: 支持迭代器的容器  (针对容器作了end()优化的FOR)

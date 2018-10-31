@@ -1337,7 +1337,7 @@ int MainCharacterStatisticsQuestionTwo(){
 	return 0;
 }
 
-int main(){
+int mainForD(){
 	srand(time(0));
 	//取消cin与stdin的同步(时cin与scanf效率接近; 但此时两者不能混用)
 	//ios::sync_with_stdio(false);

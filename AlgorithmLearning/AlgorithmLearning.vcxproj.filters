@@ -54,6 +54,9 @@
     <ClCompile Include="src\agoj\cppHomeWork.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
+    <ClCompile Include="agoj_10_31.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
