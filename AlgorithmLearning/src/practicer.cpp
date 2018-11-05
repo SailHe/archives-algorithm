@@ -137,11 +137,11 @@ int mainForFib(){
 	double temp_ = 0.375;
 	printf("%.4f\n", temp_);
 	printf("%.2f\n", temp_);
-	printf("%d\n", temp_);
+	printf("%.f\n", temp_);
 	temp_ = 0.30;
 	printf("%.4f\n", temp_);
 	printf("%.2f\n", temp_);
-	printf("%d\n", temp_);
+	printf("%.f\n", temp_);
 	clock_t start = clock();
 	clock_t stop = clock();
 	Integer f[101];

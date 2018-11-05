@@ -285,9 +285,13 @@ namespace Utility {
 		Double(double rhs) {
 			value = rhs;
 		}
-		bool operator==(Double const &rhs) const {
+		inline bool operator==(Double const &rhs) const {
 			return fabs(this->value - rhs.value) < EPS;
 		}
+		inline bool operator!=(Double const &rhs) {
+			return !(*this == rhs);
+		}
+		
 
 		//cout<<
 		friend std::ostream &operator<<(std::ostream &os, const Double &rhs) {

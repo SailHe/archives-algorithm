@@ -10,16 +10,9 @@
 #include<stack>
 #include<map>
 #include<iomanip>//cout各种操纵器
-#define EPS 1E-5
-#define MAX_N 505
 
-#define MAX_R 1001
-#define MAX_C 1001
+#include "ExtendSpace.h"
 
-//#define MAX_N 1000+5
-#define MAX_INT_NUM 2147483647
-#define MIN_INT_NUM (-MAX_INT_NUM-1)
-#define ARRAY_TEMPLATE template<class T, class Iterator>
 using namespace std;
 
 //将摄氏温度转换为华氏温度
@@ -53,9 +46,79 @@ int mainForAlphTranslate() {
 	return 0;
 }
 
-int main() {
+int mainForH1() {
 	mainForTemperatureTranslate();
 	mainForAlphTranslate();
 	return 0;
 }
 
+// 输入n个人姓名, 统计其中有多少个以"M"字母开头的名字, 并把所有以"M"开头的姓名和最长的姓名显示出来
+int mainForSolve1_11_5() {
+	std::list<string> strList;
+	cout << "输入姓名 以'-1'结束: " << endl;
+	string inBuffer;
+	while ((cin >> inBuffer) && inBuffer != "-1") {
+		strList.push_back(inBuffer);
+	}
+	size_t maxLen = MIN_INT32;
+	string maxstr = "";
+	for (auto it = strList.begin(); it != strList.end(); ++it) {
+		if ((*it)[0] != 'M') {
+			// do nothing
+		}
+		else {
+			cout << *it << endl;
+		}
+
+		if (it->length() > maxLen) {
+			maxLen = it->length();
+			maxstr = *it;
+		}
+	}
+	cout << maxstr << endl;
+	return 0;
+}
+
+//计算一元二次方程ax^2 + bx + c = 0; 的两个根x1, x2
+void calcEquationRoot(double a, double b, double c, double &x1, double &x2) {
+	double derta = b*b - 4*a*c;
+	_ASSERT_EXPR(derta >= 0, "<0时无实数解");
+	double tempX1, tempX2;
+	tempX1 = (-b + sqrt(derta)) / (2 * a);
+	tempX2 = (-b - sqrt(derta)) / (2 * a);
+	x1 = tempX1;
+	x2 = tempX2;
+}
+
+//计算一元一次方程的解 (线性方程)
+double calcEquationRoot(double a, double b) {
+	_ASSERT_EXPR(Utility::Double(a) != 0, "此时无解");
+	return -b / a;
+}
+
+//求解一元二次方程 ax^2 + bx + c = 0; 
+//将求出的两个解作为下一个方程的a和b, a-b作为c
+//将求出的两个解作为一元一次ax + b = 0方程的a和b 求解后输出解使用函数重载 和 静态变量
+int mainForSolve2_11_5() {
+	static int a, b, c;
+	double x1 = 0, x2 = 0;
+	cout << "请输入a, b, c 以空格间隔: " << endl;
+	cin >> a >> b >> c;
+	calcEquationRoot(a, b, c, x1, x2);
+	cout << "x1: " << x1 << "; x2: " << x2 << endl;
+	calcEquationRoot(x1, x2, x1 - x2, x1, x2);
+	cout << "x1: " << x1 << "; x2: " << x2 << endl;
+	if (Utility::Double(x1) == 0) {
+		cout << "a==0无解!" << endl;
+	}
+	else {
+		cout << "x: " << calcEquationRoot(x1, x2) << endl;
+	}
+	return 0;
+}
+
+int main() {
+	//mainForSolve1_11_5();
+	mainForSolve2_11_5();
+	return 0;
+}
