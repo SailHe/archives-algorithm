@@ -291,10 +291,15 @@ public:
 		return result;
 	}
 	BigInteger(ByteType originNumber){
+		signum = originNumber > 0 ? 1
+			: originNumber == 0 ? 0 : -1;
 		transitionToLocalRadix(originNumber);
 	}
 	BigInteger(std::string const &originNumberTopLow){
-		transitionToLocalRadix(originNumberTopLow);
+		std::string temp = formatString(originNumberTopLow);
+		signum = temp[0] == '-' ? -1
+			: temp[0] == '0' ? 0 : 1;
+		transitionToLocalRadix(temp);
 	}
 
 	//乘法前最好先分配一下
@@ -665,8 +670,6 @@ private:
 		int wordBit = totalBitOf(radix) - 1;
 		//当传入数字无法用整字储存时需要多用一个字来储存(即溢出字)
 		setTotalByteNum(numTotalBit / wordBit + (numTotalBit % wordBit == 0 ? 0 : 1));
-		signum = originNumber > 0 ? 1
-			: originNumber == 0 ? 0 : -1;
 		/*symbol = */BinaryTransition::toAbs(originNumber);
 		BinaryTransition::tenToRadix(originNumber, digitLowTop.begin(), radix);
 	}
@@ -699,10 +702,10 @@ private:
 		int topBit1 = -1, topBit2 = -1, result = 0;
 		Utility::toSignedNum(digitLowTop.size(), topBit1);
 		Utility::toSignedNum(rhs.digitLowTop.size(), topBit2);
-		if (signum != rhs.signum) {
+		/*if (signum != rhs.signum) {
 			result = signum < rhs.signum ? -1 : 1;
 		}
-		else {
+		else {*/
 			if (topBit1 < topBit2) {
 				result = -1;
 			}
@@ -722,7 +725,9 @@ private:
 				}
 				//result = 0;
 			}
-		}
+			// 乘其中一个就行
+			//result *= signum;
+		//}
 		return result;
 	}
 	//返回总的字数

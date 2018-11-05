@@ -620,6 +620,7 @@ int mainForBigInteger() {
 	testAndOut("大数减法 小 - 大: ", c - a, BigInteger(3 - 65537));
 	testAndOut("大数减法 大 - 小: ", a - c, BigInteger(65537 - 3));
 	testAndOut("大数减法 多次借位: ", BigInteger(1) - BigInteger(1000), BigInteger(1 - 1000));
+	testAndOut("大数减法 位: ", BigInteger(1) - BigInteger(1000), BigInteger(1 - 1000));
 
 	string illResultStr = "34332795984163804765195977526776142032365783805375784983543400282685180793327632432791396429850988990237345920155783984828001486412574060553756854137069878601";
 	BigInteger bigNumForIllResilt = BigInteger(illResultStr);
