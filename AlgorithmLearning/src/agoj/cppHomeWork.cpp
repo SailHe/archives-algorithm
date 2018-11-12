@@ -20,10 +20,13 @@ double toFahrenheit(double tCelsius) {
 	return (9 / 5.0) * tCelsius + 32;
 }
 
+//第一次
 int mainForTemperatureTranslate() {
 	double t;
+	cout << "输入温度: " << endl;
 	while (cin>>t) {
 		cout << toFahrenheit(t) << endl;
+		cout << "输入温度: " << endl;
 	}
 	return 0;
 }
@@ -37,20 +40,18 @@ char toUpper(char c) {
 	return islower(c) ? (c - 'a') + 'A' : c;
 }
 
+//第一次
 int mainForAlphTranslate() {
 	string upperCase;
+	cout << "输入字符串: " << endl;
 	while (cin >> upperCase) {
 		transform(upperCase.begin(), upperCase.end(), upperCase.begin(), toUpper);
 		cout << upperCase << endl;
+		cout << "输入字符串: " << endl;
 	}
 	return 0;
 }
 
-int mainForH1() {
-	mainForTemperatureTranslate();
-	mainForAlphTranslate();
-	return 0;
-}
 
 // 输入n个人姓名, 统计其中有多少个以"M"字母开头的名字, 并把所有以"M"开头的姓名和最长的姓名显示出来
 int mainForSolve1_11_5() {
@@ -118,7 +119,10 @@ int mainForSolve2_11_5() {
 }
 
 int main() {
+	mainForTemperatureTranslate();
+	//mainForAlphTranslate();
+
 	//mainForSolve1_11_5();
-	mainForSolve2_11_5();
+	//mainForSolve2_11_5();
 	return 0;
 }
