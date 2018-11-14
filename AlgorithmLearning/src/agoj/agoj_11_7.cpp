@@ -134,7 +134,8 @@ int mainForSolveA_11_7() {
 			for (int i = 0; i < n; ++i) {
 				//d作为斜边y作为直角边计算另一直角边
 				double distance = sqrt(1.0*d*d - 1.0*islandList[i].y*islandList[i].y);
-				segmentList[i].first = islandList[i].x - distance;				segmentList[i].second = islandList[i].x + distance;
+				segmentList[i].first = islandList[i].x - distance;
+				segmentList[i].second = islandList[i].x + distance;
 			}
 			sort(segmentList.begin(), segmentList.end(), [&](pair<double, double> const &lhs, pair<double, double> const &rhs) {
 				return DoubleE(lhs.first) == DoubleE(rhs.first) ? lhs.second < rhs.second

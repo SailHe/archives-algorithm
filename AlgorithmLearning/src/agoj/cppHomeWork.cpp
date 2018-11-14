@@ -119,10 +119,10 @@ int mainForSolve2_11_5() {
 }
 
 int main() {
-	mainForTemperatureTranslate();
+	//mainForTemperatureTranslate();
 	//mainForAlphTranslate();
 
 	//mainForSolve1_11_5();
-	//mainForSolve2_11_5();
+	mainForSolve2_11_5();
 	return 0;
 }
