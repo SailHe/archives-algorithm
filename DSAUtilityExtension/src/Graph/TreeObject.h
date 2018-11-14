@@ -1791,100 +1791,112 @@ private:
 };
 
 /*数组式huffman*/
-class ArrayHuffman{
-	typedef struct {
-		int weight;//权重
-		int parent;//父结点
-		int lchild;//左孩子
-		int rchild;//右孩子
-	} HTNode, *HuffmanTree;
+class ArrayHuffman {
+	struct HTNode {
+		//权重
+		int weight;
+		//父结点
+		int parent;
+		//左孩子
+		int lchild;
+		//右孩子
+		int rchild;
+		//只用于sub方法查找是是否已使用的判断 注意此处借用了memset的初始化巧合
+		bool isUsed;
+	};
+public:
+	typedef HTNode *HuffmanTree;
 	typedef char ** HuffmanCode;
-	void swap(int &s1, int &s2){
+protected:
+	static void swap(int &s1, int &s2) {
 		int tmp = s1;
 		s1 = s2;
 		s2 = tmp;
 	}
-	void swapC(char &s1, char &s2){
+	static void swapC(char &s1, char &s2) {
 		char tmp = s1;
 		s1 = s2;
 		s2 = tmp;
 	}
 	//从1到upbound中找出father为0的节点赋给s1,s2,（为了保证答案唯一，请让s1的节点编号小于s2）
-	void SelectTwoMin(int upbound, HuffmanTree ht/*这tm是个数组!!!*/, int &s1, int &s2){
+	static void SelectTwoMin(int upbound, HuffmanTree ht/*这tm是个数组!!!*/, int &s1, int &s2) {
 		s1 = s2 = 0;
 		//找出weight最小的两个的sub
-		for (int i = 1; i < upbound; ++i){
-			if (ht[i].parent == 0){
+		for (int i = 1; i < upbound; ++i) {
+			if (ht[i].parent == 0) {
 				if (ht[s1].weight > ht[i].weight)
 					s1 = i;
 			}
 		}
-		for (int i = 1; i < upbound; ++i){
-			if (ht[i].parent == 0){
+		for (int i = 1; i < upbound; ++i) {
+			if (ht[i].parent == 0) {
 				if (ht[s2].weight > ht[i].weight && i != s1)
 					s2 = i;
 			}
 		}
-		if (s1 > s2){
+		if (s1 > s2) {
 			swap(s1, s2);
 		}
 	}
 	//查找并返回数组哈夫曼树中某个权值的结点的下标 不存在返回0
-	int sub(HuffmanTree ht, int wei, int n){
-		for (int i = 1; i < n; ++i){
-			if (ht[i].weight == wei)
+	static int sub(HuffmanTree ht, int wei, int n) {
+		for (int i = 1; i < n; ++i) {
+			if (!ht[i].isUsed && ht[i].weight == wei) {
+				ht[i].isUsed = true;
 				return i;
+			}
 		}
 		return 0;
 	}
-	//构造哈夫曼树ht 并 计算哈夫曼编码hc
-	void HuffmanCoding(HuffmanTree &ht, HuffmanCode &hc, int *w, int n){
-		/*构造哈夫曼树(伪)*/
+public:
+	//构造哈夫曼树ht 并 计算哈夫曼编码hc w为权值(频率)数组 n为权值个数 (需要手动free)
+	static void HuffmanCoding(HuffmanTree &ht, HuffmanCode &hc, int *w, int n) {
+		// 构造哈夫曼树(伪)
 		ht = (HuffmanTree)malloc(sizeof(HTNode)*(2 * n));
 		memset(ht, 0, (sizeof(HTNode)*(2 * n)));
 		ht[0].weight = 1001;
 		for (int i = 0; i < n; ++i) ht[i + 1].weight = w[i];
-		/*做n-1次合并 每次将权值最小的两颗树合并*/
+		//做n-1次合并 每次将权值最小的两颗树合并
 		int size = n;
-		for (int i = 1; i < n; ++i){
+		for (int i = 1; i < n; ++i) {
 			++size;
-			SelectTwoMin(size, ht, ht[size].lchild, ht[size].rchild);//"pop" and "push"
-			ht[size].weight = ht[ht[size].lchild].weight + ht[ht[size].rchild].weight;/*计算新权值*/
+			//"pop" and "push"
+			SelectTwoMin(size, ht, ht[size].lchild, ht[size].rchild);
+			//计算新权值
+			ht[size].weight = ht[ht[size].lchild].weight + ht[ht[size].rchild].weight;
 			ht[ht[size].lchild].parent = ht[ht[size].rchild].parent = size;
 		}
-		/*计算编码*/
+		// 计算编码
 		hc = (HuffmanCode)malloc(sizeof(char*)*n);
 		memset(hc, 0, (sizeof(char)*n));
-		for (int i = 0; i < n; ++i){
+		for (int i = 0; i < n; ++i) {
 			hc[i] = (char*)malloc(sizeof(char)* n);
-			memset(hc[i], 0, sizeof(char)* n); //n结点最长编码长度n - 1+'\0' = n
-			for (int c = sub(ht, w[i], size), codeIndex = 0; c != size/*父结点*/; c = ht[c].parent){
+			memset(hc[i], 0, sizeof(char)* n);
+			//n结点最长编码长度n - 1+'\0' = n 下标c为顶级结点下标size时终止
+			for (int c = sub(ht, w[i], size), codeIndex = 0; c != size; c = ht[c].parent) {
 				int parent = ht[c].parent;
-				hc[i][codeIndex++] = ht[parent].lchild == c ? '0' : '1';
+				//hc[i][codeIndex++] = ht[parent].lchild == c ? '0' : '1';
+				//左子树代表频度 < 右子树频度 编码为0
+				hc[i][codeIndex++] = ht[parent].lchild == c ? '1' : '0';
 			}
 		}
-		for (int i = 0; i < n; ++i){//将每个编码逆转
-			for (int lhs = 0, len = strlen(hc[i]); lhs < len / 2; ++lhs){
+		for (int i = 0; i < n; ++i) {
+			//将每个编码逆转
+			for (int lhs = 0, len = strlen(hc[i]); lhs < len / 2; ++lhs) {
 				int rhs = len - lhs - 1;
 				swapC(hc[i][lhs], hc[i][rhs]);
 			}
 		}
-		/*ht[i]:
-		1 5 0 0
-		2 5 0 0
-		3 6 0 0
-		4 7 0 0
-		3 6 1 2
-		6 7 3 5
-		10 0 4 6
-		*/
 	}
-	/*
-	int w[4] = { 1, 2, 3, 4 };
-	HuffmanTree ht;
-	HuffmanCode hc;
-	HuffmanCoding(ht, hc, w, n);
-	*/
+
+	//返回编码长度
+	static int codingLen(ArrayHuffman::HuffmanCode const hufCode, int n, int *weightList) {
+		int sum = 0;
+		for (int i = 0; i < n; ++i) {
+			sum += weightList[i] * strlen(hufCode[i]);
+		}
+		return sum;
+	}
 };
 
 //表达式树 @TODO 并未通过PTA测试(主要是后缀表达式计算时的负号问题 考虑添加前缀表达式计算)

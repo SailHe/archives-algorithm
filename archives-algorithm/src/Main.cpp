@@ -266,9 +266,44 @@ E 00
 F 10
 G 11
 */
-int mainForHuffumanTree()
-{
-	const int N = 63;
+
+int testerForArrayHuff(int *hufWeightList, int n) {
+	ArrayHuffman::HuffmanTree hufTree = nullptr;
+	ArrayHuffman::HuffmanCode hufCode = nullptr;
+	ArrayHuffman::HuffmanCoding(hufTree, hufCode, hufWeightList, n);
+	int result = ArrayHuffman::codingLen(hufCode, n, hufWeightList);
+	free(hufTree); hufTree = nullptr;
+	free(hufCode); hufCode = nullptr;
+	return result;
+}
+
+int mainForHuffumanTree(){
+	const int n = 4;
+	int w[n] = { 1, 2, 3, 4 };
+	int result[][4] = {
+		{ 1, 5, 0, 0},
+		{ 2, 5, 0, 0},
+		{ 3, 6, 0, 0},
+		{ 4, 7, 0, 0},
+		{ 3, 6, 1, 2},
+		{ 6, 7, 3, 5},
+		{ 10, 0, 4, 6}
+	};
+	ArrayHuffman::HuffmanTree ht;
+	ArrayHuffman::HuffmanCode hc;
+	ArrayHuffman::HuffmanCoding(ht, hc, w, n);
+	//0号是空结点
+	for (int i = 1; i < n; ++i) {
+		StandardExtend::testAndOut("weight" + to_string(i) + ": ", ht[i].weight, result[i - 1][0]);
+		StandardExtend::testAndOut("parent" + to_string(i) + ": ", ht[i].parent, result[i - 1][1]);
+		StandardExtend::testAndOut("lchild" + to_string(i) + ": ", ht[i].lchild, result[i - 1][2]);
+		StandardExtend::testAndOut("rchild" + to_string(i) + ": ", ht[i].rchild, result[i - 1][3]);
+	}
+	int hufWeightList1[] = { 1, 2, 3, 4, 5 };
+	int hufWeightList2[] = { 3, 8, 8 };
+	StandardExtend::testAndOut("哈夫曼编码长度: ", testerForArrayHuff(hufWeightList1, 5), 33);
+	StandardExtend::testAndOut("等权哈夫曼编码长度: ", testerForArrayHuff(hufWeightList2, 3), 30);
+	/*const int N = 63;
 	int CodeWPL;//标准
 	int i, n, Freq[N + 1] = { 0 };
 	//int j, m;
@@ -283,7 +318,8 @@ int mainForHuffumanTree()
 		}
 		HuffmanTree<char> T(ch, Freq, n);
 		CodeWPL = T.wpl();
-	}return 0;
+	}*/
+	return 0;
 }
 
 
@@ -348,32 +384,23 @@ int mainForGraph() {
 	return 0;
 }
 
-
-template<class T>
-bool testAndOut(JCE::String const &name, T realValue, T expectValue) {
-	assert(realValue == expectValue);
-	cout << name + " 实际值: " << realValue << "; 期望值: " << expectValue << endl;
-	return true;
-}
-
-
 int mainForMath() {
-	testAndOut("2018年是否闰年: ", (bool)StandardExtend::isIntercalary(2018), false);
-	testAndOut("2018-10-22是2018年的第几天: ", StandardExtend::calcNumberOfDays(2018, 10, 22), 295);
+	StandardExtend::testAndOut("2018年是否闰年: ", (bool)StandardExtend::isIntercalary(2018), false);
+	StandardExtend::testAndOut("2018-10-22是2018年的第几天: ", StandardExtend::calcNumberOfDays(2018, 10, 22), 295);
 
 	puts("全排列: ");
 	MathExtend::pentration(3);
 	puts("阶乘: ");
 	printf("%.2f\n", MathExtend::fact(10));
-	testAndOut("组合数 3取2", MathExtend::C(3, 2), 3);
-	testAndOut("组合数 3取1", MathExtend::C(3, 1), 3);
-	testAndOut("组合数 49取6", MathExtend::C(49, 6), 13983816);
-	testAndOut("排列数 3取2", MathExtend::A(3, 2), 6);
-	testAndOut("排列数 8取3", MathExtend::A(8, 3), 336);
+	StandardExtend::testAndOut("组合数 3取2", MathExtend::C(3, 2), 3);
+	StandardExtend::testAndOut("组合数 3取1", MathExtend::C(3, 1), 3);
+	StandardExtend::testAndOut("组合数 49取6", MathExtend::C(49, 6), 13983816);
+	StandardExtend::testAndOut("排列数 3取2", MathExtend::A(3, 2), 6);
+	StandardExtend::testAndOut("排列数 8取3", MathExtend::A(8, 3), 336);
 
 
 	for (I64 i = 0; i < 10; ++i) {
-		testAndOut("快速幂 "+ std::to_string(i) +"^2", MathExtend::quickPow(i, 2), (I64)std::pow(i, 2));
+		StandardExtend::testAndOut("快速幂 "+ std::to_string(i) +"^2", MathExtend::quickPow(i, 2), (I64)std::pow(i, 2));
 	}
 	int testCount = 500;
 	StandardExtend::testAndDiffClock([&]() {
@@ -396,18 +423,18 @@ int mainForMath() {
 			MathExtend::quickPow_OLD(2, 62, MAX_INT64);
 		}
 	}, "基于quickFact的快速幂");
-	testAndOut("快速幂 10^18", MathExtend::quickPow_OLD(10, 18, MAX_INT64), (I64)std::pow(10, 18));
+	StandardExtend::testAndOut("快速幂 10^18", MathExtend::quickPow_OLD(10, 18, MAX_INT64), (I64)std::pow(10, 18));
 	for (int i = MAX_INT32-1; i < MAX_INT32; ++i) {
 		auto a = MathExtend::powLastBit(i, 1) % 10;
 		auto b = MathExtend::quickPow(i, 2, 10);
-		testAndOut(std::to_string(i) + "^2" + "的最后1bit", a, b);
+		StandardExtend::testAndOut(std::to_string(i) + "^2" + "的最后1bit", a, b);
 	}
 
 	auto primeTable = MathExtend::generateSievePrimeS(100);
 	int count = 0;
 	for (int i = 0; i < 10; ++i) {
 		bool isP = MathExtend::isPrime(i);
-		testAndOut("数字" + to_string(i) + " 是否素数:", isP, primeTable[i] == 0);
+		StandardExtend::testAndOut("数字" + to_string(i) + " 是否素数:", isP, primeTable[i] == 0);
 	}
 	free(primeTable);
 
@@ -421,8 +448,8 @@ int mainForMath() {
 		//当x=-1.0时 y最小=0.0
 		return f1(x);
 	}, EPS);
-	testAndOut("一元二次方程最小近似解: ", Utility::Double(x1), Utility::Double(-1.0));
-	testAndOut("一元二次方程最小近似值: ", Utility::Double(f1(x1)), Utility::Double(0.0));
+	StandardExtend::testAndOut("一元二次方程最小近似解: ", Utility::Double(x1), Utility::Double(-1.0));
+	StandardExtend::testAndOut("一元二次方程最小近似值: ", Utility::Double(f1(x1)), Utility::Double(0.0));
 
 	auto f2 = [](double x) {
 		return -pow(x, 2) + 2 * x + 1;
@@ -431,8 +458,8 @@ int mainForMath() {
 		//当x=1.0时 y最大=2.0 (此方法只提供最小值 故最前面添'-'号)
 		return -(f2(x));
 	}, EPS);
-	testAndOut("一元二次方程最大近似解: ", Utility::Double(x2), Utility::Double(1.0));
-	testAndOut("一元二次方程最大近似值: ", Utility::Double(f2(x2)), Utility::Double(2.0));
+	StandardExtend::testAndOut("一元二次方程最大近似解: ", Utility::Double(x2), Utility::Double(1.0));
+	StandardExtend::testAndOut("一元二次方程最大近似值: ", Utility::Double(f2(x2)), Utility::Double(2.0));
 
 	const int size = 9;
 	//顺便排序测试
@@ -449,9 +476,9 @@ int mainForMath() {
 
 	StandardExtend::testAndDiffClock([&]() {
 		I64 x, y;
-		testAndOut("2*x + 1*y + 5 = 0的最小非负整数解x是否存在: ", (bool)MathExtend::linearEquationCondition1(2LL, x, 1LL, y, 5LL), true);
-		testAndOut("解x: ", x, 0LL);
-		testAndOut("解y: ", y, 5LL);
+		StandardExtend::testAndOut("2*x + 1*y + 5 = 0的最小非负整数解x是否存在: ", (bool)MathExtend::linearEquationCondition1(2LL, x, 1LL, y, 5LL), true);
+		StandardExtend::testAndOut("解x: ", x, 0LL);
+		StandardExtend::testAndOut("解y: ", y, 5LL);
 	}, "二元一次线性方程最小非负整数解");
 	
 	int aaInput[][3] = {
@@ -478,8 +505,8 @@ int mainForMath() {
 			MathExtend::linearEquationCondition2(aaInput[i][0], x, aaInput[i][1], y, aaInput[i][2]);
 			x = abs(x);
 			y = abs(y);
-			testAndOut("解x: ", x, aaOutput[i][0]);
-			testAndOut("解y: ", y, aaOutput[i][1]);
+			StandardExtend::testAndOut("解x: ", x, aaOutput[i][0]);
+			StandardExtend::testAndOut("解y: ", y, aaOutput[i][1]);
 		}
 	}, "二元一次线性方程 满足|x| + |y|最小的解");
 	StandardExtend::testAndDiffClock([&]() {
@@ -497,8 +524,8 @@ int mainForMath() {
 				x = abs(y2);
 				y = abs(x2);
 			}
-			testAndOut("解x: ", x, aaOutput[i][0]);
-			testAndOut("解y: ", y, aaOutput[i][1]);
+			StandardExtend::testAndOut("解x: ", x, aaOutput[i][0]);
+			StandardExtend::testAndOut("解y: ", y, aaOutput[i][1]);
 		}
 	}, "二元一次线性方程 满足|x| + |y|最小的解");
 	
@@ -506,7 +533,7 @@ int mainForMath() {
 		int m[] = {3, 5, 7};
 		int a[] = {2, 3, 2};
 		int minResult = MathExtend::chineseReminder(m, a, 3, 0);
-		testAndOut("最小正整数解: ", minResult, 23);
+		StandardExtend::testAndOut("最小正整数解: ", minResult, 23);
 	}, "中国剩余定理 求线性同余方程组");
 
 	StandardExtend::testAndDiffClock([&]() {
@@ -514,7 +541,7 @@ int mainForMath() {
 		JCE::ArrayList<I64> illArrangeList;
 		MathExtend::buildIllArrangeList(illArrangeList);
 		for (JCE::SizeType i = 0; i < 8; ++i) {
-			testAndOut("错排Value: ", illArrangeList[i], illTable[i]);
+			StandardExtend::testAndOut("错排Value: ", illArrangeList[i], illTable[i]);
 		}
 		StandardExtend::outPutIterable(illArrangeList.begin(), illArrangeList.end(), 0, '\0', ',');
 		StandardExtend::outPutIterable(illArrangeList.begin(), illArrangeList.end(), 20, '\0', (JCE::SizeType)5);
@@ -585,15 +612,15 @@ int mainForBigInteger() {
 	BigInteger a(1), b(2), c(d);
 	//int d = c;
 	//d *= a;
-	testAndOut("大数四则测试 加法: ", a + b == c, true);
-	testAndOut("大数四则测试 乘法: ", a * b == b, true);
-	testAndOut("大数加法交换律1: ", a + b == b + a, true);
-	testAndOut("大数加法交换律2: ", 1 + c == c + 1, true);
-	testAndOut("大数四则测试 +=: ", a.plus(b) == (c += 0), true);
-	testAndOut("大数四则测试 ==以及上一次的效果: ", a == c, true);
-	testAndOut("大数乘法交换律1: ", (b * a) == c*2, true);
-	testAndOut("大数乘法交换律2: ", (a * b) == 2*c, true);
-	testAndOut("大数四则测试: ", c + 1 == 4, true);
+	StandardExtend::testAndOut("大数四则测试 加法: ", a + b == c, true);
+	StandardExtend::testAndOut("大数四则测试 乘法: ", a * b == b, true);
+	StandardExtend::testAndOut("大数加法交换律1: ", a + b == b + a, true);
+	StandardExtend::testAndOut("大数加法交换律2: ", 1 + c == c + 1, true);
+	StandardExtend::testAndOut("大数四则测试 +=: ", a.plus(b) == (c += 0), true);
+	StandardExtend::testAndOut("大数四则测试 ==以及上一次的效果: ", a == c, true);
+	StandardExtend::testAndOut("大数乘法交换律1: ", (b * a) == c*2, true);
+	StandardExtend::testAndOut("大数乘法交换律2: ", (a * b) == 2*c, true);
+	StandardExtend::testAndOut("大数四则测试: ", c + 1 == 4, true);
 	//cin >> c;
 	cout << "cout 测试: " << c << endl;
 
@@ -602,25 +629,25 @@ int mainForBigInteger() {
 	a.plus(a);
 	//4=a*=4
 	a.plus(a);
-	testAndOut("自运算", a, BigInteger(4));
+	StandardExtend::testAndOut("自运算", a, BigInteger(4));
 
-	testAndOut("自运算", a.multiply(a), BigInteger(16));
-	testAndOut("自运算", a, BigInteger(4));
+	StandardExtend::testAndOut("自运算", a.multiply(a), BigInteger(16));
+	StandardExtend::testAndOut("自运算", a, BigInteger(4));
 	//16=4*4
 	a.muity(a);
-	testAndOut("自运算", a, BigInteger(16));
+	StandardExtend::testAndOut("自运算", a, BigInteger(16));
 	//256 = 16*16
 	a *= a;
-	testAndOut("自运算", a, BigInteger(256));
+	StandardExtend::testAndOut("自运算", a, BigInteger(256));
 	a = a * a;
-	testAndOut("自运算", a, BigInteger(65536));
+	StandardExtend::testAndOut("自运算", a, BigInteger(65536));
 
-	testAndOut("偶数判断", a.isEvenNumber(), true);
-	testAndOut("偶数判断", (++a).isEvenNumber(), false);
-	testAndOut("大数减法 小 - 大: ", c - a, BigInteger(3 - 65537));
-	testAndOut("大数减法 大 - 小: ", a - c, BigInteger(65537 - 3));
-	testAndOut("大数减法 多次借位: ", BigInteger(1) - BigInteger(1000), BigInteger(1 - 1000));
-	testAndOut("大数减法 位: ", BigInteger(1) - BigInteger(1000), BigInteger(1 - 1000));
+	StandardExtend::testAndOut("偶数判断", a.isEvenNumber(), true);
+	StandardExtend::testAndOut("偶数判断", (++a).isEvenNumber(), false);
+	StandardExtend::testAndOut("大数减法 小 - 大: ", c - a, BigInteger(3 - 65537));
+	StandardExtend::testAndOut("大数减法 大 - 小: ", a - c, BigInteger(65537 - 3));
+	StandardExtend::testAndOut("大数减法 多次借位: ", BigInteger(1) - BigInteger(1000), BigInteger(1 - 1000));
+	StandardExtend::testAndOut("大数减法 位: ", BigInteger(1) - BigInteger(1000), BigInteger(1 - 1000));
 
 	string illResultStr = "34332795984163804765195977526776142032365783805375784983543400282685180793327632432791396429850988990237345920155783984828001486412574060553756854137069878601";
 	BigInteger bigNumForIllResilt = BigInteger(illResultStr);
@@ -633,38 +660,38 @@ int mainForBigInteger() {
 	string ill100ReslStr = ill100ReslS;
 	string tempStr(10, '\0');
 	tempStr[0] = '1';
-	testAndOut("std::string length() 和 size一样:", tempStr.length(), tempStr.size());
-	testAndOut("整型以内的大数错排 100时候的错排数", ill100ReslStr, illResultStr);
-	testAndOut("大数==比较: ", bigNumForIllResilt == illList[100], true);
-	testAndOut("大数>比较: ", bigNumForIllResilt > illList[99], true);
-	testAndOut("大数<比较: ", bigNumForIllResilt < illList[101], true);
+	StandardExtend::testAndOut("std::string length() 和 size一样:", tempStr.length(), tempStr.size());
+	StandardExtend::testAndOut("整型以内的大数错排 100时候的错排数", ill100ReslStr, illResultStr);
+	StandardExtend::testAndOut("大数==比较: ", bigNumForIllResilt == illList[100], true);
+	StandardExtend::testAndOut("大数>比较: ", bigNumForIllResilt > illList[99], true);
+	StandardExtend::testAndOut("大数<比较: ", bigNumForIllResilt < illList[101], true);
 	cout << "cout 测试: " << bigNumForIllResilt << endl;
 	cout << "cout 测试: " << c << endl;
 
 	StandardExtend::testAndDiffClock([&]() {
-		testAndOut("10*3", BigInteger(10).muityDouble(3), BigInteger(30));
-		testAndOut("10*4", BigInteger(10).muityDouble(4), BigInteger(40));
+		StandardExtend::testAndOut("10*3", BigInteger(10).muityDouble(3), BigInteger(30));
+		StandardExtend::testAndOut("10*4", BigInteger(10).muityDouble(4), BigInteger(40));
 
-		testAndOut("bigNumForIllResilt*bigNumForIllResilt"
+		StandardExtend::testAndOut("bigNumForIllResilt*bigNumForIllResilt"
 			, BigInteger(bigNumForIllResilt).muityDouble(1024), bigNumForIllResilt*1024);
-		testAndOut("1024*0", BigInteger(1024).muityDouble(0), BigInteger(0));
-		testAndOut("1024*1", BigInteger(1024).muityDouble(1), BigInteger(1024));
-		testAndOut("512*2", BigInteger(512).muityDouble(2), BigInteger(1024));
-		testAndOut("256*4", BigInteger(256).muityDouble(4), BigInteger(1024));
-		testAndOut("128*8", BigInteger(128).muityDouble(8), BigInteger(1024));
+		StandardExtend::testAndOut("1024*0", BigInteger(1024).muityDouble(0), BigInteger(0));
+		StandardExtend::testAndOut("1024*1", BigInteger(1024).muityDouble(1), BigInteger(1024));
+		StandardExtend::testAndOut("512*2", BigInteger(512).muityDouble(2), BigInteger(1024));
+		StandardExtend::testAndOut("256*4", BigInteger(256).muityDouble(4), BigInteger(1024));
+		StandardExtend::testAndOut("128*8", BigInteger(128).muityDouble(8), BigInteger(1024));
 	}, "基于右侧减法运算符的乘法(有时比字乘法快)");
 	
 	StandardExtend::testAndDiffClock([&]() {
-		testAndOut("10*3", BigInteger(10).muity(3), BigInteger(30));
-		testAndOut("10*4", BigInteger(10).muity(4), BigInteger(40));
+		StandardExtend::testAndOut("10*3", BigInteger(10).muity(3), BigInteger(30));
+		StandardExtend::testAndOut("10*4", BigInteger(10).muity(4), BigInteger(40));
 
-		testAndOut("bigNumForIllResilt*bigNumForIllResilt"
+		StandardExtend::testAndOut("bigNumForIllResilt*bigNumForIllResilt"
 			, BigInteger(bigNumForIllResilt).muity(1024), bigNumForIllResilt*1024);
-		testAndOut("1024*0", BigInteger(1024).muity(0), BigInteger(0));
-		testAndOut("1024*1", BigInteger(1024).muity(1), BigInteger(1024));
-		testAndOut("512*2", BigInteger(512).muity(2), BigInteger(1024));
-		testAndOut("256*4", BigInteger(256).muity(4), BigInteger(1024));
-		testAndOut("128*8", BigInteger(128).muity(8), BigInteger(1024));
+		StandardExtend::testAndOut("1024*0", BigInteger(1024).muity(0), BigInteger(0));
+		StandardExtend::testAndOut("1024*1", BigInteger(1024).muity(1), BigInteger(1024));
+		StandardExtend::testAndOut("512*2", BigInteger(512).muity(2), BigInteger(1024));
+		StandardExtend::testAndOut("256*4", BigInteger(256).muity(4), BigInteger(1024));
+		StandardExtend::testAndOut("128*8", BigInteger(128).muity(8), BigInteger(1024));
 	}, "字乘法");
 
 	StandardExtend::testAndDiffClock([&]() {
@@ -673,7 +700,7 @@ int mainForBigInteger() {
 		BigInteger ba(a), bb(b);
 		(ba + bb).print(result, 128);
 		BigInteger::bigPlush(a, b, a);
-		testAndOut("64位有符号整型最大值相加: ", BigInteger::formatString(a), string(result));
+		StandardExtend::testAndOut("64位有符号整型最大值相加: ", BigInteger::formatString(a), string(result));
 	}, "字符串大数加法");
 	/*
 	python:
@@ -691,15 +718,15 @@ int mainForBigInteger() {
 		string resultOfFact10000 = "28462596809170545189064132121198688901480514017027992307941";
 		char *buffer = new char[42560];
 		BigInteger(1).fact(100).print(buffer, 256);
-		testAndOut("100的阶乘: ", string(buffer), resultOfFact100);
+		StandardExtend::testAndOut("100的阶乘: ", string(buffer), resultOfFact100);
 
 		BigInteger(1).fact(500).print(buffer, 2560);
-		testAndOut("500的阶乘: ", string(buffer), resultOfFact500);
+		StandardExtend::testAndOut("500的阶乘: ", string(buffer), resultOfFact500);
 		
 		/*//DEBUG模式下要算1min左右
 		BigInteger(1).fact(10000).print(buffer, 40000);
 		buffer[59] = '\0';
-		testAndOut("10000的阶乘的前59位: ", string(buffer), resultOfFact10000);
+		StandardExtend::testAndOut("10000的阶乘的前59位: ", string(buffer), resultOfFact10000);
 		*/
 		delete buffer;
 		buffer = nullptr;
@@ -756,7 +783,7 @@ int main() {
 	//freopen("input", "r", stdin);
 	//freopen_s(&inFile, "input", "r", stdin);
 	//mainForExpressionTree();
-	//mainForHuffumanTree();
+	mainForHuffumanTree();
 	MainForLinkedList();
 	MainForStack();
 	mainForQueue();

@@ -71,10 +71,18 @@ namespace StandardExtend{
 	//用于测试Function 会自动输出Function的执行时钟(单位：s)
 	template<class Function>
 	void testAndDiffClock(Function fun, JCE::String const &name = "") {
-		clock_t startClock = clock();
+		std::clock_t startClock = clock();
 		fun();
 		std::cout << name + "执行时间：" << calcDiffClock(startClock) << std::endl;
 	}
+
+	template<class T>
+	bool testAndOut(JCE::String const &name, T realValue, T expectValue) {
+		assert(realValue == expectValue);
+		std::cout << name + " 实际值: " << realValue << "; 期望值: " << expectValue << std::endl;
+		return true;
+	}
+
 	//闰年判断
 	DSAUTILITYEXTENSION_API int isIntercalary(int year);
 	//计算参数(月, 日)是参数(年)中的第几天 即: 将 年-月-日 转换为 天数
