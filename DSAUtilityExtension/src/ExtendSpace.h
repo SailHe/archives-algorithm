@@ -325,7 +325,7 @@ namespace Utility {
 		double x, y;
 		PointDouble() = default;
 		PointDouble(double x, double y) {
-			this->x = y;
+			this->x = x;
 			this->y = y;
 		}
 		PointDouble(std::istream &in) {
