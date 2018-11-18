@@ -306,6 +306,8 @@ public:
 	//更新式插入
 	virtual void insertEdge(Edge const &e) = 0;//纯虚函数
 	virtual void deleteEdge(VertexKey ownerID, VertexKey targetID) = 0;
+	//删除顶点vID及其关联的所有边
+	//virtual void deleteVertex(VertexKey vID) = 0;
 	//若存在边将边的权值赋予参数 返回true; 否则参数的权值为无穷大 返回false
 	virtual bool queryEdge(Edge &e) = 0;
 	
@@ -827,6 +829,8 @@ public:
 			 --edgeNum;
 		}
 	}
+	//void deleteVertex(VertexKey vID) override {}
+
 	EdgesType const &getEdgeList(size_t originNum)override{
 		return edgeData[originNum];
 	}

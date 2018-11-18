@@ -129,7 +129,7 @@ int calcRsult_11_17(vector<PointGeographic> const &originList) {
 }
 
 // 把5个点视为一个集合 ;求满足到其余所有点[最短距离和最短] 的集合
-// O[C(V, 5) * O(E + VlogV)]
+// O[C(V, 5) * (E + VlogV)] 约: 75287520*[4950 + 96*log(96)]
 int mainForSolve_11_17() {
 	//string inputFilePath = "F:/Temper/inputSheet_test.csv";
 	string inputFilePath = "F:/Temper/inputSheet.csv";
@@ -139,32 +139,51 @@ int mainForSolve_11_17() {
 	vector<PointGeographic> originPointList;
 	toPointGeographicList(originPointList, readStr);
 	int size = (int)originPointList.size(), setSize = 5;
-	int resultMinSetDis = MIN_INT32;
+	int resultMinSetDis = MAX_INT32;
 	string resultSetName = "";
+	int resultI1 = 15, resultI2 = 48, resultI3 = 97;
 	for (int i1 = 0; i1 < size; ++i1) {
+		vector<double> lngList;
+		lngList.reserve(setSize);
+		lngList.push_back(originPointList[i1].lng);
+		vector<double> latList;
+		latList.reserve(setSize);
+		latList.push_back(originPointList[i1].lat);
+		double lngSum = originPointList[i1].lng;
+		double latSum = originPointList[i1].lat;
 		for (int i2 = i1+1; i2 < size; ++i2) {
-			for (int i3 = i2+1; i3 < size; ++i3) {
-				for (int i4 = i3+1; i4 < size; ++i4) {
-					for (int i5 = i4+1; i5 < size; ++i5) {
-						vector<double> lngList;
-						lngList.reserve(setSize);
-						lngList.push_back(originPointList[i1].lng);
-						lngList.push_back(originPointList[i2].lng);
-						lngList.push_back(originPointList[i3].lng);
-						lngList.push_back(originPointList[i4].lng);
+			lngList.push_back(originPointList[i2].lng);
+			latList.push_back(originPointList[i2].lat);
+			lngSum += originPointList[i2].lng;
+			latSum += originPointList[i2].lat;
+			for (int i3 = resultI1; i3 < resultI1+1; ++i3) {
+				lngList.push_back(originPointList[i3].lng);
+				latList.push_back(originPointList[i3].lat);
+				lngSum += originPointList[i3].lng;
+				latSum += originPointList[i3].lat;
+				clock_t startTime = clock();
+				for (int i4 = resultI2; i4 < resultI2+1; ++i4) {
+					lngList.push_back(originPointList[i4].lng);
+					latList.push_back(originPointList[i4].lat);
+					lngSum += originPointList[i4].lng;
+					latSum += originPointList[i4].lat;
+					for (int i5 = resultI3; i5 < resultI3+1; ++i5) {
 						lngList.push_back(originPointList[i5].lng);
-
-						vector<double> latList;
-						latList.reserve(setSize);
-						latList.push_back(originPointList[i1].lat);
-						latList.push_back(originPointList[i2].lat);
-						latList.push_back(originPointList[i3].lat);
-						latList.push_back(originPointList[i4].lat);
 						latList.push_back(originPointList[i5].lat);
+						lngSum += originPointList[i5].lng;
+						latSum += originPointList[i5].lat;
 
 						//其余属性就不求平均值了 这里求平均值 用于构造setSize个点的中心点, 此点将拿来代表这setSize个点
-						double lngAvl = StandardExtend::avlValueStatistics(lngList.begin(), lngList.end(), 0.0);
-						double latAvl = StandardExtend::avlValueStatistics(latList.begin(), latList.end(), 0.0);
+						// double lngAvl = StandardExtend::avlValueStatistics(lngList.begin(), lngList.end(), 0.0);
+						// double lngAvl_ = lngSum / setSize;
+						// StandardExtend::testAndOut("", Utility::Double(lngAvl_), Utility::Double(lngAvl));
+						// double latAvl = StandardExtend::avlValueStatistics(latList.begin(), latList.end(), 0.0);
+						// double latAvl_ = latSum / setSize;
+						// StandardExtend::testAndOut("", Utility::Double(latAvl_), Utility::Double(latAvl));
+
+						double lngAvl = lngSum / setSize;
+						double latAvl = latSum / setSize;
+
 						string name = to_string(i1)  + " " + to_string(i2) + " " + to_string(i3) + " " + to_string(i4) + " " + to_string(i5);
 						vector<PointGeographic> resultList;
 						resultList.reserve(size - setSize + 1);
@@ -175,21 +194,43 @@ int mainForSolve_11_17() {
 						resultList.push_back(temp);
 						for (JCE::SizeType i = 0; i < originPointList.size(); ++i) {
 							if (i == i1 || i == i2 || i == i3 || i == i4 || i == i5) {
-								// do onthing
+								// do nothing
 							}
 							else {
 								resultList.push_back(originPointList[i]);
 							}
 						}
 						int resultDisBuffer = calcRsult_11_17(resultList);
-						if (resultDisBuffer > resultMinSetDis) {
+						if (resultDisBuffer < resultMinSetDis) {
 							resultMinSetDis = resultDisBuffer;
 							resultSetName = name;
 						}
+						lngList.pop_back();
+						latList.pop_back();
+						lngSum -= originPointList[i5].lng;
+						latSum -= originPointList[i5].lat;
 					}
+					lngList.pop_back();
+					latList.pop_back();
+					lngSum -= originPointList[i4].lng;
+					latSum -= originPointList[i4].lat;
 				}
+				lngList.pop_back();
+				latList.pop_back();
+				lngSum -= originPointList[i3].lng;
+				latSum -= originPointList[i3].lat;
+				//cout << "i3=: " << i3 << "耗时: " << StandardExtend::calcDiffClock(startTime) << endl;
 			}
+			lngList.pop_back();
+			latList.pop_back();
+			lngSum -= originPointList[i2].lng;
+			latSum -= originPointList[i2].lat;
 		}
+		lngList.pop_back();
+		latList.pop_back();
+		lngSum -= originPointList[i1].lng;
+		latSum -= originPointList[i1].lat;
+		cout << "i1=" << i1 << endl;
 	}
 	cout << "结果集合名: " << resultSetName << ";  结果集合的最短距离和: " << resultMinSetDis << endl;
 	return 0;
@@ -197,5 +238,7 @@ int mainForSolve_11_17() {
 
 int main() {
 	mainForSolve_11_17();
+	getchar();
+	getchar();
 	return 0;
 }
