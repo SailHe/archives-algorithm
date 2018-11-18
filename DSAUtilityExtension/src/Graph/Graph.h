@@ -265,6 +265,8 @@ public:
 		:vertexNum(vertexNum), visited(vertexNum, false){
 		edgeNum = 0;
 	}
+	virtual ~Graph() {
+	}
 
 	void resize(size_t newSize){
 		resizeEdge(newSize);
@@ -620,7 +622,8 @@ public:
 			edgeData[i].assign(vertexNum, INF);
 		}
 	}
-
+	virtual ~AdjacentMatrixGraph() {
+	}
 	bool queryEdge(Edge &e)override{
 		if (existEdge(e.ownerID, e.targetID)){
 			e.weight = edgeData[e.ownerID][e.targetID];
@@ -778,6 +781,8 @@ public:
 	AdjacentListGraph(int vertexNum) :Graph(vertexNum){
 		edgeData.reserve(2 * vertexNum + 50);
 		edgeData.resize(vertexNum);
+	}
+	virtual ~AdjacentListGraph() {
 	}
 
 	bool queryEdge(Edge &e)override{
