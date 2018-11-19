@@ -801,22 +801,24 @@ public:
 	//热度
 	double count = 0;
 	string name = "unknown";
-	bool operator<(PointGeographic const &rhs)const {
-		return this->count < rhs.count;
-	}
+	
 	PointGeographic(){}
 	//INF构造
 	PointGeographic(int count){
 		this->count = count;
 	}
-	//与INF比较
-	bool operator<(int const &rhs)const {
-		return this->count == rhs;
-	}
 	//转换为int
 	int operator()(PointGeographic const &rhs)const {
 		return rhs.count;
 	}
+	//与INF比较 基于int构造器
+	bool operator<(PointGeographic const &rhs)const {
+		return this->count < rhs.count;
+	}
+	//与INF比较
+	/*bool operator<(int const &rhs)const {
+		return this->count == rhs;
+	}*/
 	//INF的赋值 由构造器实现
 	/*PointGeographic operator=(int const &rhs)const {
 		PointGeographic temp = *this;
@@ -1023,11 +1025,53 @@ int mainForSolve_11_17() {
 	return 0;
 }
 
+//用PointGeographic之间的距离dis作为权值, 然后使用一个列表类处理集合
+/**/
+class DisSet {
+	using Double = Utility::Double;
+	bool isvalid = true;
+
+public:
+	
+	JCE::LinkedList<double> distaceList;
+	DisSet() {}
+	//INF构造
+	DisSet(int dis) {
+		distaceList.assign(1, dis);
+	}
+	int toInt(DisSet const &rhs) const {
+		double sum = MAX_INT32 / 2;
+		if (isvalid) {
+			sum = StandardExtend::sumValueStatistics(distaceList.begin(), distaceList.end(), 0.0);
+		}
+		return (int)(sum * 100);
+	}
+	//转换为int
+	int operator()(DisSet const &rhs)const {
+		return toInt(*this);
+	}
+	bool operator<(DisSet const &rhs)const {
+		return toInt(*this) < toInt(rhs);
+	}
+	//与INF比较
+	/*bool operator<(int const &rhs)const {
+		return (int)(*this) < (int)rhs;
+	}*/
+
+	//调用之后集合内的点将被定义为INF
+	void invalid() {
+		isvalid = false;
+	}
+	void valid() {
+		isvalid = true;
+	}
+};
 
 int mainForGraphTemplate() {
 	GraphTemplate<int> *g = new AdjacentMatrixGraphTemplate<int>(10);
 	GraphTemplate<double> *gd = new AdjacentMatrixGraphTemplate<double>(10);
 	GraphTemplate<PointGeographic> *gp = new AdjacentMatrixGraphTemplate<PointGeographic>(10);
+	GraphTemplate<DisSet> *gDisList = new AdjacentMatrixGraphTemplate<DisSet>(10);
 	gd->insertEdge(GraphTemplate<double>::Edge(0, 1, 10.0));
 	delete g;
 	g = nullptr;
