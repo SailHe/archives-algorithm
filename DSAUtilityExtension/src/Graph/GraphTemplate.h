@@ -24,6 +24,14 @@
 	还有就是如果visited被弄乱了, 可能需要clear一下, 这里略微费点时间O(V), 但远小于删除顶点的开销: 
 	邻接表图删除顶点(若是数组*链表实现)那么需要移动数组O(V), 还需检查所有的边O(E), 貌似上面也提到了, 
 	更何况如果使用得当的话, 这个clear是完全可以避免的.
+
+	注意, 一个原则: 图建好后顶点数不要轻易变化, 之后或许会考虑实现删除顶点, 
+	使用顶点无效方法invalid(V) 只会使其不参与计算(最短路, dfs, bfs)而不会改变顶点的实际数量(可能需要实现一个获取有效顶点的方法)
+
+	11-19 目前的实现: 无效指(visited[v] == true)
+	使getEdgeList在顶点无效时返回边数为0的列表 (此举影响了已有的最短路径算法);
+	dfs原本就使用了visited;
+	bfs会在该点无效时跳过该点
 */
 
 
@@ -240,6 +248,14 @@ public:
 	size_t getVertexNum() const {
 		return vertexNum;
 	}
+	// 使顶点v无效
+	void invalidVertex(VertexKey v) {
+		visited[v] = true;
+	}
+	// 使顶点v有效
+	void validVertex(VertexKey v) {
+		visited[v] = false;
+	}
 protected:
 
 	//在2017之下编译会通过 但实际上这样子是不能通过的(有对其进行修改) -> 旧版本的编译可以通过 高版本不一定(功能更加完善了)
@@ -303,6 +319,10 @@ protected:
 			auto &edges = getEdgeList(v);
 			//对图中由v出发的每条边<v, w>的顶点w进行拓展松弛操作
 			FOR_ALL_OBJECT(edges) {
+				if (visited[element.targetID]) {
+					// 跳过与无效顶点有关的边
+					continue;
+				}
 				//松弛操作: 先松弛过的顶点不会被后松弛的优化 若还能只可能是负权边的情况
 				if (dist[v] + element.weight < dist[element.targetID]) {
 					if (element.weight < 0)
@@ -433,10 +453,9 @@ protected:
 
 		return true;//算法执行完毕
 	}
-public:
+private:
 	//获取边listBuffer
 	virtual EdgesType const &getEdgeList(size_t originNum) = 0;
-private:
 	//子类构造的时候应该预留>2倍的空间
 	virtual void resizeEdge(size_t newSize) = 0;
 };
@@ -522,11 +541,17 @@ public:
 		}
 	}
 	EdgesType const &getEdgeList(size_t originNum)override {
-		static EdgesType edgesBuffer;//边读取缓冲
+		//边读取缓冲
+		static EdgesType edgesBuffer;
 		edgesBuffer.clear();
-		FOR(i, 0, vertexNum) {
-			if (existEdge(originNum, i)) {
-				edgesBuffer.emplace_back(i, edgeData[originNum][i]);
+		if (visited[originNum]) {
+			//do nothing
+		}
+		else {
+			FOR(i, 0, vertexNum) {
+				if (existEdge(originNum, i)) {
+					edgesBuffer.emplace_back(i, edgeData[originNum][i]);
+				}
 			}
 		}
 		return edgesBuffer;
@@ -702,7 +727,9 @@ public:
 	//void deleteVertex(VertexKey vID) override {}
 
 	EdgesType const &getEdgeList(size_t originNum)override {
-		return edgeData[originNum];
+		// 直接返回临时变量会出现奇怪的问题: 即使没有触发返回临时变量的情况, 返回的list size却为0
+		static EdgesType EMPTY_LIST;
+		return visited[originNum] ? EMPTY_LIST : edgeData[originNum];
 	}
 	int dfs(VertexKey presentId)override {
 		customVisit(presentId);
