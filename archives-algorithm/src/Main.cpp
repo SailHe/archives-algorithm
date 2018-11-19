@@ -6,6 +6,7 @@
 #include "ExtendSpace.h"
 #include "Graph\TreeObject.h"
 #include "Graph\Graph.h"
+#include "Graph\GraphTemplate.h"
 #include "BigInteger.h"
 #include "MathLibrary.h"
 //using namespace StandardExtend;
@@ -791,7 +792,8 @@ int mainForDllTest() {
 
 
 // 地理点数据结构
-struct PointGeographic {
+class PointGeographic {
+public:
 	//经度
 	double lng = -1;
 	//纬度
@@ -799,6 +801,31 @@ struct PointGeographic {
 	//热度
 	double count = 0;
 	string name = "unknown";
+	bool operator<(PointGeographic const &rhs)const {
+		return this->count < rhs.count;
+	}
+	PointGeographic(){}
+	//INF构造
+	PointGeographic(int count){
+		this->count = count;
+	}
+	//与INF比较
+	bool operator<(int const &rhs)const {
+		return this->count == rhs;
+	}
+	//转换为int
+	int operator()(PointGeographic const &rhs)const {
+		return rhs.count;
+	}
+	//INF的赋值 由构造器实现
+	/*PointGeographic operator=(int const &rhs)const {
+		PointGeographic temp = *this;
+		temp.count = rhs;
+		return temp;
+	}
+	bool operator==(PointGeographic const &rhs)const {
+		return this->count == rhs.count;
+	}*/
 };
 
 // 构造出完整的带有100个顶点任意两点之间边的图
@@ -997,6 +1024,15 @@ int mainForSolve_11_17() {
 }
 
 
+int mainForGraphTemplate() {
+	GraphTemplate<int> *g = new AdjacentMatrixGraphTemplate<int>(10);
+	GraphTemplate<double> *gd = new AdjacentMatrixGraphTemplate<double>(10);
+	GraphTemplate<PointGeographic> *gp = new AdjacentMatrixGraphTemplate<PointGeographic>(10);
+	gd->insertEdge(GraphTemplate<double>::Edge(0, 1, 10.0));
+	delete g;
+	g = nullptr;
+	return 0;
+}
 
 
 int main() {
@@ -1004,9 +1040,11 @@ int main() {
 	//freopen("input", "r", stdin);
 	//freopen_s(&inFile, "input", "r", stdin);
 	//mainForExpressionTree();
-	mainForSolve_11_17();
-	puts("任意按键继续");
-	getchar();
+	
+	// mainForSolve_11_17();
+	// puts("任意按键继续");
+	// getchar();
+	StandardExtend::testAndDiffClock(mainForGraphTemplate);
 
 	mainForHuffumanTree();
 	MainForLinkedList();

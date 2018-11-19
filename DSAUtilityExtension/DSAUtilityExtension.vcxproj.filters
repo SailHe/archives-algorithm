@@ -54,6 +54,9 @@
     <ClInclude Include="src\Graph\TreeUtility.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\Graph\GraphUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MathLibrary.cpp">
@@ -67,6 +70,9 @@
     </ClCompile>
     <ClCompile Include="src\List\Stack.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graph\GraphTemplate.h">
+      <Filter>头文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
