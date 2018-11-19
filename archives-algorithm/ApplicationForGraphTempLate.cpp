@@ -240,6 +240,12 @@ int mainForSolve_11_17() {
 	int resultMinSetDis = MAX_INT32;
 	string resultSetName = "";
 	for (int i1 = 0; i1 < size; ++i1) {
+		// 将i1-1(如果有的话) 置为有效
+		if (i1 > 0) {
+			for (auto ele : g->getEdgeList(i1 - 1)) {
+				ele.weight.valid();
+			}
+		}
 		vector<double> lngList;
 		lngList.reserve(setSize);
 		lngList.push_back(originPointList[i1].lng);
@@ -250,11 +256,25 @@ int mainForSolve_11_17() {
 		double latSum = originPointList[i1].lat;
 		clock_t startTime = clock();
 		for (int i2 = i1 + 1; i2 < size; ++i2) {
+			// 将i2-1(如果有的话) 置为有效
+			if (i2 > i1 + 1) {
+				for (auto ele : g->getEdgeList(i2 - 1)) {
+					ele.weight.valid();
+				}
+			}
 			lngList.push_back(originPointList[i2].lng);
 			latList.push_back(originPointList[i2].lat);
 			lngSum += originPointList[i2].lng;
 			latSum += originPointList[i2].lat;
 			for (int i3 = i2 + 1; i3 < size; ++i3) {
+				// 将i2 i3 添加进i1所在的DisSet中
+
+				// 将i3-1(如果有的话) 置为有效
+				if (i3 > i2 + 1) {
+					for (auto ele : g->getEdgeList(i3 - 1)) {
+						ele.weight.valid();
+					}
+				}
 				lngList.push_back(originPointList[i3].lng);
 				latList.push_back(originPointList[i3].lat);
 				lngSum += originPointList[i3].lng;
@@ -273,7 +293,6 @@ int mainForSolve_11_17() {
 				temp.lat = latAvl;
 				temp.name = name;
 				resultList.push_back(temp);
-				//将i2 i3 添加进i1所在的DisSet中 并将i2, i3置为无效
 				for (JCE::SizeType i = 0; i < originPointList.size(); ++i) {
 					if (i == i1 || i == i2 || i == i3) {
 						// do nothing
@@ -292,15 +311,25 @@ int mainForSolve_11_17() {
 					resultSetName = name;
 				}
 
+				// 将图中i3这个点置为无效 (计算时视为INF)
+				for (auto ele : g->getEdgeList(i3)) {
+					ele.weight.invalid();
+				}
 				lngList.pop_back();
 				latList.pop_back();
 				lngSum -= originPointList[i3].lng;
 				latSum -= originPointList[i3].lat;
 			}
+			for (auto ele : g->getEdgeList(i2)) {
+				ele.weight.invalid();
+			}
 			lngList.pop_back();
 			latList.pop_back();
 			lngSum -= originPointList[i2].lng;
 			latSum -= originPointList[i2].lat;
+		}
+		for (auto ele : g->getEdgeList(i1)) {
+			ele.weight.invalid();
 		}
 		lngList.pop_back();
 		latList.pop_back();
