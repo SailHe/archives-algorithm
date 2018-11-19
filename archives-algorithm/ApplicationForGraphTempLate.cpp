@@ -4,7 +4,7 @@
 #include "Queue.h"
 #include "ExtendSpace.h"
 #include "Graph\TreeObject.h"
-#include "Graph\Graph.h"
+//#include "Graph\Graph.h"
 #include "Graph\GraphTemplate.h"
 #include "BigInteger.h"
 #include "MathLibrary.h"
@@ -64,25 +64,38 @@ public:
 	DisSet(int dis) {
 		distaceList.assign(1, dis);
 	}
-	int toInt(DisSet const &rhs) const {
+	int toInt() const {
 		double sum = MAX_INT32 / 2;
 		if (isvalid) {
 			sum = StandardExtend::sumValueStatistics(distaceList.begin(), distaceList.end(), 0.0);
 		}
-		return (int)(sum * 100);
+		return (int)(sum);
 	}
 	//转换为int
 	int operator()(DisSet const &rhs)const {
-		return toInt(*this);
+		return this->toInt();
 	}
 	bool operator<(DisSet const &rhs)const {
-		return toInt(*this) < toInt(rhs);
+		return this->toInt() < rhs.toInt();
+	}
+	//用于最短路
+	bool operator==(DisSet const &rhs)const {
+		return this->toInt() == rhs.toInt();
+	}
+	//用于最短路
+	bool operator<=(DisSet const &rhs)const {
+		return this->toInt() <= rhs.toInt();
 	}
 	//与INF比较
 	/*bool operator<(int const &rhs)const {
 		return (int)(*this) < (int)rhs;
 	}*/
-
+	//用于最短路
+	DisSet operator+(DisSet const &rhs)const {
+		DisSet sum = *this;
+		sum.distaceList.insert(sum.distaceList.end(), rhs.distaceList.begin(), rhs.distaceList.end());
+		return sum;
+	}
 	//调用之后集合内的点将被定义为INF
 	void invalid() {
 		isvalid = false;
@@ -91,6 +104,9 @@ public:
 		isvalid = true;
 	}
 };
+
+using Graph = GraphTemplate<DisSet>;
+using AdjacentListGraph = AdjacentListGraphTemplate<DisSet>;
 
 
 // 构造出完整的带有100个顶点任意两点之间边的图
@@ -188,7 +204,12 @@ int calcRsult_11_17(vector<PointGeographic> const &originList) {
 		}
 	}
 	vector<int> dist, prePath, buffer;
-	g->shortestPath(0, dist, prePath);
+	vector<DisSet> weightList;
+	g->shortestPath(0, weightList, prePath);
+	dist.reserve(weightList.size());
+	FOR_ALL_OBJECT(weightList) {
+		dist.push_back(element.toInt());
+	}
 
 	// 简单人眼验证
 	/*for (int i = 0; i < size; ++i) {
@@ -212,6 +233,9 @@ int mainForSolve_11_17() {
 	//cout << readStr.c_str();
 	vector<PointGeographic> originPointList;
 	toPointGeographicList(originPointList, readStr);
+
+	auto g = generateGraph(originPointList);
+
 	int size = (int)originPointList.size(), setSize = 3;
 	int resultMinSetDis = MAX_INT32;
 	string resultSetName = "";
@@ -249,6 +273,7 @@ int mainForSolve_11_17() {
 				temp.lat = latAvl;
 				temp.name = name;
 				resultList.push_back(temp);
+				//将i2 i3 添加进i1所在的DisSet中 并将i2, i3置为无效
 				for (JCE::SizeType i = 0; i < originPointList.size(); ++i) {
 					if (i == i1 || i == i2 || i == i3) {
 						// do nothing
