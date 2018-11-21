@@ -273,7 +273,7 @@ public:
 34 24 58 0 64
 0 78 62 64 0
 */
-int mainForSolve1_11_21() {
+int mainForSolveC_11_21() {
 	int n;
 	while (cin >> n) {
 		Graph *g = new AdjacentMatrixGraph(n);
@@ -301,7 +301,7 @@ int mainForSolve1_11_21() {
 }
 
 // ÊÇ·ñÁ¬Í¨Í¼
-int mainSolve1_11_21() {
+int mainForSolveD_11_21() {
 	int nV, nE;
 	while (cin >> nV >> nE) {
 		Graph *g = new AdjacentMatrixGraph(nV);
