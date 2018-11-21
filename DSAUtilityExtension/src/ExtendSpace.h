@@ -12,19 +12,6 @@ std::setw(int w)             Read or write value to 'w' characters
 setbase(int b)          Output integers in base 'b'(only 'b' is 8 / 10 / 16 could the function work)
 */
 
-/*与Biology相关的三种类型:人物 怪物 管理员*/
-enum TYPE { PLAYER, PEOPLE, MANAGER, MONSTER };
-enum STATUS { NORMAL, ABNORMAL, CONK, QUIT, BLOCKING, BYPASS };//正常 异常 昏迷(死亡用成员方法判断) 退出 被阻挡 绕行状态
-/*视图: up(向上)->背影, down->正面, left->左, right->右  ViewCount:视图个数*/
-enum View { BACK, FRONT, LEFT, RIGHT, ViewCount };
-//用于指定动画静止时是播放哪一帧(起始帧, 上一帧)
-enum StaticFrameEnum { ORIGIN_FRAME, PAST_FRAME };
-enum STEP { STEP_X_AXIS, STEP_Y_AXIS };//步进方向
-enum MODE { ON, OFF, UNDEFINED };//模式
-//using Package = vector<pair<int, int>>;/*背包类*/
-//constant.h
-const View defaultView = BACK;//默认视图(此值转换为int必须是0)
-
 //un used
 #define PI_14 3.14159265358979//14位π
 #define MileByF(feet) ((feet)/5280.0)//5280 feet in a mile.

@@ -789,8 +789,8 @@ int mainForGraphTemplate() {
 	g = nullptr;
 	return 0;
 }
-
-int main_ForTest() {
+//_ForTest
+int main() {
 	//FILE *inFile = stdin, *outFile;
 	//freopen("input", "r", stdin);
 	//freopen_s(&inFile, "input", "r", stdin);
@@ -809,6 +809,7 @@ int main_ForTest() {
 	StandardExtend::testAndDiffClock(mainForBigInteger);
 
 	mainForDllTest();
+	
 
 	return 0;
 }

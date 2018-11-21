@@ -352,7 +352,7 @@ int mainForSolve_11_17() {
 	return 0;
 }
 
-int main() {
+int main_App() {
 	mainForSolve_11_17();
 	puts("任意按键继续");
 	getchar();

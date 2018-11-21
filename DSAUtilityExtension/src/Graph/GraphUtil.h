@@ -6,6 +6,7 @@
 /*
 const int DIR4x[] = { -1, 0, 1, 0 };
 const int DIR4y[] = { 0, 1, 0, -1 };
+那么space中无需extern 此处留存示例
 extern const int Dir8[8][2];
 extern const int Dir4[4][2];
 */
