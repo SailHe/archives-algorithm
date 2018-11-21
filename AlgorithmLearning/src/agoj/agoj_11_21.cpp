@@ -126,6 +126,10 @@ public:
 						}
 					}
 				}
+				// 非连通图, 不存在最小生成树
+				if (exchangeId == -1) {
+					return -1;
+				}
 				isVisitedPrimed[exchangeId] = true;
 				primedList.push_back(exchangeId);
 				minWeightSum += minEdgeWeight;
@@ -253,8 +257,23 @@ public:
 
 };
 
+/*
+@see http://139.196.145.92/contest_show.php?cid=635#problem/C
+5
+0 41 67 34 0
+41 0 69 24 78
+67 69 0 58 62
+34 24 58 0 64
+0 78 62 64 0
 
-int main() {
+5
+0 41 67 34 0
+41 0 69 24 78
+67 69 0 58 62
+34 24 58 0 64
+0 78 62 64 0
+*/
+int mainForSolve1_11_21() {
 	int n;
 	while (cin >> n) {
 		Graph *g = new AdjacentMatrixGraph(n);
@@ -266,6 +285,9 @@ int main() {
 					//do nothing
 				}
 				else {
+					if (r == 3 || c == 3) {
+						continue;
+					}
 					g->insertEdge(Graph::Edge(r, c, weightBuffer));
 				}
 			}
@@ -277,3 +299,21 @@ int main() {
 	}
 	return 0;
 }
+
+// 是否连通图
+int mainSolve1_11_21() {
+	int nV, nE;
+	while (cin >> nV >> nE) {
+		Graph *g = new AdjacentMatrixGraph(nV);
+		for (int i = 0; i < nE; ++i) {
+			int originId, targetId;
+			cin >> originId >> targetId;
+			g->insertEdge(Graph::Edge(originId-1, targetId-1, 1));
+		}
+		cout << (g->prim() == -1 ? "No" : "Yes") << endl;
+		delete g;
+		g = nullptr;
+	}
+	return 0;
+}
+
