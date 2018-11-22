@@ -94,17 +94,17 @@ public:
 		return vertexNum;
 	}
 	//prim 求最小生成树的权值和
-	int prim() {
+	int prim(VertexKey rootId) {
 		WeightType minWeightSum = 0;
 		ArrayList<bool> isVisitedPrimed(getVertexNum(), false);
 		LinkedList<VertexKey> primedList;
-		if (getVertexNum() == 0) {
+		if (getVertexNum() >= rootId) {
 			// do nothing
 		}
 		else {
 			// 加入任意一个作为初始值
-			isVisitedPrimed[0] = true;
-			primedList.push_back(0);
+			isVisitedPrimed[rootId] = true;
+			primedList.push_back(rootId);
 
 			while (primedList.size() != getVertexNum()) {
 				WeightType minEdgeWeight = MAX_INT32;
@@ -139,7 +139,7 @@ public:
 	}
 
 	// 算法导论版本 origin
-	int MST_prim(VertexKey rootVertexId) {
+	int MST_prim(VertexKey rootId) {
 		priority_queue<VertexKey> queueMin;
 		// 将所有顶点加入优先队列
 		for (VertexKey v = getVertexNum(); v >= 0; --v) {
@@ -151,6 +151,33 @@ public:
 
 		}
 	}
+	//来源：严蔚敏 吴伟民《数据结构(C语言版)》
+	// void MiniSpanTree_PRIM(MGraph G, VertexType u) {
+	// 	/*  用普利姆算法從第u個頂點出發構造網G 的最小生成樹T,輸出T的各條邊。
+	// 		記錄從頂點集U到V-U的代價最小的邊的輔助數組定義：
+	// 		struct
+	// 		{
+	// 			VertexType adjvex;
+	// 			VRtype lowcost;
+	// 		}closedge[MAX_VERTEX_NUM];
+	// 	*/
+	// 	k = LocateVex(G, u);
+	// 	for (j = 0; j < G.vexnum; j++) { //輔助數組初始化
+	// 		if (j != k)
+	// 			closedge[j] = { u, G.arcs[k][j].adj }; //{adjvex, lowcost}
+	// 	}
+	// 	closedge[k].lowcost = 0; //初始，U={u}
+	// 	for (i = 1; i < G.vexnum; i++) { //選擇其餘G.vexnum -1 個頂點
+	// 		k = minimum(closedge); //求出T的下個結點：第k結點
+	// 		//  此时 closedge[k].lowcost = MIN{ closedge[Vi].lowcost|closedge[Vi].lowcost>0,Vi∈V-U}
+	// 		printf(closedge[k].adjvex, G.vexs[k]); //輸出生成樹的邊
+	// 		closedge[k].lowcost = 0; //第k條邊併入U集
+	// 		for (j = 0; j < G.vexnum; j++) {
+	// 			if (G.arcs[k][j].adj < closedge[j].lowcost) //新頂點併入U後重新選擇最小邊
+	// 				closedge[j] = { G.vex[k], G.arcs[k][j].adj };
+	// 		}
+	// 	}
+	// }
 protected:
 
 	//在2017之下编译会通过 但实际上这样子是不能通过的(有对其进行修改) -> 旧版本的编译可以通过 高版本不一定(功能更加完善了)
@@ -159,6 +186,7 @@ protected:
 	//顶点数据 顶点无数据可以不用出现 若顶点数量经常改动 可以直接用map<VertexValue>替代
 	ArrayList<VertexValue> vertexData;
 	//顶点数
+
 	size_t vertexNum;
 	//边数 V个顶点的无向完全图边数=V(V-1)/2
 	int edgeNum;
@@ -292,7 +320,7 @@ int mainForSolveC_11_21() {
 				}
 			}
 		}
-		int result = g->prim();
+		int result = g->prim(0);
 		cout << result << endl;
 		delete g;
 		g = nullptr;
@@ -310,7 +338,7 @@ int mainForSolveD_11_21() {
 			cin >> originId >> targetId;
 			g->insertEdge(Graph::Edge(originId-1, targetId-1, 1));
 		}
-		cout << (g->prim() == -1 ? "No" : "Yes") << endl;
+		cout << (g->prim(0) == -1 ? "No" : "Yes") << endl;
 		delete g;
 		g = nullptr;
 	}

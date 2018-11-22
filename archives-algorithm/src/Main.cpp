@@ -791,6 +791,7 @@ int mainForGraphTemplate() {
 }
 //_ForTest
 int main() {
+	StandardExtend::outputDebugFormat("输出栏格式化字符串输出测试%d\n", 10);
 	//FILE *inFile = stdin, *outFile;
 	//freopen("input", "r", stdin);
 	//freopen_s(&inFile, "input", "r", stdin);

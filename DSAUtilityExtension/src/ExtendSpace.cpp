@@ -1,5 +1,9 @@
 #include "ExtendSpace.h"
 
+// OutputDebugPrintf函数使用
+#include "atlbase.h"
+#include "atlstr.h"
+
 namespace StandardExtend{
 	// =====Ascll
 	char toLowerAlph(char c){
@@ -33,6 +37,17 @@ namespace StandardExtend{
 	}
 	bool isAa0Equal(char a, char b){
 		return toLowerAlph(a) == toLowerAlph(b);
+	}
+
+	void outputDebugFormat(const char *strOutputString, ...) {
+		char strBuffer[4096] = { 0 };
+		va_list vlArgs;
+		va_start(vlArgs, strOutputString);
+		_vsnprintf_s(strBuffer, sizeof(strBuffer) - 1, strOutputString, vlArgs);
+		//vsprintf(strBuffer, strOutputString, vlArgs);
+		va_end(vlArgs);
+		//CA2W: 将ANSI character string转化为Unicode character string
+		OutputDebugString(CA2W(strBuffer));
 	}
 
 	// ====DATE

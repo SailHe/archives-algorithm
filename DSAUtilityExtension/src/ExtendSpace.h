@@ -50,6 +50,10 @@ namespace StandardExtend{
 	//'A' == 'a' == '0' ... 'J' == 'j' == '9' 以此类推
 	DSAUTILITYEXTENSION_API bool isAa0Equal(char a, char b);
 
+	// @see https://my.oschina.net/wangsifangyuan/blog/1499715
+	// 输出格式化信息到输出框
+	DSAUTILITYEXTENSION_API void outputDebugFormat(const char *strOutputString, ...);
+
 	// =====DATE
 	//计算与参数的时间差（单位：Minite）
 	DSAUTILITYEXTENSION_API double calcDifftime(time_t startTime);
