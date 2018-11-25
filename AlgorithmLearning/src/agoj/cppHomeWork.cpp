@@ -122,9 +122,44 @@ int mainForSolve2_11_5() {
 // 输入年份和这一年的第一天是星期几 输出日历
 // 2005 6表示2005-1-1是星期6
 // Jannuary 2005
+
+class MyDate {
+private:
+	// 年份, 月份, 天数
+	int year, month, day;
+	// 星期数[1, 8)
+	int week;
+public:
+	void setYear(int year) {
+		this->year = year;
+	}
+	void setMonth(int month) {
+		this->month = month;
+	}
+	void setDay(int day) {
+		this->day = day;
+	}
+
+	void setWeek(int week) {
+		this->week = week;
+	}
+	int getYear() const {
+		return this->year;
+	}
+	int getMonth() const {
+		return this->month;
+	}
+	int getDay() const {
+		return this->day;
+	}
+	int getWeek() const {
+		return this->week;
+	}
+};
 bool isLeapYear(int);
 int getWeekDay(int, int, int);
-int calendar(int year, int month, int week){
+int calendar(MyDate const *date){
+	int year = date->getYear(), month = date->getMonth(), week = date->getWeek();
 	//输出日历日历标题
 	cout << "     " << year << "年" << month << "月" << endl;
 	//输出星期
@@ -150,7 +185,7 @@ int calendar(int year, int month, int week){
 	int dayOfMonth = 1;
 	//从一号循环到本月末
 	while (dayOfMonth <= endDayOfMonth) {
-		printf("%2d ", dayOfMonth);
+		cout << std::setw(2) << dayOfMonth << " ";
 		dayOfMonth++;
 		//每输出完星期六的日期后就换行(对应周数起点是从week开始的，所以要在天数上加上week)
 		if ((dayOfMonth + week - 1) % 7 == 0)
@@ -167,10 +202,14 @@ int mainForSolve_11_25() {
 	cout<<("输入: 日期(yyyy) 1-1号的星期数[1, 7]: ");
 	//输入年和月
 	cin >> year >> week;
+	MyDate buffer;
 	if (StandardExtend::inRange(1, week, 7)) {
-		for (month = 1; month < 12; ++month) {
+		for (month = 1; month < 13; ++month) {
 			//calendar(year, month, getWeekDay(year, month, 1));
-			calendar(year, month, week);
+			buffer.setYear(year);
+			buffer.setMonth(month);
+			buffer.setWeek(week);
+			calendar(&buffer);
 		}
 	}
 	else {
