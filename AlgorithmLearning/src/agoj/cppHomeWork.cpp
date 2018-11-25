@@ -125,10 +125,10 @@ int mainForSolve2_11_5() {
 
 class MyDate {
 private:
-	// 年份, 月份, 天数
-	int year, month, day;
-	// 星期数[1, 8)
-	int week;
+	// 年份, 模年月份, 模月天数
+	int year, month, dayOfMonth;
+	// 模周天数[1, 8)
+	int dayOfWeek;
 public:
 	void setYear(int year) {
 		this->year = year;
@@ -137,11 +137,11 @@ public:
 		this->month = month;
 	}
 	void setDay(int day) {
-		this->day = day;
+		this->dayOfMonth = day;
 	}
 
-	void setWeek(int week) {
-		this->week = week;
+	void setDayOfWeek(int week) {
+		this->dayOfWeek = week;
 	}
 	int getYear() const {
 		return this->year;
@@ -150,23 +150,23 @@ public:
 		return this->month;
 	}
 	int getDay() const {
-		return this->day;
+		return this->dayOfMonth;
 	}
-	int getWeek() const {
-		return this->week;
+	int getDayOfWeek() const {
+		return this->dayOfWeek;
 	}
 };
 bool isLeapYear(int);
 int getWeekDay(int, int, int);
-int calendar(MyDate const *date){
-	int year = date->getYear(), month = date->getMonth(), week = date->getWeek();
+int calendar(MyDate *date){
+	int year = date->getYear(), month = date->getMonth(), dayOfWeek = date->getDayOfWeek();
 	//输出日历日历标题
 	cout << "     " << year << "年" << month << "月" << endl;
 	//输出星期
 	cout << ("日 一 二 三 四 五 六\n");
 	int i;
 	//每月第一周前几天用空格填充
-	for (i = 0; i < week; i++)
+	for (i = 0; i < dayOfWeek; i++)
 		cout << ("   ");
 
 	//每个月的最后一天
@@ -186,11 +186,12 @@ int calendar(MyDate const *date){
 	//从一号循环到本月末
 	while (dayOfMonth <= endDayOfMonth) {
 		cout << std::setw(2) << dayOfMonth << " ";
-		dayOfMonth++;
-		//每输出完星期六的日期后就换行(对应周数起点是从week开始的，所以要在天数上加上week)
-		if ((dayOfMonth + week - 1) % 7 == 0)
+		++dayOfMonth;
+		//每输出完星期六的日期后就换行(对应周数起点是从dayOfWeek开始的，所以要在天数上加上dayOfWeek)
+		if ((dayOfMonth + dayOfWeek - 1) % 7 == 0)
 			cout << endl;
 	}
+	date->setDayOfWeek((date->getDayOfWeek() + --dayOfMonth % 7) % 7);
 	cout << endl;
 	return 0;
 }
@@ -203,12 +204,12 @@ int mainForSolve_11_25() {
 	//输入年和月
 	cin >> year >> week;
 	MyDate buffer;
+	buffer.setDayOfWeek(week);
 	if (StandardExtend::inRange(1, week, 7)) {
 		for (month = 1; month < 13; ++month) {
 			//calendar(year, month, getWeekDay(year, month, 1));
 			buffer.setYear(year);
 			buffer.setMonth(month);
-			buffer.setWeek(week);
 			calendar(&buffer);
 		}
 	}
