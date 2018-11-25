@@ -118,11 +118,112 @@ int mainForSolve2_11_5() {
 	return 0;
 }
 
-int main() {
-	//mainForTemperatureTranslate();
-	//mainForAlphTranslate();
 
-	//mainForSolve1_11_5();
-	mainForSolve2_11_5();
+// 输入年份和这一年的第一天是星期几 输出日历
+// 2005 6表示2005-1-1是星期6
+// Jannuary 2005
+bool isLeapYear(int);
+int getWeekDay(int, int, int);
+int calendar(int year, int month, int week){
+	//输出日历日历标题
+	cout << "     " << year << "年" << month << "月" << endl;
+	//输出星期
+	cout << ("日 一 二 三 四 五 六\n");
+	int i;
+	//每月第一周前几天用空格填充
+	for (i = 0; i < week; i++)
+		cout << ("   ");
+
+	//每个月的最后一天
+	int endDayOfMonth;
+	if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12)
+		endDayOfMonth = 31;
+	else if (month == 2) {
+		if (isLeapYear(year))
+			endDayOfMonth = 29;
+		else
+			endDayOfMonth = 28;
+	}
+	else
+		endDayOfMonth = 30;
+
+	int dayOfMonth = 1;
+	//从一号循环到本月末
+	while (dayOfMonth <= endDayOfMonth) {
+		printf("%2d ", dayOfMonth);
+		dayOfMonth++;
+		//每输出完星期六的日期后就换行(对应周数起点是从week开始的，所以要在天数上加上week)
+		if ((dayOfMonth + week - 1) % 7 == 0)
+			cout << endl;
+	}
+	cout << endl;
+	return 0;
+}
+int mainForSolve_11_25() {
+	int year;
+	int month;
+	int week;
+
+	cout<<("输入: 日期(yyyy) 1-1号的星期数[1, 7]: ");
+	//输入年和月
+	cin >> year >> week;
+	if (StandardExtend::inRange(1, week, 7)) {
+		for (month = 1; month < 12; ++month) {
+			//calendar(year, month, getWeekDay(year, month, 1));
+			calendar(year, month, week);
+		}
+	}
+	else {
+		cout << "星期数属于[1, 7]!" << endl;
+	}
+	return 0;
+}
+//判断闰年
+bool isLeapYear(int y){
+	if (y % 4 == 0 && y % 100 != 0 || y % 400 == 0)
+		return true;
+	return false;
+}
+//获取某天是星期几返回值(0-7)
+int getWeekDay(int y, int m, int d){
+	//计算星期几的固定公式,Y是年D是这个日期在本年的天数
+	//W = [Y-1] + [(Y-1)/4] - [(Y-1)/100] + [(Y-1)/400] + D 
+	int days = d;
+	int i;
+	for (i = 1; i < m; i++){
+		if (i == 1 || i == 3 || i == 5 || i == 7 || i == 8 || i == 10 || i == 12)
+			days += 31;
+		else if (i == 2){
+			if (isLeapYear(y)) {
+				days += 29;
+			}
+			else {
+				days += 28;
+			}
+		}
+		else {
+			days += 30;
+		}
+	}
+
+	int temp = y - 1 + (int)((y - 1) / 4) - (int)((y - 1) / 100) + (int)((y - 1) / 400) + days;
+	return temp % 7;
+}
+
+int main(int argc, char const *argv[]) {
+	string control = "";
+	do {
+		// 第一次
+		//mainForTemperatureTranslate();
+		//mainForAlphTranslate();
+
+		// 第二次
+		//mainForSolve1_11_5();
+		//mainForSolve2_11_5();
+
+		// 第三次
+		mainForSolve_11_25();
+		cout << "结束y/n" << endl;
+	} while ((cin >> control) && control != "y");
 	return 0;
 }
