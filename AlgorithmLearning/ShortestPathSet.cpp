@@ -390,6 +390,121 @@ int mainForSolve_11_17() {
 	return 0;
 }
 
+int mainForSolve_11_17_3Point() {
+	// 0 1 3
+	//string inputFilePath = "F:/Temper/inputSheet_test3_1.csv";
+	// 1 2 4
+	//string inputFilePath = "F:/Temper/inputSheet_test3.csv";
+	string inputFilePath = "F:/Temper/inputSheet.csv";
+	ifstream iFile(inputFilePath);
+	string readStr((std::istreambuf_iterator<char>(iFile)), std::istreambuf_iterator<char>());
+	//cout << readStr.c_str();
+	JCE::ArrayList<PointGeographic> originPointList;
+	toPointGeographicList(originPointList, readStr);
+	Graph *g = nullptr;
+	StandardExtend::testAndDiffClock([&]() {
+		//           DEBUG(DisSet)											RELEASE
+		// 邻接矩阵: 3.819s; 3.102; 3.202; 0.003(double) 0.677			0.048; 0.129; 0.093
+		// 邻接表 :  3.205;	3.317; 3.065;								0.022; 0.023; 0.026
+		g = generateGraph(originPointList);
+	}, "带边的图的生成");
+
+	int size = (int)originPointList.size(), setSize = 3;
+	int resultMinSetDis = MAX_INT32;
+	string resultSetName = "";
+	for (int i1 = 0; i1 < size; ++i1) {
+		// 将i1置为无效 (原本是全有效的, 无效的顶点在计算时跳过)
+		g->invalidVertex(i1);
+		JCE::ArrayList<double> lngList;
+		lngList.reserve(setSize);
+		lngList.push_back(originPointList[i1].lng);
+		JCE::ArrayList<double> latList;
+		latList.reserve(setSize);
+		latList.push_back(originPointList[i1].lat);
+		double lngSum = originPointList[i1].lng;
+		double latSum = originPointList[i1].lat;
+		clock_t startTime = clock();
+		for (int i2 = i1 + 1; i2 < size; ++i2) {
+			// 将i2置为无效
+			g->invalidVertex(i2);
+			lngList.push_back(originPointList[i2].lng);
+			latList.push_back(originPointList[i2].lat);
+			lngSum += originPointList[i2].lng;
+			latSum += originPointList[i2].lat;
+			for (int i3 = i2 + 1; i3 < size; ++i3) {
+				// 将i3置为无效
+				g->invalidVertex(i3);
+				lngList.push_back(originPointList[i3].lng);
+				latList.push_back(originPointList[i3].lat);
+				lngSum += originPointList[i3].lng;
+				latSum += originPointList[i3].lat;
+
+
+				double lngAvl = lngSum / setSize;
+				double latAvl = latSum / setSize;
+
+				string name = to_string(i1) + " " + to_string(i2) + " " + to_string(i3);
+
+				JCE::ArrayList<int> pointSetIndexList;
+				pointSetIndexList.reserve(size - setSize + 1);
+				pointSetIndexList.push_back(i1);
+				pointSetIndexList.push_back(i2);
+				pointSetIndexList.push_back(i3);
+				//或许可以直接删除有关的边 已达到删除顶点的目的
+				updateGraph(g, originPointList, pointSetIndexList);
+				// 97 其余顶点实际为100 有效的为97
+				//StandardExtend::testAndOut("集合顶点的实际边数: ", g->getEdgeNum(), g->getVertexNum()-4);
+				JCE::ArrayList<int> prePath;// , dist, buffer;
+				JCE::ArrayList<WeightT> minWeightList;
+				//StandardExtend::testAndDiffClock([&]() {
+					//           DEBUG						RELEASE
+					// 邻接矩阵:  
+					// 邻接表 :  
+				g->shortestPath(g->getVertexNum() - 1, minWeightList, prePath);
+				//}, "集合到其余所有点的最短路径");
+
+				int resultDisBuffer = 0, index = -1;//StandardExtend::sumValueStatistics(dist.begin(), dist.end(), 0);
+				FOR_ALL_OBJECT(minWeightList) {
+					if (find(pointSetIndexList.begin(), pointSetIndexList.end(), ++index) != pointSetIndexList.end()) {
+						continue;
+					}
+					//dist.push_back(element);
+					resultDisBuffer += element;
+				}
+				if (resultDisBuffer < 0) {
+					puts("溢出!");
+					getchar();
+				}
+				if (resultDisBuffer < resultMinSetDis) {
+					resultMinSetDis = resultDisBuffer;
+					resultSetName = name;
+				}
+
+				// 将图中i3这个点置为有效
+				g->validVertex(i3);
+				lngList.pop_back();
+				latList.pop_back();
+				lngSum -= originPointList[i3].lng;
+				latSum -= originPointList[i3].lat;
+			}
+			g->validVertex(i2);
+			lngList.pop_back();
+			latList.pop_back();
+			lngSum -= originPointList[i2].lng;
+			latSum -= originPointList[i2].lat;
+		}
+		g->validVertex(i1);
+		lngList.pop_back();
+		latList.pop_back();
+		lngSum -= originPointList[i1].lng;
+		latSum -= originPointList[i1].lat;
+		cout << "i1=" << i1 << "; 耗时: " << StandardExtend::calcDiffClock(startTime) << "; 当前结果集" << resultSetName << "; 当前最短路径和=" << resultMinSetDis << endl;
+		//cout << "i1=" << i1 << endl;
+	}
+	cout << "结果集合名: " << resultSetName << ";  结果集合的最短距离和的1w倍的平方: " << resultMinSetDis << endl;
+	return 0;
+}
+
 int main() {
 	mainForSolve_11_17();
 	puts("任意按键继续");

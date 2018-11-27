@@ -66,11 +66,11 @@
     <ClCompile Include="src\agoj\agoj_11_14.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
-    <ClCompile Include="demoForCsv.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\agoj\agoj_11_21.cpp">
       <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="ShortestPathSet.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
