@@ -144,10 +144,15 @@ struct EdgeFullNode {
 // 返回最小生成树的权值
 int kruskal(int n, ArrayList<EdgeFullNode> &edgeList) {
 	// 对所有的边按照权值排序
-	std::sort(edgeList.begin(), edgeList.end(), [&](EdgeFullNode const &lhs, EdgeFullNode const &rhs) {
+	/*std::sort(edgeList.begin(), edgeList.end(), [&](EdgeFullNode const &lhs, EdgeFullNode const &rhs) {
 		return lhs.weight < rhs.weight;
-	});
+	});*/
 
+	// 最小堆 0号位置始终最小
+	std::make_heap(edgeList.begin(), edgeList.end(), [&](EdgeFullNode const &lhs, EdgeFullNode const &rhs) {
+		return lhs.weight > rhs.weight;
+	});
+	
 	DisjointSet<int> nDisjointSet(n);
 	int index = 0;
 	int lhsVertex = -1, rhsVertex = -1;
@@ -156,25 +161,20 @@ int kruskal(int n, ArrayList<EdgeFullNode> &edgeList) {
 	// 当集合数目为1, 或者不是连通图时算法中止
 	// 这个方法名等会改一下 容易与geter seter误会
 	while (unitSetCount != 1 && index < edgeList.size()) {
-		lhsVertex = edgeList[index].originID;
-		rhsVertex = edgeList[index].targetID;
+		lhsVertex = edgeList[0].originID;
+		rhsVertex = edgeList[0].targetID;
 		// 每次加入一条权值最小的边进入原本与之有关(通过边关联)的两个不同的集合中, 用以消除一个集合
 		// 发生合并即说明其属于不同集合
 		if (nDisjointSet.unionElement(lhsVertex, rhsVertex)) {
-			sumWeight += edgeList[index].weight;
+			sumWeight += edgeList[0].weight;
 			--unitSetCount;
 		}
 		else {
 			// do nothing
 		}
-		/*if (nDisjointSet.findRoot(lhsVertex) != nDisjointSet.findRoot(rhsVertex)) {
-			sumWeight += edgeList[index].weight;
-			nDisjointSet.unionElement(lhsVertex, rhsVertex);
-			--unitSetCount;
-		}
-		else {
-			// do nothing
-		}*/
+		std::pop_heap(edgeList.begin(), edgeList.end() - index, [&](EdgeFullNode const &lhs, EdgeFullNode const &rhs) {
+			return lhs.weight > rhs.weight;
+		});
 		++index;
 	}
 	return sumWeight;
@@ -214,6 +214,7 @@ int mainForKruskal() {
 		}
 		// 10w [5.437, 5.572]s  使用calcSetCount的版本
 		// 10w [3.72, 4.08]s    多2次findRoot调用的版本
+		// 10w [5.0, 5.4]s  对上述进行优化的版本 但排序用堆替换
 		// 10w [3.138, 3.189]s  对上述进行优化的版本
 		StandardExtend::testAndDiffClock([&]() {
 			for (int i = 0; i < 100000; ++i) {
