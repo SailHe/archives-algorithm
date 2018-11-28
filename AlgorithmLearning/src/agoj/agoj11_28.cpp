@@ -21,13 +21,15 @@ template<class T> using LinkedList = list<T>;
 using SizeType = size_t;
 using I64 = long long;
 
+// 其实这个集合并非真正意义上的集合 它只储存了关系 没有储存集合的元素
 template<class ElementType>
 //并查集模板类 unit join set
 class DisjointSet {
 public:
 	//using ElementType = int;
-	//用集合的root下标表示集合
+	// 用集合的root下标表示集合
 	using SetRoot = int;
+	// 元素都表示下标
 	using SetBaseType = vector<ElementType>;
 	//using SetBaseType = ElementType[MAX_N];
 	//在class出现vector在http://139.196.145.92上会Runtime Error
@@ -70,9 +72,10 @@ public:
 
 	// 查询指定元素的根 O(lgN)
 	SetRoot findRoot(ElementType x) {
-		//集合默认初始值为1
-		return disjointSetBase[x] < 0 ? x//找到集合的根
-			: disjointSetBase[x] = findRoot(disjointSetBase[x]);//继续寻找并进行路径压缩
+		// 集合默认初始值为-1 (负数表示这是一个集合的根, 绝对值表示集合大小)
+		return disjointSetBase[x] < 0 ? x
+			// 路径压缩: 将递归找到的集合的根赋值给父结点
+			: disjointSetBase[x] = findRoot(disjointSetBase[x]);
 	}
 
 	// 返回指定集合的元素个数(大小) O(1)
@@ -125,17 +128,6 @@ int MainJudgeConnectivity() {
 	}
 	return 0;
 }
-
-// 这其实是边....
-struct VertexNode {
-	int weight;
-	int targetID;
-	VertexNode() {}
-	VertexNode(int targetID, int weight) {
-		this->weight = weight;
-		this->targetID = targetID;
-	}
-};
 
 struct EdgeFullNode {
 	int weight = -1;
@@ -220,9 +212,9 @@ int mainForKruskal() {
 				}
 			}
 		}
-		// 1w  [0.35, 0.56]s
-		// 10w [3.72, 4.08]s
-		// 10w [3.138, 3.189]s
+		// 10w [5.437, 5.572]s  使用calcSetCount的版本
+		// 10w [3.72, 4.08]s    多2次findRoot调用的版本
+		// 10w [3.138, 3.189]s  对上述进行优化的版本
 		StandardExtend::testAndDiffClock([&]() {
 			for (int i = 0; i < 100000; ++i) {
 				kruskal(n, edgeList);

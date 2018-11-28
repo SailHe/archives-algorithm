@@ -121,6 +121,7 @@ void basePlus(string &lhs, string &rhs, int base, string &sum){
 	}
 }
 
+// 这其实是边....
 struct VertexNode{
 	int weight;
 	int targetID;
