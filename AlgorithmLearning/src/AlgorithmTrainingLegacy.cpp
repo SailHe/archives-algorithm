@@ -65,7 +65,7 @@ public:
 	}
 
 	//返回集合数
-	size_t setCount(){
+	size_t calcSetCount(){
 		size_t cnt = 0;
 		for (size_t i = 0; i < disjointSetBase.size(); ++i){
 			cnt += disjointSetBase[i] < 0 ? 1 : 0;

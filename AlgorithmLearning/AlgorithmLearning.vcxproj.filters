@@ -72,6 +72,9 @@
     <ClCompile Include="ShortestPathSet.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\agoj\agoj11_28.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
