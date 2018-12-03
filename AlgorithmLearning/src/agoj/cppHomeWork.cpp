@@ -295,7 +295,7 @@ public:
 
 	// 返回当前股价与前一交易日收盘价的变化百分比
 	double changePercent() const {
-		return currentClosingPrice / previousClosingPrice;
+		return ((currentClosingPrice - previousClosingPrice) / previousClosingPrice) * 100;
 	}
 
 private:
