@@ -250,6 +250,74 @@ int getWeekDay(int y, int m, int d){
 	return temp % 7;
 }
 
+// ===============================================================
+
+// 辣鸡股票
+class Stock {
+public:
+	
+	Stock(std::string const &symbol, std::string const &name) {
+		this->symbol = symbol;
+		this->name = name;
+	}
+
+	std::string const &getSymbol() const {
+		return symbol;
+	}
+
+	/*void setSymbol(std::string const &symbol) {
+		this->symbol = symbol;
+	}*/
+
+	std::string const &getName() const {
+		return name;
+	}
+
+	/*void setName(std::string const &name) {
+		this->name = name;
+	}*/
+
+	double getPreviousClosingPrice() const {
+		return previousClosingPrice;
+	}
+
+	void setPreviousClosingPrice(double previousClosingPrice) {
+		this->previousClosingPrice = previousClosingPrice;
+	}
+
+	double getCurrentClosingPrice() const {
+		return currentClosingPrice;
+	}
+
+	void setCurrentClosingPrice(double currentClosingPrice) {
+		this->currentClosingPrice = currentClosingPrice;
+	}
+
+	// 返回当前股价与前一交易日收盘价的变化百分比
+	double changePercent() const {
+		return currentClosingPrice / previousClosingPrice;
+	}
+
+private:
+	// 股票编号
+	std::string symbol;
+	// 股票名字
+	std::string name;
+	// 前一日的股票交易日收盘价
+	double previousClosingPrice;
+	// 前一日的股票当前价格
+	double currentClosingPrice;
+};
+
+int mainForSolve_12_3() {
+	Stock tester("BABA", "AlibabaGroup Inc.");
+	tester.setPreviousClosingPrice(90.0);
+	tester.setCurrentClosingPrice(80.0);
+	std::cout << tester.changePercent() << endl;
+	return 0;
+}
+
+
 int main(int argc, char const *argv[]) {
 	string control = "";
 	do {
@@ -262,7 +330,10 @@ int main(int argc, char const *argv[]) {
 		//mainForSolve2_11_5();
 
 		// 第三次
-		mainForSolve_11_25();
+		// mainForSolve_11_25();
+
+		// 第四次
+		mainForSolve_12_3();
 		cout << "结束y/n" << endl;
 	} while ((cin >> control) && control != "y");
 	return 0;
