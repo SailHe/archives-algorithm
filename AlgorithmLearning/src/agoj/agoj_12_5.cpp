@@ -25,7 +25,7 @@ using SizeType = size_t;
 using I64 = long long;
 
 // 计算并返回最大子列和 (朴素版: T等价于Iter迭代器中的元素类型; MIN_VALUE保证比该段序列的最小值还小)
-// 当遇到0时会计入子列中
+// 当遇到0时会计入子列中 参数序列必须是正数序列
 template<typename Iter, typename T>
 T maximumSubsectionSum(Iter left, Iter right, T MIN_VALUE) {
 	int fromSub = 1, toSub = 1;
@@ -76,32 +76,29 @@ answer: 回答
 */
 
 //局部和
+template<typename T>
 struct SubSum{
 	// 值
-	int value;
+	T value;
 	//起始位置
 	int fromSub;
 	//终止位置
 	int toSub;
 };
-void maximumSubsectionSum(ArrayList<int> const &arrSeq, int &maxSumOut, int &fromOut, int &toOut){
-	int ca = 1, t, n;
+
+template<typename T>
+void maximumSubsectionSum(ArrayList<T> const &arrSeq, T &maxSumOut, int &fromOut, int &toOut){
 	//读入目前数据前 总数据的最大和
-	SubSum previousMaxSubSum;
+	SubSum<T> previousMaxSubSum;
 	//读入数据的最大和
-	SubSum currentMaxSubSum;
+	SubSum<T> currentMaxSubSum;
 	//整体最大和
-	SubSum resultMaxSubSum;
-	auto it = arrSeq.begin();
-	if (it == arrSeq.end()) {
-		return;
-	}
-	n = (int)arrSeq.size();
-	currentMaxSubSum.value = *it;
-	++it;
-	for (currentMaxSubSum.fromSub = currentMaxSubSum.toSub = 1, resultMaxSubSum = previousMaxSubSum = currentMaxSubSum; currentMaxSubSum.toSub < n; ){
-		currentMaxSubSum.value = *it;
-		++it;
+	SubSum<T> resultMaxSubSum;
+	auto left = arrSeq.begin(), right = arrSeq.end();
+	currentMaxSubSum.value = 0;
+	currentMaxSubSum.fromSub = currentMaxSubSum.toSub = 0;
+	for (resultMaxSubSum = previousMaxSubSum = currentMaxSubSum; left != right; ++left){
+		currentMaxSubSum.value = *left;
 
 		//currentMaxSubSum的起始位置是一样的
 		currentMaxSubSum.fromSub = ++currentMaxSubSum.toSub;
@@ -109,7 +106,8 @@ void maximumSubsectionSum(ArrayList<int> const &arrSeq, int &maxSumOut, int &fro
 		// currentMaxSubSum.value + previousMaxSubSum.value < currentMaxSubSum.value <==> previousMaxSubSum.value < 0
 		// 前者可以理解为 横跨 之前的子列 和 当前的子列的子列 无法使比当前的子列更优
 		// 但这tm不是徒增脑活动量嘛
-		if (previousMaxSubSum.value < 0) {
+		// if (previousMaxSubSum.value < 0) {
+		if (currentMaxSubSum.value + previousMaxSubSum.value < currentMaxSubSum.value) {
 			//当前数据局部最优
 			previousMaxSubSum = currentMaxSubSum;
 		}
@@ -130,20 +128,58 @@ void maximumSubsectionSum(ArrayList<int> const &arrSeq, int &maxSumOut, int &fro
 	toOut = resultMaxSubSum.toSub;
 }
 
-//	字符统计问题一 O(N)
-int mainForSolveD() {
-	int n;
-	string str;
-	while (1 == scanf("%d", &n)) {
-		cin >> str;
+void maximumSubsectionLength(ArrayList<int> const &arrSeq, int &maxSumOut, int &fromOut, int &toOut) {
+	//读入目前数据前 总数据的最大和
+	SubSum<int> previousMaxSubSum;
+	//读入数据的最大和
+	SubSum<int> currentMaxSubSum;
+	//整体最大和
+	SubSum<int> resultMaxSubSum;
+	auto left = arrSeq.begin(), right = arrSeq.end();
+	auto previousElement = MIN_INT32;
+	currentMaxSubSum.value = 0;
 
-		int fromSub = 1, toSub = 1, len = 1, maxLen = MIN_INT32;
-		for (size_t i = 0; i < str.size(); ++i) {
-			len = 1;
-			
+	int currentLen = 0, maxLen = MIN_INT32;
+
+	currentMaxSubSum.fromSub = currentMaxSubSum.toSub = 0;
+	for (resultMaxSubSum = previousMaxSubSum = currentMaxSubSum; left != right; ++left) {
+		currentMaxSubSum.value = *left;
+
+		currentMaxSubSum.fromSub = ++currentMaxSubSum.toSub;
+		if (previousMaxSubSum.value != currentMaxSubSum.value) {
+			previousMaxSubSum = currentMaxSubSum;
+			currentLen = 1;
 		}
-		printf("From=%d,To=%d\n", fromSub + 1, toSub + 1);
-		printf("MaxLen=%d\n", maxLen);
+		else {
+			++currentLen;
+		}
+
+		if (currentLen > maxLen) {
+			maxLen = currentLen;
+			resultMaxSubSum = previousMaxSubSum;
+			resultMaxSubSum.toSub = currentMaxSubSum.toSub;
+		}
+	}
+	// maxSumOut = resultMaxSubSum.value;
+	maxSumOut = maxLen;
+	fromOut = resultMaxSubSum.fromSub;
+	toOut = resultMaxSubSum.toSub;
+}
+
+
+//	字符统计问题一 O(N)
+// @see http://139.196.145.92/contest_show.php?cid=667#problem/D
+int mainForSolveD() {
+	string str;
+	while (cin >> str) {
+		ArrayList<int> arrSeq(str.begin(), str.end());
+		//ArrayList<string> arrSeqS(str.begin(), str.end());
+		int maxSum, fromSub, toSub;
+		// string maxSumStr;
+		maximumSubsectionLength(arrSeq, maxSum, fromSub, toSub);
+		// maximumSubsectionSum(arrSeqS, maxSumStr, fromSub, toSub);
+		printf("From=%d,To=%d\n", fromSub, toSub);
+		printf("MaxLen=%d\n", maxSum);
 	}
 	return 0;
 }
@@ -176,6 +212,7 @@ int mainForSolveA() {
 }
 
 int main() {
-	mainForSolveA();
+	// mainForSolveA();
+	mainForSolveD();
 	return 0;
 }
