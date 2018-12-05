@@ -24,21 +24,25 @@ template<class T> using LinkedList = list<T>;
 using SizeType = size_t;
 using I64 = long long;
 
-// 计算并返回最大子列和 (简易版: T等价于Iter迭代器中的元素类型; MIN_VALUE保证比该段序列的最小值还小)
+// 计算并返回最大子列和 (朴素版: T等价于Iter迭代器中的元素类型; MIN_VALUE保证比该段序列的最小值还小)
+// 当遇到0时会计入子列中
 template<typename Iter, typename T>
 T maximumSubsectionSum(Iter left, Iter right, T MIN_VALUE) {
 	int fromSub = 1, toSub = 1;
+	// 之前的最大子列和; 当前的最大子列和; 总的最大子列和
 	T previousMaxSum = 0, currentMaxSum = 0, maxSum = MIN_VALUE;
 	for (auto it = left; it != right; ++it) {
-		if (currentMaxSum < 0) {
-			currentMaxSum = *it;
+		currentMaxSum = *it;
+		// 若之前的最大子列和已经小于0了 那么说明其无法优化后续的子列和->舍弃之前的子列和
+		if (previousMaxSum < 0) {
+			previousMaxSum = currentMaxSum;
 		}
 		else {
-			currentMaxSum += *it;
+			previousMaxSum += currentMaxSum;
 		}
 
-		if (currentMaxSum > maxSum) {
-			maxSum = currentMaxSum;
+		if (previousMaxSum > maxSum) {
+			maxSum = previousMaxSum;
 		}
 	}
 	return maxSum;
