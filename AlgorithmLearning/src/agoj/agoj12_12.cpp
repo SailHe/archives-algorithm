@@ -53,7 +53,7 @@ int mainForSolveC() {
 	return 0;
 }
 
-// 传入前驱列表 迭代路径 visit(int index); 没有前驱的结点 前驱值置为负数
+// 传入前驱列表 迭代路径 visit(int index); (PS: 没有前驱的结点 前驱值需置为负数)
 template<typename Fun>
 void iteratePath(ArrayList<int> const &precursorList, Fun visit, int origin = 0) {
 	for (int i = origin; i >= 0; i = precursorList[i]) {
@@ -98,9 +98,49 @@ int mainForSolveD() {
 	return 0;
 }
 
+// 数塔问题 与9-22 的问题类似, 只不过此处是求最小值 结果存储于array2D[0][0]
+void proForTrangleMinValue(ArrayList<ArrayList<int>> &array2D, int rows) {
+	int r = rows - 2;
+	int pastPathSub = -1;
+	for (; r >= 0; --r) {
+		for (int c = 0; c < r + 1; ++c) {
+			int add = 0;
+			if (array2D[r + 1][c] > array2D[r + 1][c + 1]) {
+				add = array2D[r + 1][c + 1];
+				pastPathSub = c + 1;
+			}
+			else {
+				//下一行的第c列和第c+1列相等时 选取序号小的那一列: c
+				add = array2D[r + 1][c];
+				pastPathSub = c;
+			}
+			array2D[r][c] += add;
+		}
+	}
+}
+
+int mainForSolveB() {
+	int rows, caseCnt;
+	scanf("%d", &caseCnt);
+	while (caseCnt-- > 0) {
+		scanf("%d", &rows);
+		ArrayList<ArrayList<int>> array2D(rows);
+		for (int r = 0; r < rows; ++r) {
+			array2D[r].resize(r + 1);
+			for (int c = 0; c < r + 1; ++c) {
+				scanf("%d", &array2D[r][c]);
+				array2D[r][c] = array2D[r][c];
+			}
+		}
+		proForTrangleMinValue(array2D, rows);
+		printf("%d\n", array2D[0][0]);
+	}
+	return 0;
+}
 
 int main() {
 	//mainForSolveC();
-	mainForSolveD();
+	//mainForSolveD();
+	mainForSolveB();
 	return 0;
 }
