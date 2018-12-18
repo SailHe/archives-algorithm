@@ -623,7 +623,7 @@ int main(int argc, char const *argv[]) {
 		// mainForSolve_12_3();
 
 		// 第五次
-		mainFor12_17_A();
+		// mainFor12_17_A();
 		mainFor12_17_B();
 		cout << "结束y/n" << endl;
 	} while ((cin >> control) && control != "y");
