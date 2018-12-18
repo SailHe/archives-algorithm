@@ -318,6 +318,159 @@ int mainForSolve_12_3() {
 }
 
 
+// 运算符重载 一象限的点类
+class PointFirstQuadrant {
+public:
+	double x, y;
+	PointFirstQuadrant() = default;
+	PointFirstQuadrant(double x, double y) {
+		this->x = x;
+		this->y = y;
+		judgeIsInFirstQuadrant();
+	}
+	PointFirstQuadrant(std::istream &in) {
+		//scanf("%lf%lf", &(this->x), &(this->y));
+		in >> this->x >> this->y;
+		judgeIsInFirstQuadrant();
+	}
+	// 返回原点
+	static PointFirstQuadrant O() {
+		static PointFirstQuadrant ZERO = { 0.0, 0.0 };
+		return ZERO;
+	}
+
+	friend std::ostream &operator<<(std::ostream &os, const PointFirstQuadrant &rhs) {
+		os << "(" << rhs.x << ", " << rhs.y << ")";
+		return os;
+	}
+
+	// 返回两点到原点的距离之和
+	double operator+(PointFirstQuadrant const &rhs) const {
+		return dDistance(*this, O()) + dDistance(rhs, O());
+	}
+
+	// 返回两点到原点的距离之差
+	double operator-(PointFirstQuadrant const &rhs) const {
+		return dDistance(*this, O()) - dDistance(rhs, O());
+	}
+
+	// 返回两点之间的距离
+	double operator*(PointFirstQuadrant const &rhs) const {
+		return dDistance(*this, rhs);
+	}
+
+	// 判断相等
+	bool operator==(PointFirstQuadrant const &rhs) const {
+		return this->x == rhs.x && this->y == rhs.y;
+	}
+	bool operator!=(PointFirstQuadrant const &rhs) const {
+		return !(*this == rhs);
+	}
+
+	// 返回两点以及原点组成的三角形的周长
+	double operator/(PointFirstQuadrant const &rhs) const {
+		_ASSERT_EXPR(*this != rhs, "无法组成三角形!");
+		_ASSERT_EXPR(*this != O(), "无法组成三角形!");
+		return *this + rhs + dDistance(*this, rhs);
+	}
+
+	// 坐标值自增1
+	PointFirstQuadrant operator++() {
+		++this->x;
+		++this->y;
+		judgeIsInFirstQuadrant();
+		return *this;
+	}
+
+	// 坐标值自增1
+	PointFirstQuadrant operator++(int) {
+		auto tmp = *this;
+		++this->x;
+		++this->y;
+		judgeIsInFirstQuadrant();
+		return tmp;
+	}
+
+	// 坐标值自减1
+	PointFirstQuadrant operator--() {
+		--this->x;
+		--this->y;
+		judgeIsInFirstQuadrant();
+		return *this;
+	}
+
+	// 坐标值自减1
+	PointFirstQuadrant operator--(int) {
+		auto tmp = *this;
+		--this->x;
+		--this->y;
+		judgeIsInFirstQuadrant();
+		return tmp;
+	}
+
+	// 返回坐标到原点的距离
+	void operator()() const {
+		cout << "到原点的距离: " << dDistance(*this, O()) << endl;
+	}
+
+	void operator=(PointFirstQuadrant const &rhs) {
+		this->x = rhs.x;
+		this->y = rhs.y;
+		judgeIsInFirstQuadrant();
+	}
+
+	void judgeIsInFirstQuadrant() const {
+		if (this->x < 0 || this->y < 0) {
+			cout << "象限越界: 只允许在第一象限!" << endl;
+		}
+		else {
+			// do nothing
+		}
+	}
+
+	//返回两点间距离
+	static double dDistance(PointFirstQuadrant const &p1, PointFirstQuadrant const &p2) {
+		return sqrt(dDistance2(p1, p2));
+	}
+	//返回两点间距离的平方
+	static double dDistance2(PointFirstQuadrant const &p1, PointFirstQuadrant const &p2) {
+		double dx = p2.x - p1.x;
+		double dy = p2.y - p1.y;
+		return (dx*dx + dy * dy);
+	}
+};
+
+int mainFor12_17() {
+	PointFirstQuadrant a(1, 0), b(0, 1), c = a++, d = --a, e(a + b, a - b);
+	cout << a;
+	a();
+	cout << b;
+	b();
+	cout << c;
+	c();
+	cout << d;
+	d();
+	cout << "({" << a << "+" << b << "}" << ", {" << a << "-" << b << "})" << " = " << e;
+	e();
+	cout << "测试结束 请输入坐标点: ";
+	PointFirstQuadrant f(cin);
+	// 两次结果应该一致
+	cout << f;
+	f();
+	f = f++;
+	f = f--;
+	f = ++f;
+	f = --f;
+	cout << f;
+	f();
+
+	// f值没有变
+	f = PointFirstQuadrant(a * b, a / b);
+	cout << f;
+	f();
+	return 0;
+}
+
 int main(int argc, char const *argv[]) {
 	string control = "";
 	do {
@@ -333,7 +486,10 @@ int main(int argc, char const *argv[]) {
 		// mainForSolve_11_25();
 
 		// 第四次
-		mainForSolve_12_3();
+		// mainForSolve_12_3();
+
+		// 第五次
+		mainFor12_17();
 		cout << "结束y/n" << endl;
 	} while ((cin >> control) && control != "y");
 	return 0;
