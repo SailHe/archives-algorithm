@@ -355,14 +355,18 @@ namespace Utility {
 		}
 		~Triangle(){}
 
+		// 海伦公式
+		static double Helen(double d12, double d13, double d23) {
+			double dL = (d12 + d13 + d23) / 2.0;
+			return sqrt(dL * (dL - d12) * (dL - d13) * (dL - d23));
+		}
+
 		//返回由p1, p2, p3组成的三角形的面积
 		static double dAreaOfTriangle(PointDouble const &p1, PointDouble const &p2, PointDouble const &p3) {
 			double d12 = PointDouble::dDistance(p1, p2)
 				, d13 = PointDouble::dDistance(p1, p3)
 				, d23 = PointDouble::dDistance(p2, p3);
-			//海伦公式
-			double dL = (d12 + d13 + d23) / 2.0;
-			return sqrt(dL * (dL - d12) * (dL - d13) * (dL - d23));
+			return Helen(d12, d13, d23);
 		}
 		//若点p位于p1, p2, p3组成的三角形内那么返回true 否则返回false
 		static bool isInternalTriangle(PointDouble const &p1, PointDouble const &p2, PointDouble const &p3, PointDouble const &p) {
@@ -388,7 +392,7 @@ namespace Utility {
 		static bool isPythagoreanTheorem(int a, int b, int c) {
 			return a * a == b * b + c * c || b * b == a * a + c * c || c * c == a * a + b * b;
 		}
-		//判断由传入的参数是否能组成三角形 若可以 返回true 否则返回false
+		//判断由传入的参数边是否能组成三角形 若可以 返回true 否则返回false
 		static bool isTrangle(double a, double b, double c) {
 			//三角形边长不等式
 			return a + b > c && a + c > b && b + c > a

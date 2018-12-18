@@ -440,7 +440,7 @@ public:
 	}
 };
 
-int mainFor12_17() {
+int mainFor12_17_A() {
 	PointFirstQuadrant a(1, 0), b(0, 1), c = a++, d = --a, e(a + b, a - b);
 	cout << a;
 	a();
@@ -471,6 +471,140 @@ int mainFor12_17() {
 	return 0;
 }
 
+
+// 颜色
+class Color {
+public:
+	BYTE r, g, b;
+	std::string cName;
+	Color() {
+		r = g = b = 0;
+	}
+	Color(std::string const &cName) {
+		this->cName = cName;
+	}
+	Color(BYTE r, BYTE g, BYTE b) {
+		this->r = r;
+		this->g = g;
+		this->b = b;
+	}
+	virtual ~Color(){}
+};
+
+// 几何
+class Geomertric {
+public:
+	virtual ~Geomertric() {}
+	// 返回面积
+	virtual double getArea() const = 0;
+	// 返回周长
+	virtual double getPerimetter() const = 0;
+
+	void setIsFill(bool isFill) {
+		this->isFill = isFill;
+	}
+
+	bool getIsFill() const {
+		return this->isFill;
+	}
+
+	void setColor(Color c) {
+		this->color = c;
+	}
+
+	Color getColor() const {
+		return this->color;
+	}
+
+private:
+	bool isFill = false;
+	Color color;
+};
+
+// 基于边的三角形
+class Triangle : public Geomertric {
+	using SideType = double;
+public:
+	Triangle() {
+		side1 = 1.0, side2 = 1.0, side3 = 1.0;
+	}
+	Triangle(SideType const &side1, SideType const &side2, SideType const &side3) {
+		this->side1 = side1;
+		this->side2 = side2;
+		this->side3 = side3;
+	}
+	virtual ~Triangle() {}
+
+	//海伦公式 返回由side1, side2, side3组成的三角形的面积
+	static double dAreaOfTriangle(SideType const &side1, SideType const &side2, SideType const &side3) {
+		double d12 = side1
+			, d13 = side2
+			, d23 = side3;
+		double dL = (d12 + d13 + d23) / 2.0;
+		return sqrt(dL * (dL - d12) * (dL - d13) * (dL - d23));
+	}
+	//符合勾股定理 返回true 练习题HDU2899
+	static bool isPythagoreanTheorem(int a, int b, int c) {
+		return a * a == b * b + c * c || b * b == a * a + c * c || c * c == a * a + b * b;
+	}
+	//判断由传入的参数是否能组成三角形 若可以 返回true 否则返回false
+	static bool isTrangle(double a, double b, double c) {
+		//三角形边长不等式
+		return a + b > c && a + c > b && b + c > a
+			&& fabs(a - b) < c && fabs(a - c) < b && fabs(b - c) < a;
+	}
+
+	void setSide1(SideType s) {
+		this->side1 = s;
+	}
+
+	SideType getSide1() const {
+		return this->side1;
+	}
+
+	void setSide2(SideType s) {
+		this->side2 = s;
+	}
+
+	SideType getSide2() const {
+		return this->side2;
+	}
+
+	void setSide3(SideType s) {
+		this->side3 = s;
+	}
+
+	SideType getSide3() const {
+		return this->side3;
+	}
+
+	double getArea() const override {
+		return dAreaOfTriangle(this->getSide1(), this->getSide2(), this->getSide3());
+	}
+
+	double getPerimetter() const override {
+		return this->getSide1() + this->getSide2() + this->getSide3();
+	}
+
+private:
+	double side1, side2, side3;
+};
+
+int mainFor12_17_B() {
+	Triangle t(1.0, 1.5, 1.0);
+	// t.setColor(Color(255, 255, 0));
+	auto c = Color(255, 255, 0);
+	c.cName = "yellow";
+	t.setColor(c);
+	t.setIsFill(true);
+	cout << "面积: " << t.getArea()
+		<< "周长: " << t.getPerimetter()
+		<< "颜色: " << t.getColor().cName
+		<< "是否填充: " << t.getIsFill()
+		<< endl;
+	return 0;
+}
+
 int main(int argc, char const *argv[]) {
 	string control = "";
 	do {
@@ -489,7 +623,8 @@ int main(int argc, char const *argv[]) {
 		// mainForSolve_12_3();
 
 		// 第五次
-		mainFor12_17();
+		mainFor12_17_A();
+		mainFor12_17_B();
 		cout << "结束y/n" << endl;
 	} while ((cin >> control) && control != "y");
 	return 0;
