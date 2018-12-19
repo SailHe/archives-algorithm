@@ -141,7 +141,7 @@ struct EdgeFullNode {
 	}
 };
 
-// 返回最小生成树的权值
+// 返回最小生成树的权值 若不是连通图会返回0 (PS: 不确定此算法是否对负权图有效)
 // http://139.196.145.92/contest_show.php?cid=647#problem/B
 int kruskal(int n, ArrayList<EdgeFullNode> &edgeList) {
 	// 对所有的边按照权值排序
@@ -195,9 +195,10 @@ int kruskal(int n, ArrayList<EdgeFullNode> &edgeList) {
 */
 int mainForKruskal() {
 	int n;
-	// 顶点列表
 	while (cin >> n) {
+		// 顶点列表
 		// ArrayList<LinkedList<VertexNode>> edgeDada(n);
+		// 边列表
 		ArrayList<EdgeFullNode> edgeList;
 		edgeList.reserve(n);
 		EdgeFullNode temp;
@@ -230,8 +231,30 @@ int mainForKruskal() {
 	return 0;
 }
 
+// 2018-12-19的客串 使用kruskal判断是否连通图(其实就是使用并查集啦 这里只是为了完善下kruskal函数)
+int mainForSolve12_19_B() {
+	// 顶点数 边数
+	int m, n;
+	while (cin >> m >> n && (m != 0 || n != 0)) {
+		// 边列表
+		ArrayList<EdgeFullNode> edgeList;
+		edgeList.reserve(n);
+		EdgeFullNode temp;
+		for (int r = 0; r < n; ++r) {
+			scanf("%d%d", &temp.originID, &temp.targetID);
+			--temp.originID;
+			--temp.targetID;
+			edgeList.emplace_back(temp);
+		}
+		
+		cout << (kruskal(n, edgeList) == 0 ? "No" : "Yes") << endl;
+	}
+	return 0;
+}
+
 int main() {
 	//MainJudgeConnectivity();
-	mainForKruskal();
+	//mainForKruskal();
+	mainForSolve12_19_B();
 	return 0;
 }

@@ -184,7 +184,7 @@ int mainForSolveD() {
 	return 0;
 }
 
-// 最大字段和DP O(N)
+// 最大子段和DP O(N)
 int mainForSolveA() {
 	int nCase, n;
 	ArrayList<int> arrSeq;
