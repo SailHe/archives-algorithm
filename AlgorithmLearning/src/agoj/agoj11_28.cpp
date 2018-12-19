@@ -13,6 +13,8 @@
 #include<iomanip>//cout各种操纵器
 
 // #include "ExtendSpace.h"
+#define MAX_INT32 2147483647
+#define MIN_INT32 (-MAX_INT32-1)
 
 using namespace std;
 
@@ -141,9 +143,9 @@ struct EdgeFullNode {
 	}
 };
 
-// 返回最小生成树的权值 若不是连通图会返回0 (PS: 不确定此算法是否对负权图有效)
+// 返回最小生成树的权值 若不是连通图顶点数n变为负数 (PS: 不确定此算法是否对负权图有效)
 // http://139.196.145.92/contest_show.php?cid=647#problem/B
-int kruskal(int n, ArrayList<EdgeFullNode> &edgeList) {
+int kruskal(int &n, ArrayList<EdgeFullNode> &edgeList) {
 	// 对所有的边按照权值排序
 	std::sort(edgeList.begin(), edgeList.end(), [&](EdgeFullNode const &lhs, EdgeFullNode const &rhs) {
 		return lhs.weight < rhs.weight;
@@ -159,9 +161,10 @@ int kruskal(int n, ArrayList<EdgeFullNode> &edgeList) {
 	int lhsVertex = -1, rhsVertex = -1;
 	int unitSetCount = n;
 	int sumWeight = 0;
+	int edgeCnt = edgeList.size();
 	// 当集合数目为1, 或者不是连通图时算法中止
 	// 这个方法名等会改一下 容易与geter seter误会
-	while (unitSetCount != 1 && index < edgeList.size()) {
+	while (unitSetCount != 1 && index < edgeCnt) {
 		lhsVertex = edgeList[index].originID;
 		rhsVertex = edgeList[index].targetID;
 		// 每次加入一条权值最小的边进入原本与之有关(通过边关联)的两个不同的集合中, 用以消除一个集合
@@ -180,6 +183,7 @@ int kruskal(int n, ArrayList<EdgeFullNode> &edgeList) {
 		*/
 		++index;
 	}
+	n = index < edgeCnt ? n : -1;
 	return sumWeight;
 }
 
@@ -232,22 +236,178 @@ int mainForKruskal() {
 }
 
 // 2018-12-19的客串 使用kruskal判断是否连通图(其实就是使用并查集啦 这里只是为了完善下kruskal函数)
-int mainForSolve12_19_B() {
+int mainForSolve12_19() {
 	// 顶点数 边数
-	int m, n;
-	while (cin >> m >> n && (m != 0 || n != 0)) {
+	int vertexCnt, edgeCntIn;
+	while (cin >> vertexCnt >> edgeCntIn && (vertexCnt != 0 || edgeCntIn != 0)) {
 		// 边列表
 		ArrayList<EdgeFullNode> edgeList;
-		edgeList.reserve(n);
+		edgeList.reserve(edgeCntIn);
 		EdgeFullNode temp;
-		for (int r = 0; r < n; ++r) {
+		for (int r = 0; r < edgeCntIn; ++r) {
 			scanf("%d%d", &temp.originID, &temp.targetID);
 			--temp.originID;
 			--temp.targetID;
 			edgeList.emplace_back(temp);
 		}
 		
-		cout << (kruskal(n, edgeList) == 0 ? "No" : "Yes") << endl;
+		cout << (kruskal(edgeCntIn, edgeList) == 0 ? "No" : "Yes") << endl;
+	}
+	return 0;
+}
+
+
+//邻接表图(list实现)
+class AdjacentListGraph {
+	typedef int VertexKey;//顶点的键类型
+	typedef int WeightType;//边的权值类型
+	//顶点数据类型
+	class VertexValue {
+		//VertexKey ID;
+		char data = '0';
+	};
+public:
+	//权边(没有出发点信息的带权值的边) 排序时按照权值排序 等权值者按目标点id排序
+	struct IndexEdge {
+		VertexKey targetID;//边的对象顶点ID
+		WeightType weight;//不存在负值称长度 存在负值称权值
+		IndexEdge() {
+			weight = MAX_INT32 / 2, targetID = -1;
+		}
+		IndexEdge(VertexKey targetID, WeightType weight) :weight(weight), targetID(targetID) {}
+		//可用于: Dijkstra的优先队列优化 跳表的实现
+		bool operator<(IndexEdge const &rhs)const {
+			return weight == rhs.weight ? targetID < rhs.targetID
+				: weight < rhs.weight;
+		}
+		//为了便于list的最短路径计算时的初始化
+		operator int()const {
+			return weight;
+		}
+	};
+	typedef LinkedList<IndexEdge> EdgesType;
+	//顶点数据 顶点无数据可以不用出现 若顶点数量经常改动 可以直接用map<VertexValue>替代
+	ArrayList<VertexValue> vertexData;
+	//顶点数
+	size_t vertexNum;
+	ArrayList<EdgesType> edgeData;
+	
+	AdjacentListGraph(int vertexNum) {
+		this->vertexNum = vertexNum;
+		edgeData.reserve(2 * vertexNum + 50);
+		edgeData.resize(vertexNum);
+	}
+	virtual ~AdjacentListGraph() {
+	}
+
+	/* 邻接表存储 - 拓扑排序算法: 若图中不存在回路 (环路) 则计算成功 返回true*/
+	bool topologySort(ArrayList<VertexKey> &topOrderBuffer) {
+		/* 对Graph进行拓扑排序,  topOrderBuffer[]顺序存储排序后的顶点下标 */
+		topOrderBuffer.resize(vertexNum);
+		ArrayList<VertexKey> indegree(vertexNum);
+		//queue<VertexKey> q;
+		//保证在同等排名下优先输出序号小的
+		std::priority_queue<VertexKey, ArrayList<VertexKey>, greater<VertexKey>> q;
+
+		/* 遍历图，得到indegree[] edgeData.size()*/
+		for (size_t v = 0; v < vertexNum; ++v) {
+			//IndexEdge
+			for (auto itW = edgeData[v].begin(); itW != edgeData[v].end(); ++itW) {
+				++indegree[itW->targetID];/* 对有向边<v, itW->targetID>累计终点的入度 */
+			}
+		}
+
+		/* 将所有入度为0的顶点入列 */
+		for (size_t v = 0; v < vertexNum; ++v) {
+			if (indegree[v] == 0) {
+				q.push(v);
+			}
+		}
+
+		/* 下面进入拓扑排序 */
+		int orderSub = -1;
+		while (!q.empty()) {
+			/* 弹出一个入度为0的顶点 加入结果序列 */
+			VertexKey v = q.top();//q.front();
+			q.pop();
+			topOrderBuffer[++orderSub] = v;
+			/* 对v的每个邻接点itW->targetID(W->AdjV)*/
+			for (auto itW = edgeData[v].begin(); itW != edgeData[v].end(); ++itW) {
+				/* 若删除v使得itW->targetID入度为0 */
+				if (--indegree[itW->targetID] == 0) {
+					q.push(itW->targetID);/* 则该顶点入列 */
+				}
+			}
+		}
+
+		return orderSub + 1 == edgeData.size();
+	}
+};
+
+/*
+4 3
+1 2
+2 3
+3 4
+
+3 1
+2 3
+
+4 4
+1 2
+2 3
+3 4
+4 1
+
+4 4
+1 2
+2 3
+3 4
+3 1
+
+4 2
+1 2
+2 3
+
+0 0
+*/
+// 连通图 + 环路检测
+// @see http://139.196.145.92/problem_show.php?pid=329#probsubmit
+int mainForSolve12_19_B() {
+	// 顶点数 边数
+	int vertexCnt, edgeCntIn;
+	ArrayList<int> topOrderBuffer;
+	while (cin >> vertexCnt >> edgeCntIn && (vertexCnt != 0 || edgeCntIn != 0)) {
+		// 边列表
+		ArrayList<EdgeFullNode> edgeList;
+		AdjacentListGraph g(vertexCnt);
+		edgeList.reserve(edgeCntIn);
+		EdgeFullNode temp;
+		DisjointSet<int> nDisjointSet(vertexCnt);
+		bool hasCircle = false;
+		for (int r = 0; r < edgeCntIn; ++r) {
+			scanf("%d%d", &temp.originID, &temp.targetID);
+			--temp.originID;
+			--temp.targetID;
+			edgeList.emplace_back(temp);
+			g.edgeData[temp.originID].push_back(AdjacentListGraph::IndexEdge(temp.targetID, temp.weight));
+			int root1 = nDisjointSet.findRoot(temp.originID);
+			int root2 = nDisjointSet.findRoot(temp.targetID);
+			// 如果两个节点拥有相同的祖先，则再加一条边就会形成环。
+			if (root1 == root2) {
+				hasCircle = true;
+			}
+			nDisjointSet.unionElement(temp.originID, temp.targetID);
+		}
+
+		// hasCircle = !g.topologySort(topOrderBuffer);
+		int disjointSetCnt = nDisjointSet.size(nDisjointSet.findRoot(0));
+		bool isConnected = disjointSetCnt == vertexCnt;
+		// kruskal(vertexCnt, edgeList);
+		// isConnected = vertexCnt < 0;
+
+		// 如果是(连通图 并且 没有环的话) 一棵树 就符合题意 该死的m n
+		cout << ((!hasCircle && isConnected) ? "Yes" : "No") << endl;
 	}
 	return 0;
 }
