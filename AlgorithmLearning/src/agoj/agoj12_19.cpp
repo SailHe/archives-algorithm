@@ -30,7 +30,7 @@ int mainForSolveA() {
 	int n, maxLen;
 	while (1 == scanf("%d", &n)) {
 		ArrayList<int> dataList(n);
-		// 上限序列(有序序列)
+		// 上限序列(有序序列) 由于需要加减迭代器可能难以直接替换容器
 		ArrayList<int> upLimitList(n, 0);
 		for (int i = 0; i < n; ++i) {
 			scanf("%d", &dataList[i]);
@@ -38,7 +38,7 @@ int mainForSolveA() {
 		auto rhsUpLimitIt = upLimitList.begin() + (n - 1);
 		auto lhsUpLimitIt = rhsUpLimitIt;
 		*lhsUpLimitIt = dataList[n - 1];
-		for (int i = n - 2; i > -1; --i) {
+		/*for (int i = n - 2; i > -1; --i) {
 			int currentValue = dataList[i];
 			// 使用二分查找将当前结点放入合适的上限列表中
 			if (currentValue <= *lhsUpLimitIt) {
@@ -51,6 +51,18 @@ int mainForSolveA() {
 				// 只有两个元素的时候肯定'越界' 当然, 如果上述查找时带上已经比较过的左侧和右侧上限的话就可以加上此断言
 				// _ASSERT_EXPR(midUpLimitIt != rhsUpLimitIt, "越界!");
 				*(midUpLimitIt - 1) = currentValue;
+			}
+		}*/
+		// 上面的注释版本略麻烦
+		for (int i = n - 2; i > -1; --i) {
+			int currentValue = dataList[i];
+			// 使用二分查找将当前结点放入合适的上限列表中
+			// 二分查询出上限列表中与当前值相匹配的下限 (参数和返回值都 遵循左闭右开"[)"原则) eg: 1 2 4 4 5 查询4 返回的是2后面的4的迭代器
+			auto midUpLimitIt = lower_bound(lhsUpLimitIt, upLimitList.end(), currentValue);
+			// _ASSERT_EXPR(midUpLimitIt != upLimitList.end(), "越界!");
+			*(midUpLimitIt - 1) = currentValue;
+			if(midUpLimitIt == lhsUpLimitIt){
+				--lhsUpLimitIt;
 			}
 		}
 		maxLen = upLimitList.end() - lhsUpLimitIt;

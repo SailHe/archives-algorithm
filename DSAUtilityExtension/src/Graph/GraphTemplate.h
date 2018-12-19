@@ -751,7 +751,7 @@ public:
 		}
 	}
 
-	/* 邻接表存储 - 拓扑排序算法: 若图中不存在回路 则计算成功 返回true*/
+	/* 邻接表存储 - 拓扑排序算法: 若图中不存在 回路(环路) 则计算成功 返回true*/
 	bool topologySort(JCE::ArrayList<VertexKey> &topOrderBuffer) {
 		/* 对GraphTemplate进行拓扑排序,  topOrderBuffer[]顺序存储排序后的顶点下标 */
 		topOrderBuffer.resize(vertexNum);
