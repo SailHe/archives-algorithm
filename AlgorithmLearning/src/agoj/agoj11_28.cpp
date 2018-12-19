@@ -110,6 +110,59 @@ private:
 	SetBaseType disjointSetBase;
 };
 
+// 具备源点 目标点 权值 等完整属性的边类
+struct EdgeFullNode {
+	int weight = -1;
+	int originID = -1;
+	int targetID = -1;
+	EdgeFullNode() {}
+	EdgeFullNode(int originID, int targetID, int weight) {
+		this->weight = weight;
+		this->originID = originID;
+		this->targetID = targetID;
+	}
+};
+
+// 连通性判断 依赖并查集 (顶点数, 参与计算的边的列表) O(EdgeCnt*lg(VertexCnt))
+// 若连通返回true 否则返回false
+bool isConnectGraphEdges(int vertexCnt, ArrayList<EdgeFullNode> const &edgeList) {
+	// _ASSERT_EXPR((int)edgeList.size() > 0, "强制转换失败!");
+	DisjointSet<int> nDisjointSet(vertexCnt);
+	auto endIt = edgeList.end();
+	for (auto it = edgeList.begin(); it != endIt; ++it) {
+		nDisjointSet.unionElement(it->originID, it->targetID);
+	}
+	// 查询元素0(任意一个元素即可)所属的集合的大小
+	int disjointSetCnt = nDisjointSet.size(nDisjointSet.findRoot(0));
+	return disjointSetCnt == vertexCnt;
+}
+
+// 环路检测 依赖并查集 (顶点数, 参与计算的边的列表) O(EdgeCnt*lg(VertexCnt))
+// 若存在环路返回true 否则返回false
+bool existCircleGraphEdges(int vertexCnt, ArrayList<EdgeFullNode> const &edgeList) {
+	DisjointSet<int> nDisjointSet(vertexCnt);
+	auto endIt = edgeList.end();
+	int originRoot = -1, targetRoot = -1;
+	bool hasCircle = false;
+	for (auto it = edgeList.begin(); it != endIt; ++it) {
+		originRoot = nDisjointSet.findRoot(it->originID);
+		targetRoot = nDisjointSet.findRoot(it->targetID);
+		// 如果两个节点拥有相同的祖先，则再加一条边就会形成环。
+		if (originRoot == targetRoot) {
+			// 此时it的源点和目标点是属于同一集合的(连通的) 再加入(合并源点的集合与目标点的集合)边it时就会引入环路
+			hasCircle = true;
+			break;
+		}
+		nDisjointSet.unionSet(originRoot, targetRoot);
+	}
+	return hasCircle;
+}
+
+// 检测图是否是一棵树 (没有环的连通图) O(EdgeCnt*lg(VertexCnt))
+// 是一棵树返回true 否则返回false
+bool isGraphTree(int vertexCnt, ArrayList<EdgeFullNode> const &edgeList) {
+	return !existCircleGraphEdges(vertexCnt, edgeList) && isConnectGraphEdges(vertexCnt, edgeList);
+}
 
 //判断图的连通性 --并查集版
 int MainJudgeConnectivity() {
@@ -131,17 +184,6 @@ int MainJudgeConnectivity() {
 	return 0;
 }
 
-struct EdgeFullNode {
-	int weight = -1;
-	int originID = -1;
-	int targetID = -1;
-	EdgeFullNode() {}
-	EdgeFullNode(int originID, int targetID, int weight) {
-		this->weight = weight;
-		this->originID = originID;
-		this->targetID = targetID;
-	}
-};
 
 // 返回最小生成树的权值 若不是连通图顶点数n变为负数 (PS: 不确定此算法是否对负权图有效)
 // http://139.196.145.92/contest_show.php?cid=647#problem/B
@@ -391,23 +433,13 @@ int mainForSolve12_19_B() {
 			--temp.targetID;
 			edgeList.emplace_back(temp);
 			g.edgeData[temp.originID].push_back(AdjacentListGraph::IndexEdge(temp.targetID, temp.weight));
-			int root1 = nDisjointSet.findRoot(temp.originID);
-			int root2 = nDisjointSet.findRoot(temp.targetID);
-			// 如果两个节点拥有相同的祖先，则再加一条边就会形成环。
-			if (root1 == root2) {
-				hasCircle = true;
-			}
-			nDisjointSet.unionElement(temp.originID, temp.targetID);
 		}
-
 		// hasCircle = !g.topologySort(topOrderBuffer);
-		int disjointSetCnt = nDisjointSet.size(nDisjointSet.findRoot(0));
-		bool isConnected = disjointSetCnt == vertexCnt;
 		// kruskal(vertexCnt, edgeList);
-		// isConnected = vertexCnt < 0;
+		// bool isConnected = vertexCnt < 0;
 
 		// 如果是(连通图 并且 没有环的话) 一棵树 就符合题意 该死的m n
-		cout << ((!hasCircle && isConnected) ? "Yes" : "No") << endl;
+		cout << ((isGraphTree(vertexCnt, edgeList)) ? "Yes" : "No") << endl;
 	}
 	return 0;
 }
