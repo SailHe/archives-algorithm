@@ -161,7 +161,21 @@ bool existCircleGraphEdges(int vertexCnt, ArrayList<EdgeFullNode> const &edgeLis
 // 检测图是否是一棵树 (没有环的连通图) O(EdgeCnt*lg(VertexCnt))
 // 是一棵树返回true 否则返回false
 bool isGraphTree(int vertexCnt, ArrayList<EdgeFullNode> const &edgeList) {
-	return !existCircleGraphEdges(vertexCnt, edgeList) && isConnectGraphEdges(vertexCnt, edgeList);
+	// 少构造一次并查集 要快一丢丢...
+	// return !existCircleGraphEdges(vertexCnt, edgeList) && isConnectGraphEdges(vertexCnt, edgeList);
+	DisjointSet<int> nDisjointSet(vertexCnt);
+	auto endIt = edgeList.end();
+	int originRoot = -1, targetRoot = -1;
+	bool hasCircle = false;
+	for (auto it = edgeList.begin(); it != endIt; ++it) {
+		originRoot = nDisjointSet.findRoot(it->originID);
+		targetRoot = nDisjointSet.findRoot(it->targetID);
+		if (originRoot == targetRoot) {
+			hasCircle = true;
+		}
+		nDisjointSet.unionSet(originRoot, targetRoot);
+	}
+	return !hasCircle && vertexCnt == nDisjointSet.size(nDisjointSet.findRoot(0));
 }
 
 //判断图的连通性 --并查集版
