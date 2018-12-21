@@ -97,6 +97,7 @@ public:
 		//memset(disjointSetBase, -1, sizeof(SetBaseType));
 	}
 
+	// 避免与geter seter产生误会
 	// 返回集合数 O(N)
 	size_t calcSetCount() {
 		size_t cnt = 0;
@@ -161,7 +162,7 @@ bool existCircleGraphEdges(int vertexCnt, ArrayList<EdgeFullNode> const &edgeLis
 // 检测图是否是一棵树 (没有环的连通图) O(EdgeCnt*lg(VertexCnt))
 // 是一棵树返回true 否则返回false
 bool isGraphTree(int vertexCnt, ArrayList<EdgeFullNode> const &edgeList) {
-	// 少构造一次并查集 要快一丢丢...
+	// 少构造一次并查集 要快一丢丢... + 与逻辑短路
 	// return !existCircleGraphEdges(vertexCnt, edgeList) && isConnectGraphEdges(vertexCnt, edgeList);
 	DisjointSet<int> nDisjointSet(vertexCnt);
 	auto endIt = edgeList.end();
@@ -172,6 +173,7 @@ bool isGraphTree(int vertexCnt, ArrayList<EdgeFullNode> const &edgeList) {
 		targetRoot = nDisjointSet.findRoot(it->targetID);
 		if (originRoot == targetRoot) {
 			hasCircle = true;
+			break;
 		}
 		nDisjointSet.unionSet(originRoot, targetRoot);
 	}
@@ -199,10 +201,12 @@ int MainJudgeConnectivity() {
 }
 
 
-// 返回最小生成树的权值 若不是连通图顶点数n变为负数 (PS: 不确定此算法是否对负权图有效)
+// 返回最小生成树的权值 若不是连通图顶点数vertexCnt变为负数 (PS: 不确定此算法是否对负权图有效)
+// max(O(vertexCnt*lg(edgeCnt)), O((edgeCnt)*lg(edgeCnt)))
 // http://139.196.145.92/contest_show.php?cid=647#problem/B
-int kruskal(int &n, ArrayList<EdgeFullNode> &edgeList) {
-	// 对所有的边按照权值排序
+int kruskal(int &vertexCnt, ArrayList<EdgeFullNode> &edgeList) {
+	// N = edgeCnt
+	// 对所有的边按照权值排序 O(N*lgN)
 	std::sort(edgeList.begin(), edgeList.end(), [&](EdgeFullNode const &lhs, EdgeFullNode const &rhs) {
 		return lhs.weight < rhs.weight;
 	});
@@ -212,14 +216,13 @@ int kruskal(int &n, ArrayList<EdgeFullNode> &edgeList) {
 		return lhs.weight > rhs.weight;
 	});*/
 	
-	DisjointSet<int> nDisjointSet(n);
+	DisjointSet<int> nDisjointSet(vertexCnt);
 	int index = 0;
 	int lhsVertex = -1, rhsVertex = -1;
-	int unitSetCount = n;
+	int unitSetCount = vertexCnt;
 	int sumWeight = 0;
 	int edgeCnt = edgeList.size();
-	// 当集合数目为1, 或者不是连通图时算法中止
-	// 这个方法名等会改一下 容易与geter seter误会
+	// 当集合数目为1, 或者不是连通图时算法中止 O(vertexCnt*lg(edgeCnt))
 	while (unitSetCount != 1 && index < edgeCnt) {
 		lhsVertex = edgeList[index].originID;
 		rhsVertex = edgeList[index].targetID;
@@ -239,7 +242,14 @@ int kruskal(int &n, ArrayList<EdgeFullNode> &edgeList) {
 		*/
 		++index;
 	}
-	n = index < edgeCnt ? n : -1;
+	/*
+	0 - 1
+	    |
+	3 - 2
+	*/
+	// 此情况下index等于3 但集合数也只有1个(连通) 因此不能用index判断 这个条件本身只是一个限定, 而非定义
+	// vertexCnt = index < edgeCnt ? vertexCnt : -1;
+	vertexCnt = unitSetCount == 1 ? vertexCnt : -1;
 	return sumWeight;
 }
 
@@ -356,7 +366,9 @@ public:
 	virtual ~AdjacentListGraph() {
 	}
 
-	/* 邻接表存储 - 拓扑排序算法: 若图中不存在回路 (环路) 则计算成功 返回true*/
+	// 邻接表存储 - 拓扑排序算法
+	// 若图中不存在回路 (环路) 则计算成功 返回true 否则返回false
+	// PS: 不能存在重复的边
 	bool topologySort(ArrayList<VertexKey> &topOrderBuffer) {
 		/* 对Graph进行拓扑排序,  topOrderBuffer[]顺序存储排序后的顶点下标 */
 		topOrderBuffer.resize(vertexNum);
@@ -426,8 +438,11 @@ public:
 2 3
 
 0 0
+
+是否否否否
 */
 // 连通图 + 环路检测
+// 为了防止该死的m n的问题 今后只要同时出现m n便需要赋予两者有意义的名字(尤其是在需要使用各种算法接口的时候)
 // @see http://139.196.145.92/problem_show.php?pid=329#probsubmit
 int mainForSolve12_19_B() {
 	// 顶点数 边数
@@ -440,7 +455,6 @@ int mainForSolve12_19_B() {
 		edgeList.reserve(edgeCntIn);
 		EdgeFullNode temp;
 		DisjointSet<int> nDisjointSet(vertexCnt);
-		bool hasCircle = false;
 		for (int r = 0; r < edgeCntIn; ++r) {
 			scanf("%d%d", &temp.originID, &temp.targetID);
 			--temp.originID;
@@ -448,12 +462,14 @@ int mainForSolve12_19_B() {
 			edgeList.emplace_back(temp);
 			g.edgeData[temp.originID].push_back(AdjacentListGraph::IndexEdge(temp.targetID, temp.weight));
 		}
-		// hasCircle = !g.topologySort(topOrderBuffer);
-		// kruskal(vertexCnt, edgeList);
-		// bool isConnected = vertexCnt < 0;
+		// 这两个算法有bug 不然应该能狗正确检测才对 拓扑判断环路肯定有
+		// bool hasCircle = !g.topologySort(topOrderBuffer);
+		kruskal(vertexCnt, edgeList);
+		bool isConnected = vertexCnt >= 0;
 
-		// 如果是(连通图 并且 没有环的话) 一棵树 就符合题意 该死的m n
-		cout << ((isGraphTree(vertexCnt, edgeList)) ? "Yes" : "No") << endl;
+		// 如果是(没有环 并 连通图) 图的退化树的话 就符合题意
+		// cout << ((isGraphTree(vertexCnt, edgeList)) ? "Yes" : "No") << endl;
+		cout << ((isConnected && !existCircleGraphEdges(vertexCnt, edgeList)) ? "Yes" : "No") << endl;
 	}
 	return 0;
 }
