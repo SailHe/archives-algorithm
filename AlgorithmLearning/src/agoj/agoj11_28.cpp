@@ -201,12 +201,12 @@ int MainJudgeConnectivity() {
 }
 
 
-// 返回最小生成树的权值 若不是连通图顶点数vertexCnt变为负数 (PS: 不确定此算法是否对负权图有效)
-// max(O(vertexCnt*lg(edgeCnt)), O((edgeCnt)*lg(edgeCnt)))
+// 计算最小生成树的权值 (负权图有效)
+// 返回最小生成树的权值; 若不是连通图->参数顶点数(vertexCnt)变为负数
+// V=vertexCnt; E = edgeCnt; 算法平均时间复杂度: max(O(E*lgV), O(E*lgE))
 // http://139.196.145.92/contest_show.php?cid=647#problem/B
 int kruskal(int &vertexCnt, ArrayList<EdgeFullNode> &edgeList) {
-	// N = edgeCnt
-	// 对所有的边按照权值排序 O(N*lgN)
+	// 对所有的边按照权值排序 O(E*lgE)
 	std::sort(edgeList.begin(), edgeList.end(), [&](EdgeFullNode const &lhs, EdgeFullNode const &rhs) {
 		return lhs.weight < rhs.weight;
 	});
@@ -222,7 +222,7 @@ int kruskal(int &vertexCnt, ArrayList<EdgeFullNode> &edgeList) {
 	int unitSetCount = vertexCnt;
 	int sumWeight = 0;
 	int edgeCnt = edgeList.size();
-	// 当集合数目为1, 或者不是连通图时算法中止 O(vertexCnt*lg(edgeCnt))
+	// 当集合数目为1, 或者不是连通图时算法中止 O(E*lgV)
 	while (unitSetCount != 1 && index < edgeCnt) {
 		lhsVertex = edgeList[index].originID;
 		rhsVertex = edgeList[index].targetID;
