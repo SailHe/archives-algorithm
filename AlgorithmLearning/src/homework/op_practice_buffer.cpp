@@ -4,20 +4,70 @@
 
 // 空闲区说明表中的记录数上限
 #define N 5
-struct freePartition            /* 空闲区说明表 */
-{
-	int startAddress;           /* 空闲区起始地址*/
-	int size;                   /* 空闲区大小*/
-	int state;                  /*空闲区状态：0为空表目，1为可用空闲块*/
+// 空闲区说明表
+struct freePartition{
+	// 空闲区起始地址
+	int startAddress;
+	// 空闲区大小
+	int size;
+	// 空闲区状态：0为空表目，1为可用空闲块
+	int state;
+};
+
+// 进程内存划分
+struct progressPartition {
+	// 进程标识号
+	int pid;
+	// 进程内存起始地址
+	int startAddress;
+	// 进程内存大小
+	int size;
+	// 1表示此表项有效 0表示无效 (是否有效的进程)
+	int valid;
 };
 // ---- 空闲块的数目(已使用的数目)
-int allocedCnt = 4;
+int freeBlockCnt = 4;
+// 用于进程标识号的产生(已有两个)
+int pidOrigin = 2;
+// 内存占用说明表 的进程数
+int progressCnt = 2;
 // ---- 空闲区说明表
 struct freePartition freeBlock[N] = { {20, 20, 1}, {80, 50, 1}, {150, 100, 1}, {300, 30, 0}, {600, 100, 1} };
+// ---- 内存占用说明表
+struct progressPartition progressBlock[N] = { {1, 300, 10, 1} , {0, 310, 20, 1} };
 
 // ---- 清屏
 void clear() {
 	system("cls");
+}
+
+// 查询指定进程标识号的进程
+// 返回指定进程的内存占用说明表下标 若不存在则返回负数 或>=N的值
+int findProgressBlockSub(int pid) {
+	int i = -1;
+	for (i = 0; i < N; ++i) {
+		if (progressBlock[i].pid == pid) {
+			break;
+		}
+	}
+	return i;
+}
+
+// ---- 新建一个内存为0的进程 可以指定pid(但只能大于之前所有pid中最大的)
+// ---- 返回新进程的pid 若进程说明表已满 则返回-1
+int addProgressBlock() {
+	int resultPid = -1;
+	if (progressCnt < N) {
+		resultPid = progressBlock[progressCnt].pid = pidOrigin++;
+		progressBlock[progressCnt].valid = 1;
+		progressBlock[progressCnt].size = 0;
+		progressBlock[progressCnt].startAddress = 0;
+		++progressCnt;
+	}
+	else {
+		resultPid = -1;
+	}
+	return resultPid;
 }
 
 // ---- 寻找一个未使用的表项将参数给定的块放入其中 如果成功返回表项下标 失败(不存在)返回一个负数
@@ -99,7 +149,7 @@ int alloc(int sizeRequest)
 			}
 			if (freeBlock[i].size == sizeRequest)
 			{
-				--allocedCnt;
+				--freeBlockCnt;
 				freeBlock[i].state = 0;
 				goto END;
 			}
@@ -164,7 +214,7 @@ void setFree(int startAddress, int size)
 	{
 		// ---- 上面是对释放内存块后邻接的表项进行拼接
 		// ---- 这里是寻找是否存在未使用的表项容纳已释放的空闲块
-		if (allocedCnt < N) {
+		if (freeBlockCnt < N) {
 			for (i = 0; i < N; i++)
 			{
 				if (freeBlock[i].state == 1){
@@ -186,7 +236,7 @@ void setFree(int startAddress, int size)
 					freeBlock[i].startAddress = startAddress;
 					freeBlock[i].size = size;
 					freeBlock[i].state = 1;
-					++allocedCnt;
+					++freeBlockCnt;
 					break;
 				}
 			}
@@ -280,7 +330,7 @@ void printFreeTable()
 {
 	int i;
 	printf("\t\t| --------------------------------------------\t|\n");
-	printf("\t\t| 空闲块(已使用表项): %d\t\t\t\t|\n", allocedCnt);
+	printf("\t\t| [空闲区说明表]空闲块(已使用表项): %d\t\t|\n", freeBlockCnt);
 	printf("\t\t| start\t\tsize\t\tstate\t\t|\n");
 	printf("\t\t| --------------------------------------------\t|\n");
 
@@ -292,8 +342,27 @@ void printFreeTable()
 	}
 }
 
+// ----- 打印进程内存表
+void printProgressTable(){
+	int i;
+	printf("\t\t| --------------------------------------------\t|\n");
+	printf("\t\t| [进程内存占用说明表]\t\t\t\t|\n");
+	printf("\t\t|  pid\tstart\t\tsize\t\t\t|\n");
+	printf("\t\t| --------------------------------------------\t|\n");
+
+	for (i = 0; i < N; ++i){
+		if (progressBlock[i].valid == 1) {
+			printf("\t\t| %3d\t\t%3d\t%3d\t\t\t|\n",
+				progressBlock[i].pid, progressBlock[i].startAddress, progressBlock[i].size);
+			printf("\t\t| --------------------------------------------\t|\n");
+		}
+	}
+	printf("\n");
+}
+
 // --- 如果用户的输入导致程序终止 返回0
-int myShell() {
+// --- 第一题的shell
+int shellFor1() {
 	int result = 1;
 	int requestSize, startAddr;
 	int releaseStartAddr, releaseSize;
@@ -353,8 +422,92 @@ int myShell() {
 	return result;
 }
 
-int main()
-{
+// ---- 从键盘读入进程号 然后查找并返回进程的下标
+int shellForReadPid() {
+	printf("输入进程标识号:");
+	int pid;
+	scanf("%d", &pid);
+	// 吸收回车符
+	getchar();
+	int pSub = findProgressBlockSub(pid);
+	if (pSub < 0 || pSub >= N) {
+		if (pid >= pidOrigin) {
+			pidOrigin = pid;
+			pid = addProgressBlock();
+		}
+		else if (pid < 0) {
+			pid = addProgressBlock();
+		}
+		else {
+			printf("进程号只能大于现存所有进程的最大值 或者输入负数自动分配!\n");
+		}
+		pSub = findProgressBlockSub(pid);
+	}
+	else {
+		// do nothing
+	}
+	return pSub;
+}
+
+// --- 第二题的shell: 带有进程表
+int shellFor2() {
+	int result = 1;
+	int requestSize, startAddr;
+	int releaseStartAddr, releaseSize;
+	int i;
+	char orderBuffer[1024] = {};
+	adjustFreeTable();
+	printProgressTable();
+	printFreeTable();
+	printf("\n分配请求: a; 释放请求: f; 退出程序: e ; 清屏: else\n");
+	scanf("%s", orderBuffer);
+	getchar();
+
+	if (*orderBuffer == 'a'){
+		int pSub = shellForReadPid();
+		if (pSub < 0 || pSub >= N) {
+			printf("进程编号错误!\n");
+		}
+		else {
+			printf("input memory size requested:");
+			scanf("%d", &requestSize);
+			// 吸收回车符
+			getchar();
+
+			startAddr = alloc(requestSize);
+			if (startAddr == -1) {
+				printf("memory allocation failed.Please wait!\n");
+			}
+			else {
+				printf("allocation successs!\n");
+				printf("job's memory start address is:%d, memory size is %d\n",
+					startAddr, requestSize);
+				progressBlock[pSub].startAddress = startAddr;
+				progressBlock[pSub].size = requestSize;
+				printf("job is running.\n");
+				printf("job is terminated.\n");
+				//延时
+				for (i = 0; i < 1000; i++);
+			}
+		}
+	} else if (*orderBuffer == 'f') {
+		int pSub = shellForReadPid();
+		releaseStartAddr = progressBlock[pSub].startAddress;
+		releaseSize = progressBlock[pSub].size;
+		progressBlock[pSub].valid = 0;
+		--progressCnt;
+		setFree(releaseStartAddr, releaseSize);
+	}
+	else if (*orderBuffer == 'e') {
+		result = 0;
+	}
+	else {
+		clear();
+	}
+	return result;
+}
+
+int main() {
 	char requestOrNot, ch;
 	int i;
 	int requestSize;
@@ -362,7 +515,8 @@ int main()
 	int ret = 0;
 	int releaseStartAddr, releaseSize;
 
-	while (myShell());
+	// while (shellFor1());
+	while (shellFor2());
 	return ret;
 }
 /*
