@@ -19,6 +19,9 @@
     <Filter Include="源文件\oj">
       <UniqueIdentifier>{62ad5fa4-11bb-408b-befb-1b3a4d27be19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\HomeWork">
+      <UniqueIdentifier>{64e7f7b6-aec3-47e6-9dd0-f1764371a2bf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AlgorithmTrainingLegacy.cpp">
@@ -51,9 +54,6 @@
     <ClCompile Include="src\agoj\agoj_10_24.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
-    <ClCompile Include="src\agoj\cppHomeWork.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
     <ClCompile Include="agoj_10_31.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
@@ -83,6 +83,12 @@
     </ClCompile>
     <ClCompile Include="src\agoj\agoj12_19.cpp">
       <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\cppHomeWork.cpp">
+      <Filter>源文件\HomeWork</Filter>
+    </ClCompile>
+    <ClCompile Include="src\homework\op_practice_buffer.cpp">
+      <Filter>源文件\HomeWork</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

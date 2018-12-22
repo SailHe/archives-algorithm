@@ -443,7 +443,7 @@ public:
 */
 // 连通图 + 环路检测
 // 为了防止该死的m n的问题 今后只要同时出现m n便需要赋予两者有意义的名字(尤其是在需要使用各种算法接口的时候)
-// @see http://139.196.145.92/problem_show.php?pid=329#probsubmit
+// 提交: @see http://139.196.145.92/problem_show.php?pid=329#probsubmit
 int mainForSolve12_19_B() {
 	// 顶点数 边数
 	int vertexCnt, edgeCntIn;
@@ -462,14 +462,15 @@ int mainForSolve12_19_B() {
 			edgeList.emplace_back(temp);
 			g.edgeData[temp.originID].push_back(AdjacentListGraph::IndexEdge(temp.targetID, temp.weight));
 		}
-		// 这两个算法有bug 不然应该能狗正确检测才对 拓扑判断环路肯定有
-		// bool hasCircle = !g.topologySort(topOrderBuffer);
+		// 拓扑排序 判断环路算法有bug /memory下有个拓扑排序的cpp
+		bool hasCircle = !g.topologySort(topOrderBuffer);
 		kruskal(vertexCnt, edgeList);
 		bool isConnected = vertexCnt >= 0;
 
-		// 如果是(没有环 并 连通图) 图的退化树的话 就符合题意
+		// 如果是图的退化树(没有环 且 连通)的图 就符合题意
 		// cout << ((isGraphTree(vertexCnt, edgeList)) ? "Yes" : "No") << endl;
-		cout << ((isConnected && !existCircleGraphEdges(vertexCnt, edgeList)) ? "Yes" : "No") << endl;
+		// cout << ((isConnected && !existCircleGraphEdges(vertexCnt, edgeList)) ? "Yes" : "No") << endl;
+		cout << ((isConnected && !hasCircle) ? "Yes" : "No") << endl;
 	}
 	return 0;
 }
