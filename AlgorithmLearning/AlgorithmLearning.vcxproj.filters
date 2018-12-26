@@ -90,6 +90,12 @@
     <ClCompile Include="src\homework\op_practice_buffer.cpp">
       <Filter>源文件\HomeWork</Filter>
     </ClCompile>
+    <ClCompile Include="src\homework\op_practice_12_26.cpp">
+      <Filter>源文件\HomeWork</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj12_26.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
