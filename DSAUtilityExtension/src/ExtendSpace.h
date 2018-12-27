@@ -799,6 +799,23 @@ namespace MathExtend {
 	DSAUTILITYEXTENSION_API I64* catalanTable();
 	//返回lineNum条边时最大交点数目
 	DSAUTILITYEXTENSION_API int countMaxIntersection(int lineNum);
+	// 递归版算法
+	DSAUTILITYEXTENSION_API I64 fibonacciRec(Sub n);
+	// 斐波纳契（一种整数数列）
+	// 动态规划版算法 普通版(自动申请内存和释放 返回指定的第 maxN 个菲波纳契数) T-O(N) V-O(N)
+	// 可以优化为静态ArrayList自动缓存
+	DSAUTILITYEXTENSION_API I64 fibonacci(Sub maxN);
+	// 动态规划版算法 缓存加强版(缓存起点, 缓存长度) PS: 缓存长度务必小于等于实际长度; 空间需要自己管理 T-O(N) V-O(N)
+	template<class Integer>
+	void buildFibonacci(Integer *buffer, JCE::SizeType length) {
+		Integer *f = buffer;
+		memset(f, 0, sizeof(Integer)*length);
+		f[1] = f[2] = 1;
+		for (JCE::SizeType n = 3; n < length; ++n) {
+			f[n] = f[n - 1] + f[n - 2];
+		}
+	}
+
 
 
 	//辗转相除求公约数, 互素(互质)判定

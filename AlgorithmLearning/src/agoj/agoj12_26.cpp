@@ -37,7 +37,7 @@ ERUDSHDFHGFLKGFGFKGFLKSAEWALUTRHGFKIFDGITRMDFLKDSLSDLLEHJFKLEKIREFMFK
 RDSDKFKFKSAFKFDKDSSDJFLKF
 */
 // 最长公共子序列 (如果有多个按照assic码排序, 小的排前面)
-// PS 此题的解法略精妙 如果忘记可能需要配合图解才能看懂
+// PS 此题的解法略精妙 如果忘记可能需要配合图解才能看懂 O(N^2)
 int mainForSolveA() {
 	int caseCnt;
 	scanf("%d", &caseCnt);

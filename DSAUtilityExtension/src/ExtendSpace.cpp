@@ -336,6 +336,23 @@ namespace MathExtend {
 	int countMaxIntersection(int lineNum) {
 		return lineNum * (lineNum - 1) / 2;
 	}
+	I64 fibonacciRec(Sub n) {
+		return n == 1 || n == 2 ? 1 :
+			fibonacciRec(n - 1) + fibonacciRec(n - 2);
+	}
+	I64 fibonacci(Sub maxN) {
+		++maxN;
+		I64 *fBuffer = (I64 *)malloc(sizeof(I64)*maxN);
+		memset(fBuffer, 0, sizeof(I64)*maxN);
+		fBuffer[1] = fBuffer[2] = 1;
+		for (int n = 3; n < maxN; ++n) {
+			fBuffer[n] = fBuffer[n - 1] + fBuffer[n - 2];
+		}
+		I64 temp = fBuffer[maxN - 1];
+		free(fBuffer);
+		fBuffer = nullptr;
+		return temp;
+	}
 
 	int gcd(int a, int b)
 	{

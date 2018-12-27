@@ -9,6 +9,9 @@
 #include "Graph\GraphTemplate.h"
 #include "BigInteger.h"
 #include "MathLibrary.h"
+
+#include <random> // 用于梅森随机数
+
 //using namespace StandardExtend;
 using namespace std;
 
@@ -169,6 +172,25 @@ int mainForDeQueue() {
 	//ql.shell();
 	puts(" ====== Deque test end");
 	return 0;
+}
+void testForMersenneTwister() {
+	// non-deterministic generator  
+	random_device rd;
+	//梅森旋转演算法（Mersenne twister）是一个伪随机数发生算法。
+	// 由松本真和西村拓士[1]在1997年开发，基于有限二进制字段上的矩阵线性递归。
+	// 可以快速产生高质量的伪随机数，修正了古典随机数发生算法的很多缺陷。
+	mt19937 gen(rd());
+	// to seed mersenne twister.  
+	// replace the call to rd() with a constant value to get repeatable results.  
+
+	// 普通随机数使用时间作为种子 使用0的话每次产生的随机值是一样的
+	srand(clock());
+	for (int i = 0; i < 5; ++i) {
+		// print the raw output of the generator.  
+		cout << "梅森随机数: " << gen() << " ";
+		cout << "普通随机数: " << rand() << endl;
+	}
+	cout << endl;
 }
 
 
@@ -760,7 +782,80 @@ int mainForBigInteger() {
 	return 0;
 }
 
+int testForBiginteger() {
+	// freopen("input", "r", stdin);
+	vector<int> ans(5);
+	int t = 1;
+	char origin[1005] = "28462596809170545189064132121198688901480514 500";
+	// scanf("%d", &t); getchar();
+	BigInteger s = BigInteger(9) + BigInteger(1);
+	s = 1;
+	int n = 10001;
+	s.reserve(1005);
+	/*
+	28462596809170545189064132121198688901480514
+	500
+	12201368259911100687012387854230469
+	*/
+
+	s.fact(10).print();
+	while (t-- > 0) {
+		BinaryTransition bt = BinaryTransition(100, 4, 3);
+		// gets(origin);
+		char *a = origin, *b = NULL;
+		for (b = origin; *b != ' '; ++b);
+		*b++ = '\0';
+		//bt.transition(a, ans);
+		BigInteger A = BigInteger(a);
+		printf("A ");
+		A.print();
+		BigInteger B = BigInteger(b);
+		printf("B ");
+		B.print();
+		BigInteger sum = A + B;
+		// sum.muity(10000);
+		printf("S ");
+		sum.print();
+		//sum.fact();
+		//sum.print();
+	}
+	return 0;
+}
+
+int mainForFibonacci() {
+	double temp_ = 0.375;
+	printf("%.4f\n", temp_);
+	printf("%.2f\n", temp_);
+	printf("%.f\n", temp_);
+	temp_ = 0.30;
+	printf("%.4f\n", temp_);
+	printf("%.2f\n", temp_);
+	printf("%.f\n", temp_);
+	clock_t start = clock();
+	clock_t stop = clock();
+	I64 f[101];
+	int testN[14] = { 10, 20, 30, 40, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59 };
+	MathExtend::buildFibonacci(f, 101);
+	puts("n               递归结果   耗时(ms)      动态规划结果    耗时(ms)");
+	// 只测试前4个
+	for (int i = 0; i < 4; ++i) {
+		printf("%d ", testN[i]);
+		start = clock();
+		printf("%20I64d", MathExtend::fibonacciRec(testN[i]));
+		stop = clock();
+		printf("%10.f", (double)(stop - start));// (double)(stop - start) / CLK_TCK //秒
+
+		start = clock();
+		//printf("%20I64d", f[testN[i]]);
+		printf("%20I64d", MathExtend::fibonacci(testN[i]));
+		stop = clock();
+		printf("%10.f\n", (double)(stop - start));// (double)(stop - start) / CLK_TCK //秒
+	}
+	return 0;
+}
+
 int mainForDllTest() {
+	// StandardExtend::toLowerAlph('c');
 	cout << DllHelloWorld() << endl;
 	cout << DllTestNameSpace::dllHelloWorldInNameSpace() << endl;
 	auto temp = DllTestNameSpace::DllTestClass(200);
@@ -791,6 +886,9 @@ int mainForGraphTemplate() {
 }
 //_ForTest
 int main() {
+	testForMersenneTwister();
+	mainForFibonacci();
+	testForBiginteger();
 	StandardExtend::outputDebugFormat("输出栏格式化字符串输出测试%d\n", 10);
 	//FILE *inFile = stdin, *outFile;
 	//freopen("input", "r", stdin);
