@@ -30,6 +30,7 @@ class BinaryTransition{
 	VarrayIterator currentBinNumberPointer;// = NULL
 public:
 	//支持[1, 31] 即2 4..共31种进制(口头约定: 只能高进制向低进制转) 1bit即表示目标进制是2进制
+	// (mizhi, )
 	BinaryTransition(int bitSize, int originBitLeast = 1, int targetBitLeast = 1){
 		//repository = (int *)malloc(sizeof(int)*bitSize);
 		repository.resize(bitSize);

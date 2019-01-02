@@ -42,47 +42,8 @@
     <ClCompile Include="src\BacktraceSubject.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\agoj\agoj_9_22.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj_10_10.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj_10_17.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj_10_24.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="agoj_10_31.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj_11_7.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj_11_7_result.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj_11_14.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj_11_21.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
     <ClCompile Include="ShortestPathSet.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj11_28.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj_12_5.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj12_12.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj12_19.cpp">
-      <Filter>源文件\oj</Filter>
     </ClCompile>
     <ClCompile Include="src\agoj\cppHomeWork.cpp">
       <Filter>源文件\HomeWork</Filter>
@@ -93,7 +54,49 @@
     <ClCompile Include="src\homework\op_practice_12_26.cpp">
       <Filter>源文件\HomeWork</Filter>
     </ClCompile>
-    <ClCompile Include="src\agoj\agoj12_26.cpp">
+    <ClCompile Include="src\agoj\agoj18_9_22.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_10_10.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_10_17.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_10_24.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="agoj18_10_31.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_11_7.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_11_7_result.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_11_14.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_11_21.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_12_5.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_11_28.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_12_12.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_12_19.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_12_26.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj19_1_2.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
   </ItemGroup>
