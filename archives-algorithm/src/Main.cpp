@@ -884,8 +884,8 @@ int mainForGraphTemplate() {
 	g = nullptr;
 	return 0;
 }
-//_ForTest
-int main() {
+
+int main_ForTest() {
 	testForMersenneTwister();
 	mainForFibonacci();
 	testForBiginteger();
@@ -913,3 +913,6 @@ int main() {
 	return 0;
 }
 
+int main(int argc, char const *argv[]) {
+	main_ForTest();
+}
