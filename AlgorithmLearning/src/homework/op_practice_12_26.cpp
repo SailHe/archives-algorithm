@@ -17,6 +17,13 @@ origin: teacher's example1.c
 #define PAGE_SIZE 1024
 // 进程的上限数目 (假定系统中最多存在5个进程)
 #define MAX_PROC 5
+
+#define ArrayListImpl
+
+#ifndef ArrayListImpl
+#define LinkListImpl
+#endif // ArrayListImpl
+
 // 每个进程最多能申请的页面数 (假定每个进程最多申请8KB的内存)
 #define PROC_MAX_PAGE 8
 // 物理内存模拟表(位视图)的每维大小
@@ -49,20 +56,23 @@ struct PCBInfo{
 	int *ProcPageTable;
 };
 
-/* 进程列表 
+#ifdef LinkListImpl
+/* 进程链表 */
+std::list<PCBInfo> ProcessLinkList;
+typedef std::list<PCBInfo>::iterator IteratorPro;
+#endif // LinkListImpl
+#ifndef LinkListImpl
+typedef PCBInfo *IteratorPro;
+/* 进程列表 */
 struct PCBInfo ProcessesArrList[MAX_PROC] = {
 	{"null", -1, -1, NULL},
 	{"null", -1, -1, NULL},
 	{"null", -1, -1, NULL},
 	{"null", -1, -1, NULL},
 	{"null", -1, -1, NULL}
-};*/
+};
+#endif // LinkListImpl
 
-/* 进程链表 */
-std::list<PCBInfo> ProcessLinkList;
-
-//typedef PCBInfo * IteratorPro;
-typedef std::list<PCBInfo>::iterator IteratorPro;
 
 /* 系统中已存在的进程数 */
 int procNum = 0;
@@ -74,10 +84,14 @@ int InitProcPageTable[MAX_PROC][PROC_MAX_PAGE] = {
 
 // ---- 向进程表中填充一个新进程 若失败返回0
 int addAndFillNewPro(PCBInfo bufferPCB) {
-	//IteratorPro left = ProcessesArrList, right = ProcessesArrList + procNum;
-	//IteratorPro left = ProcessLinkList.begin(), right = ProcessLinkList.end();
-	//ProcessesArrList[procNum] = bufferPCB;
+#ifdef LinkListImpl
+	IteratorPro left = ProcessLinkList.begin(), right = ProcessLinkList.end();
 	ProcessLinkList.push_back(bufferPCB);
+#endif // LinkListImpl
+#ifndef LinkListImpl
+	IteratorPro left = ProcessesArrList, right = ProcessesArrList + procNum;
+	ProcessesArrList[procNum] = bufferPCB;
+#endif // LinkListImpl
 	// 系统已有进程数增1
 	++procNum;
 	return 1;
@@ -86,8 +100,12 @@ int addAndFillNewPro(PCBInfo bufferPCB) {
 // ---- 根据进程索引查询进程
 // 返回进程的迭代器 若不存在返回 end迭代器
 IteratorPro findProcess(int procIdx) {
-	//IteratorPro left = ProcessesArrList, right = ProcessesArrList + procNum;
+#ifdef LinkListImpl
 	IteratorPro left = ProcessLinkList.begin(), right = ProcessLinkList.end();
+#endif // LinkListImpl
+#ifndef LinkListImpl
+	IteratorPro left = ProcessesArrList, right = ProcessesArrList + procNum;
+#endif // LinkListImpl
 	for (; left != right; ++left) {
 		if (left->ProcIndex == procIdx) {
 			break;
@@ -102,14 +120,17 @@ IteratorPro findProcess(int procIdx) {
 
 // 删除一个进程 返回值是更新后的容器的被删除元素的后一个元素的迭代器
 IteratorPro deleteProc(IteratorPro left) {
-	/* 回收进程页表空间 
+#ifdef LinkListImpl
+	left = ProcessLinkList.erase(left);
+#endif // LinkListImpl
+#ifndef LinkListImpl
+	//回收进程页表空间
 	free(left->ProcPageTable);
 	left->ProcPageTable = NULL;
 	// 标识该进程的进程号为-1，以区别于其他正常进程
 	left->ProcIndex = -1;
 	left = NULL;
-	*/
-	left = ProcessLinkList.erase(left);
+#endif // LinkListImpl
 	return left;
 }
 
@@ -140,8 +161,12 @@ void initProcPageTable(void){
 	PCBInfo p1 = { "Proc1", 1, 4000, NULL }, p2 = { "Proc2", 2, 4800, NULL };
 	addAndFillNewPro(p1);
 	addAndFillNewPro(p2);
-	//IteratorPro left = ProcessesArrList, right = ProcessesArrList + procNum;
+#ifdef LinkListImpl
 	IteratorPro left = ProcessLinkList.begin(), right = ProcessLinkList.end();
+#endif // LinkListImpl
+#ifndef LinkListImpl
+	IteratorPro left = ProcessesArrList, right = ProcessesArrList + procNum;
+#endif // LinkListImpl
 	// 初始化已有进程的页表
 	for (; left != right; ++left, ++i){
 		// 计算进程所占页面数 向上取整
@@ -180,8 +205,12 @@ void printPageTable(int procNum){
 		printf("there's no processes now.\n");
 	}
 	else{
-		//IteratorPro left = ProcessesArrList, right = ProcessesArrList + procNum;
+#ifdef LinkListImpl
 		IteratorPro left = ProcessLinkList.begin(), right = ProcessLinkList.end();
+#endif // LinkListImpl
+#ifndef LinkListImpl
+		IteratorPro left = ProcessesArrList, right = ProcessesArrList + procNum;
+#endif // LinkListImpl
 		for (; left != right; ++left){
 			printf("--------%d号进程页表--------\n", left->ProcIndex);
 			printf("名称: %4s\n", left->ProcName);
@@ -252,12 +281,20 @@ int  alloc(int procIdx, char procName[], int procSize){
 }
 
 void sortInvalidProc() {
-	//IteratorPro left1 = ProcessesArrList, right1 = ProcessesArrList + procNum;
+#ifdef LinkListImpl
 	IteratorPro left1 = ProcessLinkList.begin(), right1 = ProcessLinkList.end();
+#endif // LinkListImpl
+#ifndef LinkListImpl
+	IteratorPro left1 = ProcessesArrList, right1 = ProcessesArrList + procNum;
+#endif // LinkListImpl
 	for (; left1 != right1; ++left1) {
 		if (left1->ProcIndex < 0) {
-			//IteratorPro left2 = ProcessesArrList, right2 = ProcessesArrList + procNum;
+#ifdef LinkListImpl
 			IteratorPro left2 = left1, right2 = ProcessLinkList.end();
+#endif // LinkListImpl
+#ifndef LinkListImpl
+			IteratorPro left2 = left1, right2 = ProcessesArrList + procNum;
+#endif // LinkListImpl
 			for (++left2; left2 != right2; ++left1, ++left2) {
 				left1->ProcIndex = left2->ProcIndex;
 				left1->ProcSize = left2->ProcSize;
@@ -279,8 +316,12 @@ void setFree(int procIdx){
 	// blockNo
 	int blockCount;
 	int j;
-	//IteratorPro left = ProcessesArrList, right = ProcessesArrList + procNum;
+#ifdef LinkListImpl
 	IteratorPro left = ProcessLinkList.begin(), right = ProcessLinkList.end();
+#endif // LinkListImpl
+#ifndef LinkListImpl
+	IteratorPro left = ProcessesArrList, right = ProcessesArrList + procNum;
+#endif // LinkListImpl
 	left = findProcess(procIdx);
 	if (left == right){
 		printf("the proc index doesn't exist.\n");
