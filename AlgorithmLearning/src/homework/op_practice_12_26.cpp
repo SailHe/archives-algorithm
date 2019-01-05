@@ -56,6 +56,16 @@ struct PCBInfo{
 	int *ProcPageTable;
 };
 
+// @see https://www.jianshu.com/p/f46b05e8a0e8
+#if __LINE__ == 60
+#include <stdio.h>
+#elif __LINE__ == 63
+#define MAX_PROC "SAIL_HE"
+#else
+#define MAX_PROC 0
+#endif // __LINE__ == 78
+
+
 #ifdef LinkListImpl
 /* ½ø³ÌÁ´±í */
 std::list<PCBInfo> ProcessLinkList;
