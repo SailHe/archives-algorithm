@@ -1,24 +1,26 @@
 #pragma once
-// 其实这个集合并非真正意义上的集合 它只储存了关系 没有储存集合的元素
-template<class ElementType>
+#include<vector>
+
+// 只储存集合关系 没有储存集合的元素(下标 <==> 元素)
 //并查集模板类 unit join set
 class DisjointSet {
 public:
-	//using ElementType = int;
 	// 用集合的root下标表示集合
 	using SetRoot = int;
-	// 元素都表示下标
-	using SetBaseType = vector<ElementType>;
-	//using SetBaseType = ElementType[MAX_N];
+	// 用集合数组的下标表示元素
+	using ElementIndexType = int;
+	// 数组的value表示其集合的'父结点'(任意元素都可以作为父结点 但同一个集合中所有元素的root结点有且只有1个)
+	using SetBaseType = std::vector<ElementIndexType>;
+	//using SetBaseType = ElementIndexType[MAX_N];
 	//在class出现vector在http://139.196.145.92上会Runtime Error
-	//vector<ElementType> debugTemp1;
+	//vector<ElementIndexType> debugTemp1;
 
 	DisjointSet() {}
-	// O(N)
-	DisjointSet(size_t n) {
+	// 初始化一个索引号:[0, elementNum)的含有elementNum个集合的并查集 O(N)
+	DisjointSet(size_t elementNum) {
 		//新的元素初始值也必须是-1 每个元素都代表一个单独的集合
-		disjointSetBase.assign(n, -1);
-		//memset(disjointSetBase, -1, n*sizeof(ElementType));
+		disjointSetBase.assign(elementNum, -1);
+		//memset(disjointSetBase, -1, elementNum*sizeof(ElementIndexType));
 	}
 
 	// 合并两个集合 O(lgN)
@@ -42,18 +44,18 @@ public:
 		}
 	}
 
-	// 根据元素进行合并 O(lgN)
+	// 根据元素索引进行合并 O(lgN) <==> unionSet(findRoot(lhsIndex), findRoot(rhsIndex));
 	// 若发生合并返回true 否则返回false
-	bool unionElement(ElementType x1, ElementType x2) {
-		return unionSet(findRoot(x1), findRoot(x2));
+	bool unionElement(ElementIndexType lhsIndex, ElementIndexType rhsIndex) {
+		return unionSet(findRoot(lhsIndex), findRoot(rhsIndex));
 	}
 
-	// 查询指定元素的根 O(lgN)
-	SetRoot findRoot(ElementType x) {
+	// 查询指定元素的根 O(lgN) (元素的索引号)
+	SetRoot findRoot(ElementIndexType eleIndex) {
 		// 集合默认初始值为-1 (负数表示这是一个集合的根, 绝对值表示集合大小)
-		return disjointSetBase[x] < 0 ? x
+		return disjointSetBase[eleIndex] < 0 ? eleIndex
 			// 路径压缩: 将递归找到的集合的根赋值给父结点
-			: disjointSetBase[x] = findRoot(disjointSetBase[x]);
+			: disjointSetBase[eleIndex] = findRoot(disjointSetBase[eleIndex]);
 	}
 
 	// 返回指定集合的元素个数(大小) O(1)

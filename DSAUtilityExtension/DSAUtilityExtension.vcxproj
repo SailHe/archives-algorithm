@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClInclude Include="src\BigInteger.h" />
     <ClInclude Include="src\DSAUEdll.h" />
+    <ClInclude Include="src\else\DisjointSet.h" />
     <ClInclude Include="src\ExtendSpace.h" />
     <ClInclude Include="src\GetMyDade.h" />
     <ClInclude Include="src\Graph\Graph.h" />

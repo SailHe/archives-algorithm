@@ -140,6 +140,7 @@
     <ClCompile Include="src\agoj\agoj19_1_2.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="src\agoj\agoj19_1_9.cpp" />
     <ClCompile Include="src\agoj\cppHomeWork.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -153,7 +154,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\homework\op_practice_12_26.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\homework\op_practice_12_12.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -176,7 +177,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h" />
-    <ClInclude Include="src\uset.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\archives-algorithm\archives-algorithm.vcxproj">

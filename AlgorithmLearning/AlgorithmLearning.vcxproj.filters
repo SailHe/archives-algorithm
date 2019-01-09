@@ -99,13 +99,13 @@
     <ClCompile Include="src\homework\op_practice_12_12.cpp">
       <Filter>源文件\HomeWork</Filter>
     </ClCompile>
+    <ClCompile Include="src\agoj\agoj19_1_9.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
       <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\uset.h">
-      <Filter>源文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
