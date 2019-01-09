@@ -27,7 +27,7 @@ int main_2(){
 		vector<int> lowTop;
 		lowTop.resize(30);
 		//Ô­Âë
-		int totalBit = oBinCode.tenToRadix(onum, lowTop.begin(), 2);
+		int totalBit = BinaryTransition::decimalToRadixLowTop(onum, lowTop.begin(), 2);
 		oBinCode.outputWithSymbol(lowTop, 7);
 
 		//·´Âë

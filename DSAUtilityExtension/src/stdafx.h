@@ -89,7 +89,7 @@ export(导出/出口/输出) 在定义模板类对象和模板函数时的extern功能
 
 //java容器类型名扩展空间
 namespace JavaContainerExtend {
-	//可变数组
+	//可变数组(变长数组)
 	template<typename T> using Varrays = std::vector<T>;
 	//数组表
 	template<typename T> using ArrayList = std::vector<T>;

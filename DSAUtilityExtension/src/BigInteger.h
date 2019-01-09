@@ -12,38 +12,42 @@ input:  1  3  7   F(15)    V(31)
 output: 1 11 111  1111     11111
 */
 
-//二进制转换器类(支持 可用2进制表示的任意进制的大数的单向转换) 符号需要用户自己处理
+// 二进制转换器类(支持 可用2进制表示的任意进制的大数的单向转换) 符号需要用户自己处理
 class BinaryTransition{
+	// Radix(基数) Base(基础) Decimal(十进位的; 小数)
+	// Radix: 任意进制; Decimal: 十进制
 	//转换双方的储存位: 一位至少需要多少位二进制表示
 	int originBitLeast = 1;
 	int originRadix = (int)pow((double)2, originBitLeast);
 	int targetBitLeast = 1;
 	/*
 	//只需改一两处就可以替换
-	typedef int *Varray;
-	typedef Varray VarrayIterator;
+	typedef int *DigitArray;
+	typedef DigitArray DigitIterator;
 	*/
-	typedef std::vector<int> Varray;
-	typedef Varray::iterator VarrayIterator;
-	Varray repository;// = NULL
-	VarrayIterator binNumberPointer;// = NULL
-	VarrayIterator currentBinNumberPointer;// = NULL
+	// 是基于整数数字数组的 (类似于字符串) 原称: DigitBitArray(数字位元数组)
+	typedef std::vector<int> DigitArray;
+	// BitIter -> Biter
+	typedef DigitArray::iterator DigitIterator;
+	DigitArray repository;// = NULL
+	DigitIterator binNumberPointer;// = NULL
+	DigitIterator currentBinNumberPointer;// = NULL
 public:
 	//支持[1, 31] 即2 4..共31种进制(口头约定: 只能高进制向低进制转) 1bit即表示目标进制是2进制
-	// (mizhi, )
+	// (计算过程中的最大位数, 源值位数, 目标值位数)
 	BinaryTransition(int bitSize, int originBitLeast = 1, int targetBitLeast = 1){
 		//repository = (int *)malloc(sizeof(int)*bitSize);
 		repository.resize(bitSize);
 		reset(originBitLeast, targetBitLeast);
 	}
-	//重设进制转换 但总空间不支持重设
+	// 重设进制转换 但总空间不支持重设
 	void reset(int originBitLeast, int targetBitLeast = 1){
 		this->originBitLeast = originBitLeast;
 		this->targetBitLeast = targetBitLeast;
 		//memset(repository, 0, targetBitLeast*sizeof(int));//预留的一段必须初始化
 	}
-	//以二进制为中间储存的进制大数转换 ans储存最终的结果(不会出现多余的0)
-	void transition(char *origin, std::vector<int> &ans){
+	// 以二进制为中间储存的进制大数转换 ans储存最终的结果(不会出现多余的0)
+	void transition(char *origin, DigitArray &ans){
 		char oneBit = 0;
 		binNumberPointer = repository.begin() + targetBitLeast;
 		//binNumberPointer = repository + targetBitLeast;
@@ -63,8 +67,8 @@ public:
 				//如4进制用2位表示 输入4 0010 无法完成逆序转换 虽然reTopBit使得即使如此也能完成转换, 但这仍是错的
 			}
 
-			int bit = tenToRadix(number, currentBinNumberPointer, 2);
-			//number = baseLowTopToTen(currentBinNumberPointer, 2, bit);
+			int bit = decimalToRadixLowTop(number, currentBinNumberPointer, 2);
+			//number = radixLowTopToDecimal(currentBinNumberPointer, 2, bit);
 			//向后补齐
 			complement(currentBinNumberPointer, currentBinNumberPointer + bit, originBitLeast);
 			//注意: 每originBitLeast位的逆序储存 无法转换为每targetBitLeast位的逆序储存 因此这个逆序是必须的
@@ -87,7 +91,7 @@ public:
 		//top->low每一个targetBitLeast转为10进制(连起来即是目标进制)
 		for (int i = 0; i < currentBinNumberPointer - binNumberPointer; i += targetBitLeast){
 			//去除所有的转换后的前导0(转换前的前导0转换后可能不是)
-			int number = baseTopLowToTen(binNumberPointer + i, 2, targetBitLeast);
+			int number = radixTopLowToDecimal(binNumberPointer + i, 2, targetBitLeast);
 			outputValidValue = number != 0 || outputValidValue;
 			if (outputValidValue){
 				ans.push_back(number);
@@ -97,88 +101,77 @@ public:
 		//puts("");
 	}
 
-	/*基础进制转换 如果数值超出int范围直接使用2进制的中间储存做大数计算*/
+	/**
+	 * 基础进制转换 如果数值超出int范围直接使用2进制的中间储存做大数计算
+	 **/
 
-	//将数字转换正数(正数仍是正数) 返回该数字的正负符号
-	static char toAbs(int &number){
-		return number < 0 ? (number = -number), '-' : '+';
-	}
-
-	//数字->数组 (返回位数 以及 repositoryLowToTop低位向高位存储的数值储存迭代器)
-	static int tenToRadix(unsigned number, VarrayIterator repositoryLowToTop, int radix){
-		static int bit;
-		bit = -1;
-		//要保证即使传入0也能执行一次
-		do{
-			repositoryLowToTop[++bit] = number % radix;
-			number /= radix;
-		} while (number != 0);
-		return bit + 1;
-	}
-
-	//字符数组->数字位元数组 返回总位数
-	static size_t toDigitBitArray(char *originTopLow, Varray &numTopLow){
-		size_t len = strlen(originTopLow);
-		for (size_t i = 0; i < len; ++i){
-			if (isalpha(originTopLow[i])){
-				numTopLow[i] = toupper(originTopLow[i]) - 'A' + 10;
+	// 字符数组{数字, 大小写字母} -> 数字数组
+	// 返回总位数
+	static size_t toDigitBitArray(char *originCharS, DigitArray &digitList) {
+		size_t len = strlen(originCharS);
+		for (size_t i = 0; i < len; ++i) {
+			if (isalpha(originCharS[i])) {
+				digitList[i] = toupper(originCharS[i]) - 'A' + 10;
 			}
-			else if (isalnum(originTopLow[i])){
-				numTopLow[i] = originTopLow[i] - '0';
+			else if (isalnum(originCharS[i])) {
+				digitList[i] = originCharS[i] - '0';
 			}
-			else{
-				//_DEBUG_ERROR("输入数据含非法字符(合法字符: 数字, 大小写字母)")
+			else {
+				_ASSERT_EXPR(false, "输入数据含非法字符(合法字符: 数字, 大小写字母)");
 			}
 		}
 		return len;
 	}
-
-
-	/*(lowBitIter: 低位向高位逼近的迭代器 rbegain() )*/
-	static int radixToTen(VarrayIterator lowBitIter, int radix, int totalSizeNum){
-		static int number;
-		int powNum = 1;
-		number = 0;
-		//从低位向高位按权展开 i是幂
-		for (int i = 0; i < totalSizeNum; ++i){
-			number += lowBitIter[i] * powNum;
-			//powNum = radix^i
-			powNum *= radix;
-		}
-		return number;
+	// 数字 -> 数组 (需要转换的10进制数字, 低位向高位存储的数值储存迭代器)
+	// 返回位数: totalSizeNum; 改变参数数组
+	static int decimalToRadixLowTop(unsigned decimaNum, DigitIterator lowTopIter, int radix){
+		static int bit;
+		bit = -1;
+		// 要保证即使传入0也能执行一次
+		do{
+			lowTopIter[++bit] = decimaNum % radix;
+			decimaNum /= radix;
+		} while (decimaNum != 0);
+		return bit + 1;
 	}
-	//返回任意进制的加权10进制数
-	//(tenToRadix参数返回值可以直接用此方法直接的到10进制的值)
-	static int baseLowTopToTen(VarrayIterator numLowTop, int radix, int totalSizeNum){
-		static int number;
+
+	// 返回任意进制的加权10进制数 (lowTopIter: 低位向高位逼近的迭代器::lowTopList.begain(); topLowList.rbegain();)
+	static int radixLowTopToDecimal(DigitIterator lowTopIter, int radix, int totalSizeNum){
+		static int decimaNum;
 		int powNum = 1;
-		number = 0;
+		decimaNum = 0;
 		//从低位(左侧是低位)向高位按权展开 i是幂
 		for (int i = 0; i < totalSizeNum; ++i){
-			number += numLowTop[i] * powNum;
+			decimaNum += lowTopIter[i] * powNum;
 			//powNum = radix^i
 			powNum *= radix;
 		}
-		return number;
+		return decimaNum;
 	}
-	//存储方式是top->low
-	template<class BaseT>//支持基本运算的类型(通常指int __int64)
-	static BaseT baseTopLowToTen(VarrayIterator numTopLow, BaseT radix, int totalSizeNum){
-		static BaseT number;
-		BaseT powNum = 1;
-		number = 0;
+	// 效果类似上一个方法; 但允许泛型; 存储方式是top -> low
+	template<class Integer>// 支持基本运算的类型(EG: int __int64)
+	static Integer radixTopLowToDecimal(DigitIterator topLowIter, Integer radix, int totalSizeNum){
+		static Integer decimaNum;
+		Integer powNum = 1;
+		decimaNum = 0;
 		//从低位(右侧是低位)向高位按权展开 i是幂
 		for (int i = totalSizeNum - 1; i >= 0; --i){
-			number += numTopLow[i] * powNum;
+			decimaNum += topLowIter[i] * powNum;
 			//powNum = radix^i
 			powNum *= radix;
 		}
-		return number;
+		return decimaNum;
 	}
 
+	// Utility
 
-	//不足n的倍数位向后补0 originP~currentP(n*0)
-	static void complement(VarrayIterator originP, VarrayIterator currentP, int n){
+	// 将数字转换正数(正数仍是正数) 返回该数字的正负符号
+	static char toAbs(int &number) {
+		return number < 0 ? (number = -number), '-' : '+';
+	}
+
+	// 不足n的倍数位向后补0 originP~currentP(n*0)
+	static void complement(DigitIterator originP, DigitIterator currentP, int n){
 		int residueBit = (currentP - originP) % n;
 		if (residueBit != 0){
 			residueBit = n - residueBit;
@@ -188,23 +181,23 @@ public:
 		}
 	}
 
-	//对每一位二进制取反
-	static void reverseCode(VarrayIterator numBin, size_t totalSizeNum){
+	// 对每一位二进制取反
+	static void reverseCode(DigitIterator numBin, size_t totalSizeNum){
 		for (size_t i = 0; i < totalSizeNum; ++i){
 			*numBin = !*numBin;
 			++numBin;
 		}
 	}
 
-	//10进制以上进制会带符号输出 10进制以下正常输出 10对应A
-	static void outputWithSymbol(Varray &numLowTop, int totalSizeNum){
+	// 10进制以上进制会带符号输出 10进制以下正常输出 10对应A
+	static void outputWithSymbol(DigitArray &lowTopList, int totalSizeNum){
 		for (int i = 0; i < totalSizeNum; ++i){
 			int pSub = totalSizeNum - i - 1;
-			if (numLowTop[pSub] > 9){
-				printf("%c", numLowTop[pSub] - 10 + 'A');
+			if (lowTopList[pSub] > 9){
+				printf("%c", lowTopList[pSub] - 10 + 'A');
 			}
 			else{
-				printf("%d", numLowTop[pSub]);
+				printf("%d", lowTopList[pSub]);
 			}
 		}
 		puts("");
@@ -672,7 +665,7 @@ private:
 		//当传入数字无法用整字储存时需要多用一个字来储存(即溢出字)
 		setTotalByteNum(numTotalBit / wordBit + (numTotalBit % wordBit == 0 ? 0 : 1));
 		/*symbol = */BinaryTransition::toAbs(originNumber);
-		BinaryTransition::tenToRadix(originNumber, digitLowTop.begin(), radix);
+		BinaryTransition::decimalToRadixLowTop(originNumber, digitLowTop.begin(), radix);
 	}
 	/*static BigInteger valueOf(int value) {
 		return BigInteger(value);
