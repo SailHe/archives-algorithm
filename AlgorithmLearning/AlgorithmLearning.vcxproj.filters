@@ -36,12 +36,6 @@
     <ClCompile Include="src\practicer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\topologySort.cpp">
-      <Filter>源文件\memory</Filter>
-    </ClCompile>
-    <ClCompile Include="src\save007hdu1245.cpp">
-      <Filter>源文件\memory</Filter>
-    </ClCompile>
     <ClCompile Include="src\homework\op_practice_12_26.cpp">
       <Filter>源文件\HomeWork</Filter>
     </ClCompile>
@@ -96,22 +90,13 @@
     <ClCompile Include="src\agoj\agoj18_10_31.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
-    <ClCompile Include="src\背包算法.cpp">
-      <Filter>源文件\temp</Filter>
-    </ClCompile>
     <ClCompile Include="src\app\ShortestPathSet.cpp">
       <Filter>源文件\app</Filter>
     </ClCompile>
     <ClCompile Include="src\temp\BacktraceSubject.cpp">
       <Filter>源文件\temp</Filter>
     </ClCompile>
-    <ClCompile Include="src\temp\save007hdu1245.cpp">
-      <Filter>源文件\temp</Filter>
-    </ClCompile>
     <ClCompile Include="src\temp\Sort.cpp">
-      <Filter>源文件\temp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\temp\topologySort.cpp">
       <Filter>源文件\temp</Filter>
     </ClCompile>
     <ClCompile Include="src\temp\背包算法_baidustar.cpp">
@@ -122,6 +107,12 @@
     </ClCompile>
     <ClCompile Include="src\temp\顺序表操作.cpp">
       <Filter>源文件\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\temp\topologySort.cpp">
+      <Filter>源文件\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\temp\save007hdu1245.cpp">
+      <Filter>源文件\memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

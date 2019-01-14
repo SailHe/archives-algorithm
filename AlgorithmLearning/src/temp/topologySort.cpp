@@ -6,15 +6,15 @@
 #include<iostream>
 #include<queue>
 #include<functional>//greater
-#include"../../archives-algorithm/src/Graph/Graph.h"
-#include"../../archives-algorithm/src/Graph/TreeObject.h"
+#include"./Graph/Graph.h"
+#include"./Graph/TreeObject.h"
 #define EPS 1E-5
 #define MAX_N 505
 using namespace std;
 
-//[v][w]为1表示v赢了w
+//topGrapg[v][w]为1表示v赢了w
 int topGrapg[MAX_N][MAX_N];
-//每个结点的入度
+//indegree[n]表示结点n的入度
 int indegree[MAX_N];
 vector<vector<int>> graphBuffer;
 
@@ -100,7 +100,7 @@ void vTopSort(int n, vector<int> &topOrderBuffer){
 	}
 }
 
-int main() {
+int mainForCurrentFile() {
 	//freopen("input", "r", stdin);
 	int m, n;
 	vector<int> result;
@@ -115,8 +115,8 @@ int main() {
 	}
 	return 0;
 }
-/**/
-int main(){
+
+int mainForLib(){
 	freopen("input", "r", stdin);
 	int m, n;
 	while (cin >> n >> m){
@@ -135,4 +135,4 @@ int main(){
 	}
 	return 0;
 };
-/**/
+

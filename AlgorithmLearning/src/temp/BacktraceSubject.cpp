@@ -1,5 +1,5 @@
 #include"stdafx.h"
-//#include"../../archives-algorithm/src/ExtendSpace.h"
+#include"./ExtendSpace.h"
 /*
 (对隐式图的深度优先搜索算法)
 回溯算法实际上一个类似枚举的搜索尝试过程，
@@ -16,7 +16,7 @@
 //01串 简单的二分搜索
 //对于长度为5位的一个01串，每一位都可能是0或1，一共有32种可能。 每搜索到一种可能就输出
 void dfs(int depth = 0) {
-	static vector<int> a(5, -1);
+	static std::vector<int> a(5, -1);
 	if (depth == 5) {
 		for (int i = 0; i < 5; ++i) {
 			printf(i == 0 ? "%d" : "%d", a[i]);
@@ -121,7 +121,7 @@ int solution(){
 	}
 	///fprintf(fp, "\n");
 
-	sort(a + 1, a + n + 1);//这里的排序很重要
+	std::sort(a + 1, a + n + 1);//这里的排序很重要
 	FOR(i, 0, 100000){
 		ans = 0;
 		dfs(1);
@@ -167,7 +167,7 @@ void dfs(int depth = 0){
 }
 int solution(){
 	char str[1000];
-	cin >> str;
+	std::cin >> str;
 	memset(letterCount, 0, sizeof(letterCount));
 	schemeCount = 0;
 	for (int i = 0; i < n; ++i){
@@ -181,13 +181,13 @@ int solution(){
 int solution1(){
 	int schemeCount = 0;
 	char str[1000];
-	cin >> str;
-	sort(str, str + n);
+	std::cin >> str;
+	std::sort(str, str + n);
 	do{
 		++schemeCount;
 		//cout << str << endl;//50ms
 		puts(str);//32ms
-	} while (next_permutation(str, str + n));
+	} while (std::next_permutation(str, str + n));
 	printf("%d\n", schemeCount);
 	return 0;
 }
@@ -299,7 +299,7 @@ public:
 		id = ++ID;
 	}
 	int id;
-	list<int> enemy;//存敌对的居民id
+	std::list<int> enemy;//存敌对的居民id
 	bool operator<(TribeResident const &rhs)const{
 		int ls = enemy.size(), rs = rhs.enemy.size();
 		return ls == rs ? id < rhs.id :
@@ -333,7 +333,7 @@ int solution1(){
 		allPeople[ri - 1].enemy.push_back(le);
 	}
 
-	sort(allPeoplePtr, allPeoplePtr + n, ptrLess);
+	std::sort(allPeoplePtr, allPeoplePtr + n, ptrLess);
 
 	FOR(i, 0, n){
 		if (group[allPeoplePtr[i]->id - 1] == 1){
@@ -357,7 +357,7 @@ int solution1(){
 				}
 			}
 			if (count == 1 && i < sub){
-				swap(group[i], group[sub]);
+				std::swap(group[i], group[sub]);
 			}
 		}
 	}
@@ -375,9 +375,9 @@ int maxNum;
 //结果树是颗非完全N叉树 h: O(N)(没有敌对关系是颗完全N叉树 此时h=N) 内部有一个O(N^2)的迭代(所有人互相敌对时是N^2)
 //这种实现理论上很平庸 相对易于理解一些 不过如果要求队伍的顺序的话 可以用这个改编
 void dfs(int depth = 0){
-	//改为队伍内的敌对者vector在决策以及visit时有优势 但在回溯前后需要遍历其敌对者
-	//一个折衷的办法是使用有序的list 这提升了决策效率
-	static list<int> groupListBuffer;//表示sub(模拟的堆栈)
+	//改为队伍内的敌对者std::vector在决策以及visit时有优势 但在回溯前后需要遍历其敌对者
+	//一个折衷的办法是使用有序的std::list 这提升了决策效率
+	static std::list<int> groupListBuffer;//表示sub(模拟的堆栈)
 
 	//剪枝: 当前选好的 + 还没有搜索到的 < 当前已知的最大值(等于的时候要非0懒得判断了)
 	if (groupListBuffer.size() + n - depth < maxNum)
@@ -422,7 +422,7 @@ void dfs(int depth = 0){
 }
 //结果树是颗完全二叉树 h=N (与wl版有一点差别 但效果差不多 敌对关系较多时使用这个版本的开销更小)
 void dfsBin(int depth = 0){
-	static list<int> groupListBuffer;//表示sub
+	static std::list<int> groupListBuffer;//表示sub
 
 	//剪枝: 当前选好的 + 还没有搜索到的 < 当前已知的最大值(等于的时候要非0懒得判断了) 若不加这句 那么建的必定是颗CBT
 	if (groupListBuffer.size() + n - depth < maxNum)
@@ -457,7 +457,7 @@ void dfsBin(int depth = 0){
 			//当前元素试图进队但不能进队 do nothing
 		}
 		else{
-			//把自己加进卫队 //换为vector在visit时有点点优势 但list对元素个数的要求更灵活 这其实是个list模拟的堆栈
+			//把自己加进卫队 //换为std::vector在visit时有点点优势 但std::list对元素个数的要求更灵活 这其实是个std::list模拟的堆栈
 			groupListBuffer.push_back(depth);
 			dfsBin(depth + 1);
 			groupListBuffer.pop_back();
@@ -489,9 +489,9 @@ int n;
 //打印素数环: 每个环都从第二个数(即depth=1)开始搜索(否则会出现重复的环 而且难以查重)
 void dfs(int depth = 1){
 	static const int N = 105;
-	static auto prime = primeSieve(25);//此算法见myAlgorithm.h
+	static auto prime = MathExtend::generateSievePrimeS(25);
 	static bool visited[N] = { false };
-	static int ansTemp[N] = { 1 };//第一个数是1 vector<int> ansTemp(N, 1)
+	static int ansTemp[N] = { 1 };//第一个数是1 std::vector<int> ansTemp(N, 1)
 	if (depth == n
 		&& prime[ansTemp[0] + ansTemp[depth - 1]] == 0){//现时结点是最后一个时 判断现时与后继(第一个)
 		for (int j = 0; j < n; ++j){

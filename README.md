@@ -13,3 +13,5 @@
 1. 如果在X64下改动了DSAUtilityExtension中的内容, 但未见效果, 可能是此时引用的仍是X86下内容的原因
 这通常发生在一个既有x86又有x64的dll被一个只有x86的程序引用的时候, 此时即使配置显示的是x64, 但实际当前项目不一定
 (参考AlgorithmLearning引用DSAUtilityExtension)
+2. 对于 模板; 结构体; 类 : #include"../../archives-algorithm/src/ExtendSpace.h" 是可行的
+3. 配置后 #include"./ExtendSpace.h"
