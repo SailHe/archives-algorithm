@@ -22,6 +22,12 @@
     <Filter Include="源文件\HomeWork">
       <UniqueIdentifier>{64e7f7b6-aec3-47e6-9dd0-f1764371a2bf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\temp">
+      <UniqueIdentifier>{872ca597-3a67-4277-9a5a-d91283638016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\app">
+      <UniqueIdentifier>{78629eeb-3788-4edd-a597-b21eae14aec4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AlgorithmTrainingLegacy.cpp">
@@ -30,23 +36,11 @@
     <ClCompile Include="src\practicer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\背包算法.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\topologySort.cpp">
       <Filter>源文件\memory</Filter>
     </ClCompile>
     <ClCompile Include="src\save007hdu1245.cpp">
       <Filter>源文件\memory</Filter>
-    </ClCompile>
-    <ClCompile Include="src\BacktraceSubject.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ShortestPathSet.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\cppHomeWork.cpp">
-      <Filter>源文件\HomeWork</Filter>
     </ClCompile>
     <ClCompile Include="src\homework\op_practice_12_26.cpp">
       <Filter>源文件\HomeWork</Filter>
@@ -61,9 +55,6 @@
       <Filter>源文件\oj</Filter>
     </ClCompile>
     <ClCompile Include="src\agoj\agoj18_10_24.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="agoj18_10_31.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
     <ClCompile Include="src\agoj\agoj18_11_7.cpp">
@@ -99,8 +90,38 @@
     <ClCompile Include="src\homework\op_practice_12_12.cpp">
       <Filter>源文件\HomeWork</Filter>
     </ClCompile>
-    <ClCompile Include="src\agoj\agoj19_1_9.cpp">
+    <ClCompile Include="src\homework\cppHomeWork.cpp">
+      <Filter>源文件\HomeWork</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_10_31.cpp">
       <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\背包算法.cpp">
+      <Filter>源文件\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\app\ShortestPathSet.cpp">
+      <Filter>源文件\app</Filter>
+    </ClCompile>
+    <ClCompile Include="src\temp\BacktraceSubject.cpp">
+      <Filter>源文件\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\temp\save007hdu1245.cpp">
+      <Filter>源文件\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\temp\Sort.cpp">
+      <Filter>源文件\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\temp\topologySort.cpp">
+      <Filter>源文件\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\temp\背包算法_baidustar.cpp">
+      <Filter>源文件\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\temp\散列查找.cpp">
+      <Filter>源文件\temp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\temp\顺序表操作.cpp">
+      <Filter>源文件\temp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
