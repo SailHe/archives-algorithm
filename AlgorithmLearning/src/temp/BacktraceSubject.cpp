@@ -13,9 +13,11 @@
 //另一种易于记忆的完全回溯的dfs写法(完全回溯指除了答案外 其余所有变量运行前与运行后完全一致, 外部无需对其初始化)
 //实现递归关键是: 只处理这一层, 不管上一层或是下一层, 在需要递归的地方直接调用, 若需要回溯, 在调用后回溯相应的变量就行了
 
+
+
 //01串 简单的二分搜索
 //对于长度为5位的一个01串，每一位都可能是0或1，一共有32种可能。 每搜索到一种可能就输出
-void dfs(int depth = 0) {
+void dfs01Str(int depth = 0) {
 	static std::vector<int> a(5, -1);
 	if (depth == 5) {
 		for (int i = 0; i < 5; ++i) {
@@ -26,10 +28,10 @@ void dfs(int depth = 0) {
 	else {
 		//当前位为0
 		a[depth] = 0;
-		dfs(depth + 1);
+		dfs01Str(depth + 1);
 		//当前位为1
 		a[depth] = 1;
-		dfs(depth + 1);
+		dfs01Str(depth + 1);
 		a[depth] = -1;
 	}
 }
@@ -80,53 +82,53 @@ input:
 11 6 16 8 1 1 2
 
 */
-int n, c;
-int a[1000];
-int ans;
-void dfs(int depth){
+int nLoadProblem, cLoadProblem;
+int arrLoadProblem[1000];
+int ansLoadProblem;
+void dfsLoadProblem(int depth){
 	static int sum = 0;
-	if (ans == c){//只需要最大值能达到多少没必要在达到上限后继续计算
+	if (ansLoadProblem == cLoadProblem){//只需要最大值能达到多少没必要在达到上限后继续计算
 		return;
 	}
 	else{
-		for (int i = depth; i <= n; ++i){
-			if (sum + a[i] > c){
-				//a[i+1] >= a[i] 这层及之后的都层没必要搜索(排序不仅避免了这一层的多余搜索 还避免了下一层的搜索)
+		for (int i = depth; i <= nLoadProblem; ++i){
+			if (sum + arrLoadProblem[i] > cLoadProblem){
+				//arrLoadProblem[i+1] >= arrLoadProblem[i] 这层及之后的都层没必要搜索(排序不仅避免了这一层的多余搜索 还避免了下一层的搜索)
 				return;
 			}
 			else{
 				//sum的状态需要在visit的时候用, 
 				//由于这里的visit内用到了sum的状态, 采用以前那种回溯法只能处理上一层的sum状态, 当这一层满足条件但下一层不满足条件时sum的状态无法带到下一层
-				sum += a[i];
+				sum += arrLoadProblem[i];
 
 				//visit(当前层)
-				if (sum > ans){
-					ans = sum;
+				if (sum > ansLoadProblem){
+					ansLoadProblem = sum;
 				}
 				else{
 					//do nothing
 				}
 
-				dfs(i + 1);//搜索下一层
+				dfsLoadProblem(i + 1);//搜索下一层
 
-				sum -= a[i];//回溯这一层
+				sum -= arrLoadProblem[i];//回溯这一层
 			}
 		}
 	}
 }
-int solution(){
-	for (int i = 1; i <= n; i++){
-		scanf("%d", &a[i]);
-		/// fprintf(fp, (i == 1 ? "%d" : " %d"), a[i]); 
+int solutionForLoadProblem(){
+	for (int i = 1; i <= nLoadProblem; i++){
+		scanf("%d", &arrLoadProblem[i]);
+		/// fprintf(fp, (i == 1 ? "%d" : " %d"), arrLoadProblem[i]); 
 	}
 	///fprintf(fp, "\n");
 
-	std::sort(a + 1, a + n + 1);//这里的排序很重要
+	std::sort(arrLoadProblem + 1, arrLoadProblem + nLoadProblem + 1);//这里的排序很重要
 	FOR(i, 0, 100000){
-		ans = 0;
-		dfs(1);
+		ansLoadProblem = 0;
+		dfsLoadProblem(1);
 	}
-	printf("%d\n", ans);
+	printf("%d\n", ansLoadProblem);
 	return 0;
 }
 
@@ -143,12 +145,12 @@ aacc
 dabce
 
 */
-int n,
+int nStrFullPermutation,
 letterCount[100], //记录每一个字母在字符串中出现的次数
 schemeCount;
-void dfs(int depth = 0){
+void dfsStrFullPermutation(int depth = 0){
 	static char schemeBuffer[1000]; //记录一个排列方案
-	if (depth == n){
+	if (depth == nStrFullPermutation){
 		++schemeCount;//记录方案总数
 		puts(schemeBuffer);
 		return;
@@ -159,35 +161,35 @@ void dfs(int depth = 0){
 			if (letterCount[letterSub] > 0){
 				--letterCount[letterSub];//每次取出一个字母它的计数器就-1
 				schemeBuffer[depth] = letterSub + 'a';//visit: depth表示的是length
-				dfs(depth + 1);
+				dfsStrFullPermutation(depth + 1);
 				++letterCount[letterSub];//回溯一步  
 			}
 		}
 	}
 }
-int solution(){
+int solutionStrFullPermutation(){
 	char str[1000];
 	std::cin >> str;
 	memset(letterCount, 0, sizeof(letterCount));
 	schemeCount = 0;
-	for (int i = 0; i < n; ++i){
+	for (int i = 0; i < nStrFullPermutation; ++i){
 		++letterCount[str[i] - 'a'];
 	}
-	dfs();
+	dfsStrFullPermutation();
 	printf("%d\n", schemeCount);
 	return 0;
 }
 //库函数版
-int solution1(){
+int solutionStrFullPermutation1(){
 	int schemeCount = 0;
 	char str[1000];
 	std::cin >> str;
-	std::sort(str, str + n);
+	std::sort(str, str + nStrFullPermutation);
 	do{
 		++schemeCount;
 		//cout << str << endl;//50ms
 		puts(str);//32ms
-	} while (std::next_permutation(str, str + n));
+	} while (std::next_permutation(str, str + nStrFullPermutation));
 	printf("%d\n", schemeCount);
 	return 0;
 }
@@ -289,9 +291,7 @@ input:
 1 3
 
 */
-int n, m;//共用变量
-
-
+int nTribeBodyguard, mTribeBodyguard;//共用变量
 struct TribeResident{
 	static int ID;
 public:
@@ -307,25 +307,25 @@ public:
 	}
 };
 int TribeResident::ID = 0;
-bool ptrLess(TribeResident const *lhs, TribeResident const *rhs){
+bool ptrLessTribeBodyguard(TribeResident const *lhs, TribeResident const *rhs){
 	return (*lhs) < (*rhs);
 }
 //这种实现时间复杂度为O(N^2) (当所有人互相敌对时为最坏情况)
 //理论上: 若把决策(建)一个结点(即递归一次)的开销记为1的话 此实现比建结果树开销要小一些
-int solution1(){
+int solutionTribeBodyguard(){
 
 	TribeResident allPeople[100];
 	TribeResident *allPeoplePtr[100];
 	int group[100];
-	memset(group, 0, sizeof(int)*n);
+	memset(group, 0, sizeof(int)*nTribeBodyguard);
 
-	FOR(i, 0, n){
+	FOR(i, 0, nTribeBodyguard){
 		allPeople[i].enemy.clear();
 	}
-	FOR(c, 0, n){
+	FOR(c, 0, nTribeBodyguard){
 		allPeoplePtr[c] = allPeople + c;
 	}
-	FOR(c, 0, m){
+	FOR(c, 0, mTribeBodyguard){
 		int le, ri;
 		scanf("%d%d", &le, &ri);
 		///fprintf(fp, (c == 0 ? "%d %d\n" : "%d %d\n"), le, ri); fprintf(fp, "\n"); ///
@@ -333,9 +333,9 @@ int solution1(){
 		allPeople[ri - 1].enemy.push_back(le);
 	}
 
-	std::sort(allPeoplePtr, allPeoplePtr + n, ptrLess);
+	std::sort(allPeoplePtr, allPeoplePtr + nTribeBodyguard, ptrLessTribeBodyguard);
 
-	FOR(i, 0, n){
+	FOR(i, 0, nTribeBodyguard){
 		if (group[allPeoplePtr[i]->id - 1] == 1){
 			//已知不在队内时跳过 1表示不在队内 默认需要所有人都在队内
 		}
@@ -346,7 +346,7 @@ int solution1(){
 			}
 		}
 	}
-	FOR(i, 0, n){
+	FOR(i, 0, nTribeBodyguard){
 		if (group[i] == 1){//如果不在队中
 			int count = 0, sub = -1;
 			//id优先原则: 在自己的敌对者中只有一个在队中(替换后没有冲突) 且其id大于自己时
@@ -361,7 +361,7 @@ int solution1(){
 			}
 		}
 	}
-	FOR(i, 0, n){
+	FOR(i, 0, nTribeBodyguard){
 		printf(i == 0 ? "%d" : " %d", !group[i]);//要求1表示在队内
 	}
 
@@ -369,31 +369,33 @@ int solution1(){
 	return 0;
 }
 
-int enemy[100][100];
-int gr[100];//group
+int enemyTribeBodyguard[100][100];
+int groupTribeBodyguard[100];
 int maxNum;
 //结果树是颗非完全N叉树 h: O(N)(没有敌对关系是颗完全N叉树 此时h=N) 内部有一个O(N^2)的迭代(所有人互相敌对时是N^2)
 //这种实现理论上很平庸 相对易于理解一些 不过如果要求队伍的顺序的话 可以用这个改编
-void dfs(int depth = 0){
+void dfsTribeBodyguard(int depth = 0){
 	//改为队伍内的敌对者std::vector在决策以及visit时有优势 但在回溯前后需要遍历其敌对者
 	//一个折衷的办法是使用有序的std::list 这提升了决策效率
 	static std::list<int> groupListBuffer;//表示sub(模拟的堆栈)
 
 	//剪枝: 当前选好的 + 还没有搜索到的 < 当前已知的最大值(等于的时候要非0懒得判断了)
-	if (groupListBuffer.size() + n - depth < maxNum)
+	int tmp = MAX_INT32;
+	Utility::toSignedNum(groupListBuffer.size() + nTribeBodyguard - depth, tmp);
+	if (tmp < maxNum)
 		return;
 
-	if (depth == n){
+	if (depth == nTribeBodyguard){
 		return;
 	}
 	else{
 		//基于一点: sub < depth的元素在前几层决策过了(注意, 一层可能决策多个元素)
 		//每层决策出的元素集合构成那一层的唯一最优结点(唯一与最优是试错试出来的)
-		FOR(i, depth, n){
+		FOR(i, depth, nTribeBodyguard){
 			bool hasEnemy = false;
 			//检查卫队内是否有自己的仇敌 (这个遍历是必须的, 这里是O(N^2))
 			for (auto it = groupListBuffer.begin(); it != groupListBuffer.end(); ++it){
-				if (enemy[*it][i]){
+				if (enemyTribeBodyguard[*it][i]){
 					hasEnemy = true;
 					break;
 				}
@@ -406,35 +408,41 @@ void dfs(int depth = 0){
 				//把自己加进卫队
 				groupListBuffer.push_back(i);
 				//visit
-				if (groupListBuffer.size() > maxNum){
+				int tmp = MAX_INT32;
+				Utility::toSignedNum(groupListBuffer.size(), tmp);
+				if (tmp > maxNum){
 					maxNum = groupListBuffer.size();
-					memset(gr, 0, sizeof(gr));
+					memset(groupTribeBodyguard, 0, sizeof(groupTribeBodyguard));
 					for (auto it = groupListBuffer.begin(); it != groupListBuffer.end(); ++it){
-						gr[*it] = 1;
+						groupTribeBodyguard[*it] = 1;
 					}
 				}
 
-				dfs(i + 1);
+				dfsTribeBodyguard(i + 1);
 				groupListBuffer.pop_back();
 			}
 		}
 	}
 }
 //结果树是颗完全二叉树 h=N (与wl版有一点差别 但效果差不多 敌对关系较多时使用这个版本的开销更小)
-void dfsBin(int depth = 0){
+void dfsBinTribeBodyguard(int depth = 0){
 	static std::list<int> groupListBuffer;//表示sub
 
 	//剪枝: 当前选好的 + 还没有搜索到的 < 当前已知的最大值(等于的时候要非0懒得判断了) 若不加这句 那么建的必定是颗CBT
-	if (groupListBuffer.size() + n - depth < maxNum)
+	int tmp = MAX_INT32;
+	Utility::toSignedNum(groupListBuffer.size() + nTribeBodyguard - depth, tmp);
+	if (tmp < maxNum)
 		return;
 
-	if (depth == n){
+	if (depth == nTribeBodyguard){
 		//visit
-		if (groupListBuffer.size() > maxNum){
+		tmp = -1;
+		Utility::toSignedNum(groupListBuffer.size(), tmp);
+		if (tmp > maxNum){
 			maxNum = groupListBuffer.size();
-			memset(gr, 0, sizeof(gr));
+			memset(groupTribeBodyguard, 0, sizeof(groupTribeBodyguard));
 			for (auto it = groupListBuffer.begin(); it != groupListBuffer.end(); ++it){
-				gr[*it] = 1;
+				groupTribeBodyguard[*it] = 1;
 			}
 		}
 		return;
@@ -447,7 +455,7 @@ void dfsBin(int depth = 0){
 		bool hasEnemy = false;
 		//检查卫队内是否有自己的仇敌 (这个遍历是必须的)
 		for (auto it = groupListBuffer.begin(); it != groupListBuffer.end(); ++it){
-			if (enemy[*it][depth]){
+			if (enemyTribeBodyguard[*it][depth]){
 				hasEnemy = true;
 				break;
 			}
@@ -459,53 +467,57 @@ void dfsBin(int depth = 0){
 		else{
 			//把自己加进卫队 //换为std::vector在visit时有点点优势 但std::list对元素个数的要求更灵活 这其实是个std::list模拟的堆栈
 			groupListBuffer.push_back(depth);
-			dfsBin(depth + 1);
+			dfsBinTribeBodyguard(depth + 1);
 			groupListBuffer.pop_back();
 		}
 		// 当前元素不进队的情况: 直接决策下一层
-		dfsBin(depth + 1);
+		dfsBinTribeBodyguard(depth + 1);
 	}
 }
-int solution(){
-	memset(enemy, 0, sizeof(enemy));
-	FOR(c, 0, m){
+int solutionTribeBodyguard1(){
+	memset(enemyTribeBodyguard, 0, sizeof(enemyTribeBodyguard));
+	FOR(c, 0, mTribeBodyguard){
 		int le, ri;
 		scanf("%d%d", &le, &ri);
 		///fprintf(fp, (c == 0 ? "%d %d\n" : "%d %d\n"), le, ri); fprintf(fp, "\n"); ///
-		enemy[le - 1][ri - 1] = enemy[ri - 1][le - 1] = 1;
+		enemyTribeBodyguard[le - 1][ri - 1] = enemyTribeBodyguard[ri - 1][le - 1] = 1;
 	}
 	maxNum = 0;
 	//dfs();
-	dfsBin();
-	FOR(i, 0, n){
-		printf(i == 0 ? "%d" : " %d", gr[i]);//要求1表示在队内
+	dfsBinTribeBodyguard();
+	FOR(i, 0, nTribeBodyguard){
+		printf(i == 0 ? "%d" : " %d", groupTribeBodyguard[i]);//要求1表示在队内
 	}
 
 	puts("");
 	return 0;
 }
 
-int n;
-//打印素数环: 每个环都从第二个数(即depth=1)开始搜索(否则会出现重复的环 而且难以查重)
-void dfs(int depth = 1){
+
+// 正整数n，把整数1,2,3,4..n组成一个环，使得相邻的两个整数之和均为素数。输出是，从整数1开始逆时针排列 n <= 16
+// 打印素数环: 每个环都从第二个数(即depth=1)开始搜索(否则会出现重复的环 而且难以查重)
+// 有的数比如11是没有素数环的
+int nPrimeCircle = 16;
+void dfsPrimeCircle(int depth = 1){
 	static const int N = 105;
-	static auto prime = MathExtend::generateSievePrimeS(25);
+	static std::unique_ptr<int> primeRep(MathExtend::generateSievePrimeS(25));
 	static bool visited[N] = { false };
 	static int ansTemp[N] = { 1 };//第一个数是1 std::vector<int> ansTemp(N, 1)
-	if (depth == n
+	int *prime = primeRep.get();
+	if (depth == nPrimeCircle
 		&& prime[ansTemp[0] + ansTemp[depth - 1]] == 0){//现时结点是最后一个时 判断现时与后继(第一个)
-		for (int j = 0; j < n; ++j){
-			printf(j == 0 ? "%d" : " %d", ansTemp[j]);
+		for (int j = 0; j < nPrimeCircle; ++j){
+			//printf(j == 0 ? "%d" : " %d", ansTemp[j]);
 		}
-		puts("");
+		//puts("");
 	}
-	else{//第二个数值的范围是[2, n]
-		for (int num = 2; num < n + 1; ++num){
+	else{//第二个数值的范围是[2, nPrimeCircle]
+		for (int num = 2; num < nPrimeCircle + 1; ++num){
 			if (!visited[num]
 				&& prime[ansTemp[depth - 1] + num] == 0){//现时与前驱的判断
 				visited[num] = true;
 				ansTemp[depth] = num;
-				dfs(depth + 1);
+				dfsPrimeCircle(depth + 1);
 				ansTemp[depth] = 0;
 				visited[num] = false;
 			}
@@ -518,44 +530,44 @@ void dfs(int depth = 1){
 HDU 1584蜘蛛牌
 https://www.dianlujitao.com/archives/109
 */
-#define N 105
+#define N_SpiderCard 105
 
-int n = 10;//已知固定共有10张牌 
-int minDis;
+int nSpiderCard = 10;//已知固定共有10张牌
+int minDisSpiderCard;
 //存储i这张牌相对于第一张牌的位置
-int position[N] = { 0 };
+int positionSpiderCard[N_SpiderCard] = { 0 };
 
-void dfs(int depth = 0){
+void dfsForSpiderCard(int depth = 0){
 	//位于一个牌纵列中间用false表示 每组牌列用其第一张牌表示
-	static bool visited[N] = { false };
+	static bool visited[N_SpiderCard] = { false };
 	static int dis = 0;
 	//剪枝
-	if (dis >= minDis) {
+	if (dis >= minDisSpiderCard) {
 		//若当前需要移动的距离已经超过已知的最优距离 那么停止这一个分支的搜索
 		return;
 	}
 
-	//因为是在第一张牌的基础上 搜索的 故后面选取的牌数应当是n-1 
-	if (depth == n - 1){
-		if (dis < minDis){
-			minDis = dis;
+	//因为是在第一张牌的基础上 搜索的 故后面选取的牌数应当是nSpiderCard-1 
+	if (depth == nSpiderCard - 1){
+		if (dis < minDisSpiderCard){
+			minDisSpiderCard = dis;
 		}
 	}
 	else{
 		//遍历所有的牌组 选取第一个牌组  牌的牌面值范围是[1, 10] 第一个牌组的第一张牌的范围是[1, 9](否则就选不出第二个牌组了) 
-		for (int i = 1; i < n; ++i){
+		for (int i = 1; i < nSpiderCard; ++i){
 			if (!visited[i]){
 				//将第一张牌为i的这个牌组  放置到待会选出的第j个牌组的后面 
 				visited[i] = true;
 				//选取第二个牌组 (放置目标牌组)
-				for (int j = i + 1; j <= n; ++j){
+				for (int j = i + 1; j <= nSpiderCard; ++j){
 					if (!visited[j]){
 						//visit: 距离计算 
-						dis += abs(position[i] - position[j]);
+						dis += abs(positionSpiderCard[i] - positionSpiderCard[j]);
 						//搜索以此为基础的下一个牌组 
-						dfs(depth + 1);
+						dfsForSpiderCard(depth + 1);
 						//距离回溯
-						dis -= abs(position[i] - position[j]);
+						dis -= abs(positionSpiderCard[i] - positionSpiderCard[j]);
 						//试过最优的那个可放置(即编号比第一个牌组的第一张牌大1的 不然无法完成移动)的牌组后之后  就直接跳出这一个牌组的搜索 不然会严重超时 
 						break;
 						//1 10 2 3 4 5 6 7 8 9
@@ -567,23 +579,34 @@ void dfs(int depth = 0){
 		}
 	}
 }
-
-int main(){
+int solutionForSpiderCard(){
 	//freopen("input.in", "r", stdin);
 	int t;
 	scanf("%d", &t);
 	while (t-- > 0){
 		int sub = 0;
-		for (int i = 0; i < n; ++i){
+		for (int i = 0; i < nSpiderCard; ++i){
 			scanf("%d", &sub);
 			//读入的第一张牌的作为原点
-			position[sub] = i;
+			positionSpiderCard[sub] = i;
 		}
-		minDis = 2147483647;
-		dfs();
-		printf("%d\n", minDis);
+		minDisSpiderCard = MAX_INT32;
+		dfsForSpiderCard();
+		printf("%d\n", minDisSpiderCard);
 	}
 	return 0;
 }
-/*
-*/
+
+int main() {
+	// 有重载的函数模板颜色与普通函数一致
+	double avlTime = StandardExtend::testAndDiffClock([&]() {
+		dfsPrimeCircle();
+	}, 100, "素数环");
+	// release下(注释了方法内的printf语句) 100遍平均 测两次
+	// 递归参数 0.07s(精度不足) 0.0752 0.0726 0.0698 0.0737
+	// 全局的一个int变量 0.0194s(偶然) 0.0717; 0.0701 0.0714 0.0694 0.0727
+	// 结论是: 有差异 但差异不大, 一个输出语句或是稍微改进算法就能弥补
+	printf("%.4f", avlTime);
+	//solutionForSpiderCard();
+	return 0;
+}

@@ -59,13 +59,29 @@ namespace StandardExtend{
 	DSAUTILITYEXTENSION_API double calcDifftime(time_t startTime);
 	//计算与参数的时钟差（单位：s）
 	DSAUTILITYEXTENSION_API double calcDiffClock(clock_t startClock);
-	//用于测试Function 会自动输出Function的执行时钟(单位：s)
+	// 用于测试Function 会自动输出Function的执行时钟(单位：s)
+	// 返回值: 对应的时间差值(s) 不指定测试名name的情况下不会打印测试结果(加快运行速度)
 	template<class Function>
-	void testAndDiffClock(Function fun, JCE::String const &name = "") {
+	double testAndDiffClock(Function fun, JCE::String const &name = "") {
 		std::clock_t startClock = clock();
 		fun();
-		std::cout << name + "执行时间：" << calcDiffClock(startClock) << std::endl;
+		double diffTime = calcDiffClock(startClock);
+		if (name != "") {
+			std::cout << name + "执行时间：" << diffTime << std::endl;
+		}
+		return diffTime;
 	}
+	// 循环测试 取平均值 PS: 要注意输出精度 否则可能看不出差异
+	template<class Function>
+	double testAndDiffClock(Function fun, int multipleCount, JCE::String const &name = "") {
+		double sumTime = 0.0;
+		for (int i = 0; i < multipleCount; ++i) {
+			sumTime += testAndDiffClock(fun, name);
+		}
+		return sumTime / multipleCount;
+	}
+
+
 
 	template<class T>
 	bool testAndOut(JCE::String const &name, T realValue, T expectValue) {
@@ -787,7 +803,10 @@ namespace MathExtend {
 	DSAUTILITYEXTENSION_API int factorSum(int x);
 	//真因子和表(约数 因数) (10^7一千万2.51s)(400w 10^6 900ms)
 	DSAUTILITYEXTENSION_API void buildSieveFactorSumS(const int maxn, int a[]);
-	//素数(质数) 筛选法 埃拉托色尼(Sieve Eratosthenes)(0 1==-1, a[i]==0表示素数) maxN[2, 1e9) PS:maxN = 1e7时超过1s了 1e9似乎无法分配内存
+
+	// 素数(质数) 筛选法 埃拉托色尼(Sieve Eratosthenes)
+	// (0 1==-1, a[i]==0表示素数) maxN[2, 1e9)
+	// PS:maxN = 1e7时超过1s了 1e9似乎无法分配内存
 	DSAUTILITYEXTENSION_API int* generateSievePrimeS(const int maxN = 2);
 	//因子数目
 	DSAUTILITYEXTENSION_API int factorCount(int x);
