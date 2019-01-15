@@ -1,5 +1,7 @@
 #include"stdafx.h"
 #include"./ExtendSpace.h"
+#include"./Graph/Graph.h"
+#include"./Graph/TreeObject.h"
 /*
 (对隐式图的深度优先搜索算法)
 回溯算法实际上一个类似枚举的搜索尝试过程，
@@ -497,8 +499,7 @@ int solutionTribeBodyguard1(){
 // 正整数n，把整数1,2,3,4..n组成一个环，使得相邻的两个整数之和均为素数。输出是，从整数1开始逆时针排列 n <= 16
 // 打印素数环: 每个环都从第二个数(即depth=1)开始搜索(否则会出现重复的环 而且难以查重)
 // 有的数比如11是没有素数环的
-int nPrimeCircle = 16;
-void dfsPrimeCircle(int depth = 1){
+void dfsPrimeCircle(int depth = 1, int nPrimeCircle = 16){
 	static const int N = 105;
 	static std::unique_ptr<int> primeRep(MathExtend::generateSievePrimeS(25));
 	static bool visited[N] = { false };
@@ -517,7 +518,7 @@ void dfsPrimeCircle(int depth = 1){
 				&& prime[ansTemp[depth - 1] + num] == 0){//现时与前驱的判断
 				visited[num] = true;
 				ansTemp[depth] = num;
-				dfsPrimeCircle(depth + 1);
+				dfsPrimeCircle(depth + 1, nPrimeCircle);
 				ansTemp[depth] = 0;
 				visited[num] = false;
 			}
@@ -598,15 +599,43 @@ int solutionForSpiderCard(){
 }
 
 int main() {
+	double avlTime;
+	// 图命名空间
+	// 递归函数指针的情况
+	std::unique_ptr<Graph> g(new AdjacentMatrixGraph(100));
+	g->insertEdge(Graph::Edge(0, 1, 10));
+	g->insertEdge(Graph::Edge(1, 2, 2));
+	g->insertEdge(Graph::Edge(0, 2, 11));
+	g->insertEdge(Graph::Edge(2, 3, 3));
+	g->setCustomVisit([](Graph::VertexKey v) {
+		//printf(" 访问顶点: %d", v);
+	});
+	g->setDestVertex(3);
 	// 有重载的函数模板颜色与普通函数一致
-	double avlTime = StandardExtend::testAndDiffClock([&]() {
+	avlTime = StandardExtend::testAndDiffClock([&]() {
+		g->dfs(0);
+	}, 10, "图dfs");
+
+	// 递归lambda函数的情况
+	std::unique_ptr<BinSearchTree<int>> bt(new BinSearchTree<int>());
+	for (int i = 0; i < 2000; ++i) {
+		bt->insert(i);
+	}
+	avlTime = StandardExtend::testAndDiffClock([&]() {
+		bt->traversal(Tree::ORDER_LEVEL, [](BinTree<int>::BT b) {
+			//printf(" 访问数据: %d", b->Data);
+			return false;
+		});
+	}, 10, "二叉搜索树的顺序遍历");
+
+	// 递归传参的情况
+	avlTime = StandardExtend::testAndDiffClock([&]() {
 		dfsPrimeCircle();
-	}, 100, "素数环");
+	}, 10, "素数环");
 	// release下(注释了方法内的printf语句) 100遍平均 测两次
 	// 递归参数 0.07s(精度不足) 0.0752 0.0726 0.0698 0.0737
 	// 全局的一个int变量 0.0194s(偶然) 0.0717; 0.0701 0.0714 0.0694 0.0727
 	// 结论是: 有差异 但差异不大, 一个输出语句或是稍微改进算法就能弥补
-	printf("%.4f", avlTime);
 	//solutionForSpiderCard();
 	return 0;
 }

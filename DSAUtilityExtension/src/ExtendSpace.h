@@ -78,7 +78,11 @@ namespace StandardExtend{
 		for (int i = 0; i < multipleCount; ++i) {
 			sumTime += testAndDiffClock(fun, name);
 		}
-		return sumTime / multipleCount;
+		double avlTime = sumTime / multipleCount;
+		if (name != "") {
+			printf("%.4f\n", avlTime);
+		}
+		return avlTime;
 	}
 
 
