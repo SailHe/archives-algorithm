@@ -114,6 +114,9 @@
     <ClCompile Include="src\temp\save007hdu1245.cpp">
       <Filter>源文件\memory</Filter>
     </ClCompile>
+    <ClCompile Include="src\app\subnetting.cpp">
+      <Filter>源文件\app</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">

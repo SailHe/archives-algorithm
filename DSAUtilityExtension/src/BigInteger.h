@@ -149,7 +149,7 @@ public:
 		return decimaNum;
 	}
 	// 效果类似上一个方法; 但允许泛型; 存储方式是top -> low
-	template<class Integer>// 支持基本运算的类型(EG: int __int64)
+	template<class Integer, class DigitIterator>// 支持基本运算的类型(EG: int __int64)
 	static Integer radixTopLowToDecimal(DigitIterator topLowIter, Integer radix, int totalSizeNum){
 		static Integer decimaNum;
 		Integer powNum = 1;

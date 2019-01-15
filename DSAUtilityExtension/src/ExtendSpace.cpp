@@ -201,8 +201,8 @@ namespace MathExtend {
 		}
 		return tmp;
 	}
-	double logR(double value, double base) {
-		return log(value) / log(base);
+	double logRadix(double value, double radix) {
+		return log(value) / log(radix);
 	}
 	double fact(int n) {
 		double product = n;

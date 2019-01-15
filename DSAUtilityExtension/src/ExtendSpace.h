@@ -118,10 +118,31 @@ namespace StandardExtend{
 		return result;
 	}
 
+	// Left closed right open(左闭右开)
+	// left <= value < right
+	// EG: inRange(minEle, element, maxEle+1); <==> element=[minEle, maxEle]
 	template<class T>
-	//left <= value < right  EG: inRange(minEle, element, maxEle+1); -> element [minEle, maxEle]
 	bool inRange(T left, T value, T right){
 		return left <= value && value < right;
+	}
+
+	// 判断value处于哪一组范围内
+	// EG: 排序后的范围数组[0, 10, 20, MAX_INT32]; [0, 10)返回0; [10, 20)返回1 以此类推; 如果不在范围内返回-1
+	// @TODO 或许可以二分
+	template<class T, class Iterator>
+	int judgeRange(T value, Iterator rangeLeft, Iterator rangeRight) {
+		int groupIndex = -1;
+		while (true) {
+			auto pastLeft = rangeLeft++;
+			if (rangeLeft == rangeRight) {
+				break;
+			}
+			++groupIndex;
+			if (inRange(*pastLeft, value, *rangeLeft)) {
+				break;
+			}
+		}
+		return groupIndex;
 	}
 
 	template<class Iterator, class Fun>
@@ -779,8 +800,8 @@ namespace MathExtend {
 	DSAUTILITYEXTENSION_API I64 quickPow(I64 m, I64 n);
 	//返回pow(iNum, 2)的最后m位(实际上貌似只能算最后1bit 可能哪里被无意中修改了) 注意返回值可能包涵多位但只有最后一位有效
 	DSAUTILITYEXTENSION_API long long powLastBit(int base, int m);
-	//任意底数对数
-	DSAUTILITYEXTENSION_API double logR(double value, double base = 5);
+	//任意底数对数(基于log) sqrt(value) == logRadix(value, 2) radix:底数,基数; base: 底部,基础
+	DSAUTILITYEXTENSION_API double logRadix(double value, double radix = 5);
 	//阶 乘
 	DSAUTILITYEXTENSION_API double fact(int n);
 	//int 限度内阶乘表 (int 13!爆； double和long long int 18!爆)
