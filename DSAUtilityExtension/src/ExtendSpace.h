@@ -281,6 +281,8 @@ namespace StandardExtend{
 		return minValue;
 	}
 
+	// 模板参数MIN_VALUE(初始化最小值)为-2147483648是不行的, -2147483647-1可以
+	// 前者会被自动推导为usigned long
 	template<class T, class Iterator>
 	T maxValueStatistics(Iterator left, Iterator right, T MIN_VALUE){
 		T maxValue = MIN_VALUE;

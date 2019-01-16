@@ -39,3 +39,9 @@ int main_2(){
 	}
 	return 0;
 }
+
+#include"temp\ArrayLinearList.h"
+
+int main() {
+	LinearList::mainForArrayLinearList();
+}

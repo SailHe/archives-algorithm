@@ -137,7 +137,8 @@ private:
 	static const int invalidHostAddressNum = 2;
 };
 
-int main() {
+
+int main__() {
 	// 不希望出现强制double转int的话就使用
 	// 四舍五入 向上取整ceil() 向下取整floor() 然后强制转换...
 	int subnetBits, hostBits;
