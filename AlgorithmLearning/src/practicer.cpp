@@ -64,3 +64,17 @@ void fun() {
 	memset(arrayS, 0x80, 20*sizeof(int));
 	memset(arrayS, 0x7f, 20*sizeof(int));
 }
+
+#include "./memory/Hash/HashTable.h"
+int main() {
+	// 两个cpp文件可以存在同名类型(.h是肯定不行), 但不能存在同样定义或是无法区分重载的方法
+	// (有可能会出现编译通过但DBUG类型混乱, 可能需要重新生成一下)
+	HashTableC::HashTableLiPtr h = HashTableC::CreateLinkedListHashTable(5);
+	srand(clock());
+	// 由于没有处理散列冲突 无法添加多个同Hash值的Key 故只能添加20个元素
+	for (int i = 0; i < 20; ++i) {
+		Insert(h, std::to_string(i).c_str());
+	}
+	printf("%s", Find(h, "3")->Data);
+	return 0;
+}

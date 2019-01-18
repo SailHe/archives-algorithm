@@ -150,6 +150,7 @@
     <ClInclude Include="src\Graph\TreeUtility.h" />
     <ClInclude Include="src\LinkedList.h" />
     <ClInclude Include="src\MathLibrary.h" />
+    <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Queue.h" />
     <ClInclude Include="src\SailHeAlgorithm.h" />
     <ClInclude Include="src\Stack.h" />

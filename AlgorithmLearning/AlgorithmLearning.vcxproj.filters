@@ -28,6 +28,9 @@
     <Filter Include="源文件\app">
       <UniqueIdentifier>{78629eeb-3788-4edd-a597-b21eae14aec4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\memory\Hash">
+      <UniqueIdentifier>{6116a73e-6058-41cb-805e-967c1deb1f15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AlgorithmTrainingLegacy.cpp">
@@ -96,12 +99,6 @@
     <ClCompile Include="src\temp\Sort.cpp">
       <Filter>源文件\temp</Filter>
     </ClCompile>
-    <ClCompile Include="src\temp\散列查找.cpp">
-      <Filter>源文件\temp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\temp\topologySort.cpp">
-      <Filter>源文件\memory</Filter>
-    </ClCompile>
     <ClCompile Include="src\app\subnetting.cpp">
       <Filter>源文件\app</Filter>
     </ClCompile>
@@ -117,6 +114,18 @@
     <ClCompile Include="src\memory\save007hdu1245.cpp">
       <Filter>源文件\memory</Filter>
     </ClCompile>
+    <ClCompile Include="src\memory\topologySort.cpp">
+      <Filter>源文件\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\Hash\HashSearchArrayList.cpp">
+      <Filter>源文件\memory\Hash</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\Hash\HashSearchLinkedList.cpp">
+      <Filter>源文件\memory\Hash</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\Hash\HashTable.cpp">
+      <Filter>源文件\memory\Hash</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
@@ -125,5 +134,13 @@
     <ClInclude Include="src\memory\ArrayLinearList.h">
       <Filter>源文件\memory</Filter>
     </ClInclude>
+    <ClInclude Include="src\memory\Hash\HashTable.h">
+      <Filter>源文件\memory\Hash</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="src\memory\log_byme.txt">
+      <Filter>源文件\memory</Filter>
+    </Text>
   </ItemGroup>
 </Project>

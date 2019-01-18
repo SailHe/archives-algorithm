@@ -60,6 +60,9 @@
     <ClInclude Include="src\else\DisjointSet.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MathLibrary.cpp">
