@@ -99,9 +99,6 @@
     <ClCompile Include="src\temp\Sort.cpp">
       <Filter>源文件\temp</Filter>
     </ClCompile>
-    <ClCompile Include="src\temp\背包算法_baidustar.cpp">
-      <Filter>源文件\temp</Filter>
-    </ClCompile>
     <ClCompile Include="src\temp\散列查找.cpp">
       <Filter>源文件\temp</Filter>
     </ClCompile>
@@ -116,6 +113,9 @@
     </ClCompile>
     <ClCompile Include="src\memory\ArrayLinearList.cpp">
       <Filter>源文件\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\temp\baidustar.cpp">
+      <Filter>源文件\temp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
