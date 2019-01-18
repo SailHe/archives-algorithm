@@ -93,9 +93,6 @@
     <ClCompile Include="src\app\ShortestPathSet.cpp">
       <Filter>源文件\app</Filter>
     </ClCompile>
-    <ClCompile Include="src\temp\BacktraceSubject.cpp">
-      <Filter>源文件\temp</Filter>
-    </ClCompile>
     <ClCompile Include="src\temp\Sort.cpp">
       <Filter>源文件\temp</Filter>
     </ClCompile>
@@ -105,17 +102,20 @@
     <ClCompile Include="src\temp\topologySort.cpp">
       <Filter>源文件\memory</Filter>
     </ClCompile>
-    <ClCompile Include="src\temp\save007hdu1245.cpp">
-      <Filter>源文件\memory</Filter>
-    </ClCompile>
     <ClCompile Include="src\app\subnetting.cpp">
       <Filter>源文件\app</Filter>
     </ClCompile>
     <ClCompile Include="src\memory\ArrayLinearList.cpp">
       <Filter>源文件\memory</Filter>
     </ClCompile>
-    <ClCompile Include="src\temp\baidustar.cpp">
-      <Filter>源文件\temp</Filter>
+    <ClCompile Include="src\memory\BacktraceSubject.cpp">
+      <Filter>源文件\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\baidustar.cpp">
+      <Filter>源文件\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\save007hdu1245.cpp">
+      <Filter>源文件\memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

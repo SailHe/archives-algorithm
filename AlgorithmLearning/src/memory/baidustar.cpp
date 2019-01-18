@@ -48,15 +48,7 @@ void getAttackers(int m) {
 
 //costDp[hp][def] 表示击杀血量为hp防御值为def的Monster时的最小消费
 int costDp[1001][11];
-int costDpOne[1001];
-// 处理一件[完全背包]中的物品过程 ==> 有N种物品和一个容量为capacity的背包，每种物品都有无限件可用。
-template<class Number, class Function>
-void CompletePackProcess(Number backPack[], Number capacity, Number currentCost, Number currentValue, Function maxFun) {
-	for (Number v = currentCost; v <= capacity; ++v) {
-		backPack[v] = maxFun(backPack[v], backPack[v - currentCost] + currentValue);
-	}
-}
-
+// 枚举 + 背包
 void solution(int n, int m, long long &sumCost) {
 	Monster mster;
 	// 999*11 和 1000*10 tm的不一样好吧!
@@ -102,36 +94,66 @@ void solution(int n, int m, long long &sumCost) {
 	}
 }
 
+
+int costDpOne[1001];
+// 处理一件[完全背包]中的物品过程 ==> 有N种物品和一个容量为capacity的背包，每种物品都有无限件可用。
+template<class Number, class Function>
+void CompletePackProcess(Number backPack[], Number capacity, Number currentCost, Number currentValue, Function maxFun) {
+	for (Number v = currentCost; v <= capacity; ++v) {
+		backPack[v] = maxFun(backPack[v], backPack[v - currentCost] + currentValue);
+	}
+}
+// 这个考虑得太复杂了, 怒弃!
 void solution1(int n, int m, long long &sumCost) {
 	// 传统背包算法求的是各种{容量, 费用, 件数}限制条件下的最大价值, 费用(重量)<=容量(限重) 恒成立
 	// 容量是已确认的值, 而不由费用决定, 需要计算的是件数, 从而算出限定容量下的最大价值
 	// 此题是求在击杀Monster前提下的最少晶石数量(费用). 存在并允许选择 费用更少且伤害>hp+def的技能(物品)
 	// 逆运算思路: 负数(负极值必须保证不溢出); 类型运算符重载; lambda表达式
 	// costDp[hp] 表示杀死第这只怪在其血量为hp时的最小消费
-	// 综上, 用Monster的hp+def作为背包容量是不可行的
+	// 综上, 用Monster的hp+def作为背包容量是不可行的(实际上伤害=攻击-def不能hp+def作为容量)
+	// 因此只能是容量范围内求最大伤害
+	// 或是容量范围内求最小晶石数(最大晶石数的负值) 容量是hp 花费是damage costDpOne[h]表示hp=h的Monster受到damage=hp的伤害需要的最少晶石数
+	bool processed = false;
 	for (int iMon = 0; iMon < n; ++iMon) {
-		int sumValue = 0;
-		int cap = monster[iMon].hp + monster[iMon].def;
+		int sumDamage = 0;
+		// int cap = monster[iMon].hp + monster[iMon].def;
+		int cap = 1001;
 		for (int iAttacker = 0; iAttacker < m; ++iAttacker) {
 			// 伤害低于def不会造成伤害
-			if (attacker[iAttacker].value <= monster[iMon].def) {
+			if (attacker[iAttacker].value > monster[iMon].def) {
+				int damage = attacker[iAttacker].value - monster[iMon].def;
 				CompletePackProcess(
-					costDpOne, cap, attacker[iAttacker].value, -attacker[iAttacker].cost, [](int lhs, int rhs) {return min(lhs, rhs); }
+					costDpOne
+					, cap
+					, damage
+					, -attacker[iAttacker].cost
+					, [](int lhs, int rhs) {return min(lhs, rhs); }
 				);
 			}
-			int minCost = costDpOne[cap];
-			memset(costDpOne, 0, (cap + 1) * sizeof(int));
-			// 上面没有进入完全背包循环
-			if (minCost != 0) {
-				sumCost += -minCost;
-				sumValue += attacker[iAttacker].value;
-				if (sumValue >= cap) {
+			int index = monster[iMon].hp;// +monster[iMon].def;
+			int minCostOnePro = 0;
+			// 寻找一个能击杀Monster的最小花费
+			while (index < cap) {
+				int costBuf = costDpOne[index];
+				++index;
+				if (costBuf != 0) {
+					processed = true;
+					minCostOnePro = -costBuf;
+					sumDamage += index - 1;
 					break;
 				}
 			}
+			memset(costDpOne, 0, cap*sizeof(int));
+			if (sumDamage >= monster[iMon].hp) {
+				sumCost += minCostOnePro;
+			}
 		}
 	}
+	if (!processed) {
+		sumCost = -1;
+	}
 }
+
 
 int main() {
 	// n个怪兽，m种技能
@@ -141,8 +163,8 @@ int main() {
 		getAttackers(m);
 		// (0<=cost[i]<=100000)
 		long long sumCost = 0;
-		// solution(n, m, sumCost);
-		solution1(n, m, sumCost);
+		solution(n, m, sumCost);
+		// solution1(n, m, sumCost);
 		printf("%I64d\n", sumCost);
 	}
 	return 0;
