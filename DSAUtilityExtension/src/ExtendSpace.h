@@ -787,8 +787,8 @@ namespace MathExtend {
 	DSAUTILITYEXTENSION_API int reverseOrderNumber(int number);
 	//计算radix进制整数number中digit出现的次数
 	DSAUTILITYEXTENSION_API int calcDigitCountInNumber(const int number, const int digit, int radix = 10);
-	//计算radix进制整数的位数
-	DSAUTILITYEXTENSION_API int calcDigitTop(int number, int radix = 10);
+	//计算radix进制时整数number的位数
+	DSAUTILITYEXTENSION_API int calcDigitTotalSize(int number, int radix = 10);
 
 
 	// ===== 数 学

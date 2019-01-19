@@ -145,9 +145,9 @@ namespace MathExtend {
 		} while (temp != 0);
 		return count;
 	}
-	int calcDigitTop(int number, int radix) {
+	int calcDigitTotalSize(int number, int radix) {
 		int top = 1;
-		while (number /= radix)top++;
+		while ((number /= radix) != 0)++top;
 		return top;
 	}
 

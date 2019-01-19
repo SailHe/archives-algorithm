@@ -124,16 +124,45 @@ public:
 	}
 	// 数字 -> 数组 (需要转换的10进制数字, 低位向高位存储的数值储存迭代器)
 	// 返回位数: totalSizeNum; 改变参数数组
+	template<class DigitIterator>
 	static int decimalToRadixLowTop(unsigned decimaNum, DigitIterator lowTopIter, int radix){
-		static int bit;
-		bit = -1;
+		static int index;
+		index = -1;
 		// 要保证即使传入0也能执行一次
 		do{
-			lowTopIter[++bit] = decimaNum % radix;
+			*lowTopIter++ = decimaNum % radix;
+			++index;
 			decimaNum /= radix;
 		} while (decimaNum != 0);
-		return bit + 1;
+		return index + 1;
 	}
+	// 基于decimalToRadixLowTop
+	template<class DigitIterator>
+	static int decimalToRadixTopLow_baseLowTop(unsigned decimaNum, DigitIterator topLowIter, int radix) {
+		int totalSizeNum = decimalToRadixLowTop(decimaNum, topLowIter, radix);
+		std::reverse(topLowIter, topLowIter + totalSizeNum);
+		return totalSizeNum;
+	}
+
+	// 不推荐使用: 使用了数组运算符号'[]'必须支持迭代器加法(不是自加自减, 是加减任意合理值)
+	// 需要提前得知转换后的总位数大小(不是二进制bitNum)
+	static void decimalToRadixTopLow(unsigned decimaNum, DigitIterator topLowIter, int radix, int totalSizeNum) {
+		// 要保证即使传入0也能执行一次
+		do {
+			topLowIter[--totalSizeNum] = decimaNum % radix;
+			decimaNum /= radix;
+		} while (decimaNum != 0);
+	}
+	// 传入的迭代器是右侧迭代器 隐含需要提前得知转换后的总位数大小 (不是二进制bitNum) 遵循[)
+	template<class DigitIterator>
+	static void decimalToRadixTopLow(unsigned decimaNum, DigitIterator rightLowIter, int radix) {
+		// 要保证即使传入0也能执行一次
+		do {
+			*--rightLowIter = decimaNum % radix;
+			decimaNum /= radix;
+		} while (decimaNum != 0);
+	}
+
 
 	// 返回任意进制的加权10进制数 (lowTopIter: 低位向高位逼近的迭代器::lowTopList.begain(); topLowList.rbegain();)
 	static int radixLowTopToDecimal(DigitIterator lowTopIter, int radix, int totalSizeNum){
@@ -148,7 +177,7 @@ public:
 		}
 		return decimaNum;
 	}
-	// 效果类似上一个方法; 但允许泛型; 存储方式是top -> low
+	// 效果类似上一个方法; 但允许泛型(可迭代的容器都可以, 活用std::vector().rbgain();); 存储方式是top -> low
 	template<class Integer, class DigitIterator>// 支持基本运算的类型(EG: int __int64)
 	static Integer radixTopLowToDecimal(DigitIterator topLowIter, Integer radix, int totalSizeNum){
 		static Integer decimaNum;
@@ -162,6 +191,7 @@ public:
 		}
 		return decimaNum;
 	}
+
 
 	// Utility
 
@@ -182,7 +212,7 @@ public:
 	}
 
 	// 对每一位二进制取反
-	static void reverseCode(DigitIterator numBin, size_t totalSizeNum){
+	static void inverseCode(DigitIterator numBin, size_t totalSizeNum){
 		for (size_t i = 0; i < totalSizeNum; ++i){
 			*numBin = !*numBin;
 			++numBin;
@@ -640,6 +670,7 @@ private:
 
 	//返回内置数字类型的总10进制位数 0: 1bit; 10: 2bit
 	static int totalBitOf(ByteType originNumber) {
+		// MathExtend::calcDigitTotalSize(originNumber, 10);
 		int totalBit = 0;
 		do {
 			originNumber /= 10;
