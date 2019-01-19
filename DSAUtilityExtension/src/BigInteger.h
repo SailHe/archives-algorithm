@@ -1,7 +1,7 @@
 #ifndef _BIGINTEGER_H
 #define _BIGINTEGER_H
 
-#include "stdafx.h"
+#include "pch.h"
 #include "ExtendSpace.h"
 
 /*
@@ -17,9 +17,10 @@ class BinaryTransition{
 	// Radix(基数) Base(基础) Decimal(十进位的; 小数)
 	// Radix: 任意进制; Decimal: 十进制
 	//转换双方的储存位: 一位至少需要多少位二进制表示
-	int originBitLeast = 1;
-	int originRadix = (int)pow((double)2, originBitLeast);
-	int targetBitLeast = 1;
+	int originBitLeast;
+	int originRadix;
+	int targetBitLeast;
+	int targetRadix;
 	/*
 	//只需改一两处就可以替换
 	typedef int *DigitArray;
@@ -29,29 +30,69 @@ class BinaryTransition{
 	typedef std::vector<int> DigitArray;
 	// BitIter -> Biter
 	typedef DigitArray::iterator DigitIterator;
-	DigitArray repository;// = NULL
+	// repository
+	DigitArray binaryBuffer;// = NULL
 	DigitIterator binNumberPointer;// = NULL
 	DigitIterator currentBinNumberPointer;// = NULL
 public:
-	//支持[1, 31] 即2 4..共31种进制(口头约定: 只能高进制向低进制转) 1bit即表示目标进制是2进制
-	// (计算过程中的最大位数, 源值位数, 目标值位数)
-	BinaryTransition(int bitSize, int originBitLeast = 1, int targetBitLeast = 1){
-		//repository = (int *)malloc(sizeof(int)*bitSize);
-		repository.resize(bitSize);
+	// 基2进制: 以2为底数的进制
+	// 支持[1, 31] 即: 2 4..2^31共31种[基2进制];
+	// 参数列表: (计算过程中二进制缓存的最大比特位数, 源进制比特位数, 目标进制比特位数)
+	BinaryTransition(JCE::SizeType bitSize, int originBitLeast = 1, int targetBitLeast = 1){
+		this->originBitLeast = 0;
+		this->targetBitLeast = 0;
+		this->originRadix = 0;
+		this->targetRadix = 0;
+		// 初始化比特位小的一方
+		/*if (originBitLeast > targetBitLeast) {
+			this->targetBitLeast = targetBitLeast;
+		}
+		else {
+			this->originBitLeast = originBitLeast;
+		}*/
+		//binaryBuffer = (int *)malloc(sizeof(int)*bitSize);
+		binaryBuffer.resize(bitSize);
 		reset(originBitLeast, targetBitLeast);
 	}
-	// 重设进制转换 但总空间不支持重设
+	// 重设进制转换: 自动计算缓存[增减量]然后重设缓存空间, 同时初始化[进位段]
 	void reset(int originBitLeast, int targetBitLeast = 1){
+		// 冲突max宏: minwindef.h
+		// The parentheses around max prevent macro expansion. This works with all function macros.
+		// @see https://stackoverflow.com/questions/7449620/how-to-call-stdmin-when-min-has-been-defined-as-a-macro
+		// (std::max)(a, b)
+
+		// int disBits = (std::max)((targetBitLeast - this->targetBitLeast), (originBitLeast - this->originBitLeast));
+		// 初始化时: 比特位小的一方相等, 则此disBits为大的那一方的比特位数
+		// 重设时: disBits是比特位的变化量最大的一方的绝对值....反例(2, 2) -> (1, 3)
+		// int disBits = std::abs(targetBitLeast - this->targetBitLeast) - std::abs(originBitLeast - this->originBitLeast);
+		// disBits = std::abs(disBits);
+
+		// 有增有减->最后考虑abs; 多个变量->变量合成:max; 计算变化量: 减法
+		// 如果总比特位相等&&最大比特位相等 则disBits=0 否则disBits = nextMaxBits - currentMaxBits
+		int currentMaxBits = (std::max)(this->originBitLeast, this->targetBitLeast);
+		int nextMaxBits = (std::max)(originBitLeast, targetBitLeast);
+		int disBits = nextMaxBits - currentMaxBits;
+		binaryBuffer.resize(binaryBuffer.size() + disBits);
 		this->originBitLeast = originBitLeast;
 		this->targetBitLeast = targetBitLeast;
-		//memset(repository, 0, targetBitLeast*sizeof(int));//预留的一段必须初始化
+		this->originRadix = (int)pow(2.0, originBitLeast);
+		this->targetRadix = (int)pow(2.0, targetBitLeast);
+		// 预留的[进位段]必须初始化为0 否则进位时会出错
+		// 进位段: 目标[基2进制]的比特位
+		std::for_each(binaryBuffer.begin(), binaryBuffer.begin() + targetBitLeast, [](int &bit) {bit = 0; });
+		//memset(binaryBuffer, 0, targetBitLeast*sizeof(int));
 	}
-	// 以二进制为中间储存的进制大数转换 ans储存最终的结果(不会出现多余的0)
-	void transition(char *origin, DigitArray &ans){
+	// 2基底大数转换: 源进制->二进制->目标进制
+	// target储存最终的结果(不会出现多余的0) PS: 任意进制指的int范围内的进制(任一个digit元素必须在int范围内)
+	void transition(char const *origin, DigitArray &target){
+		JCE::SizeType minTargetLength = 
+			std::strlen(origin)*MathExtend::calcDigitTotalSize(originRadix - 1, targetRadix);
+		_ASSERT_EXPR(minTargetLength <= binaryBuffer.size(), "缓存空间不足!");
 		char oneBit = 0;
-		binNumberPointer = repository.begin() + targetBitLeast;
-		//binNumberPointer = repository + targetBitLeast;
-		currentBinNumberPointer = binNumberPointer;//预留一个目标储存位用于补齐
+		// top处预留一个[进位段]用于进位补齐
+		binNumberPointer = binaryBuffer.begin() + targetBitLeast;
+		//binNumberPointer = binaryBuffer + targetBitLeast;
+		currentBinNumberPointer = binNumberPointer;
 
 		//top->low每个源bit都转换为2进制(连起来即是源进制数的二进制表示)
 
@@ -62,17 +103,15 @@ public:
 				number = oneBit - 'A' + 10;
 			}
 
-			if (number >= originRadix){
-				//_DEBUG_ERROR("输入的单个Bit数据超出本进制的模.");
-				//如4进制用2位表示 输入4 0010 无法完成逆序转换 虽然reTopBit使得即使如此也能完成转换, 但这仍是错的
-			}
+			//如4进制用2位表示 输入4 0010 无法完成逆序转换 虽然reTopBit使得即使如此也能完成转换, 但这仍是错的
+			_ASSERT_EXPR(number < originRadix, "输入的单个Bit数据超出本进制的模.");
 
-			int bit = decimalToRadixLowTop(number, currentBinNumberPointer, 2);
-			//number = radixLowTopToDecimal(currentBinNumberPointer, 2, bit);
+			int totalBits = decimalToRadixLowTop(number, currentBinNumberPointer, 2);
+			//number = radixLowTopToDecimal(currentBinNumberPointer, 2, totalBits);
 			//向后补齐
-			complement(currentBinNumberPointer, currentBinNumberPointer + bit, originBitLeast);
+			complement(currentBinNumberPointer, currentBinNumberPointer + totalBits, originBitLeast);
 			//注意: 每originBitLeast位的逆序储存 无法转换为每targetBitLeast位的逆序储存 因此这个逆序是必须的
-			int reTopBit = max(bit, originBitLeast);
+			int reTopBit = max(totalBits, originBitLeast);
 			for (int i = 0; i < reTopBit / 2; i++){
 				std::swap(currentBinNumberPointer[i], currentBinNumberPointer[reTopBit - i - 1]);
 			}
@@ -80,9 +119,9 @@ public:
 		}
 
 		//int ansSub = 0;
-		ans.reserve((currentBinNumberPointer - binNumberPointer) / targetBitLeast);
+		target.reserve((currentBinNumberPointer - binNumberPointer) / targetBitLeast);
 		//不会影响上一句
-		ans.resize(0);
+		target.resize(0);
 
 		//向前补齐(在刚好的情况下 会多补 但后面有判定会去除前导0)
 		binNumberPointer -= targetBitLeast - ((currentBinNumberPointer - binNumberPointer) % targetBitLeast);
@@ -94,7 +133,7 @@ public:
 			int number = radixTopLowToDecimal(binNumberPointer + i, 2, targetBitLeast);
 			outputValidValue = number != 0 || outputValidValue;
 			if (outputValidValue){
-				ans.push_back(number);
+				target.push_back(number);
 			}
 			//printf(outputValidValue ? "%d" : "", number);
 		}

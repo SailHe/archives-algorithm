@@ -19,7 +19,7 @@
 #include<functional> //greater<int>
 #include<memory> //智能指针:shared_ptr<>; unique_ptr<>;---P400
 #include <unordered_set>
-#include <unordered_map>
+#include <unordered_map> //hash
 
 
 //双字节无符号整数(16位)

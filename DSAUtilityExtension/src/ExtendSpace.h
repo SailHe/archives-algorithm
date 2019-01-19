@@ -45,6 +45,7 @@ namespace StandardExtend{
 	//变为小写字符
 	DSAUTILITYEXTENSION_API char toLowerAlph(char c);
 	DSAUTILITYEXTENSION_API int toIntNum(char alphOrCharNum);
+	DSAUTILITYEXTENSION_API int toRadixIntNum(char alphOrCharNum, int radix = 10);
 	//10ToA(Alph)
 	DSAUTILITYEXTENSION_API char toUppercaseAscllChar(int num);
 	//'A' == 'a' == '0' ... 'J' == 'j' == '9' 以此类推

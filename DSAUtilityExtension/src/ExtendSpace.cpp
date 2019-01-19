@@ -32,6 +32,13 @@ namespace StandardExtend{
 			}
 		}
 	}
+
+	int toRadixIntNum(char alphOrCharNum, int radix) {
+		int result = StandardExtend::toIntNum(alphOrCharNum);
+		_ASSERT_EXPR(StandardExtend::inRange(0, result, radix), "不是指定进制的字符串");
+		return result;
+	}
+
 	char toUppercaseAscllChar(int num){
 		return num > 9 ? num - 10 + 'A' : num + '0';
 	}
