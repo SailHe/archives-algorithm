@@ -15,7 +15,7 @@
 #include "ExtendSpace.h"
 #include "./else/TransitionUtility.h"
 #include "./else/BinaryTransition.h"
-#include "./else/BigInteger.h"
+// #include "./else/BigInteger.h"
 // using namespace std;
 
 // 类中的静态方法->命名空间普通方法(若不考虑java移植的话)
@@ -44,7 +44,7 @@ void calcBinaryCode(int decNum, std::string &originCode, std::string &inverseCod
 
 	// puts("补码");
 	complementCode = TransitionUtility::digitContainerToString(lowTop.rbegin(), lowTop.rend());
-	BigInteger::bigPlush(complementCode, std::string("1"), complementCode, 2);
+	TransitionUtility::bigPlush(complementCode, std::string("1"), complementCode, 2);
 	// std::cout << complementCode << std::endl;
 }
 

@@ -2,25 +2,30 @@
 #include "../pch.h"
 #include "TransitionUtility.h"
 #include "../ExtendSpace.h"
+
 /*
-例子: 39h->71o
-先将其每一位转为2进制: 3->0011b, 9->1001b
-即0011 1001b 然后转为目标进制 111 001b->71o
+二进制转换器类
+支持可用2进制表示的任意进制的大数的双向转换;
+bits => [1, 32) 即: 2 4..2^31共31种[基2进制];
+符号需要用户自己处理
 
-可输入的几种进制的单个数值的最大值
-tBit:   1  2  3     4        5
-input:  1  3  7   F(15)    V(31)
-output: 1 11 111  1111     11111
+PS: 
+1. 基2进制: 以2为底数的进制
+2. 2基底数字: 使用基2进制表示的数值
+3. 进位段: 源和目标[基2进制]的比特位数中最大的那一个的数值maxBits; 其 <=> [0, maxBits);
+4. 例子: 39h->71o
+   先将其每一位转为2进制: 3->0011b, 9->1001b
+   即0011 1001b 然后转为目标进制 111 001b->71o
+5. 可输入的几种进制的单个数值的最大值
+   tBit:   1  2  3     4        5
+   input:  1  3  7   F(15)    V(31)
+   output: 1 11 111  1111     11111
 */
-
-// 二进制转换器类(支持 可用2进制表示的任意进制的大数的双向转换) 符号需要用户自己处理
 class BinaryTransition {
 public:
 	using DigitArray = TransitionUtility::DigitArray;
 	using DigitIterator = DigitArray::iterator;
 
-	// 基2进制: 以2为底数的进制
-	// 支持[1, 31] 即: 2 4..2^31共31种[基2进制];
 	// 参数列表: (计算过程中二进制缓存的最大比特位数, 源进制比特位数, 目标进制比特位数)
 	BinaryTransition(JCE::SizeType bitSize, int originBitLeast = 1, int targetBitLeast = 1) {
 		this->originBitLeast = 0;
@@ -34,18 +39,22 @@ public:
 
 	// 重设进制转换: 自动计算缓存[增减量]然后重设缓存空间, 同时初始化[进位段]
 	void reset(int originBitLeast, int targetBitLeast = 1) {
+		_ASSERT_EXPR(StandardExtend::inRange(1, originBitLeast, 32), "radix = [1, 32)");
+		_ASSERT_EXPR(StandardExtend::inRange(1, targetBitLeast, 32), "radix = [1, 32)");
+
 		// 有增有减->最后考虑abs; 多个变量->变量合成:max; 计算变化量: 减法
-		// 如果总比特位相等&&最大比特位相等 则disBits=0 否则disBits = nextMaxBits - currentMaxBits
 		int currentMaxBits = (std::max)(this->originBitLeast, this->targetBitLeast);
 		int nextMaxBits = (std::max)(originBitLeast, targetBitLeast);
+		// 如果总比特位相等&&最大比特位相等 则disBits=0 否则disBits = nextMaxBits - currentMaxBits
 		int disBits = nextMaxBits - currentMaxBits;
 		binaryBuffer.resize(binaryBuffer.size() + disBits);
+
 		this->originBitLeast = originBitLeast;
 		this->targetBitLeast = targetBitLeast;
 		this->originRadix = (int)pow(2.0, originBitLeast);
 		this->targetRadix = (int)pow(2.0, targetBitLeast);
+
 		// 预留的[进位段]必须初始化为0 否则进位时会出错
-		// 进位段: 目标[基2进制]的比特位
 		std::for_each(binaryBuffer.begin(), binaryBuffer.begin() + targetBitLeast, [](int &bit) {bit = 0; });
 		//memset(binaryBuffer, 0, targetBitLeast*sizeof(int));
 	}
@@ -112,9 +121,7 @@ public:
 	//void
 
 private:
-	// Radix(基数) Base(基础) Decimal(十进位的; 小数)
-	// Radix: 任意进制; Decimal: 十进制
-	//转换双方的储存位: 一位至少需要多少位二进制表示
+	// 转换双方的储存位: 一位数字至少(就是刚好的意思)需要多少比特位表示
 	int originBitLeast;
 	int originRadix;
 	int targetBitLeast;

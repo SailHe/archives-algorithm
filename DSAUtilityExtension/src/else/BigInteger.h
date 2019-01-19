@@ -91,7 +91,7 @@ public:
 		transitionToLocalRadix(originNumber);
 	}
 	BigInteger(std::string const &originNumberTopLow){
-		std::string temp = formatString(originNumberTopLow);
+		std::string temp = TransitionUtility::formatString(originNumberTopLow);
 		signum = temp[0] == '-' ? -1
 			: temp[0] == '0' ? 0 : 1;
 		transitionToLocalRadix(temp);
@@ -104,56 +104,6 @@ public:
 	//判断是否偶数 是返回true
 	bool isEvenNumber() const {
 		return this->digitLowTop[0] % 2 == 0;
-	}
-
-	/**
-	* 任意进制大数加法: 支持大小写传入, 只支持大写输出;
-	* 支持10个数字+26个字符(大小写等价) 表示的[2, 36]进制
-	* 若传入参数与进制不符报异常(比如10进制输入A);
-	* 基于std::string 直接更改string内存实现 sum可以与加数相同
-	**/
-	static std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB, std::string &topLowSum, int radix = 10) {
-		std::size_t lenA = topLowNumA.length(), lenB = topLowNumB.length(), lenAB;
-		//补0用
-		std::string temp;
-		//低位在右, 短者高位0补齐
-		if (lenA > lenB) {
-			temp.resize(lenA - lenB, '0');
-			topLowNumB = temp + topLowNumB;
-			lenAB = lenA;
-		}
-		else {
-			temp.resize(lenB - lenA, '0');
-			topLowNumA = temp + topLowNumA;
-			lenAB = lenB;
-		}
-		if (topLowSum.length() < lenA) {
-			topLowSum.resize(lenA, '0');
-		}
-		int ia = -1, carryNum = 0;
-		//反转后左边是低位
-		int i = -1;
-		for (Utility::toSignedNum(lenAB - 1, i); i >= 0; --i) {
-			// int sumBit = (topLowNumA[i] - '0') + (topLowNumB[i] - '0') + carryNum;
-			int sumBit = TransitionUtility::toRadixIntNum(topLowNumA[i], radix) + TransitionUtility::toRadixIntNum(topLowNumB[i], radix) + carryNum;
-			// topLowSum[i] = sumBit % 10 + '0';
-			topLowSum[i] = TransitionUtility::toAlphOrAscllNum(sumBit % radix);
-			// carryNum = sumBit / 10;
-			carryNum = sumBit / radix;
-		}
-		return carryNum == 0 ? topLowSum : (topLowSum = "1" + topLowSum);
-	}
-
-	//去除前导0 若值为0 返回"0"
-	static std::string formatString(std::string const &num) {
-		int sp = -1;
-		for (auto it = num.begin(); it != num.end(); ++it) {
-			++sp;
-			if (*it != '0') {
-				break;
-			}
-		}
-		return sp == num.size() ? "0" : num.substr(sp);
 	}
 
 	//<==> +=

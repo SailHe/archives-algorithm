@@ -10,6 +10,8 @@ namespace TransitionUtility {
 	topLowList: leftIter(高位->低位) rightIter(低位->高位)
 
 	PS:
+	0. Radix(基数) Base(基础) Decimal(十进位的; 小数)
+	   Radix: 任意进制; Decimal: 十进制
 	1. Digit的类型是Integer 其特指将这一个整数作为某进制下的一位(不是比特位bit); 比特位(bit)专指二进制的1位
 	2. 迭代器泛型特点: 可迭代的容器都可以(比如数组和std::vector); 仍可以活用std::vector().rbgain();
 	3. Iterator 指高度抽象的Container{S, Array, Linked, Map}的迭代器
@@ -42,6 +44,25 @@ namespace TransitionUtility {
 	DSAUTILITYEXTENSION_API int toRadixIntNum(char alphOrAscllNum, int radix = 10);
 	// 将数字转换正数(正数仍是正数) 返回该数字的正负符号
 	DSAUTILITYEXTENSION_API char toAbs(int &number);
+
+	/**
+	* 任意进制大数加法: 支持大小写传入以及输出;
+	* 支持 10个数字 + 26个大写字母 + 26个小写字母 表示的[2, 62] 合计61种进制数
+	* 若传入参数与进制不符报异常(比如10进制输入A);
+	* 基于std::string 直接更改string内存实现 sum可以与加数相同
+	**/
+	DSAUTILITYEXTENSION_API std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB
+		, std::string &topLowSum, int radix = 10);
+	//去除前导0 若值为0 返回"0"
+	DSAUTILITYEXTENSION_API std::string formatString(std::string const &num);
+
+	// 计算并返回指定参数对应的补码 (2进制限定)
+	// 原码字符串
+	std::string calcComplementCode(std::string &topLowOriginBinCode);
+	// 原码数字列表
+	std::string calcComplementCode(DigitArray &topLowOriginCode);
+	// 10进制真值
+	std::string calcComplementCode(int decNum);
 
 	// 位数不足n的倍数则在当前迭代器后面补0; [beginIter, currentIter).size() = kn
 	template<class DigitArrayIterator>

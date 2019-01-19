@@ -723,8 +723,8 @@ int mainForBigInteger() {
 		char result[128] = "";
 		BigInteger ba(a), bb(b);
 		(ba + bb).print(result, 128);
-		BigInteger::bigPlush(a, b, a);
-		StandardExtend::testAndOut("64位有符号整型最大值相加: ", BigInteger::formatString(a), string(result));
+		TransitionUtility::bigPlush(a, b, a);
+		StandardExtend::testAndOut("64位有符号整型最大值相加: ", TransitionUtility::formatString(a), string(result));
 	}, "字符串大数加法");
 	/*
 	python:
