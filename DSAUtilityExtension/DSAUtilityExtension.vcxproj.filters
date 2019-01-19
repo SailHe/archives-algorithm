@@ -13,11 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\Radix">
+      <UniqueIdentifier>{d3d751d5-c158-43d3-bac4-c1d3a4ebcd17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\BigInteger.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\DSAUEdll.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -63,6 +63,18 @@
     <ClInclude Include="src\pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="TransitionUtility_.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\else\BigInteger.h">
+      <Filter>头文件\Radix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\else\TransitionUtility.h">
+      <Filter>头文件\Radix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafxWin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MathLibrary.cpp">
@@ -79,6 +91,9 @@
     </ClCompile>
     <ClCompile Include="src\Graph\GraphTemplate.h">
       <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\else\TransitionUtility.cpp">
+      <Filter>头文件\Radix</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

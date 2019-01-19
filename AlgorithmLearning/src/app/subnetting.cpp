@@ -1,5 +1,5 @@
 #include "ExtendSpace.h"
-#include "./BigInteger.h"
+#include "./else/BigInteger.h"
 
 class SubnetIPV4 {
 public:
@@ -24,7 +24,7 @@ public:
 
 	// 判断IP地址类型 (点分10进制格式)
 	static IpType judgeIpAddress(int ip[4]) {
-		int rangeArray[] = { 0, 128, 192, MAXINT32};
+		int rangeArray[] = { 0, 128, 192, MAX_INT32};
 		IpType ipType = UNDEFINED_IP_TYPE_ENUM;
 		switch (StandardExtend::judgeRange(ip[0], rangeArray, rangeArray + 4))
 		{
@@ -47,7 +47,7 @@ public:
 		}
 		int subnetMaskDeTopLow[GROUP_IP] = {};
 		for (int i = 0; i < GROUP_IP; ++i) {
-			subnetMaskDeTopLow[i] = BinaryTransition::radixTopLowToDecimal(
+			subnetMaskDeTopLow[i] = TransitionUtility::radixTopLowToDecimal(
 				subnetMaskBinTopLow + i * DOTTED_QUAD_BITS, IP_RADIX, DOTTED_QUAD_BITS
 			);
 		}
@@ -77,7 +77,7 @@ public:
 		// 点分10进制子网掩码转为二进制
 		auto pastIt = subnetMaskBinTopLow.begin();
 		for (int i = 0, bitsCnt = 0; bitsCnt < IP_BITS; ++i) {
-			int bits = BinaryTransition::decimalToRadixLowTop(
+			int bits = TransitionUtility::decimalToRadixLowTop(
 				subnetMask[i]
 				, subnetMaskBinTopLow.begin() + bitsCnt
 				, IP_RADIX

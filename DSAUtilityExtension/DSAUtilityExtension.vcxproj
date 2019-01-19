@@ -139,9 +139,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\BigInteger.h" />
     <ClInclude Include="src\DSAUEdll.h" />
+    <ClInclude Include="src\else\BigInteger.h" />
     <ClInclude Include="src\else\DisjointSet.h" />
+    <ClInclude Include="src\else\TransitionUtility.h" />
     <ClInclude Include="src\ExtendSpace.h" />
     <ClInclude Include="src\GetMyDade.h" />
     <ClInclude Include="src\Graph\Graph.h" />
@@ -155,8 +156,11 @@
     <ClInclude Include="src\SailHeAlgorithm.h" />
     <ClInclude Include="src\Stack.h" />
     <ClInclude Include="src\stdafx.h" />
+    <ClInclude Include="src\stdafxWin.h" />
+    <ClInclude Include="TransitionUtility_.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\else\TransitionUtility.cpp" />
     <ClCompile Include="src\ExtendSpace.cpp" />
     <ClCompile Include="src\Graph\GraphTemplate.h" />
     <ClCompile Include="src\List\LinkedList.cpp" />

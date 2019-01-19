@@ -1,20 +1,9 @@
 #ifndef _BIGINTEGER_H
 #define _BIGINTEGER_H
 
-#include "pch.h"
-#include "ExtendSpace.h"
-
-class TransitionUtility {
-public:
-	template<class DigitIterator>
-	static std::string digitArrayToString(DigitIterator leftIter, DigitIterator rightIter) {
-		auto str = std::string(leftIter, rightIter);
-		std::for_each(str.begin(), str.end(), [](char &intNum) {
-			intNum = StandardExtend::toUppercaseAscllChar(intNum);
-		});
-		return str;
-	}
-};
+#include "../pch.h"
+#include "TransitionUtility.h"
+#include "../ExtendSpace.h"
 
 /*
 例子: 39h->71o
@@ -29,27 +18,10 @@ output: 1 11 111  1111     11111
 
 // 二进制转换器类(支持 可用2进制表示的任意进制的大数的双向转换) 符号需要用户自己处理
 class BinaryTransition{
-	// Radix(基数) Base(基础) Decimal(十进位的; 小数)
-	// Radix: 任意进制; Decimal: 十进制
-	//转换双方的储存位: 一位至少需要多少位二进制表示
-	int originBitLeast;
-	int originRadix;
-	int targetBitLeast;
-	int targetRadix;
-	/*
-	//只需改一两处就可以替换
-	typedef int *DigitArray;
-	typedef DigitArray DigitIterator;
-	*/
-	// 是基于整数数字数组的 (类似于字符串) 原称: DigitBitArray(数字位元数组)
-	typedef std::vector<int> DigitArray;
-	// BitIter -> Biter
-	typedef DigitArray::iterator DigitIterator;
-	// repository
-	DigitArray binaryBuffer;// = NULL
-	DigitIterator binNumberPointer;// = NULL
-	DigitIterator currentBinNumberPointer;// = NULL
 public:
+	using DigitArray = TransitionUtility::DigitArray;
+	using DigitIterator = DigitArray::iterator;
+
 	// 基2进制: 以2为底数的进制
 	// 支持[1, 31] 即: 2 4..2^31共31种[基2进制];
 	// 参数列表: (计算过程中二进制缓存的最大比特位数, 源进制比特位数, 目标进制比特位数)
@@ -62,12 +34,9 @@ public:
 		binaryBuffer.resize(bitSize);
 		reset(originBitLeast, targetBitLeast);
 	}
+
 	// 重设进制转换: 自动计算缓存[增减量]然后重设缓存空间, 同时初始化[进位段]
 	void reset(int originBitLeast, int targetBitLeast = 1){
-		// 冲突max宏: minwindef.h
-		// The parentheses around max prevent macro expansion. This works with all function macros.
-		// @see https://stackoverflow.com/questions/7449620/how-to-call-stdmin-when-min-has-been-defined-as-a-macro
-		// (std::max)(a, b)
 		// 有增有减->最后考虑abs; 多个变量->变量合成:max; 计算变化量: 减法
 		// 如果总比特位相等&&最大比特位相等 则disBits=0 否则disBits = nextMaxBits - currentMaxBits
 		int currentMaxBits = (std::max)(this->originBitLeast, this->targetBitLeast);
@@ -83,6 +52,7 @@ public:
 		std::for_each(binaryBuffer.begin(), binaryBuffer.begin() + targetBitLeast, [](int &bit) {bit = 0; });
 		//memset(binaryBuffer, 0, targetBitLeast*sizeof(int));
 	}
+
 	// 2基底大数转换: 源进制->二进制->目标进制
 	// target储存最终的结果(不会出现多余的0) PS: 任意进制指的int范围内的进制(任一个digit元素必须在int范围内)
 	void transition(char const *origin, DigitArray &target){
@@ -107,12 +77,12 @@ public:
 			//如4进制用2位表示 输入4 0010 无法完成逆序转换 虽然reTopBit使得即使如此也能完成转换, 但这仍是错的
 			_ASSERT_EXPR(number < originRadix, "输入的单个Bit数据超出本进制的模.");
 
-			int totalBits = decimalToRadixLowTop(number, currentBinNumberPointer, 2);
+			int totalBits = TransitionUtility::decimalToRadixLowTop(number, currentBinNumberPointer, 2);
 			//number = radixLowTopToDecimal(currentBinNumberPointer, 2, totalBits);
 			//向后补齐
-			complement(currentBinNumberPointer, currentBinNumberPointer + totalBits, originBitLeast);
+			TransitionUtility::complement(currentBinNumberPointer, currentBinNumberPointer + totalBits, originBitLeast);
 			//注意: 每originBitLeast位的逆序储存 无法转换为每targetBitLeast位的逆序储存 因此这个逆序是必须的
-			int reTopBit = max(totalBits, originBitLeast);
+			int reTopBit = std::max(totalBits, originBitLeast);
 			for (int i = 0; i < reTopBit / 2; i++){
 				std::swap(currentBinNumberPointer[i], currentBinNumberPointer[reTopBit - i - 1]);
 			}
@@ -131,7 +101,7 @@ public:
 		//top->low每一个targetBitLeast转为10进制(连起来即是目标进制)
 		for (int i = 0; i < currentBinNumberPointer - binNumberPointer; i += targetBitLeast){
 			//去除所有的转换后的前导0(转换前的前导0转换后可能不是)
-			int number = radixTopLowToDecimal(binNumberPointer + i, 2, targetBitLeast);
+			int number = TransitionUtility::radixTopLowToDecimal(binNumberPointer + i, 2, targetBitLeast);
 			outputValidValue = number != 0 || outputValidValue;
 			if (outputValidValue){
 				target.push_back(number);
@@ -141,138 +111,21 @@ public:
 		//puts("");
 	}
 
-	/**
-	 * 基础进制转换 如果数值超出int范围直接使用2进制的中间储存做大数计算
-	 **/
+	// 转换为任意进制[2, (MAX_INT32)/2)的数字数组(最大进制要保证允许表示该进制的最大值的两倍)
+	//void
 
-	// 字符数组{数字, 大小写字母} -> 数字数组
-	// 返回总位数
-	static size_t toDigitBitArray(char *originCharS, DigitArray &digitList) {
-		size_t len = strlen(originCharS);
-		for (size_t i = 0; i < len; ++i) {
-			if (isalpha(originCharS[i])) {
-				digitList[i] = toupper(originCharS[i]) - 'A' + 10;
-			}
-			else if (isalnum(originCharS[i])) {
-				digitList[i] = originCharS[i] - '0';
-			}
-			else {
-				_ASSERT_EXPR(false, "输入数据含非法字符(合法字符: 数字, 大小写字母)");
-			}
-		}
-		return len;
-	}
-	// 数字 -> 数组 (需要转换的10进制数字, 低位向高位存储的数值储存迭代器)
-	// 返回位数: totalSizeNum; 改变参数数组
-	template<class DigitIterator>
-	static int decimalToRadixLowTop(unsigned decimaNum, DigitIterator lowTopIter, int radix){
-		static int index;
-		index = -1;
-		// 要保证即使传入0也能执行一次
-		do{
-			*lowTopIter++ = decimaNum % radix;
-			++index;
-			decimaNum /= radix;
-		} while (decimaNum != 0);
-		return index + 1;
-	}
-	// 基于decimalToRadixLowTop
-	template<class DigitIterator>
-	static int decimalToRadixTopLow_baseLowTop(unsigned decimaNum, DigitIterator topLowIter, int radix) {
-		int totalSizeNum = decimalToRadixLowTop(decimaNum, topLowIter, radix);
-		std::reverse(topLowIter, topLowIter + totalSizeNum);
-		return totalSizeNum;
-	}
-
-	// 不推荐使用: 使用了数组运算符号'[]'必须支持迭代器加法(不是自加自减, 是加减任意合理值)
-	// 需要提前得知转换后的总位数大小(不是二进制bitNum)
-	static void decimalToRadixTopLow(unsigned decimaNum, DigitIterator topLowIter, int radix, int totalSizeNum) {
-		// 要保证即使传入0也能执行一次
-		do {
-			topLowIter[--totalSizeNum] = decimaNum % radix;
-			decimaNum /= radix;
-		} while (decimaNum != 0);
-	}
-	// 传入的迭代器是右侧迭代器 隐含需要提前得知转换后的总位数大小 (不是二进制bitNum) 遵循[)
-	template<class DigitIterator>
-	static void decimalToRadixTopLow(unsigned decimaNum, DigitIterator rightLowIter, int radix) {
-		// 要保证即使传入0也能执行一次
-		do {
-			*--rightLowIter = decimaNum % radix;
-			decimaNum /= radix;
-		} while (decimaNum != 0);
-	}
-
-
-	// 返回任意进制的加权10进制数 (lowTopIter: 低位向高位逼近的迭代器::lowTopList.begain(); topLowList.rbegain();)
-	static int radixLowTopToDecimal(DigitIterator lowTopIter, int radix, int totalSizeNum){
-		static int decimaNum;
-		int powNum = 1;
-		decimaNum = 0;
-		//从低位(左侧是低位)向高位按权展开 i是幂
-		for (int i = 0; i < totalSizeNum; ++i){
-			decimaNum += lowTopIter[i] * powNum;
-			//powNum = radix^i
-			powNum *= radix;
-		}
-		return decimaNum;
-	}
-	// 效果类似上一个方法; 但允许泛型(可迭代的容器都可以, 活用std::vector().rbgain();); 存储方式是top -> low
-	template<class Integer, class DigitIterator>// 支持基本运算的类型(EG: int __int64)
-	static Integer radixTopLowToDecimal(DigitIterator topLowIter, Integer radix, int totalSizeNum){
-		static Integer decimaNum;
-		Integer powNum = 1;
-		decimaNum = 0;
-		//从低位(右侧是低位)向高位按权展开 i是幂
-		for (int i = totalSizeNum - 1; i >= 0; --i){
-			decimaNum += topLowIter[i] * powNum;
-			//powNum = radix^i
-			powNum *= radix;
-		}
-		return decimaNum;
-	}
-
-
-	// Utility
-
-	// 将数字转换正数(正数仍是正数) 返回该数字的正负符号
-	static char toAbs(int &number) {
-		return number < 0 ? (number = -number), '-' : '+';
-	}
-
-	// 不足n的倍数位向后补0 originP~currentP(n*0)
-	static void complement(DigitIterator originP, DigitIterator currentP, int n){
-		int residueBit = (currentP - originP) % n;
-		if (residueBit != 0){
-			residueBit = n - residueBit;
-			while (residueBit-- > 0){
-				currentP[residueBit] = 0;
-			}
-		}
-	}
-
-	// 对每一位二进制取反
-	template<class DigitIterator>
-	static void inverseCode(DigitIterator binIter, size_t totalSizeNum){
-		for (size_t i = 0; i < totalSizeNum; ++i){
-			*binIter = *binIter == 0 ? 1 : 0;
-			++binIter;
-		}
-	}
-
-	// 打印数字迭代器中的所有元素; WithSymbol: 10以上数字使用符号输出(10对应A)
-	// (隐式的需要知道输出的起始或者位数)
-	template<class DigitIterator>
-	static void outputDigitInRange(DigitIterator digitIterBegin, DigitIterator digitIterEnd){
-		StandardExtend::iterate(digitIterBegin, digitIterEnd, [](DigitIterator current) {
-			putchar(StandardExtend::toUppercaseAscllChar(*current));
-		});
-		puts("");
-	}
-	
-	static void outputDigitArrayLowTop(DigitArray &lowTopList, int totalSizeNum){
-		outputDigitInRange(lowTopList.rbegin(), lowTopList.rbegin() + totalSizeNum);
-	}
+private:
+	// Radix(基数) Base(基础) Decimal(十进位的; 小数)
+	// Radix: 任意进制; Decimal: 十进制
+	//转换双方的储存位: 一位至少需要多少位二进制表示
+	int originBitLeast;
+	int originRadix;
+	int targetBitLeast;
+	int targetRadix;
+	// repository
+	DigitArray binaryBuffer;// = NULL
+	DigitIterator binNumberPointer;// = NULL
+	DigitIterator currentBinNumberPointer;// = NULL
 };
 
 
@@ -376,9 +229,14 @@ public:
 		return this->digitLowTop[0] % 2 == 0;
 	}
 
-	// 字符串大数加法
-	static std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB, std::string &topLowSum) {
-		std::size_t lenA = topLowNumA.size(), lenB = topLowNumB.size(), lenAB;
+	/**
+	* 任意进制大数加法: 支持大小写传入, 只支持大写输出;
+	* 支持10个数字+26个字符(大小写等价) 表示的[2, 36]进制
+	* 若传入参数与进制不符报异常(比如10进制输入A);
+	* 基于std::string 直接更改string内存实现 sum可以与加数相同
+	**/
+	static std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB, std::string &topLowSum, int radix = 10) {
+		std::size_t lenA = topLowNumA.length(), lenB = topLowNumB.length(), lenAB;
 		//补0用
 		std::string temp;
 		//低位在右, 短者高位0补齐
@@ -392,19 +250,23 @@ public:
 			topLowNumA = temp + topLowNumA;
 			lenAB = lenB;
 		}
-		if (topLowSum.size() < lenA) {
+		if (topLowSum.length() < lenA) {
 			topLowSum.resize(lenA, '0');
 		}
-		int ia = -1, c = 0;
+		int ia = -1, carryNum = 0;
 		//反转后左边是低位
 		int i = -1;
 		for (Utility::toSignedNum(lenAB - 1, i); i >= 0; --i) {
-			int sumBit = (topLowNumA[i] - '0') + (topLowNumB[i] - '0') + c;
-			topLowSum[i] = sumBit % 10 + '0';
-			c = sumBit / 10;
+			// int sumBit = (topLowNumA[i] - '0') + (topLowNumB[i] - '0') + carryNum;
+			int sumBit = TransitionUtility::toRadixIntNum(topLowNumA[i], radix) + TransitionUtility::toRadixIntNum(topLowNumB[i], radix) + carryNum;
+			// topLowSum[i] = sumBit % 10 + '0';
+			topLowSum[i] = TransitionUtility::toUppercaseAscllChar(sumBit % radix);
+			// carryNum = sumBit / 10;
+			carryNum = sumBit / radix;
 		}
-		return c == 0 ? topLowSum : (topLowSum = "1" + topLowSum);
+		return carryNum == 0 ? topLowSum : (topLowSum = "1" + topLowSum);
 	}
+
 	//去除前导0 若值为0 返回"0"
 	static std::string formatString(std::string const &num) {
 		int sp = -1;
@@ -736,8 +598,8 @@ private:
 		int wordBit = totalBitOf(radix) - 1;
 		//当传入数字无法用整字储存时需要多用一个字来储存(即溢出字)
 		setTotalByteNum(numTotalBit / wordBit + (numTotalBit % wordBit == 0 ? 0 : 1));
-		/*symbol = */BinaryTransition::toAbs(originNumber);
-		BinaryTransition::decimalToRadixLowTop(originNumber, digitLowTop.begin(), radix);
+		/*symbol = */TransitionUtility::toAbs(originNumber);
+		TransitionUtility::decimalToRadixLowTop(originNumber, digitLowTop.begin(), radix);
 	}
 	/*static BigInteger valueOf(int value) {
 		return BigInteger(value);

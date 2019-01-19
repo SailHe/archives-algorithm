@@ -7,7 +7,7 @@
 #include "Graph\TreeObject.h"
 #include "Graph\Graph.h"
 #include "Graph\GraphTemplate.h"
-#include "BigInteger.h"
+#include "./else/BigInteger.h"
 #include "MathLibrary.h"
 
 #include <random> // 用于梅森随机数

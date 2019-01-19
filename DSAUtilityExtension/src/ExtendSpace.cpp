@@ -19,29 +19,6 @@ namespace StandardExtend{
 			}
 		}
 	}
-	int toIntNum(char alphOrCharNum){
-		if ('0' <= alphOrCharNum && alphOrCharNum <= '9'){
-			return alphOrCharNum - '0';
-		}
-		else{
-			if ('A' <= alphOrCharNum && alphOrCharNum <= 'Z'){
-				return 10 + alphOrCharNum - 'A';
-			}
-			else{
-				return 10 + alphOrCharNum - 'a';
-			}
-		}
-	}
-
-	int toRadixIntNum(char alphOrCharNum, int radix) {
-		int result = StandardExtend::toIntNum(alphOrCharNum);
-		_ASSERT_EXPR(StandardExtend::inRange(0, result, radix), "不是指定进制的字符串");
-		return result;
-	}
-
-	char toUppercaseAscllChar(int num){
-		return num > 9 ? num - 10 + 'A' : num + '0';
-	}
 	bool isAa0Equal(char a, char b){
 		return toLowerAlph(a) == toLowerAlph(b);
 	}

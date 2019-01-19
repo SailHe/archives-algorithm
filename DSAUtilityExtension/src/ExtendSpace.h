@@ -42,13 +42,9 @@ namespace StandardExtend{
 	//using namespace std;
 	//using namespace JCE;
 
-	//变为小写字符
+	// 大写字母->小写字母
 	DSAUTILITYEXTENSION_API char toLowerAlph(char c);
-	DSAUTILITYEXTENSION_API int toIntNum(char alphOrCharNum);
-	DSAUTILITYEXTENSION_API int toRadixIntNum(char alphOrCharNum, int radix = 10);
-	//10ToA(Alph)
-	DSAUTILITYEXTENSION_API char toUppercaseAscllChar(int num);
-	//'A' == 'a' == '0' ... 'J' == 'j' == '9' 以此类推
+	// 'A' == 'a' == '0' ... 'J' == 'j' == '9' 以此类推
 	DSAUTILITYEXTENSION_API bool isAa0Equal(char a, char b);
 
 	// @see https://my.oschina.net/wangsifangyuan/blog/1499715
@@ -109,6 +105,7 @@ namespace StandardExtend{
 	DSAUTILITYEXTENSION_API void refreshStdin(char end);
 	// 可以替换为: destContainer.resize(origin.end() - origin.begin());
 	// std::copy(origin.begin(), origin.end(), destContainer.begin());
+	// std::vector destContainer(origin.begin(), origin.end());
 	template<class T, class Iterator>
 	JCE::ArrayList<T> toArrayList(Iterator left, Iterator right) {
 		JCE::ArrayList<T> result;
@@ -146,6 +143,9 @@ namespace StandardExtend{
 		return groupIndex;
 	}
 
+	// 与std::for_each(lhs, rhs, visitFun)的区别:
+	// 前者visitFun(*iterator) 此处visitFun(iterator)
+	// 而在多重泛型的情况下经常并不知道lambda中的参数类型(C++11不支持lambda的auto参数)
 	template<class Iterator, class Fun>
 	void iterate(Iterator left, Iterator right, Fun visit){
 		while (left != right){
@@ -288,7 +288,7 @@ namespace StandardExtend{
 	T maxValueStatistics(Iterator left, Iterator right, T MIN_VALUE){
 		T maxValue = MIN_VALUE;
 		while (left != right){
-			maxValue = max(maxValue, *left);
+			maxValue = (std::max)(maxValue, *left);
 			++left;
 		}
 		return maxValue;
@@ -986,7 +986,7 @@ namespace MathExtend {
 	template<class Numeric>
 	void ZeroOneBackpackProcess(Numeric backPack[], Numeric capacity, Numeric currentCost, Numeric currentValue) {
 		for (Numeric v = capacity; v >= currentCost; --v) {
-			backPack[v] = max(backPack[v], backPack[v - currentCost] + currentValue);
+			backPack[v] = (std::max)(backPack[v], backPack[v - currentCost] + currentValue);
 		}
 	}
 	// (这个算法有问题) 01背包数量记法 capacity是背包总容量  参数currentValue = 0; backPack[0] = 1;
@@ -1000,7 +1000,7 @@ namespace MathExtend {
 	template<class Number>
 	void CompletePackProcess(Number backPack[], Number capacity, Number currentCost, Number currentValue) {
 		for (Number v = currentCost; v <= capacity; ++v) {
-			backPack[v] = max(backPack[v], backPack[v - currentCost] + currentValue);
+			backPack[v] = (std::max)(backPack[v], backPack[v - currentCost] + currentValue);
 		}
 	}
 	// 处理一件[多重背包]中的物品过程 ==> O(logM) 有N种物品和一个容量为capacity的背包。
