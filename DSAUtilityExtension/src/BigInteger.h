@@ -4,15 +4,30 @@
 #include "pch.h"
 #include "ExtendSpace.h"
 
+class TransitionUtility {
+public:
+	template<class DigitIterator>
+	static std::string digitArrayToString(DigitIterator leftIter, DigitIterator rightIter) {
+		auto str = std::string(leftIter, rightIter);
+		std::for_each(str.begin(), str.end(), [](char &intNum) {
+			intNum = StandardExtend::toUppercaseAscllChar(intNum);
+		});
+		return str;
+	}
+};
+
 /*
-例子: 39h先将其每一位转为2进制: 3->0011b, 9->1001b   即0011 1001b 然后转为目标进制 111 001b->71o
+例子: 39h->71o
+先将其每一位转为2进制: 3->0011b, 9->1001b
+即0011 1001b 然后转为目标进制 111 001b->71o
+
 可输入的几种进制的单个数值的最大值
 tBit:   1  2  3     4        5
 input:  1  3  7   F(15)    V(31)
 output: 1 11 111  1111     11111
 */
 
-// 二进制转换器类(支持 可用2进制表示的任意进制的大数的单向转换) 符号需要用户自己处理
+// 二进制转换器类(支持 可用2进制表示的任意进制的大数的双向转换) 符号需要用户自己处理
 class BinaryTransition{
 	// Radix(基数) Base(基础) Decimal(十进位的; 小数)
 	// Radix: 任意进制; Decimal: 十进制
@@ -43,13 +58,6 @@ public:
 		this->targetBitLeast = 0;
 		this->originRadix = 0;
 		this->targetRadix = 0;
-		// 初始化比特位小的一方
-		/*if (originBitLeast > targetBitLeast) {
-			this->targetBitLeast = targetBitLeast;
-		}
-		else {
-			this->originBitLeast = originBitLeast;
-		}*/
 		//binaryBuffer = (int *)malloc(sizeof(int)*bitSize);
 		binaryBuffer.resize(bitSize);
 		reset(originBitLeast, targetBitLeast);
@@ -60,13 +68,6 @@ public:
 		// The parentheses around max prevent macro expansion. This works with all function macros.
 		// @see https://stackoverflow.com/questions/7449620/how-to-call-stdmin-when-min-has-been-defined-as-a-macro
 		// (std::max)(a, b)
-
-		// int disBits = (std::max)((targetBitLeast - this->targetBitLeast), (originBitLeast - this->originBitLeast));
-		// 初始化时: 比特位小的一方相等, 则此disBits为大的那一方的比特位数
-		// 重设时: disBits是比特位的变化量最大的一方的绝对值....反例(2, 2) -> (1, 3)
-		// int disBits = std::abs(targetBitLeast - this->targetBitLeast) - std::abs(originBitLeast - this->originBitLeast);
-		// disBits = std::abs(disBits);
-
 		// 有增有减->最后考虑abs; 多个变量->变量合成:max; 计算变化量: 减法
 		// 如果总比特位相等&&最大比特位相等 则disBits=0 否则disBits = nextMaxBits - currentMaxBits
 		int currentMaxBits = (std::max)(this->originBitLeast, this->targetBitLeast);
@@ -251,25 +252,26 @@ public:
 	}
 
 	// 对每一位二进制取反
-	static void inverseCode(DigitIterator numBin, size_t totalSizeNum){
+	template<class DigitIterator>
+	static void inverseCode(DigitIterator binIter, size_t totalSizeNum){
 		for (size_t i = 0; i < totalSizeNum; ++i){
-			*numBin = !*numBin;
-			++numBin;
+			*binIter = *binIter == 0 ? 1 : 0;
+			++binIter;
 		}
 	}
 
-	// 10进制以上进制会带符号输出 10进制以下正常输出 10对应A
-	static void outputWithSymbol(DigitArray &lowTopList, int totalSizeNum){
-		for (int i = 0; i < totalSizeNum; ++i){
-			int pSub = totalSizeNum - i - 1;
-			if (lowTopList[pSub] > 9){
-				printf("%c", lowTopList[pSub] - 10 + 'A');
-			}
-			else{
-				printf("%d", lowTopList[pSub]);
-			}
-		}
+	// 打印数字迭代器中的所有元素; WithSymbol: 10以上数字使用符号输出(10对应A)
+	// (隐式的需要知道输出的起始或者位数)
+	template<class DigitIterator>
+	static void outputDigitInRange(DigitIterator digitIterBegin, DigitIterator digitIterEnd){
+		StandardExtend::iterate(digitIterBegin, digitIterEnd, [](DigitIterator current) {
+			putchar(StandardExtend::toUppercaseAscllChar(*current));
+		});
 		puts("");
+	}
+	
+	static void outputDigitArrayLowTop(DigitArray &lowTopList, int totalSizeNum){
+		outputDigitInRange(lowTopList.rbegin(), lowTopList.rbegin() + totalSizeNum);
 	}
 };
 

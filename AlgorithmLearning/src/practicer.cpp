@@ -16,6 +16,8 @@
 #include "BigInteger.h"
 // using namespace std;
 
+// 类中的静态方法->命名空间普通方法(若不考虑java移植的话)
+
 /**
 * 任意进制大数加法: 支持大小写传入, 只支持大写输出;
 * 支持10个数字+26个字符(大小写等价) 表示的[2, 36]进制
@@ -54,15 +56,6 @@ std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB, std::stri
 	return carryNum == 0 ? topLowSum : (topLowSum = "1" + topLowSum);
 }
 
-template<class DigitIterator>
-std::string digitArrayToString(DigitIterator leftIter, DigitIterator rightIter) {
-	auto str = std::string(leftIter, rightIter);
-	std::for_each(str.begin(), str.end(), [](char &intNum) {
-		intNum = StandardExtend::toUppercaseAscllChar(intNum);
-	});
-	return str;
-}
-
 // 计算二进制补码 (十进制数字)
 void calcBinaryCode(int decNum, std::string &originCode, std::string &inverseCode, std::string &complementCode) {
 	std::vector<int> lowTop;
@@ -72,21 +65,21 @@ void calcBinaryCode(int decNum, std::string &originCode, std::string &inverseCod
 	puts("原码");
 	// solution0
 	int totalSize = BinaryTransition::decimalToRadixLowTop(decNum, lowTop.begin(), 2);
-	BinaryTransition::outputWithSymbol(lowTop, totalSize);
+	BinaryTransition::outputDigitInRange(lowTop.rbegin(), lowTop.rend());
 	// solution1
 	BinaryTransition::decimalToRadixTopLow(decNum, topLow.end(), 2);
-	originCode = digitArrayToString(topLow.begin(), topLow.end());
+	originCode = TransitionUtility::digitArrayToString(topLow.begin(), topLow.end());
 
 	puts("反码");
 	// solution0
 	BinaryTransition::inverseCode(lowTop.begin(), totalSize);
-	BinaryTransition::outputWithSymbol(lowTop, totalSize);
+	BinaryTransition::outputDigitArrayLowTop(lowTop, totalSize);
 	// solution1
 	BinaryTransition::inverseCode(topLow.begin(), totalSize);
-	inverseCode = digitArrayToString(topLow.begin(), topLow.end());
+	inverseCode = TransitionUtility::digitArrayToString(topLow.begin(), topLow.end());
 
 	// puts("补码");
-	complementCode = digitArrayToString(lowTop.rbegin(), lowTop.rend());
+	complementCode = TransitionUtility::digitArrayToString(lowTop.rbegin(), lowTop.rend());
 	bigPlush(complementCode, std::string("1"), complementCode, 2);
 	// std::cout << complementCode << std::endl;
 }
@@ -99,6 +92,7 @@ int main(){
 	std::string originCode;
 	std::string inverseCode;
 	std::string complementCode;
+	calcBinaryCode(6, originCode, inverseCode, complementCode);
 	calcBinaryCode(2147483647, originCode, inverseCode, complementCode);
 	StandardExtend::testAndOut(std::string("原码"), originCode, std::string("1111111111111111111111111111111"));
 	StandardExtend::testAndOut(std::string("反码"), inverseCode, std::string("0000000000000000000000000000000"));
@@ -110,7 +104,7 @@ int main(){
 
 	BinaryTransition binRadixTransiter = BinaryTransition(originCode.length(), 1, 1);
 	binRadixTransiter.transition(originCode.c_str(), targetDigitList);
-	targetDigitStr = digitArrayToString(targetDigitList.begin(), targetDigitList.end());
+	targetDigitStr = TransitionUtility::digitArrayToString(targetDigitList.begin(), targetDigitList.end());
 	StandardExtend::testAndOut(std::string("BIN->BIN"), targetDigitStr, originCode);
 
 	binRadixTransiter.reset(2, 2);
@@ -118,27 +112,38 @@ int main(){
 	binRadixTransiter.reset(1, 3);
 	binRadixTransiter.transition(originCode.c_str(), targetDigitList);
 	//binTransOct.transition(originCode.c_str(), targetDigitList);
-	targetDigitStr = digitArrayToString(targetDigitList.begin(), targetDigitList.end());
+	targetDigitStr = TransitionUtility::digitArrayToString(targetDigitList.begin(), targetDigitList.end());
 	StandardExtend::testAndOut(std::string("BIN->OCT"), targetDigitStr, std::string("17777777777"));
 	//BinaryTransition octTransBin = BinaryTransition(originCode.length(), 3, 1);
 	//octTransBin.transition(targetDigitStr.c_str(), targetDigitList);
 	binRadixTransiter.reset(3, 1);
 	binRadixTransiter.transition(targetDigitStr.c_str(), targetDigitList);
-	targetDigitStr = digitArrayToString(targetDigitList.begin(), targetDigitList.end());
+	targetDigitStr = TransitionUtility::digitArrayToString(targetDigitList.begin(), targetDigitList.end());
 	StandardExtend::testAndOut(std::string("OCT->BIN"), targetDigitStr, originCode);
 
 	//BinaryTransition binTransHex = BinaryTransition(originCode.length(), 1, 4);
 	//binTransHex.transition(originCode.c_str(), targetDigitList);
 	binRadixTransiter.reset(1, 4);
 	binRadixTransiter.transition(originCode.c_str(), targetDigitList);
-	targetDigitStr = digitArrayToString(targetDigitList.begin(), targetDigitList.end());
+	targetDigitStr = TransitionUtility::digitArrayToString(targetDigitList.begin(), targetDigitList.end());
 	StandardExtend::testAndOut(std::string("BIN->HEX"), targetDigitStr, std::string("7FFFFFFF"));
 	BinaryTransition hexTransBin = BinaryTransition(originCode.length(), 4, 1);
 	//hexTransBin.transition(targetDigitStr.c_str(), targetDigitList);
 	binRadixTransiter.reset(4, 1);
 	binRadixTransiter.transition(targetDigitStr.c_str(), targetDigitList);
-	targetDigitStr = digitArrayToString(targetDigitList.begin(), targetDigitList.end());
+	targetDigitStr = TransitionUtility::digitArrayToString(targetDigitList.begin(), targetDigitList.end());
 	StandardExtend::testAndOut(std::string("HEX->BIN"), targetDigitStr, originCode);
+
+	// 2^31D
+	binRadixTransiter.reset(4, 1);
+	binRadixTransiter.transition("80000000", targetDigitList);
+	targetDigitStr = TransitionUtility::digitArrayToString(targetDigitList.begin(), targetDigitList.end());
+	StandardExtend::testAndOut(std::string("HEX->BIN"), targetDigitStr, std::string("10000000000000000000000000000000"));
+
+	binRadixTransiter.reset(4, 3);
+	binRadixTransiter.transition("39", targetDigitList);
+	targetDigitStr = TransitionUtility::digitArrayToString(targetDigitList.begin(), targetDigitList.end());
+	StandardExtend::testAndOut(std::string("HEX->OCT"), targetDigitStr, std::string("71"));
 
 	binRadixTransiter.reset(1, 1);
 	return 0;

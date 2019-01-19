@@ -80,7 +80,7 @@ int mainForSolveB() {
 		int tenValue = BinaryTransition::radixTopLowToDecimal(digitTopLow.begin(), originBase, totalBit);
 		reverse(digitTopLow.begin(), digitTopLow.end());
 		totalBit = BinaryTransition::decimalToRadixLowTop(tenValue, digitTopLow.begin(), targetBase);
-		BinaryTransition::outputWithSymbol(digitTopLow, totalBit);
+		BinaryTransition::outputDigitArrayLowTop(digitTopLow, totalBit);
 		// for (int i = totalBit - 1; i >= 0; --i) {
 		// 	printf("%d", digitTopLow[i]);
 		// }
@@ -100,7 +100,7 @@ int mainForSolveC() {
 	while (cin >> originValue >> targetBase) {
 		int tenValue = originValue;
 		int totalBit = BinaryTransition::decimalToRadixLowTop(tenValue, digitTopLow.begin(), targetBase);
-		BinaryTransition::outputWithSymbol(digitTopLow, totalBit);
+		BinaryTransition::outputDigitArrayLowTop(digitTopLow, totalBit);
 	}
 	return 0;
 }
@@ -122,13 +122,13 @@ int mainForSolveD() {
 		printf("10->%d\n", tv);
 		BinaryTransition::decimalToRadixLowTop(tv, digitTopLow.begin(), targetBase);
 		reverse(digitLowTop.begin(), digitLowTop.end());
-		BinaryTransition::outputWithSymbol(digitLowTop, digitLowTop.size());
+		BinaryTransition::outputDigitArrayLowTop(digitLowTop, digitLowTop.size());
 		// // 这个API也太难用了吧 30min
 		// int totalBit = BinaryTransition::toDigitBitArray(&origin[0], digitTopLow);
 		// int tenValue = BinaryTransition::baseTopLowToTen(digitTopLow.begin(), originBase, totalBit);
 		// reverse(digitTopLow.begin(), digitTopLow.end());
 		// totalBit = BinaryTransition::tenToRadix(tenValue, digitTopLow.begin(), targetBase);
-		// BinaryTransition::outputWithSymbol(digitTopLow, totalBit);
+		// BinaryTransition::outputDigitArrayLowTop(digitTopLow, totalBit);
 	}
 	return 0;
 }
