@@ -7,6 +7,7 @@
 #include "Graph\TreeObject.h"
 #include "Graph\Graph.h"
 #include "Graph\GraphTemplate.h"
+#include "./else/BinaryTransition.h"
 #include "./else/BigInteger.h"
 #include "MathLibrary.h"
 

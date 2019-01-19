@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClInclude Include="src\DSAUEdll.h" />
     <ClInclude Include="src\else\BigInteger.h" />
+    <ClInclude Include="src\else\BinaryTransition.h" />
     <ClInclude Include="src\else\DisjointSet.h" />
     <ClInclude Include="src\else\TransitionUtility.h" />
     <ClInclude Include="src\ExtendSpace.h" />

@@ -75,6 +75,9 @@
     <ClInclude Include="src\stdafxWin.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\else\BinaryTransition.h">
+      <Filter>头文件\Radix</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MathLibrary.cpp">

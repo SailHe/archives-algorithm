@@ -13,6 +13,8 @@
 
 //#include "MathLibrary.h"
 #include "ExtendSpace.h"
+#include "./else/TransitionUtility.h"
+#include "./else/BinaryTransition.h"
 #include "./else/BigInteger.h"
 // using namespace std;
 
@@ -26,10 +28,10 @@ void calcBinaryCode(int decNum, std::string &originCode, std::string &inverseCod
 	topLow.resize(MathExtend::calcDigitTotalSize(decNum, 2));
 	puts("Ô­Âë");
 	// solution0
-	int totalSize = TransitionUtility::decimalToRadixLowTop(decNum, lowTop.begin(), 2);
+	int totalSize = TransitionUtility::decimalToRadixLowTopBase(decNum, lowTop.begin(), 2);
 	TransitionUtility::outputDigitInRange(lowTop.rbegin(), lowTop.rend());
 	// solution1
-	TransitionUtility::decimalToRadixTopLow(decNum, topLow.end(), 2);
+	TransitionUtility::decimalToRadixTopLow(decNum, topLow.begin(), topLow.end(), 2);
 	originCode = TransitionUtility::digitContainerToString(topLow.begin(), topLow.end());
 
 	puts("·´Âë");

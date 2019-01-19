@@ -77,7 +77,7 @@ public:
 		// 点分10进制子网掩码转为二进制
 		auto pastIt = subnetMaskBinTopLow.begin();
 		for (int i = 0, bitsCnt = 0; bitsCnt < IP_BITS; ++i) {
-			int bits = TransitionUtility::decimalToRadixLowTop(
+			int bits = TransitionUtility::decimalToRadixLowTopBase(
 				subnetMask[i]
 				, subnetMaskBinTopLow.begin() + bitsCnt
 				, IP_RADIX

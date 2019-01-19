@@ -79,7 +79,7 @@ int mainForSolveB() {
 		int totalBit = TransitionUtility::charContainerToDigitContainer(&origin[0], digitTopLow);
 		int tenValue = TransitionUtility::radixTopLowToDecimal(digitTopLow.begin(), originBase, totalBit);
 		reverse(digitTopLow.begin(), digitTopLow.end());
-		totalBit = TransitionUtility::decimalToRadixLowTop(tenValue, digitTopLow.begin(), targetBase);
+		totalBit = TransitionUtility::decimalToRadixLowTopBase(tenValue, digitTopLow.begin(), targetBase);
 		TransitionUtility::outputDigitArrayLowTop(digitTopLow, totalBit);
 		// for (int i = totalBit - 1; i >= 0; --i) {
 		// 	printf("%d", digitTopLow[i]);
@@ -99,7 +99,7 @@ int mainForSolveC() {
 	digitTopLow.resize(20);
 	while (cin >> originValue >> targetBase) {
 		int tenValue = originValue;
-		int totalBit = TransitionUtility::decimalToRadixLowTop(tenValue, digitTopLow.begin(), targetBase);
+		int totalBit = TransitionUtility::decimalToRadixLowTopBase(tenValue, digitTopLow.begin(), targetBase);
 		TransitionUtility::outputDigitArrayLowTop(digitTopLow, totalBit);
 	}
 	return 0;
@@ -120,7 +120,7 @@ int mainForSolveD() {
 		bt.transition(&origin[0], digitTopLow);
 		int tv = TransitionUtility::radixTopLowToDecimal(digitTopLow.begin(), 2, digitTopLow.size());
 		printf("10->%d\n", tv);
-		TransitionUtility::decimalToRadixLowTop(tv, digitTopLow.begin(), targetBase);
+		TransitionUtility::decimalToRadixLowTopBase(tv, digitTopLow.begin(), targetBase);
 		reverse(digitLowTop.begin(), digitLowTop.end());
 		TransitionUtility::outputDigitArrayLowTop(digitLowTop, digitLowTop.size());
 		// // 这个API也太难用了吧 30min

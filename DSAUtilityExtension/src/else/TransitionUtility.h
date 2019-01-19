@@ -5,10 +5,21 @@
 namespace TransitionUtility {
 	/*
 	整数(Integer): 表示支持所有基本运算(含模运算)的类型(EG: int __int64 long long)
-	lowTopIter: 低位向高位逼近的迭代器 (EG: lowTopList.begain(); topLowList.rbegain();)
+	lowTopIter: 低位向高位自增逼近的迭代器 (EG: lowTopList.begain(); topLowList.rbegain();)
+	lowTopList: leftIter(低位->高位) rightIter(高位->低位)
+	topLowList: leftIter(高位->低位) rightIter(低位->高位)
 
-	PS: Digit的类型是Integer 其特指将这一个整数作为某进制下的一位(不是比特位bit)
-	left right迭代器泛型特点: 可迭代的容器都可以(比如数组和std::vector); 仍可以活用std::vector().rbgain();
+	PS:
+	1. Digit的类型是Integer 其特指将这一个整数作为某进制下的一位(不是比特位bit); 比特位(bit)专指二进制的1位
+	2. 迭代器泛型特点: 可迭代的容器都可以(比如数组和std::vector); 仍可以活用std::vector().rbgain();
+	3. Iterator 指高度抽象的Container{S, Array, Linked, Map}的迭代器
+	4. 使用[leftIter, rightIter)时左右的含义是已经指定好的
+	   且隐含需要提前得知范围(转换后的总位数大小); 此时也可以用rbgain(), 但为了避免混淆最好不用
+	5. Position 专指低一级的ArrayContainer{S, Array}的迭代器, 不分左右;
+	   常与size一同使用, 表示position后面有至少size个元素位(如果API中未出现size, 则需自己把握情况, 一般传begin就行)
+	6. 不推荐使用ArrayContainer{DigitArray}:
+	   此类迭代器泛型中使用了数组运算符'[]', 其使[迭代器降级]
+	7. 迭代器降级: 降低了迭代器的抽象级别, 使之必须支持任意合理值的迭代器加减运算
 	*/
 
 	/*
@@ -90,72 +101,85 @@ namespace TransitionUtility {
 
 	/** =========== 基础(int)进制(10)转换; 中间数值不能超出int范围 =========== **/
 
-	 // 数字 -> 数组 (需要转换的10进制数字, 低位向高位存储的数值储存迭代器)
-	 // 返回位数: totalSizeNum; 改变参数数组
+	 // 10进制数字 -> radix进制的数字数组 (10进制数字, 有足够空间的低位->高位数字迭代器)
+	 // 返回位数: totalSizeNum; 结果储存在参数迭代器所处的容器中
 	template<class DigitIterator>
-	int decimalToRadixLowTop(unsigned decimaNum, DigitIterator lowTopIter, int radix) {
+	int decimalToRadixLowTopBase(unsigned decimaNum, DigitIterator leftIter, int radix) {
 		static int index;
 		index = -1;
-		// 要保证即使传入0也能执行一次
+		// 要保证即使传入0也能执行一次 左侧
 		do {
-			*lowTopIter++ = decimaNum % radix;
+			*leftIter++ = decimaNum % radix;
 			++index;
 			decimaNum /= radix;
 		} while (decimaNum != 0);
 		return index + 1;
 	}
-	// 基于decimalToRadixLowTop
-	template<class DigitArrayIterator>
-	int decimalToRadixTopLow_baseLowTop(unsigned decimaNum, DigitArrayIterator topLowIter, int radix) {
-		int totalSizeNum = decimalToRadixLowTop(decimaNum, topLowIter, radix);
-		std::reverse(topLowIter, topLowIter + totalSizeNum);
+	// 除radix取余, 逆序排列;
+	template<class DigitIterator>
+	int decimalToRadixTopLow_PreDel(unsigned decimaNum, DigitIterator leftIter, DigitIterator rightIter, int radix) {
+		int totalSizeNum = decimalToRadixLowTopBase(decimaNum, leftIter, radix);
+		_ASSERT_EXPR(totalSizeNum == rightIter - leftIter, "数字位越界!");
+		// 基于 decimalToRadixLowTopBase 反转; radixLowTopToDecimalBase 不便于写出
+		std::reverse(leftIter, rightIter);
 		return totalSizeNum;
 	}
-
-	// !!!不推荐使用!!!: 迭代器泛型中使用数组运算符'[]'; 使迭代器降级(抽象级别)->必须支持任意合理值的迭代器加减运算
-	// 需要提前得知转换后的总位数大小(不是二进制bitNum)
-	template<class DigitArrayIterator>
-	void decimalToRadixTopLow(unsigned decimaNum, DigitArrayIterator topLowLeftIter, int radix, int totalSizeNum) {
-		// 要保证即使传入0也能执行一次
-		do {
-			topLowLeftIter[--totalSizeNum] = decimaNum % radix;
-			decimaNum /= radix;
-		} while (decimaNum != 0);
-	}
-	// 传入的迭代器是右侧迭代器 隐含需要提前得知转换后的总位数大小 (不是二进制bitNum) 遵循[) 这里不用rbgain()
+	// ---- Recommend
 	template<class DigitIterator>
-	void decimalToRadixTopLow(unsigned decimaNum, DigitIterator topLowRightIter, int radix) {
+	void decimalToRadixTopLow(unsigned decimaNum, DigitIterator leftIter, DigitIterator rightIter, int radix) {
 		// 要保证即使传入0也能执行一次
 		do {
-			*--topLowRightIter = decimaNum % radix;
+			*--rightIter = decimaNum % radix;
+			decimaNum /= radix;
+		} while (decimaNum != 0);
+		// 结束时应该恰好相等
+		_ASSERT_EXPR(leftIter == rightIter, "数字位越界!");
+	}
+	template<class DigitArrayIterator>
+	void decimalToRadixTopLow(unsigned decimaNum, DigitArrayIterator position, int radix, int totalSizeNum) {
+		// 要保证即使传入0也能执行一次
+		do {
+			position[--totalSizeNum] = decimaNum % radix;
 			decimaNum /= radix;
 		} while (decimaNum != 0);
 	}
 
 
-	// 返回任意进制的加权10进制数
+	// 返回低位到高位按权展开的多项式之和[leftIter, rightIter)底数是radix; 即: 返回任意进制的加权10进制数
 	template<class Integer, class DigitIterator>
-	Integer radixLowTopToDecimal(DigitIterator lowTopIter, Integer radix, int totalSizeNum) {
+	Integer radixLowTopToDecimalBase(DigitIterator leftIter, DigitIterator rightIter, Integer radix) {
 		static Integer decimaNum;
 		Integer powNum = 1;
 		decimaNum = 0;
 		//从低位(左侧是低位)向高位按权展开 i是幂
-		for (int i = 0; i < totalSizeNum; ++i) {
-			decimaNum += lowTopIter[i] * powNum;
-			//powNum = radix^i
+		while(leftIter != rightIter) {
+			decimaNum += *leftIter * powNum;
+			++leftIter;
 			powNum *= radix;
 		}
 		return decimaNum;
 	}
-	// 返回任意进制的加权10进制数
+	// ---- Recommend
+	template<class Integer, class DigitIterator>
+	Integer radixTopLowToDecimal(DigitIterator leftIter, DigitIterator rightIter, Integer radix) {
+		static Integer decimaNum;
+		Integer powNum = 1;
+		decimaNum = 0;
+		//从低位(右侧是低位)向高位按权展开 i是幂
+		while (leftIter != rightIter) {
+			decimaNum += *--rightIter * powNum;
+			powNum *= radix;
+		}
+		return decimaNum;
+	}
 	template<class Integer, class DigitArrayIterator>
-	static Integer radixTopLowToDecimal(DigitArrayIterator topLowIter, Integer radix, int totalSizeNum) {
+	Integer radixTopLowToDecimal(DigitArrayIterator position, Integer radix, int totalSizeNum) {
 		static Integer decimaNum;
 		Integer powNum = 1;
 		decimaNum = 0;
 		//从低位(右侧是低位)向高位按权展开 i是幂
 		for (int i = totalSizeNum - 1; i >= 0; --i) {
-			decimaNum += topLowIter[i] * powNum;
+			decimaNum += position[i] * powNum;
 			//powNum = radix^i
 			powNum *= radix;
 		}
