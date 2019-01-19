@@ -2,25 +2,27 @@
 #include "../ExtendSpace.h"
 
 namespace TransitionUtility{
-	char toUppercaseAscllChar(int num) {
-		return num > 9 ? num - 10 + 'A' : num + '0';
+	char toAlphOrAscllNum(int num) {
+		return num < 10 ? num + '0'
+			: num < 36 ? num - 10 + 'A'
+			: num - 36 + 'a';
 	}
 
-	int toIntNum(char alphOrCharNum) {
+	int toIntNum(char alphOrAscllNum) {
 		int resultInteger = -1;
-		// isalnum();
-		if ('0' <= alphOrCharNum && alphOrCharNum <= '9') {
-			// 0 + alphOrCharNum - '0';
-			resultInteger = alphOrCharNum - '0';
+		// isalnum(); inRange();
+		if ('0' <= alphOrAscllNum && alphOrAscllNum <= '9') {
+			// 0 + alphOrAscllNum - '0';
+			resultInteger = alphOrAscllNum - '0';
 		}
 		else {
 			// isalpha();
-			if ('A' <= alphOrCharNum && alphOrCharNum <= 'Z') {
-				resultInteger = 10 + alphOrCharNum - 'A';
+			if ('A' <= alphOrAscllNum && alphOrAscllNum <= 'Z') {
+				resultInteger = 10 + alphOrAscllNum - 'A';
 			}
-			else if ('a' <= alphOrCharNum && alphOrCharNum <= 'z') {
+			else if ('a' <= alphOrAscllNum && alphOrAscllNum <= 'z') {
 				// 数字字符10个{0, 9} 大写字母26个{A, Z} 小写字母26个{a, z}
-				resultInteger = 36 + alphOrCharNum - 'a';
+				resultInteger = 36 + alphOrAscllNum - 'a';
 			}
 			else {
 				_ASSERT_EXPR(false, "字符非法! ->合法字符{数字, 大小写字母}");
@@ -29,23 +31,13 @@ namespace TransitionUtility{
 		return resultInteger;
 	}
 
-	int toRadixIntNum(char alphOrCharNum, int radix) {
-		int result = toIntNum(alphOrCharNum);
+	int toRadixIntNum(char alphOrAscllNum, int radix) {
+		int result = toIntNum(alphOrAscllNum);
 		_ASSERT_EXPR(StandardExtend::inRange(0, result, radix), "不是指定进制的字符串");
 		return result;
 	}
 
 	char toAbs(int &number) {
 		return number < 0 ? (number = -number), '-' : '+';
-	}
-
-	void complement(DigitIterator originP, DigitIterator currentP, int n) {
-		int residueBit = (currentP - originP) % n;
-		if (residueBit != 0) {
-			residueBit = n - residueBit;
-			while (residueBit-- > 0) {
-				currentP[residueBit] = 0;
-			}
-		}
 	}
 }

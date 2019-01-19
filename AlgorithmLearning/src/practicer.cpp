@@ -51,6 +51,18 @@ int main(){
 	BigInteger b = BigInteger(35);
 	b.print();
 	*/
+	StandardExtend::testAndOut(std::string("Êý×Ö->×Ö·û{×ÖÄ¸, Êý×Ö}"), TransitionUtility::toAlphOrAscllNum(0), '0');
+	StandardExtend::testAndOut(std::string("Êý×Ö->×Ö·û{×ÖÄ¸, Êý×Ö}"), TransitionUtility::toAlphOrAscllNum(9), '9');
+	StandardExtend::testAndOut(std::string("Êý×Ö->×Ö·û{×ÖÄ¸, Êý×Ö}"), TransitionUtility::toAlphOrAscllNum(10), 'A');
+	StandardExtend::testAndOut(std::string("Êý×Ö->×Ö·û{×ÖÄ¸, Êý×Ö}"), TransitionUtility::toAlphOrAscllNum(35), 'Z');
+	StandardExtend::testAndOut(std::string("Êý×Ö->×Ö·û{×ÖÄ¸, Êý×Ö}"), TransitionUtility::toAlphOrAscllNum(36), 'a');
+	StandardExtend::testAndOut(std::string("Êý×Ö->×Ö·û{×ÖÄ¸, Êý×Ö}"), TransitionUtility::toAlphOrAscllNum(61), 'z');
+	StandardExtend::testAndOut(std::string("×Ö·û{×ÖÄ¸, Êý×Ö}->Êý×Ö"), TransitionUtility::toIntNum('0'), 0);
+	StandardExtend::testAndOut(std::string("×Ö·û{×ÖÄ¸, Êý×Ö}->Êý×Ö"), TransitionUtility::toIntNum('9'), 9);
+	StandardExtend::testAndOut(std::string("×Ö·û{×ÖÄ¸, Êý×Ö}->Êý×Ö"), TransitionUtility::toIntNum('A'), 10);
+	StandardExtend::testAndOut(std::string("×Ö·û{×ÖÄ¸, Êý×Ö}->Êý×Ö"), TransitionUtility::toIntNum('Z'), 35);
+	StandardExtend::testAndOut(std::string("×Ö·û{×ÖÄ¸, Êý×Ö}->Êý×Ö"), TransitionUtility::toIntNum('a'), 36);
+	StandardExtend::testAndOut(std::string("×Ö·û{×ÖÄ¸, Êý×Ö}->Êý×Ö"), TransitionUtility::toIntNum('z'), 61);
 	std::string originCode;
 	std::string inverseCode;
 	std::string complementCode;

@@ -4,8 +4,10 @@
 
 namespace TransitionUtility {
 	/*
-	整数(Integer) 表示支持所有基本运算(含模运算)的类型(EG: int __int64 long long)
-	Digit的类型是Integer 其特指将这一个整数作为某进制下的一位(不是比特位bit)
+	整数(Integer): 表示支持所有基本运算(含模运算)的类型(EG: int __int64 long long)
+	lowTopIter: 低位向高位逼近的迭代器 (EG: lowTopList.begain(); topLowList.rbegain();)
+
+	PS: Digit的类型是Integer 其特指将这一个整数作为某进制下的一位(不是比特位bit)
 	left right迭代器泛型特点: 可迭代的容器都可以(比如数组和std::vector); 仍可以活用std::vector().rbgain();
 	*/
 
@@ -19,22 +21,51 @@ namespace TransitionUtility {
 	// BitIter -> Biter
 	typedef DigitArray::iterator DigitIterator;
 
+	// UppercaseAscll
+
 	// Integer(D) -> 字符{Alph, 数字}
-	DSAUTILITYEXTENSION_API char toUppercaseAscllChar(int num);
+	DSAUTILITYEXTENSION_API char toAlphOrAscllNum(int num);
 	// 字符{字母, 数字} -> Integer(D)
-	DSAUTILITYEXTENSION_API int toIntNum(char alphOrCharNum);
+	DSAUTILITYEXTENSION_API int toIntNum(char alphOrAscllNum);
 	// 字符{字母, 数字} -> Integer(radix) Base:toIntNum; 加了异常检测
-	DSAUTILITYEXTENSION_API int toRadixIntNum(char alphOrCharNum, int radix = 10);
+	DSAUTILITYEXTENSION_API int toRadixIntNum(char alphOrAscllNum, int radix = 10);
 	// 将数字转换正数(正数仍是正数) 返回该数字的正负符号
 	DSAUTILITYEXTENSION_API char toAbs(int &number);
-	// 不足n的倍数位向后补0 originP~currentP(n*0)
-	DSAUTILITYEXTENSION_API void complement(DigitIterator originP, DigitIterator currentP, int n);
+
+	// 位数不足n的倍数则在当前迭代器后面补0; [beginIter, currentIter).size() = kn
+	template<class DigitArrayIterator>
+	void complement(DigitArrayIterator beginIter, DigitArrayIterator currentIter, int n) {
+		int residueBit = (currentIter - beginIter) % n;
+		if (residueBit != 0) {
+			residueBit = n - residueBit;
+			while (residueBit-- > 0) {
+				currentIter[residueBit] = 0;
+			}
+		}
+	}
+	// 对每一位二进制取反
+	template<class DigitIterator>
+	void inverseCode(DigitIterator binIterBegin, DigitIterator binIterEnd) {
+		StandardExtend::iterate(binIterBegin, binIterEnd, [](DigitIterator currentIt) {
+			*currentIt = *currentIt == 0 ? 1 : 0;
+		});
+	}
+	// 打印数字迭代器中的所有元素; WithSymbol: 10以上数字使用符号输出(10对应A)
+	// (隐含条件: 输出的起始<==>已知位数: outputDigitInRange(lowTopList.rbegin(), lowTopList.rbegin() + totalSizeNum);)
+	template<class DigitIterator>
+	void outputDigitInRange(DigitIterator digitIterBegin, DigitIterator digitIterEnd) {
+		std::for_each(digitIterBegin, digitIterEnd, [](int currentValue) {
+			putchar(toAlphOrAscllNum(currentValue));
+		});
+		puts("");
+	}
+
 
 	// 数字容器 -> 字符容器{数字, 大小写字母(区分)}
 	template<class DigitContainerIterator, class CharContainerIterator>
 	void digitContainerToCharContainer(DigitContainerIterator digitIterBegin, DigitContainerIterator digitIterEnd, CharContainerIterator charIter) {
 		std::for_each(digitIterBegin, digitIterEnd, [&](char intNum) {
-			*charIter = toUppercaseAscllChar(intNum);
+			*charIter = toAlphOrAscllNum(intNum);
 			++charIter;
 		});
 	}
@@ -55,27 +86,9 @@ namespace TransitionUtility {
 		});
 	}
 
-	// 对每一位二进制取反
-	template<class DigitIterator>
-	void inverseCode(DigitIterator binIterBegin, DigitIterator binIterEnd) {
-		StandardExtend::iterate(binIterBegin, binIterEnd, [](DigitIterator currentIt) {
-			*currentIt = *currentIt == 0 ? 1 : 0;
-		});
-	}
 
-	// 打印数字迭代器中的所有元素; WithSymbol: 10以上数字使用符号输出(10对应A)
-	// (隐含条件: 输出的起始<==>已知位数: outputDigitInRange(lowTopList.rbegin(), lowTopList.rbegin() + totalSizeNum);)
-	template<class DigitIterator>
-	void outputDigitInRange(DigitIterator digitIterBegin, DigitIterator digitIterEnd) {
-		std::for_each(digitIterBegin, digitIterEnd, [](int currentValue) {
-			putchar(toUppercaseAscllChar(currentValue));
-		});
-		puts("");
-	}
 
-	/**
-	 * 基础(int)进制(10)转换; 中间数值不能超出int范围
-	 **/
+	/** =========== 基础(int)进制(10)转换; 中间数值不能超出int范围 =========== **/
 
 	 // 数字 -> 数组 (需要转换的10进制数字, 低位向高位存储的数值储存迭代器)
 	 // 返回位数: totalSizeNum; 改变参数数组
@@ -92,8 +105,8 @@ namespace TransitionUtility {
 		return index + 1;
 	}
 	// 基于decimalToRadixLowTop
-	template<class DigitIterator>
-	int decimalToRadixTopLow_baseLowTop(unsigned decimaNum, DigitIterator topLowIter, int radix) {
+	template<class DigitArrayIterator>
+	int decimalToRadixTopLow_baseLowTop(unsigned decimaNum, DigitArrayIterator topLowIter, int radix) {
 		int totalSizeNum = decimalToRadixLowTop(decimaNum, topLowIter, radix);
 		std::reverse(topLowIter, topLowIter + totalSizeNum);
 		return totalSizeNum;
@@ -101,8 +114,8 @@ namespace TransitionUtility {
 
 	// !!!不推荐使用!!!: 迭代器泛型中使用数组运算符'[]'; 使迭代器降级(抽象级别)->必须支持任意合理值的迭代器加减运算
 	// 需要提前得知转换后的总位数大小(不是二进制bitNum)
-	template<class DigitIterator>
-	void decimalToRadixTopLow(unsigned decimaNum, DigitIterator topLowLeftIter, int radix, int totalSizeNum) {
+	template<class DigitArrayIterator>
+	void decimalToRadixTopLow(unsigned decimaNum, DigitArrayIterator topLowLeftIter, int radix, int totalSizeNum) {
 		// 要保证即使传入0也能执行一次
 		do {
 			topLowLeftIter[--totalSizeNum] = decimaNum % radix;
@@ -120,7 +133,7 @@ namespace TransitionUtility {
 	}
 
 
-	// 返回任意进制的加权10进制数 (lowTopIter: 低位向高位逼近的迭代器::lowTopList.begain(); topLowList.rbegain();)
+	// 返回任意进制的加权10进制数
 	template<class Integer, class DigitIterator>
 	Integer radixLowTopToDecimal(DigitIterator lowTopIter, Integer radix, int totalSizeNum) {
 		static Integer decimaNum;
@@ -134,9 +147,9 @@ namespace TransitionUtility {
 		}
 		return decimaNum;
 	}
-	// 存储方式是top -> low
-	template<class Integer, class DigitIterator>
-	static Integer radixTopLowToDecimal(DigitIterator topLowIter, Integer radix, int totalSizeNum) {
+	// 返回任意进制的加权10进制数
+	template<class Integer, class DigitArrayIterator>
+	static Integer radixTopLowToDecimal(DigitArrayIterator topLowIter, Integer radix, int totalSizeNum) {
 		static Integer decimaNum;
 		Integer powNum = 1;
 		decimaNum = 0;

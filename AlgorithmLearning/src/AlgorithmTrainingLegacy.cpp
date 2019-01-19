@@ -92,13 +92,13 @@ void basePlus(string &lhs, string &rhs, int base, string &sum){
 	for (int i = 0; i < maxSize; ++i){
 		//cout<<toIntNum(lhs[i])<<"+"<<toIntNum(rhs[i])<<"+"<<pastBit<<endl;
 		int bit = toIntNum(lhs[i]) + toIntNum(rhs[i]) + pastBit;
-		sum[i] = toUppercaseAscllChar(bit % base);
+		sum[i] = toAlphOrAscllNum(bit % base);
 		//printf("%d->%c ", bit % base, sum[i]);
 		pastBit = bit / base;
 	}
 	while (pastBit != 0){
 		int bit = pastBit;
-		sum.push_back(toUppercaseAscllChar(bit % base));
+		sum.push_back(toAlphOrAscllNum(bit % base));
 		pastBit = bit / base;
 	}
 
@@ -701,7 +701,7 @@ int MainTenToBase(){
 			puts("Error !");
 		}else{
 			do{
-				ans += toUppercaseAscllChar(n % k);
+				ans += toAlphOrAscllNum(n % k);
 				n /= k;
 			} while (n != 0);
 			reverse(ans.begin(), ans.end());
@@ -853,7 +853,7 @@ void dfsTofindN_BitNumber(string buffer, int n, int p, int depth = 0){
 	}
 	else{
 		for (int i = 1; i <= p; ++i){
-			dfsTofindN_BitNumber(buffer + toUppercaseAscllChar(i), n, p, depth + 1);
+			dfsTofindN_BitNumber(buffer + toAlphOrAscllNum(i), n, p, depth + 1);
 		}
 	}
 }
@@ -864,7 +864,7 @@ int MainBitNumber(){
 		string str;
 		str.clear();
 		for (int i = 1; i <= p; ++i){
-			str += toUppercaseAscllChar(i);
+			str += toAlphOrAscllNum(i);
 		}
 		/*
 		do{
@@ -963,7 +963,7 @@ string toBinary(int num){
 	}
 	else{
 		do{
-			binary += toUppercaseAscllChar(num % 2);
+			binary += toAlphOrAscllNum(num % 2);
 			num /= 2;
 		} while (num != 0);
 		for (size_t i = binary.size(); i < 8; ++i){

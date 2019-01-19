@@ -260,7 +260,7 @@ public:
 			// int sumBit = (topLowNumA[i] - '0') + (topLowNumB[i] - '0') + carryNum;
 			int sumBit = TransitionUtility::toRadixIntNum(topLowNumA[i], radix) + TransitionUtility::toRadixIntNum(topLowNumB[i], radix) + carryNum;
 			// topLowSum[i] = sumBit % 10 + '0';
-			topLowSum[i] = TransitionUtility::toUppercaseAscllChar(sumBit % radix);
+			topLowSum[i] = TransitionUtility::toAlphOrAscllNum(sumBit % radix);
 			// carryNum = sumBit / 10;
 			carryNum = sumBit / radix;
 		}
