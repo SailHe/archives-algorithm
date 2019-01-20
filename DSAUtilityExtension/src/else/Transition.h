@@ -173,7 +173,7 @@ public:
 	template<class DigitIterator>
 	DigitArray::iterator transition(DigitIterator originLeftTop, DigitIterator originRightLow, DigitArray &targetTopLowBuffer) {
 		// 1. 计算源进制的10进制位数
-		// 2. 将源进制每1位数补齐0后 转为10进制 存储在缓存中
+		// 2. 将源进制每1位数 转为10进制 存储在缓存中: 1位源进制数字->1个10进制数字(可能不止一位, 但存储意义上只占用1位数字)
 		// 3. 将缓存中的10进制数字转为目标进制
 		JCE::SizeType originDigitNum = originRightLow - originLeftTop;
 		int minDigitNum = calcMinDigitNum();

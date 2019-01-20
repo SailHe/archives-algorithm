@@ -110,13 +110,13 @@ namespace TransitionUtility{
 		return calcComplementCode(topLow);
 	}
 
-	void stringToDigitArray(char const *str, DigitArray &digitArray) {
+	void stringToDigitArray(char const *str, DigitArray &digitArray, int radix) {
 		JCE::SizeType len = std::strlen(str);
 		digitArray.resize(len);
-		charContainerToDigitContainer(str, str + len, digitArray.begin(), digitArray.end());
+		charContainerToDigitContainer(str, str + len, digitArray.begin(), digitArray.end(), radix);
 	}
-	void stringToDigitArray(std::string &str, DigitArray &digitArray) {
+	void stringToDigitArray(std::string &str, DigitArray &digitArray, int radix) {
 		digitArray.resize(str.length());
-		charContainerToDigitContainer(str.begin(), str.end(), digitArray.begin(), digitArray.end());
+		charContainerToDigitContainer(str.begin(), str.end(), digitArray.begin(), digitArray.end(), radix);
 	}
 }

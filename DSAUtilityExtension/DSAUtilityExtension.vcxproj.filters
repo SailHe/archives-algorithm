@@ -16,6 +16,9 @@
     <Filter Include="头文件\Radix">
       <UniqueIdentifier>{d3d751d5-c158-43d3-bac4-c1d3a4ebcd17}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Radix">
+      <UniqueIdentifier>{044362d0-96d7-41ff-964b-ab45a2006fc2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\DSAUEdll.h">
@@ -95,11 +98,11 @@
     <ClCompile Include="src\Graph\GraphTemplate.h">
       <Filter>头文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\else\TransitionUtility.cpp">
-      <Filter>头文件\Radix</Filter>
-    </ClCompile>
     <ClCompile Include="src\else\Transition.cpp">
-      <Filter>头文件\Radix</Filter>
+      <Filter>源文件\Radix</Filter>
+    </ClCompile>
+    <ClCompile Include="src\else\TransitionUtility.cpp">
+      <Filter>源文件\Radix</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

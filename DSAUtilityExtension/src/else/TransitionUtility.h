@@ -125,17 +125,17 @@ namespace TransitionUtility {
 		return resultStr;
 	}
 
-	// 字符容器{数字, 大小写字母(区分)} -> 数字容器
+	// 字符容器{数字, 大小写字母(区分)} -> 指定进制的数字容器
 	template<class CharContainerIterator, class DigitContainerIterator>
-	void charContainerToDigitContainer(CharContainerIterator charIterBegin, CharContainerIterator charIterEnd, DigitContainerIterator digitIterBegin, DigitContainerIterator digitIterEnd) {
+	void charContainerToDigitContainer(CharContainerIterator charIterBegin, CharContainerIterator charIterEnd, DigitContainerIterator digitIterBegin, DigitContainerIterator digitIterEnd, int radix) {
 		_ASSERT_EXPR(digitIterEnd - digitIterBegin == charIterEnd - charIterBegin, "容器大小必须相等!");
 		std::for_each(charIterBegin, charIterEnd, [&](char value) {
-			*digitIterBegin = toIntNum(value);
+			*digitIterBegin = toRadixIntNum(value, radix);
 			++digitIterBegin;
 		});
 	}
-	DSAUTILITYEXTENSION_API void stringToDigitArray(char const *str, DigitArray &digitArray);
-	DSAUTILITYEXTENSION_API void stringToDigitArray(std::string &str, DigitArray &digitArray);
+	DSAUTILITYEXTENSION_API void stringToDigitArray(char const *str, DigitArray &digitArray, int radix);
+	DSAUTILITYEXTENSION_API void stringToDigitArray(std::string &str, DigitArray &digitArray, int radix);
 	
 
 	/** =========== 基础(int)进制(10)转换; 中间数值不能超出int范围 =========== **/
