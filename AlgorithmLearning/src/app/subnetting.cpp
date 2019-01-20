@@ -47,8 +47,8 @@ public:
 		}
 		int subnetMaskDeTopLow[GROUP_IP] = {};
 		for (int i = 0; i < GROUP_IP; ++i) {
-			subnetMaskDeTopLow[i] = TransitionUtility::radixTopLowToDecimal(
-				subnetMaskBinTopLow + i * DOTTED_QUAD_BITS, IP_RADIX, DOTTED_QUAD_BITS
+			subnetMaskDeTopLow[i] = TransitionUtility::radixTopLowToDecimal_PreDel(
+				subnetMaskBinTopLow + i * DOTTED_QUAD_BITS, DOTTED_QUAD_BITS, IP_RADIX
 			);
 		}
 		printf("子网掩码左1个数: %d; 点分十进制表示: ", count1L);

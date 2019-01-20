@@ -75,7 +75,7 @@
     <ClInclude Include="src\stdafxWin.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\else\BinaryTransition.h">
+    <ClInclude Include="src\else\Transition.h">
       <Filter>头文件\Radix</Filter>
     </ClInclude>
   </ItemGroup>
@@ -96,6 +96,9 @@
       <Filter>头文件</Filter>
     </ClCompile>
     <ClCompile Include="src\else\TransitionUtility.cpp">
+      <Filter>头文件\Radix</Filter>
+    </ClCompile>
+    <ClCompile Include="src\else\Transition.cpp">
       <Filter>头文件\Radix</Filter>
     </ClCompile>
   </ItemGroup>

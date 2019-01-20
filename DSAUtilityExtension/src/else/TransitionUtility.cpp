@@ -32,9 +32,10 @@ namespace TransitionUtility{
 	}
 
 	int toRadixIntNum(char alphOrAscllNum, int radix) {
-		int result = toIntNum(alphOrAscllNum);
-		_ASSERT_EXPR(StandardExtend::inRange(0, result, radix), "不是指定进制的字符串");
-		return result;
+		int digitNum = toIntNum(alphOrAscllNum);
+		// American Standard Code for Information Interchange，美国信息交换标准代码
+		_ASSERT_EXPR(StandardExtend::inRange(0, digitNum, radix), "不是指定进制的Asll字符");
+		return digitNum;
 	}
 
 	char toAbs(int &number) {
@@ -107,5 +108,15 @@ namespace TransitionUtility{
 		// 原码
 		TransitionUtility::decimalToRadixTopLow(decNum, topLow.begin(), topLow.end(), 2);
 		return calcComplementCode(topLow);
+	}
+
+	void stringToDigitArray(char const *str, DigitArray &digitArray) {
+		JCE::SizeType len = std::strlen(str);
+		digitArray.resize(len);
+		charContainerToDigitContainer(str, str + len, digitArray.begin(), digitArray.end());
+	}
+	void stringToDigitArray(std::string &str, DigitArray &digitArray) {
+		digitArray.resize(str.length());
+		charContainerToDigitContainer(str.begin(), str.end(), digitArray.begin(), digitArray.end());
 	}
 }

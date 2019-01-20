@@ -710,6 +710,24 @@ namespace Utility {
 namespace MathExtend {
 	//using namespace Utility;
 	
+	//向量加法 sumVector = lhsVector + rhsVector(两向量可以相同)
+	template<class VectorIterator>
+	void vectorPlush(
+		VectorIterator lhsLeftVector, VectorIterator lhsRightVector
+		, VectorIterator rhsLeftVector, VectorIterator rhsRightVector
+		, VectorIterator sumLeftVector, VectorIterator sumRightVector) {
+		int vectorSize = sumRightVector - sumLeftVector;
+		_ASSERT_EXPR(lhsRightVector - lhsLeftVector == vectorSize, "向量维数严格相等!");
+		_ASSERT_EXPR(vectorSize == rhsRightVector - rhsLeftVector, "向量维数严格相等!");
+		// && lhsLeftVector != lhsRightVector && rhsLeftVector != rhsRightVector
+		while (sumLeftVector != sumRightVector) {
+			*sumLeftVector = *lhsLeftVector + *rhsLeftVector;
+			++sumLeftVector;
+			++lhsLeftVector;
+			++rhsLeftVector;
+		}
+	}
+
 	//矩阵乘法 productMatrix = productMatrix*originMatrix(两矩阵不能相同)
 	template<class T>
 	void matrixMultiply(const Sub maxRowCol, JCE::ArrayList<JCE::ArrayList<T>> &originMatrix, JCE::ArrayList<JCE::ArrayList<T>> &productMatrix) {

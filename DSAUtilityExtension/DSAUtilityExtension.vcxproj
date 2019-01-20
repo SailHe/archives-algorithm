@@ -141,7 +141,7 @@
   <ItemGroup>
     <ClInclude Include="src\DSAUEdll.h" />
     <ClInclude Include="src\else\BigInteger.h" />
-    <ClInclude Include="src\else\BinaryTransition.h" />
+    <ClInclude Include="src\else\Transition.h" />
     <ClInclude Include="src\else\DisjointSet.h" />
     <ClInclude Include="src\else\TransitionUtility.h" />
     <ClInclude Include="src\ExtendSpace.h" />
@@ -161,6 +161,7 @@
     <ClInclude Include="TransitionUtility_.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\else\Transition.cpp" />
     <ClCompile Include="src\else\TransitionUtility.cpp" />
     <ClCompile Include="src\ExtendSpace.cpp" />
     <ClCompile Include="src\Graph\GraphTemplate.h" />

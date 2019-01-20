@@ -14,7 +14,7 @@
 //#include "MathLibrary.h"
 #include "ExtendSpace.h"
 #include "./else/TransitionUtility.h"
-#include "./else/BinaryTransition.h"
+#include "./else/Transition.h"
 // #include "./else/BigInteger.h"
 // using namespace std;
 
@@ -46,6 +46,27 @@ void calcBinaryCode(int decNum, std::string &originCode, std::string &inverseCod
 	complementCode = TransitionUtility::digitContainerToString(lowTop.rbegin(), lowTop.rend());
 	TransitionUtility::bigPlush(complementCode, std::string("1"), complementCode, 2);
 	// std::cout << complementCode << std::endl;
+}
+
+void radixTransTestFun(int originRadix, int targetRadix, std::vector<int> &originDigitList, std::string const &name, std::string const &realRrsult) {
+	static DecimalTransition deRadixTransiter(originDigitList.size(), originRadix, targetRadix);
+	static std::vector<int> targetDigitList;
+	static std::string targetDigitStr;
+	deRadixTransiter.reset(originRadix, targetRadix);
+	auto topIter = deRadixTransiter.transition(originDigitList.begin(), originDigitList.end(), targetDigitList);
+	targetDigitStr = TransitionUtility::digitContainerToString(topIter, targetDigitList.end());
+	StandardExtend::testAndOut(name, targetDigitStr, realRrsult);
+}
+
+void radixTransTestFunRe(char const *originStr, int originRadix, int targetRadix, char const *targetStr) {
+	static std::vector<int> bufferDigitList;
+	TransitionUtility::stringToDigitArray(originStr, bufferDigitList);
+	radixTransTestFun(originRadix, targetRadix, bufferDigitList
+		, std::to_string(originRadix) + std::string("->") + std::to_string(targetRadix), targetStr);
+
+	TransitionUtility::stringToDigitArray(targetStr, bufferDigitList);
+	radixTransTestFun(targetRadix, originRadix, bufferDigitList
+		, std::to_string(targetRadix) + std::string("->") + std::to_string(originRadix), std::string(originStr));
 }
 
 int main(){
@@ -121,7 +142,24 @@ int main(){
 	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
 	StandardExtend::testAndOut(std::string("HEX->OCT"), targetDigitStr, std::string("71"));
 
-	binRadixTransiter.reset(1, 1);
+	// 源进制16的1个数字位(最大值15H->15D->17O->1111B)
+	// 需要 最少2个10进制数字位; 最少2个8进制数字位; 最少4个2进制比特位
+	/*
+	[3H, 9H]->[48D, 9D]->[60O, 11O]->[53(9), 10(9)]->[120(6), 13(6)]
+	   39H        57D        71O           63(9)           133(6)
+	*/
+	char originStr[10] = "39";
+	std::vector<int> bufferDigitList;
+	bufferDigitList.resize(2);
+	TransitionUtility::charContainerToDigitContainer(originStr, originStr + 2, bufferDigitList.begin(), bufferDigitList.end());
+	radixTransTestFun(16, 2, bufferDigitList, std::string("HEX->BIN"), std::string("111001"));
+	radixTransTestFun(16, 8, bufferDigitList, std::string("HEX->OCT"), std::string("71"));
+	radixTransTestFun(16, 9, bufferDigitList, std::string("HEX->9"), std::string("63"));
+	radixTransTestFun(16, 10, bufferDigitList, std::string("HEX->DEC"), std::string("57"));
+	radixTransTestFun(16, 6, bufferDigitList, std::string("HEX->6"), std::string("133"));
+	radixTransTestFunRe(originStr, 16, 6, "133");
+	radixTransTestFunRe(originStr, 16, 20, "2H");
+
 	return 0;
 }
 

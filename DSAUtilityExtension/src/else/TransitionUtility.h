@@ -9,6 +9,9 @@ namespace TransitionUtility {
 	lowTopList: leftIter(低位->高位) rightIter(高位->低位)
 	topLowList: leftIter(高位->低位) rightIter(低位->高位)
 
+	LowTop存储利于进位, 不利于编程和调试, 显示时需要反过来输出, 如果翻转的话也需要O(N)
+	TopLow存储利于编程和调试, 不利于进位, 进位时需要O(N)的移动(如果提前准备好进位的话就可以避免, 尤其是会发生大量进位的小进制)
+
 	PS:
 	0. Radix(基数) Base(基础) Decimal(十进位的; 小数)
 	   Radix: 任意进制; Decimal: 十进制
@@ -64,9 +67,22 @@ namespace TransitionUtility {
 	// 10进制真值
 	std::string calcComplementCode(int decNum);
 
+	// 扫描并进位, 返回无法存储的高位进位(如果能存储的话返回0)
+	template<class DigitIterator, class Integer>
+	Integer carryTopLow(DigitIterator leftIter, DigitIterator rightIter, Integer radix) {
+		Integer carry = 0;
+		while(leftIter != rightIter) {
+			--rightIter;
+			*rightIter += carry;
+			carry = *rightIter / radix;
+			*rightIter %= radix;
+		}
+		return carry;
+	}
+
 	// 位数不足n的倍数则在当前迭代器后面补0; [beginIter, currentIter).size() = kn
 	template<class DigitArrayIterator>
-	void complement(DigitArrayIterator beginIter, DigitArrayIterator currentIter, int n) {
+	void zeroComplementAfterEnd(DigitArrayIterator beginIter, DigitArrayIterator currentIter, int n) {
 		int residueBit = (currentIter - beginIter) % n;
 		if (residueBit != 0) {
 			residueBit = n - residueBit;
@@ -102,7 +118,7 @@ namespace TransitionUtility {
 		});
 	}
 	template<class DigitContainerIterator>
-	std::string digitContainerToString(DigitContainerIterator digitIterBegin, DigitContainerIterator digitIterEnd) {
+	std::string digitContainerToString(DigitContainerIterator const digitIterBegin, DigitContainerIterator const digitIterEnd) {
 		std::string resultStr;
 		resultStr.resize(digitIterEnd - digitIterBegin);
 		digitContainerToCharContainer(digitIterBegin, digitIterEnd, resultStr.begin());
@@ -111,14 +127,16 @@ namespace TransitionUtility {
 
 	// 字符容器{数字, 大小写字母(区分)} -> 数字容器
 	template<class CharContainerIterator, class DigitContainerIterator>
-	void charContainerToDigitContainer(CharContainerIterator charIterBegin, CharContainerIterator charIterEnd, DigitContainerIterator digitIter) {
+	void charContainerToDigitContainer(CharContainerIterator charIterBegin, CharContainerIterator charIterEnd, DigitContainerIterator digitIterBegin, DigitContainerIterator digitIterEnd) {
+		_ASSERT_EXPR(digitIterEnd - digitIterBegin == charIterEnd - charIterBegin, "容器大小必须相等!");
 		std::for_each(charIterBegin, charIterEnd, [&](char value) {
-			*digitIter = toIntNum(value);
-			++digitIter;
+			*digitIterBegin = toIntNum(value);
+			++digitIterBegin;
 		});
 	}
-
-
+	DSAUTILITYEXTENSION_API void stringToDigitArray(char const *str, DigitArray &digitArray);
+	DSAUTILITYEXTENSION_API void stringToDigitArray(std::string &str, DigitArray &digitArray);
+	
 
 	/** =========== 基础(int)进制(10)转换; 中间数值不能超出int范围 =========== **/
 
@@ -145,16 +163,16 @@ namespace TransitionUtility {
 		std::reverse(leftIter, rightIter);
 		return totalSizeNum;
 	}
-	// ---- Recommend
+	// ---- Recommend (checkBoundaryCondition: 边界条件检测, 默认开启, 表示传入的范围是否与转换后的实际范围大小相等)
 	template<class DigitIterator>
-	void decimalToRadixTopLow(unsigned decimaNum, DigitIterator leftIter, DigitIterator rightIter, int radix) {
+	void decimalToRadixTopLow(unsigned decimaNum, DigitIterator leftIter, DigitIterator rightIter, int radix, bool checkBoundaryCondition = true) {
 		// 要保证即使传入0也能执行一次
 		do {
 			*--rightIter = decimaNum % radix;
 			decimaNum /= radix;
 		} while (decimaNum != 0);
 		// 结束时应该恰好相等
-		_ASSERT_EXPR(leftIter == rightIter, "数字位越界!");
+		_ASSERT_EXPR(!checkBoundaryCondition || leftIter == rightIter, "数字位越界!");
 	}
 	template<class DigitArrayIterator>
 	void decimalToRadixTopLow(unsigned decimaNum, DigitArrayIterator position, int radix, int totalSizeNum) {
@@ -165,6 +183,20 @@ namespace TransitionUtility {
 		} while (decimaNum != 0);
 	}
 
+
+	// ---- Recommend 计算位权多项式
+	template<class Integer, class DigitIterator>
+	void radixTopLowToDecimalTopLow(DigitIterator originLeftIter, DigitIterator originRightIter, DigitIterator targetLeftIter, DigitIterator targetRightIter, Integer originRadix) {
+		// 位权
+		Integer powNum = 1;
+		_ASSERT_EXPR(originRightIter - originLeftIter == targetRightIter - targetLeftIter, "范围大小不同!");
+		// 从低位(右侧是低位)向高位按权展开 然后以同样的方式存在目标容器里面
+		// && targetLeftIter != targetRightIter
+		while (originLeftIter != originRightIter) {
+			*--targetRightIter = *--originRightIter * powNum;
+			powNum *= originRadix;
+		}
+	}
 
 	// 返回低位到高位按权展开的多项式之和[leftIter, rightIter)底数是radix; 即: 返回任意进制的加权10进制数
 	template<class Integer, class DigitIterator>
@@ -194,7 +226,7 @@ namespace TransitionUtility {
 		return decimaNum;
 	}
 	template<class Integer, class DigitArrayIterator>
-	Integer radixTopLowToDecimal(DigitArrayIterator position, Integer radix, int totalSizeNum) {
+	Integer radixTopLowToDecimal_PreDel(DigitArrayIterator position, int totalSizeNum, Integer radix) {
 		static Integer decimaNum;
 		Integer powNum = 1;
 		decimaNum = 0;
