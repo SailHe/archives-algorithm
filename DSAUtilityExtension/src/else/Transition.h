@@ -12,13 +12,27 @@ public:
 	}
 	virtual ~Transition() {}
 protected:
-	int calcDisBits(int originBitLeast, int targetBitLeast) {
+	// 返回本转换器对应的两种进制互相转换时的最小缓存预留位(就是最大进制的位最大值对应的缓存进制的位数)
+	int calcMinDigitNum() {
+		return (std::max)(this->originBitLeast, this->targetBitLeast);
+	}
+	// 重设缓存进制占用数字位, 返回最小预留位数的变化量
+	int resetBits(int originBitLeast, int targetBitLeast) {
 		// 有增有减->最后考虑abs; 多个变量->变量合成:max; 计算变化量: 减法
-		int currentMaxBits = (std::max)(this->originBitLeast, this->targetBitLeast);
-		int nextMaxBits = (std::max)(originBitLeast, targetBitLeast);
+		int currentMaxBits = calcMinDigitNum();
+		this->originBitLeast = originBitLeast;
+		this->targetBitLeast = targetBitLeast;
+		int nextMaxBits = calcMinDigitNum();
 		// 如果总比特位相等&&最大比特位相等 则disBits=0 否则disBits = nextMaxBits - currentMaxBits
 		int disBits = nextMaxBits - currentMaxBits;
 		return disBits;
+	}
+
+	void reSizeBuffer(JCE::SizeType nextSize) {
+		repositoryBuffer.resize(nextSize);
+		// 预留的[进位段]必须初始化为0 否则进位时会出错
+		std::for_each(repositoryBuffer.begin(), repositoryBuffer.begin() + targetBitLeast, [](int &bit) {bit = 0; });
+		//memset(repositoryBuffer, 0, targetBitLeast*sizeof(int));
 	}
 
 	// 转换双方的储存位: 一位数字至少(就是刚好的意思)需要多少缓存进制数字位表示
@@ -53,40 +67,35 @@ PS:
 */
 class BinaryTransition : public Transition {
 public:
-	// 参数列表: (计算过程中二进制缓存的最大比特位数, 源进制比特位数, 目标进制比特位数)
-	BinaryTransition(JCE::SizeType bitSize, int originBitLeast = 1, int targetBitLeast = 1) : Transition(2) {
+	// 参数列表: {计算过程中二进制缓存的最大比特位数(若实际情况比这个大则会自动重申), 源进制比特位数, 目标进制比特位数}
+	BinaryTransition(JCE::SizeType maxBitSize, int originBitLeast = 1, int targetBitLeast = 1) : Transition(2) {
 		this->originBitLeast = 0;
 		this->targetBitLeast = 0;
 		this->originRadix = 0;
 		this->targetRadix = 0;
-		//repositoryBuffer = (int *)malloc(sizeof(int)*bitSize);
-		repositoryBuffer.resize(bitSize);
+		//repositoryBuffer = (int *)malloc(sizeof(int)*maxBitSize);
+		repositoryBuffer.resize(maxBitSize);
 		reset(originBitLeast, targetBitLeast);
 	}
 
-	// 重设进制转换: 自动计算缓存[增减量]然后重设缓存空间, 同时初始化[进位段]
+	// 重设进制位数: 自动计算缓存[增减量]然后重设最小缓存空间(至少满足最大进制的1位), 同时初始化[进位段]
 	void reset(int originBitLeast, int targetBitLeast) {
 		_ASSERT_EXPR(StandardExtend::inRange(1, originBitLeast, 32), "radixBits => [1, 32)");
 		_ASSERT_EXPR(StandardExtend::inRange(1, targetBitLeast, 32), "radixBits => [1, 32)");
-
-		int disBits = calcDisBits(originBitLeast, targetBitLeast);
-		repositoryBuffer.resize(repositoryBuffer.size() + disBits);
-
-		this->originBitLeast = originBitLeast;
-		this->targetBitLeast = targetBitLeast;
+		reSizeBuffer(repositoryBuffer.size() + resetBits(originBitLeast, targetBitLeast));
 		this->originRadix = (int)pow(2.0, originBitLeast);
 		this->targetRadix = (int)pow(2.0, targetBitLeast);
-
-		// 预留的[进位段]必须初始化为0 否则进位时会出错
-		std::for_each(repositoryBuffer.begin(), repositoryBuffer.begin() + targetBitLeast, [](int &bit) {bit = 0; });
-		//memset(repositoryBuffer, 0, targetBitLeast*sizeof(int));
 	}
 
 	// 2基底大数转换: 源基2进制->二进制->目标基2进制; targetTopLow储存最终的结果(不会出现多余的0)
 	void transition(char const *origin, DigitArray &targetTopLow) {
+		// 源数值在目标进制下最多要用多少位表示
 		JCE::SizeType originToTargetDigitMaxNum =
 			std::strlen(origin)*MathExtend::calcDigitTotalSize(originRadix - 1, targetRadix);
-		_ASSERT_EXPR(originToTargetDigitMaxNum <= repositoryBuffer.size(), "缓存空间不足!");
+		if (originToTargetDigitMaxNum > repositoryBuffer.size()) {
+			// 缓存空间不足->申请合适的缓存大小
+			reSizeBuffer(originToTargetDigitMaxNum + calcMinDigitNum());
+		}
 		char digitAscll = 0;
 		// top处预留一个[进位段]用于进位补齐
 		DigitIterator binNumberPointer = repositoryBuffer.begin() + targetBitLeast;
@@ -132,30 +141,27 @@ public:
 
 class DecimalTransition : public Transition {
 public:
-	// 参数列表: (计算过程中二进制缓存的最大数字位数, 源进制, 目标进制)
-	DecimalTransition(JCE::SizeType digitSize, int originRadix, int targetRadix) : Transition(10) {
+	// 参数列表: {计算过程中10进制缓存的最大数字位数{若位数不足会自动重申}, 源进制, 目标进制}
+	DecimalTransition(JCE::SizeType maxDigitSize, int originRadix, int targetRadix) : Transition(10) {
 		this->originBitLeast = 0;
 		this->targetBitLeast = 0;
 		this->originRadix = 0;
 		this->targetRadix = 0;
-		//repositoryBuffer = (int *)malloc(sizeof(int)*digitSize);
-		repositoryBuffer.resize(digitSize);
+		//repositoryBuffer = (int *)malloc(sizeof(int)*maxDigitSize);
+		repositoryBuffer.resize(maxDigitSize);
 		reset(originRadix, targetRadix);
 	}
 
-	// 重设转换进制: 自动计算缓存[增减量]然后重设缓存空间, 同时初始化必要的元素
+	// 重设转换进制: 自动计算缓存[增减量]然后重设最小缓存空间(至少满足最大进制的1位), 同时初始化必要的元素
 	void reset(int originRadix, int targetRadix) {
 		// 最大进制要保证允许表示该进制的最大值的两倍
-		_ASSERT_EXPR(StandardExtend::inRange(1, originRadix, (MAX_INT32) / 2), "radix = [2, (MAX_INT32)/2)");
-		_ASSERT_EXPR(StandardExtend::inRange(1, targetRadix, (MAX_INT32) / 2), "radix = [2, (MAX_INT32)/2)");
-
-		this->originBitLeast = (int)std::ceil(MathExtend::logRadix(originRadix, this->bufferRadix));
-		this->targetBitLeast = (int)std::ceil(MathExtend::logRadix(targetRadix, this->bufferRadix));
+		_ASSERT_EXPR(StandardExtend::inRange(2, originRadix, (MAX_INT32) / 2), "radix = [2, (MAX_INT32)/2)");
+		_ASSERT_EXPR(StandardExtend::inRange(2, targetRadix, (MAX_INT32) / 2), "radix = [2, (MAX_INT32)/2)");
+		int originBitLeast = (int)std::ceil(MathExtend::logRadix(originRadix, this->bufferRadix));
+		int targetBitLeast = (int)std::ceil(MathExtend::logRadix(targetRadix, this->bufferRadix));
+		reSizeBuffer(repositoryBuffer.size() + resetBits(originBitLeast, targetBitLeast));
 		this->originRadix = originRadix;
 		this->targetRadix = targetRadix;
-
-		int disBits = calcDisBits(this->originBitLeast, this->targetBitLeast);
-		repositoryBuffer.resize(repositoryBuffer.size() + disBits);
 	}
 
 	// 转换为任意进制的数字数组: 源进制->10进制->目标进制; (源进制最高位迭代器, 源进制最低位迭代器的后一个, 结果缓存)
@@ -167,9 +173,12 @@ public:
 		// 2. 将源进制每1位数补齐0后 转为10进制 存储在缓存中
 		// 3. 将缓存中的10进制数字转为目标进制
 		JCE::SizeType originDigitNum = originRightLow - originLeftTop;
-		_ASSERT_EXPR(originDigitNum <= repositoryBuffer.size(), "缓存空间不足!");
+		if (originDigitNum > repositoryBuffer.size()) {
+			// 缓存空间不足->申请合适的缓存大小
+			reSizeBuffer(originDigitNum + calcMinDigitNum());
+		}
 		auto beginIt = repositoryBuffer.begin();
-		auto endIt = repositoryBuffer.end();
+		auto endIt = repositoryBuffer.begin() + originDigitNum;
 
 		TransitionUtility::radixTopLowToDecimalTopLow(originLeftTop, originRightLow, beginIt, endIt, originRadix);
 

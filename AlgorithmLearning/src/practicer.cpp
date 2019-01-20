@@ -99,7 +99,8 @@ int main(){
 	std::vector<int> targetDigitList;
 	std::string targetDigitStr;
 
-	BinaryTransition binRadixTransiter = BinaryTransition(originCode.length(), 1, 1);
+	//BinaryTransition binRadixTransiter = BinaryTransition(originCode.length(), 1, 1);
+	BinaryTransition binRadixTransiter = BinaryTransition(0, 1, 1);
 	binRadixTransiter.transition(originCode.c_str(), targetDigitList);
 	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
 	StandardExtend::testAndOut(std::string("BIN->BIN"), targetDigitStr, originCode);
@@ -141,6 +142,7 @@ int main(){
 	binRadixTransiter.transition("39", targetDigitList);
 	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
 	StandardExtend::testAndOut(std::string("HEX->OCT"), targetDigitStr, std::string("71"));
+	binRadixTransiter.reset(1, 1);
 
 	// 源进制16的1个数字位(最大值15H->15D->17O->1111B)
 	// 需要 最少2个10进制数字位; 最少2个8进制数字位; 最少4个2进制比特位
@@ -149,16 +151,12 @@ int main(){
 	   39H        57D        71O           63(9)           133(6)
 	*/
 	char originStr[10] = "39";
-	std::vector<int> bufferDigitList;
-	bufferDigitList.resize(2);
-	TransitionUtility::charContainerToDigitContainer(originStr, originStr + 2, bufferDigitList.begin(), bufferDigitList.end());
-	radixTransTestFun(16, 2, bufferDigitList, std::string("HEX->BIN"), std::string("111001"));
-	radixTransTestFun(16, 8, bufferDigitList, std::string("HEX->OCT"), std::string("71"));
-	radixTransTestFun(16, 9, bufferDigitList, std::string("HEX->9"), std::string("63"));
-	radixTransTestFun(16, 10, bufferDigitList, std::string("HEX->DEC"), std::string("57"));
-	radixTransTestFun(16, 6, bufferDigitList, std::string("HEX->6"), std::string("133"));
+	radixTransTestFunRe(originStr, 16, 8, "71");
+	radixTransTestFunRe(originStr, 16, 9, "63");
+	radixTransTestFunRe(originStr, 16, 10, "57");
 	radixTransTestFunRe(originStr, 16, 6, "133");
 	radixTransTestFunRe(originStr, 16, 20, "2H");
+	radixTransTestFunRe(originStr, 16, 2, "111001");
 
 	return 0;
 }
