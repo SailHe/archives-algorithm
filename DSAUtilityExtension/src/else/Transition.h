@@ -88,27 +88,26 @@ public:
 	}
 
 	// 2基底大数转换: 源基2进制->二进制->目标基2进制; targetTopLow储存最终的结果(不会出现多余的0)
-	void transition(char const *origin, DigitArray &targetTopLow) {
+	void transition(DigitIterator originLeftTop, DigitIterator originRightLow, DigitArray &targetTopLow) {
 		// 源数值在目标进制下最多要用多少位表示
+		JCE::SizeType originDigitNum = originRightLow - originLeftTop;
+		// ................一共.............
 		JCE::SizeType originToTargetDigitMaxNum =
-			std::strlen(origin)*MathExtend::calcDigitTotalSize(originRadix - 1, targetRadix);
-		if (originToTargetDigitMaxNum > repositoryBuffer.size()) {
+			originDigitNum*MathExtend::calcDigitTotalSize(originRadix - 1, targetRadix);
+		int minDigitNum = calcMinDigitNum();
+		if (originToTargetDigitMaxNum + minDigitNum > repositoryBuffer.size()) {
 			// 缓存空间不足->申请合适的缓存大小
-			reSizeBuffer(originToTargetDigitMaxNum + calcMinDigitNum());
+			reSizeBuffer(originToTargetDigitMaxNum + minDigitNum);
 		}
-		char digitAscll = 0;
 		// top处预留一个[进位段]用于进位补齐
 		DigitIterator binNumberPointer = repositoryBuffer.begin() + targetBitLeast;
 		//binNumberPointer = repositoryBuffer + targetBitLeast;
 		DigitIterator currentBinNumberPointer = binNumberPointer;
 		
 		// 源中top->low每个bit都转换为2进制(连起来即是源进制数的二进制表示)
-		while ((digitAscll = *(origin++)) != '\0') {
+		while (originLeftTop != originRightLow) {
 			// 如4进制用2位表示 输入4 0010 无法完成逆序转换 虽然reTopBit使得即使如此也能完成转换, 但这仍是错的
-			int number = TransitionUtility::toRadixIntNum(digitAscll, originRadix);
-
-			int totalBits = TransitionUtility::decimalToRadixLowTopBase(number, currentBinNumberPointer, 2);
-			//number = radixLowTopToDecimalBase(currentBinNumberPointer, 2, totalBits);
+			int totalBits = TransitionUtility::decimalToRadixLowTopBase(*originLeftTop++, currentBinNumberPointer, 2);
 			// [源进制数字]转换为2进制后不足[源的比特位数]则向后补齐
 			TransitionUtility::zeroComplementAfterEnd(currentBinNumberPointer, currentBinNumberPointer + totalBits, originBitLeast);
 			// 注意: 每originBitLeast位的逆序储存 无法转换为每targetBitLeast位的逆序储存 因此这个逆序是必须的
@@ -139,6 +138,10 @@ public:
 	}
 };
 
+/*
+基于10进制的进制转换器
+PS: 其API和二进制转换器有些许区别
+*/
 class DecimalTransition : public Transition {
 public:
 	// 参数列表: {计算过程中10进制缓存的最大数字位数{若位数不足会自动重申}, 源进制, 目标进制}
@@ -173,9 +176,10 @@ public:
 		// 2. 将源进制每1位数补齐0后 转为10进制 存储在缓存中
 		// 3. 将缓存中的10进制数字转为目标进制
 		JCE::SizeType originDigitNum = originRightLow - originLeftTop;
-		if (originDigitNum > repositoryBuffer.size()) {
+		int minDigitNum = calcMinDigitNum();
+		if (originDigitNum + minDigitNum > repositoryBuffer.size()) {
 			// 缓存空间不足->申请合适的缓存大小
-			reSizeBuffer(originDigitNum + calcMinDigitNum());
+			reSizeBuffer(originDigitNum + minDigitNum);
 		}
 		auto beginIt = repositoryBuffer.begin();
 		auto endIt = repositoryBuffer.begin() + originDigitNum;

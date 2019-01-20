@@ -48,7 +48,17 @@ void calcBinaryCode(int decNum, std::string &originCode, std::string &inverseCod
 	// std::cout << complementCode << std::endl;
 }
 
-void radixTransTestFun(int originRadix, int targetRadix, std::vector<int> &originDigitList, std::string const &name, std::string const &realRrsult) {
+// 单向转换测试
+void binRadixTransTestFun(int originBits, int targetBits, std::vector<int> &originDigitList, std::string const &name, std::string const &realRrsult) {
+	static BinaryTransition binRadixTransiter(originDigitList.size(), originBits, targetBits);
+	static std::vector<int> targetDigitList;
+	static std::string targetDigitStr;
+	binRadixTransiter.reset(originBits, targetBits);
+	binRadixTransiter.transition(originDigitList.begin(), originDigitList.end(), targetDigitList);
+	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
+	StandardExtend::testAndOut(name, targetDigitStr, realRrsult);
+}
+void decRadixTransTestFun(int originRadix, int targetRadix, std::vector<int> &originDigitList, std::string const &name, std::string const &realRrsult) {
 	static DecimalTransition deRadixTransiter(originDigitList.size(), originRadix, targetRadix);
 	static std::vector<int> targetDigitList;
 	static std::string targetDigitStr;
@@ -58,14 +68,18 @@ void radixTransTestFun(int originRadix, int targetRadix, std::vector<int> &origi
 	StandardExtend::testAndOut(name, targetDigitStr, realRrsult);
 }
 
-void radixTransTestFunRe(char const *originStr, int originRadix, int targetRadix, char const *targetStr) {
+
+
+// 双向转换测试
+template<class UnidirectionTestFun>
+void radixTransTestFunRe(char const *originStr, int originRadix, int targetRadix, char const *targetStr, UnidirectionTestFun unidirectionTestFun) {
 	static std::vector<int> bufferDigitList;
 	TransitionUtility::stringToDigitArray(originStr, bufferDigitList);
-	radixTransTestFun(originRadix, targetRadix, bufferDigitList
+	unidirectionTestFun(originRadix, targetRadix, bufferDigitList
 		, std::to_string(originRadix) + std::string("->") + std::to_string(targetRadix), targetStr);
 
 	TransitionUtility::stringToDigitArray(targetStr, bufferDigitList);
-	radixTransTestFun(targetRadix, originRadix, bufferDigitList
+	unidirectionTestFun(targetRadix, originRadix, bufferDigitList
 		, std::to_string(targetRadix) + std::string("->") + std::to_string(originRadix), std::string(originStr));
 }
 
@@ -98,51 +112,18 @@ int main(){
 	std::cout << "进制转换器" << std::endl;
 	std::vector<int> targetDigitList;
 	std::string targetDigitStr;
-
-	//BinaryTransition binRadixTransiter = BinaryTransition(originCode.length(), 1, 1);
-	BinaryTransition binRadixTransiter = BinaryTransition(0, 1, 1);
-	binRadixTransiter.transition(originCode.c_str(), targetDigitList);
-	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
-	StandardExtend::testAndOut(std::string("BIN->BIN"), targetDigitStr, originCode);
-
-	binRadixTransiter.reset(2, 2);
-	//BinaryTransition binTransOct = BinaryTransition(originCode.length(), 1, 3);
-	binRadixTransiter.reset(1, 3);
-	binRadixTransiter.transition(originCode.c_str(), targetDigitList);
-	//binTransOct.transition(originCode.c_str(), targetDigitList);
-	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
-	StandardExtend::testAndOut(std::string("BIN->OCT"), targetDigitStr, std::string("17777777777"));
-	//BinaryTransition octTransBin = BinaryTransition(originCode.length(), 3, 1);
-	//octTransBin.transition(targetDigitStr.c_str(), targetDigitList);
-	binRadixTransiter.reset(3, 1);
-	binRadixTransiter.transition(targetDigitStr.c_str(), targetDigitList);
-	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
-	StandardExtend::testAndOut(std::string("OCT->BIN"), targetDigitStr, originCode);
-
-	//BinaryTransition binTransHex = BinaryTransition(originCode.length(), 1, 4);
-	//binTransHex.transition(originCode.c_str(), targetDigitList);
-	binRadixTransiter.reset(1, 4);
-	binRadixTransiter.transition(originCode.c_str(), targetDigitList);
-	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
-	StandardExtend::testAndOut(std::string("BIN->HEX"), targetDigitStr, std::string("7FFFFFFF"));
-	BinaryTransition hexTransBin = BinaryTransition(originCode.length(), 4, 1);
-	//hexTransBin.transition(targetDigitStr.c_str(), targetDigitList);
-	binRadixTransiter.reset(4, 1);
-	binRadixTransiter.transition(targetDigitStr.c_str(), targetDigitList);
-	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
-	StandardExtend::testAndOut(std::string("HEX->BIN"), targetDigitStr, originCode);
-
-	// 2^31D
-	binRadixTransiter.reset(4, 1);
-	binRadixTransiter.transition("80000000", targetDigitList);
+	BinaryTransition binRadixTransiter(0, 4, 1);
+	TransitionUtility::stringToDigitArray("80000000", targetDigitList);
+	binRadixTransiter.transition(targetDigitList.begin(), targetDigitList.end(), targetDigitList);
 	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
 	StandardExtend::testAndOut(std::string("HEX->BIN"), targetDigitStr, std::string("10000000000000000000000000000000"));
 
-	binRadixTransiter.reset(4, 3);
-	binRadixTransiter.transition("39", targetDigitList);
-	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
-	StandardExtend::testAndOut(std::string("HEX->OCT"), targetDigitStr, std::string("71"));
-	binRadixTransiter.reset(1, 1);
+	radixTransTestFunRe(originCode.c_str(), 1, 1, originCode.c_str(), binRadixTransTestFun);
+	radixTransTestFunRe(originCode.c_str(), 1, 3, "17777777777", binRadixTransTestFun);
+	radixTransTestFunRe(originCode.c_str(), 1, 4, "7FFFFFFF", binRadixTransTestFun);
+	// 2^31D
+	radixTransTestFunRe("80000000", 4, 1, "10000000000000000000000000000000", binRadixTransTestFun);
+	radixTransTestFunRe("39", 4, 3, "71", binRadixTransTestFun);
 
 	// 源进制16的1个数字位(最大值15H->15D->17O->1111B)
 	// 需要 最少2个10进制数字位; 最少2个8进制数字位; 最少4个2进制比特位
@@ -151,12 +132,12 @@ int main(){
 	   39H        57D        71O           63(9)           133(6)
 	*/
 	char originStr[10] = "39";
-	radixTransTestFunRe(originStr, 16, 8, "71");
-	radixTransTestFunRe(originStr, 16, 9, "63");
-	radixTransTestFunRe(originStr, 16, 10, "57");
-	radixTransTestFunRe(originStr, 16, 6, "133");
-	radixTransTestFunRe(originStr, 16, 20, "2H");
-	radixTransTestFunRe(originStr, 16, 2, "111001");
+	radixTransTestFunRe(originStr, 16, 8, "71", decRadixTransTestFun);
+	radixTransTestFunRe(originStr, 16, 9, "63", decRadixTransTestFun);
+	radixTransTestFunRe(originStr, 16, 10, "57", decRadixTransTestFun);
+	radixTransTestFunRe(originStr, 16, 6, "133", decRadixTransTestFun);
+	radixTransTestFunRe(originStr, 16, 20, "2H", decRadixTransTestFun);
+	radixTransTestFunRe(originStr, 16, 2, "111001", decRadixTransTestFun);
 
 	return 0;
 }
