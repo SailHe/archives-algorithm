@@ -14,6 +14,8 @@
 
 // #include "else\DisjointSet.h"
 // #include "ExtendSpace.h"
+//#include "./else/Transition.h"
+#include "./else/TransitionUtility.h"
 #include "./else/BigInteger.h"
 
 #define MAX_INT32 2147483647
@@ -71,20 +73,11 @@ int mainForSolveB() {
 	vector<int> digitTopLow;
 	digitTopLow.resize(20);
 	while (cin >> originBase >> targetBase) {
-		BinaryTransition bt(20, originBase, targetBase);
-		// scanf("%s", &origin[0]);
 		cin >> origin;
-		// bt.transition(&origin[0], digitTopLow);
-		// 这个API也太难用了吧 30min
-		int totalBit = TransitionUtility::charContainerToDigitContainer(&origin[0], digitTopLow);
-		int tenValue = TransitionUtility::radixTopLowToDecimal(digitTopLow.begin(), originBase, totalBit);
-		reverse(digitTopLow.begin(), digitTopLow.end());
-		totalBit = TransitionUtility::decimalToRadixLowTopBase(tenValue, digitTopLow.begin(), targetBase);
-		TransitionUtility::outputDigitArrayLowTop(digitTopLow, totalBit);
-		// for (int i = totalBit - 1; i >= 0; --i) {
-		// 	printf("%d", digitTopLow[i]);
-		// }
-		//cout << endl;
+		TransitionUtility::stringToDigitArray(origin, digitTopLow, originBase);
+		int decValueNum = TransitionUtility::radixTopLowToDecimal(digitTopLow.begin(), digitTopLow.end(), originBase);
+		TransitionUtility::decimalToRadixTopLow(decValueNum, digitTopLow.begin(), digitTopLow.end(), targetBase);
+		TransitionUtility::outputDigitInRange(digitTopLow.begin(), digitTopLow.end());
 	}
 	return 0;
 }
@@ -98,9 +91,9 @@ int mainForSolveC() {
 	vector<int> digitTopLow;
 	digitTopLow.resize(20);
 	while (cin >> originValue >> targetBase) {
-		int tenValue = originValue;
-		int totalBit = TransitionUtility::decimalToRadixLowTopBase(tenValue, digitTopLow.begin(), targetBase);
-		TransitionUtility::outputDigitArrayLowTop(digitTopLow, totalBit);
+		int decValueNum = originValue;
+		int totalBit = TransitionUtility::decimalToRadixLowTopBase(decValueNum, digitTopLow.begin(), targetBase);
+		TransitionUtility::outputDigitInRange(digitTopLow.begin(), digitTopLow.end());// 方向不对
 	}
 	return 0;
 }
@@ -115,20 +108,8 @@ int mainForSolveD() {
 	digitTopLow.resize(20);
 	digitLowTop.resize(20);
 	while (cin >> originBase >> targetBase) {
-		BinaryTransition bt(1000+5);// , originBase, targetBase
 		scanf("%s", &origin[0]);
-		bt.transition(&origin[0], digitTopLow);
-		int tv = TransitionUtility::radixTopLowToDecimal(digitTopLow.begin(), 2, digitTopLow.size());
-		printf("10->%d\n", tv);
-		TransitionUtility::decimalToRadixLowTopBase(tv, digitTopLow.begin(), targetBase);
-		reverse(digitLowTop.begin(), digitLowTop.end());
-		TransitionUtility::outputDigitArrayLowTop(digitLowTop, digitLowTop.size());
-		// // 这个API也太难用了吧 30min
-		// int totalBit = BinaryTransition::charContainerToDigitContainer(&origin[0], digitTopLow);
-		// int tenValue = BinaryTransition::baseTopLowToTen(digitTopLow.begin(), originBase, totalBit);
-		// reverse(digitTopLow.begin(), digitTopLow.end());
-		// totalBit = BinaryTransition::tenToRadix(tenValue, digitTopLow.begin(), targetBase);
-		// BinaryTransition::outputDigitArrayLowTop(digitTopLow, totalBit);
+		
 	}
 	return 0;
 }

@@ -146,6 +146,8 @@ namespace StandardExtend{
 	// 与std::for_each(lhs, rhs, visitFun)的区别:
 	// 前者visitFun(*iterator) 此处visitFun(iterator)
 	// 而在多重泛型的情况下经常并不知道lambda中的参数类型(C++11不支持lambda的auto参数)
+	// 实际体验来说还是std的实现好一些, 不需要重复解引用
+	// 而且这种实现容易泛型过头, 在运行时才能发现错误, 前者由于指明了lambda的类型, 可以在编译的时候就发现(虽然比较隐晦)
 	template<class Iterator, class Fun>
 	void iterate(Iterator left, Iterator right, Fun visit){
 		while (left != right){
@@ -806,8 +808,10 @@ namespace MathExtend {
 	DSAUTILITYEXTENSION_API int reverseOrderNumber(int number);
 	//计算radix进制整数number中digit出现的次数
 	DSAUTILITYEXTENSION_API int calcDigitCountInNumber(const int number, const int digit, int radix = 10);
-	//计算radix进制时整数number的位数
+	//计算radix进制时整数number的位数 (logRadix的整数版: std::ceil(MathExtend::logRadix(number, radix));)
 	DSAUTILITYEXTENSION_API int calcDigitTotalSize(int number, int radix = 10);
+	// 计算lhsRadix进制的数值value转为rhsRadix进制的数值[最多]需要多少位(实际数值位数<=返回值)
+	DSAUTILITYEXTENSION_API int calcDigitTransiTotalSize(int lhsRadix, int number, int rhsRadix);
 
 
 	// ===== 数 学

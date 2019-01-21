@@ -22,30 +22,33 @@
 
 // 计算二进制补码 (十进制数字)
 void calcBinaryCode(int decNum, std::string &originCode, std::string &inverseCode, std::string &complementCode) {
-	std::vector<int> lowTop;
+	std::string resultBuffer = TransitionUtility::calcComplementCode(decNum);
+
 	std::vector<int> topLow;
-	lowTop.resize(MathExtend::calcDigitTotalSize(decNum, 2));
 	topLow.resize(MathExtend::calcDigitTotalSize(decNum, 2));
-	puts("原码");
-	// solution0
-	int totalSize = TransitionUtility::decimalToRadixLowTopBase(decNum, lowTop.begin(), 2);
-	TransitionUtility::outputDigitInRange(lowTop.rbegin(), lowTop.rend());
-	// solution1
 	TransitionUtility::decimalToRadixTopLow(decNum, topLow.begin(), topLow.end(), 2);
 	originCode = TransitionUtility::digitContainerToString(topLow.begin(), topLow.end());
 
-	puts("反码");
-	// solution0
-	TransitionUtility::inverseCode(lowTop.begin(), lowTop.begin() + totalSize);
-	TransitionUtility::outputDigitInRange(lowTop.begin(), lowTop.begin() + totalSize);
-	// solution1
+	std::string resultBuffer1 = TransitionUtility::calcComplementCode(topLow.begin(), topLow.end());
+
 	TransitionUtility::inverseCode(topLow.begin(), topLow.end());
 	inverseCode = TransitionUtility::digitContainerToString(topLow.begin(), topLow.end());
 
-	// puts("补码");
-	complementCode = TransitionUtility::digitContainerToString(lowTop.rbegin(), lowTop.rend());
+	complementCode = TransitionUtility::digitContainerToString(topLow.begin(), topLow.end());
 	TransitionUtility::bigPlush(complementCode, std::string("1"), complementCode, 2);
-	// std::cout << complementCode << std::endl;
+	_ASSERT_EXPR(complementCode == resultBuffer, "rt");
+	_ASSERT_EXPR(complementCode == resultBuffer1, "rt");
+}
+
+void testBinaryCode(int decValue, std::string const &realOriginCode
+	, std::string const &realInverseCode, std::string const &realComplementCode) {
+	std::string originCode;
+	std::string inverseCode;
+	std::string complementCode;
+	calcBinaryCode(decValue, originCode, inverseCode, complementCode);
+	StandardExtend::testAndOut(std::string("原码"), originCode, realOriginCode);
+	StandardExtend::testAndOut(std::string("反码"), inverseCode, realInverseCode);
+	StandardExtend::testAndOut(std::string("补码"), complementCode, realComplementCode);
 }
 
 // 单向转换测试
@@ -64,12 +67,12 @@ void binTransBothwayTestFun(char const *originStr, int originBits_, int targetBi
 	int originRadix_ = (int)pow(2.0, originBits_), targetRadix_ = (int)pow(2.0, targetBits_);
 	TransitionUtility::stringToDigitArray(originStr, bufferDigitList, originRadix_);
 	binRadixTransUnidirectionTestFun(originBits_, targetBits_, bufferDigitList
-		, std::to_string(originRadix_) + std::string("->") + std::to_string(targetBits_), targetStr);
+		, std::to_string(originRadix_) + std::string("->") + std::to_string(targetRadix_), targetStr);
 
 	TransitionUtility::stringToDigitArray(targetStr, bufferDigitList, targetRadix_);
 	// 约定正确结果targetStr是最简的, 如果传入的originStr含有前导0的话就需要去除(方法返回值也是最简的)
 	binRadixTransUnidirectionTestFun(targetBits_, originBits_, bufferDigitList
-		, std::to_string(targetRadix_) + std::string("->") + std::to_string(originBits_), TransitionUtility::formatString(std::string(originStr)));
+		, std::to_string(targetRadix_) + std::string("->") + std::to_string(originRadix_), TransitionUtility::formatString(std::string(originStr)));
 }
 
 void decRadixTransUnidirectionTestFun(int originRadix, int targetRadix, std::vector<int> &originDigitList, std::string const &name, std::string const &realRrsult) {
@@ -96,9 +99,18 @@ void decTransBothwayTestFun(char const *originStr, int originRadix_, int targetR
 }
 
 int main(){
+	// obj next(): 迭代并返回当前迭代器中的对象
+	// boolean hasNext(): 是否还有下一个
+	// void remove(): 删除当前的
+	//std::list<int> li;li.end() -  li.begin();
 	/*
 	BigInteger b = BigInteger(35);
 	b.print();
+
+	std::list<int> tmpL;
+	tmpL.push_back(1);
+	tmpL.push_back(0);
+	std::reverse(tmpL.begin(), tmpL.end());
 	*/
 	StandardExtend::testAndOut(std::string("数字->字符{字母, 数字}"), TransitionUtility::toAlphOrAscllNum(0), '0');
 	StandardExtend::testAndOut(std::string("数字->字符{字母, 数字}"), TransitionUtility::toAlphOrAscllNum(9), '9');
@@ -112,14 +124,18 @@ int main(){
 	StandardExtend::testAndOut(std::string("字符{字母, 数字}->数字"), TransitionUtility::toIntNum('Z'), 35);
 	StandardExtend::testAndOut(std::string("字符{字母, 数字}->数字"), TransitionUtility::toIntNum('a'), 36);
 	StandardExtend::testAndOut(std::string("字符{字母, 数字}->数字"), TransitionUtility::toIntNum('z'), 61);
-	std::string originCode;
-	std::string inverseCode;
-	std::string complementCode;
-	calcBinaryCode(6, originCode, inverseCode, complementCode);
-	calcBinaryCode(2147483647, originCode, inverseCode, complementCode);
-	StandardExtend::testAndOut(std::string("原码"), originCode, std::string("1111111111111111111111111111111"));
-	StandardExtend::testAndOut(std::string("反码"), inverseCode, std::string("0000000000000000000000000000000"));
-	StandardExtend::testAndOut(std::string("补码"), complementCode, std::string("0000000000000000000000000000001"));
+	
+	testBinaryCode(6
+		, std::string("110")
+		, std::string("001")
+		, std::string("010")
+	);
+	std::string realOriginCode("1111111111111111111111111111111");
+	testBinaryCode(2147483647
+		, realOriginCode
+		, std::string("0000000000000000000000000000000")
+		, std::string("0000000000000000000000000000001")
+	);
 
 	std::cout << "进制转换器" << std::endl;
 	std::vector<int> targetDigitList;
@@ -132,11 +148,25 @@ int main(){
 
 	// 前导0测试
 	binTransBothwayTestFun("0010", 1, 1, "10");
-	binTransBothwayTestFun("000010", 1, 1, "10");
+	binTransBothwayTestFun("000010", 1, 2, "2");
 
-	binTransBothwayTestFun(originCode.c_str(), 1, 1, originCode.c_str());
-	binTransBothwayTestFun(originCode.c_str(), 1, 3, "17777777777");
-	binTransBothwayTestFun(originCode.c_str(), 1, 4, "7FFFFFFF");
+	std::vector<int> tmp;
+	tmp.resize(MathExtend::calcDigitTransiTotalSize(10, 2147483647, 32));
+	/*
+	auto &a = tmp.begin();
+	a = tmp.end();
+	a = tmp.begin();
+	// unique_ptr
+	std::shared_ptr<int> pa(&a);
+	auto b = pa;
+	*/
+	//int realTotalSize = TransitionUtility::decimalToRadixLowTopBase(2147483647, tmp.begin(), 32);
+	//realTotalSize = TransitionUtility::decimalToRadixTopLow_PreDel(2147483647, tmp.begin(), tmp.end(), 32);
+	//std::string tmpStr = TransitionUtility::digitContainerToString(tmp.rbegin() + tmp.size() - realTotalSize, tmp.rend());
+	binTransBothwayTestFun("1VVVVVV", 5, 1, realOriginCode.c_str());
+	binTransBothwayTestFun(realOriginCode.c_str(), 1, 5, "1VVVVVV");
+	binTransBothwayTestFun(realOriginCode.c_str(), 1, 3, "17777777777");
+	binTransBothwayTestFun(realOriginCode.c_str(), 1, 4, "7FFFFFFF");
 	// 2^31D
 	binTransBothwayTestFun("80000000", 4, 1, "10000000000000000000000000000000");
 	binTransBothwayTestFun("39", 4, 3, "71");

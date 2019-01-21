@@ -88,26 +88,16 @@ namespace TransitionUtility{
 	}
 
 	std::string calcComplementCode(std::string &topLowOriginBinCode) {
-		// ·´Âë
-		TransitionUtility::inverseCode(topLowOriginBinCode.begin(), topLowOriginBinCode.end());
-
-		// ²¹Âë
-		static std::string one("1");
-		TransitionUtility::bigPlush(topLowOriginBinCode, one, topLowOriginBinCode, 2);
-		return topLowOriginBinCode;
-	}
-	std::string calcComplementCode(DigitArray &topLowOriginCode) {
-		static std::string topLowOriginBinCode;
-		topLowOriginBinCode.resize(topLowOriginCode.size());
-		TransitionUtility::digitContainerToCharContainer(topLowOriginCode.begin(), topLowOriginCode.end(), topLowOriginBinCode.begin());
-		return calcComplementCode(topLowOriginBinCode);
+		DigitArray topLowOriginCode;
+		TransitionUtility::stringToDigitArray(topLowOriginBinCode, topLowOriginCode, 2);
+		return calcComplementCode(topLowOriginCode.begin(), topLowOriginCode.end());
 	}
 	std::string calcComplementCode(int decNum) {
 		static DigitArray topLow;
 		topLow.resize(MathExtend::calcDigitTotalSize(decNum, 2));
 		// Ô­Âë
 		TransitionUtility::decimalToRadixTopLow(decNum, topLow.begin(), topLow.end(), 2);
-		return calcComplementCode(topLow);
+		return calcComplementCode(topLow.begin(), topLow.end());
 	}
 
 	void stringToDigitArray(char const *str, DigitArray &digitArray, int radix) {

@@ -61,11 +61,26 @@ namespace TransitionUtility {
 
 	// 计算并返回指定参数对应的补码 (2进制限定)
 	// 原码字符串
-	std::string calcComplementCode(std::string &topLowOriginBinCode);
-	// 原码数字列表
-	std::string calcComplementCode(DigitArray &topLowOriginCode);
+	DSAUTILITYEXTENSION_API std::string calcComplementCode(std::string &topLowOriginBinCode);
+	// 原码数字迭代器范围
+	template<class DigitIterator>
+	std::string calcComplementCode(DigitIterator topLowOriginCodeLeftIter, DigitIterator topLowOriginCodeRightIter) {
+		static DigitArray topLowOriginDigitList;
+		topLowOriginDigitList.assign(topLowOriginCodeLeftIter, topLowOriginCodeRightIter);
+		// 反码
+		TransitionUtility::inverseCode(topLowOriginDigitList.begin(), topLowOriginDigitList.end());
+
+		static std::string topLowOriginBinCode;
+		topLowOriginBinCode.resize(topLowOriginDigitList.size());
+		TransitionUtility::digitContainerToCharContainer(topLowOriginDigitList.begin(), topLowOriginDigitList.end(), topLowOriginBinCode.begin());
+
+		// 补码
+		static std::string one("1");
+		TransitionUtility::bigPlush(topLowOriginBinCode, one, topLowOriginBinCode, 2);
+		return topLowOriginBinCode;
+	}
 	// 10进制真值
-	std::string calcComplementCode(int decNum);
+	DSAUTILITYEXTENSION_API std::string calcComplementCode(int decNum);
 
 	// 扫描并进位, 返回无法存储的高位进位(如果能存储的话返回0)
 	template<class DigitIterator, class Integer>
@@ -94,8 +109,9 @@ namespace TransitionUtility {
 	// 对每一位二进制取反
 	template<class DigitIterator>
 	void inverseCode(DigitIterator binIterBegin, DigitIterator binIterEnd) {
-		StandardExtend::iterate(binIterBegin, binIterEnd, [](DigitIterator currentIt) {
-			*currentIt = *currentIt == 0 ? 1 : 0;
+		std::for_each(binIterBegin, binIterEnd, [](int &value) {
+			_ASSERT_EXPR(StandardExtend::inRange(0, value, 2), "所有数字值只能属于{0, 1}!");
+			value = value == 0 ? 1 : 0;
 		});
 	}
 	// 打印数字迭代器中的所有元素; WithSymbol: 10以上数字使用符号输出(10对应A)
@@ -116,6 +132,8 @@ namespace TransitionUtility {
 			*charIter = toAlphOrAscllNum(intNum);
 			++charIter;
 		});
+		// 由于字符串的特殊性必须申请多一个
+		// *charIter = '\0';
 	}
 	template<class DigitContainerIterator>
 	std::string digitContainerToString(DigitContainerIterator const digitIterBegin, DigitContainerIterator const digitIterEnd) {
@@ -139,7 +157,28 @@ namespace TransitionUtility {
 	
 
 	/** =========== 基础(int)进制(10)转换; 中间数值不能超出int范围 =========== **/
+	/*
+		由于进制转换中进位的产生不可避免, 何况某进制下的2位可能只代表另一进制下的1位
+		如果想要提前知晓转换前后的实际准确位数, 唯有先进行一次转换
+		或是使用以前的LowTop接口, 并提前申请足够的预留位, 然后使用相同类型的接口忽略过多位数产生的问题
+		(但这种不便于使用和调试, 且空间利用率较低)
 
+		于是设计了以下新接口: 
+		rightEndIter transitionLowTopFun(leftBginIter, radix);
+		leftBginIter transitionTopLowFun(rightEndIter, radix);
+		方法命名中的LowTop表示存储的方式, 人类使用习惯是TopLow
+		[leftBginIter, rightEndIter)表示容器中的迭代器
+		接口使用
+		1. 申请缓存区用于进制转换
+		2. 将该缓存区的对应迭代器按照参数名begin, end直接传入
+		3. 获取返回迭代器, 根据其意义使用该迭代器进一步调用接口
+
+		由于迭代器理论上(java中)自带hasNext判断功能, C++中虽没有这个功能弹回异常, 于是放弃containerMaxSize(最大容量)参数
+		之所以没有像原先那样返回digitNum, 一方面是为了体现迭代器的抽象性;
+		另一方面是如果需要计算可以在外部自行计算O(N), 而且原转换算法中少了一个变量
+		现在这种API既最大限度的使用了迭代器的抽象性, 又没有损失性能, 与原有功能相比只增不减(原来的API不支持list)
+		list<int> l(size);
+	*/
 	 // 10进制数字 -> radix进制的数字数组 (10进制数字, 有足够空间的低位->高位数字迭代器)
 	 // 返回位数: totalSizeNum; 结果储存在参数迭代器所处的容器中
 	template<class DigitIterator>
@@ -157,13 +196,24 @@ namespace TransitionUtility {
 	// 除radix取余, 逆序排列;
 	template<class DigitIterator>
 	int decimalToRadixTopLow_PreDel(unsigned decimaNum, DigitIterator leftIter, DigitIterator rightIter, int radix) {
-		int totalSizeNum = decimalToRadixLowTopBase(decimaNum, leftIter, radix);
-		_ASSERT_EXPR(totalSizeNum == rightIter - leftIter, "数字位越界!");
+		/*auto tmpLeftIter = leftIter;
+		std::unique_ptr<std::vector<int>::iterator> tmpLeftIter_(&tmpLeftIter);
+		int totalSizeNum = decimalToRadixLowTopBase(decimaNum, tmpLeftIter_, radix);
+		_ASSERT_EXPR(tmpLeftIter != rightIter, "数字位越界!");
 		// 基于 decimalToRadixLowTopBase 反转; radixLowTopToDecimalBase 不便于写出
-		std::reverse(leftIter, rightIter);
-		return totalSizeNum;
+		std::reverse(leftIter, tmpLeftIter);
+		return totalSizeNum;*/
+		return 0;
 	}
-	// ---- Recommend (checkBoundaryCondition: 边界条件检测, 默认开启, 表示传入的范围是否与转换后的实际范围大小相等)
+	/*
+	---- Recommend (checkBoundaryCondition: 边界条件检测, 默认开启, 表示传入的范围是否与转换后的实际范围大小相等)
+	由于此方法默认是需要边界检测的(必须已知转换后的位数, 或者在少数特定情况下关闭)
+	如果无法, 或难以提前得知转换后的数字位数的话请使用Base方法
+
+	1位10进制数最少需要4位2进制表示(1010), 但10并不是2进制系的
+	因此一个n位10进制数实际用的bit位可能远小于理论上的值
+	EG: 10位10进制数的最大值9999999999, 理论需要4*10=40bit, 但实际只需要36bit
+	*/
 	template<class DigitIterator>
 	void decimalToRadixTopLow(unsigned decimaNum, DigitIterator leftIter, DigitIterator rightIter, int radix, bool checkBoundaryCondition = true) {
 		// 要保证即使传入0也能执行一次

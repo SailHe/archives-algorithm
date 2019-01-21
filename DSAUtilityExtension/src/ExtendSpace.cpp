@@ -134,6 +134,12 @@ namespace MathExtend {
 		while ((number /= radix) != 0)++top;
 		return top;
 	}
+	
+	int calcDigitTransiTotalSize(int lhsRadix, int number, int rhsRadix) {
+		int maxDecMinBinSize = MathExtend::calcDigitTotalSize(lhsRadix-1, rhsRadix);
+		// 数字位数*一位数字的最小转换长度
+		return MathExtend::calcDigitTotalSize(number, lhsRadix)*maxDecMinBinSize;
+	}
 
 	// ===== 数学
 	I64 quickFact(I64 a, I64 b, I64 mod) {
