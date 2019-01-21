@@ -153,9 +153,6 @@ int runRadixTest() {
 	BigInteger b = BigInteger(35);
 	b.print();
 
-	mapping
-	std::copy(topLowNumA.begin(), topLowNumA.end() - togetherLenAB, topLowSum.begin());
-
 	obj next(): 迭代并返回当前迭代器中的对象
 	boolean hasNext(): 是否还有下一个
 	void remove(): 删除当前的

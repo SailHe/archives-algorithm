@@ -721,21 +721,33 @@ namespace Utility {
 namespace MathExtend {
 	//using namespace Utility;
 	
-	//向量加法 sumVector = lhsVector + rhsVector(两向量可以相同)
+	// 向量加法 sumVector = lhsVector + rhsVector(两向量可以相同)
 	template<class VectorIterator>
 	void vectorPlush(
-		VectorIterator lhsLeftVector, VectorIterator lhsRightVector
-		, VectorIterator rhsLeftVector, VectorIterator rhsRightVector
-		, VectorIterator sumLeftVector, VectorIterator sumRightVector) {
-		int vectorSize = sumRightVector - sumLeftVector;
-		_ASSERT_EXPR(lhsRightVector - lhsLeftVector == vectorSize, "向量维数严格相等!");
-		_ASSERT_EXPR(vectorSize == rhsRightVector - rhsLeftVector, "向量维数严格相等!");
-		// && lhsLeftVector != lhsRightVector && rhsLeftVector != rhsRightVector
-		while (sumLeftVector != sumRightVector) {
-			*sumLeftVector = *lhsLeftVector + *rhsLeftVector;
-			++sumLeftVector;
-			++lhsLeftVector;
-			++rhsLeftVector;
+		VectorIterator lhsLeftVectorIter, VectorIterator lhsRightVectorIter
+		, VectorIterator rhsLeftVectorIter, VectorIterator rhsRightVectorIter
+		, VectorIterator sumLeftVectorIter, VectorIterator sumRightVectorIter) {
+		// && rhsLeftVectorIter != rhsRightVectorIter && sumLeftVectorIter != sumRightVectorIter
+		while (lhsLeftVectorIter != lhsRightVectorIter) {
+			*sumLeftVectorIter = *lhsLeftVectorIter + *rhsLeftVectorIter;
+			++sumLeftVectorIter;
+			++lhsLeftVectorIter;
+			++rhsLeftVectorIter;
+		}
+		// 短的向量在里面就会报错 如果lhs短于rhs或者sum此处会报错(其实只传一组也行)
+		_ASSERT_EXPR(rhsRightVectorIter == rhsLeftVectorIter, "向量维数严格相等: lhs短于rhs!");
+		_ASSERT_EXPR(sumRightVectorIter == sumLeftVectorIter, "向量维数严格相等: lhs短于sum!");
+	}
+
+	// 单映射 EG: std::copy(lhs.begin(), lhs.end(), sum.begin());
+	// 多映射(coupleMappingSingle) [一般]可以转化为单映射(vectorPlush) 某些复杂的可能反而增加了思维度
+	// 话又说回来 tm的直接for_each遍历不久完了嘛?
+	template<class CollectionIteratorLhs, class CollectionIteratorSum, class MappingFun>
+	void singleMappingSingle(
+		CollectionIteratorLhs lhsLeftIter, CollectionIteratorLhs lhsRightIter
+		, CollectionIteratorSum sumLeftIter, MappingFun mappingFun) {
+		while (lhsLeftIter != lhsRightIter) {
+			*sumLeftIter++ = mappingFun(*lhsLeftIter++);
 		}
 	}
 
