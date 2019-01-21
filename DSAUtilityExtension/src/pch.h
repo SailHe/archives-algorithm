@@ -20,7 +20,7 @@
 #include<memory> //智能指针:shared_ptr<>; unique_ptr<>;---P400
 #include <unordered_set>
 #include <unordered_map> //hash
-
+// #include <random> // 用于梅森随机数
 
 //双字节无符号整数(16位)
 #define MAX_INT16 65535

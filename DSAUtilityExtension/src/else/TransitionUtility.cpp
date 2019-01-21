@@ -42,36 +42,65 @@ namespace TransitionUtility{
 		return number < 0 ? (number = -number), '-' : '+';
 	}
 
-
-	std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB, std::string &topLowSum, int radix) {
-		_ASSERT_EXPR(StandardExtend::inRange(2, radix, 63), "单个字符无法区分表示指定进制!");
-		std::size_t lenA = topLowNumA.length(), lenB = topLowNumB.length(), lenAB;
+	// 字符串补齐(未暴露API) 返回补齐后的共同长度
+	int zeroPolishing(std::string &topLowNumA, std::string &topLowNumB, std::string &topLowSum) {
+		std::size_t lenA = topLowNumA.length(), lenB = topLowNumB.length(), maxLenAB = MIN_INT32;
 		//补0用
 		std::string temp;
 		//低位在右, 短者高位0补齐
 		if (lenA > lenB) {
 			temp.resize(lenA - lenB, '0');
 			topLowNumB = temp + topLowNumB;
-			lenAB = lenA;
+			maxLenAB = lenA;
 		}
 		else {
 			temp.resize(lenB - lenA, '0');
 			topLowNumA = temp + topLowNumA;
-			lenAB = lenB;
+			maxLenAB = lenB;
 		}
-		if (topLowSum.length() < lenA) {
-			topLowSum.resize(lenA, '0');
-		}
-		int ia = -1, carryNum = 0;
-		//反转后左边是低位
+		topLowSum.resize(maxLenAB, '0');
+		return maxLenAB;
+	}
+
+	std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB, std::string &topLowSum, int radix) {
+		_ASSERT_EXPR(StandardExtend::inRange(2, radix, 63), "单个字符无法区分表示指定进制!");
+		size_t togetherLenAB = zeroPolishing(topLowNumA, topLowNumB, topLowSum);
+		int carryNum = 0;
+		// 右边是低位
 		int i = -1;
-		for (Utility::toSignedNum(lenAB - 1, i); i >= 0; --i) {
-			// int sumBit = (topLowNumA[i] - '0') + (topLowNumB[i] - '0') + carryNum;
-			int sumBit = TransitionUtility::toRadixIntNum(topLowNumA[i], radix) + TransitionUtility::toRadixIntNum(topLowNumB[i], radix) + carryNum;
-			// topLowSum[i] = sumBit % 10 + '0';
-			topLowSum[i] = TransitionUtility::toAlphOrAscllNum(sumBit % radix);
-			// carryNum = sumBit / 10;
-			carryNum = sumBit / radix;
+		for (Utility::toSignedNum(togetherLenAB - 1, i); i >= 0; --i) {
+			int sumDigitNum = 
+				TransitionUtility::toRadixIntNum(topLowNumA[i], radix)
+				+ TransitionUtility::toRadixIntNum(topLowNumB[i], radix)
+				+ carryNum;
+			topLowSum[i] = TransitionUtility::toAlphOrAscllNum(sumDigitNum % radix);
+			carryNum = sumDigitNum / radix;
+		}
+		return carryNum == 0 ? topLowSum : (topLowSum = "1" + topLowSum);
+	}
+
+	std::string bigPlush(std::string const &topLowNumA, std::string const &topLowNumB, std::string &topLowSum, int radix) {
+		_ASSERT_EXPR(StandardExtend::inRange(2, radix, 63), "单个字符无法区分表示指定进制!");
+		int lenA, lenB, togetherLenAB = -1;
+		Utility::toSignedNum(topLowNumA.length(), lenA);
+		Utility::toSignedNum(topLowNumB.length(), lenB);
+		if (lenA > lenB) {
+			topLowSum.resize(lenA, '0');
+			togetherLenAB = lenB;
+		}
+		else {
+			topLowSum.resize(lenB, '0');
+			togetherLenAB = lenA;
+		}
+		int carryNum = 0;
+		// 右边是低位 len和i都必须用有符号型; 一直循环直至lhs和rhs都迭代完毕(期间任何一方先迭代完毕都要继续 其值算0)
+		for (int i = 1; (lenA - i) >= 0 || (lenB - i) >= 0; ++i) {
+			int sumDigitNum = 
+				(lenA - i >= 0 ? TransitionUtility::toRadixIntNum(topLowNumA[lenA - i], radix) : 0)
+				+ (lenB - i >= 0 ? TransitionUtility::toRadixIntNum(topLowNumB[lenB - i], radix) : 0)
+				+ carryNum;
+			topLowSum[topLowSum.length() - i] = TransitionUtility::toAlphOrAscllNum(sumDigitNum % radix);
+			carryNum = sumDigitNum / radix;
 		}
 		return carryNum == 0 ? topLowSum : (topLowSum = "1" + topLowSum);
 	}
@@ -94,11 +123,12 @@ namespace TransitionUtility{
 		return calcComplementCode(topLowOriginCode.begin(), digitIterEnd);
 	}
 	std::string calcComplementCode(int decNum) {
-		static DigitArray topLow;
-		topLow.resize(MathExtend::calcDigitTotalSize(decNum, 2));
+		static DigitArray topLowOriginDigitListBuffer;
+		topLowOriginDigitListBuffer.clear();
+		topLowOriginDigitListBuffer.resize(MathExtend::calcDigitTotalSize(decNum, 2));
 		// 原码
-		TransitionUtility::decimalToRadixTopLow(decNum, topLow.begin(), topLow.end(), 2);
-		return calcComplementCode(topLow.begin(), topLow.end());
+		TransitionUtility::decimalToRadixTopLow(decNum, topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end(), 2);
+		return calcComplementCode(topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end());
 	}
 
 	DigitIterator stringToDigitArray(char const *str, DigitIterator digitBeginIter, int radix) {

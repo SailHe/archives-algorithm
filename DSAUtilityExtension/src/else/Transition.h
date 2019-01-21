@@ -3,6 +3,7 @@
 #include "TransitionUtility.h"
 #include "../ExtendSpace.h"
 
+// 进制转换器
 class Transition {
 public:
 	using DigitArray = TransitionUtility::DigitArray;
@@ -47,7 +48,7 @@ protected:
 };
 
 /*
-二进制转换器类
+二进制转换器类: 使用二进制数字(bit, binNumber)实现的进制转换器
 支持可用2进制表示的任意[基2进制]的大数的双向转换;
 任意进制指的int范围内的[基2进制](任一个digitAscll元素必须在int范围内) -> bits => [1, 32) 即: 2 4..2^31共31种[基2进制];
 处理2进制位更有优势
@@ -100,29 +101,29 @@ public:
 			reSizeBuffer(originToTargetDigitMaxNum + minDigitNum);
 		}
 		// top处预留一个[进位段]用于进位补齐
-		DigitIterator binNumberPointer = repositoryBuffer.begin() + targetBitLeast;
-		//binNumberPointer = repositoryBuffer + targetBitLeast;
-		DigitIterator currentBinNumberPointer = binNumberPointer;
+		DigitIterator bitIterator = repositoryBuffer.begin() + targetBitLeast;
+		//bitIterator = repositoryBuffer + targetBitLeast;
+		DigitIterator currentBitIterator = bitIterator;
 		
 		// 源中top->low每个bit都转换为2进制(连起来即是源进制数的二进制表示)
 		while (originLeftTop != originRightLow) {
-			auto leftTopIter = TransitionUtility::decimalToRadixTopLow(*originLeftTop++, currentBinNumberPointer + originBitLeast, 2);
-			std::fill(currentBinNumberPointer, leftTopIter, 0);
-			currentBinNumberPointer += originBitLeast;
+			auto leftTopIter = TransitionUtility::decimalToRadixTopLow(*originLeftTop++, currentBitIterator + originBitLeast, 2);
+			std::fill(currentBitIterator, leftTopIter, 0);
+			currentBitIterator += originBitLeast;
 		}
 
-		targetTopLow.reserve((currentBinNumberPointer - binNumberPointer) / targetBitLeast);
+		targetTopLow.reserve((currentBitIterator - bitIterator) / targetBitLeast);
 		// 不会影响上一句
 		targetTopLow.resize(0);
 
 		// 向前补齐(在刚好的情况下 会多补 但后面有判定会去除前导0)
-		binNumberPointer -= targetBitLeast - ((currentBinNumberPointer - binNumberPointer) % targetBitLeast);
+		bitIterator -= targetBitLeast - ((currentBitIterator - bitIterator) % targetBitLeast);
 		// 若输出了非0值变为true
 		bool hasValidValue = false;
 		// top->low每一个targetBitLeast转为10进制(连起来即是目标进制)
-		for (int i = 0; i < currentBinNumberPointer - binNumberPointer; i += targetBitLeast) {
+		for (int i = 0; i < currentBitIterator - bitIterator; i += targetBitLeast) {
 			// 去除所有的转换后的前导0(转换前的前导0转换后可能不是)
-			int number = TransitionUtility::radixTopLowToDecimal(binNumberPointer + i, binNumberPointer + i + targetBitLeast, 2);
+			int number = TransitionUtility::radixTopLowToDecimal(bitIterator + i, bitIterator + i + targetBitLeast, 2);
 			hasValidValue = number != 0 || hasValidValue;
 			if (hasValidValue) {
 				targetTopLow.push_back(number);
@@ -174,13 +175,13 @@ public:
 			// 缓存空间不足->申请合适的缓存大小
 			reSizeBuffer(originDigitNum + minDigitNum);
 		}
-		auto beginIt = repositoryBuffer.begin();
-		auto endIt = repositoryBuffer.begin() + originDigitNum;
+		auto beginDecNumIterator = repositoryBuffer.begin();
+		auto endDecNumIterator = repositoryBuffer.begin() + originDigitNum;
 
 		auto realIterPair = 
-			TransitionUtility::radixTopLowToDecimalTopLow(originRightLow, endIt
+			TransitionUtility::radixTopLowToDecimalTopLow(originRightLow, endDecNumIterator
 				, originDigitNum, (JCE::SizeType)originRadix);
-		_ASSERT(originLeftTop == realIterPair.first && beginIt == realIterPair.second);
+		_ASSERT(originLeftTop == realIterPair.first && beginDecNumIterator == realIterPair.second);
 
 		// 源进制的1数字位对应的目标进制的数字位数
 		JCE::SizeType originToTargetDigitNum = MathExtend::calcDigitTotalSize(originRadix - 1, targetRadix);
@@ -193,11 +194,11 @@ public:
 		auto bufferTopLowLeft = targetTopLowBuffer.begin() + 1;
 		DigitArray buffer;
 		buffer.resize(originToTargetDigitMaxNum);
-		while (beginIt != endIt) {
-			auto realBginIter = TransitionUtility::decimalToRadixTopLow(*beginIt, buffer.end(), targetRadix);
+		while (beginDecNumIterator != endDecNumIterator) {
+			auto realBginIter = TransitionUtility::decimalToRadixTopLow(*beginDecNumIterator, buffer.end(), targetRadix);
 			// 0补齐
 			std::fill(buffer.begin(), realBginIter, 0);
-			++beginIt;
+			++beginDecNumIterator;
 			MathExtend::vectorPlush(
 				bufferTopLowLeft, targetTopLowBuffer.end()
 				, buffer.begin(), buffer.end()

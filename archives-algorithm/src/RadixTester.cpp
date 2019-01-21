@@ -109,20 +109,7 @@ void decTransBothwayTestFun(char const *originStr, int originRadix_, int targetR
 		, std::to_string(targetRadix_) + std::string("->") + std::to_string(originRadix_), TransitionUtility::formatString(std::string(originStr)));
 }
 
-int runRadixTest() {
-	// obj next(): 迭代并返回当前迭代器中的对象
-	// boolean hasNext(): 是否还有下一个
-	// void remove(): 删除当前的
-	//std::list<int> li;li.end() -  li.begin();
-	/*
-	BigInteger b = BigInteger(35);
-	b.print();
-
-	std::list<int> tmpL;
-	tmpL.push_back(1);
-	tmpL.push_back(0);
-	std::reverse(tmpL.begin(), tmpL.end());
-	*/
+void functionalTest() {
 	StandardExtend::testAndOut(std::string("数字->字符{字母, 数字}"), TransitionUtility::toAlphOrAscllNum(0), '0');
 	StandardExtend::testAndOut(std::string("数字->字符{字母, 数字}"), TransitionUtility::toAlphOrAscllNum(9), '9');
 	StandardExtend::testAndOut(std::string("数字->字符{字母, 数字}"), TransitionUtility::toAlphOrAscllNum(10), 'A');
@@ -135,6 +122,50 @@ int runRadixTest() {
 	StandardExtend::testAndOut(std::string("字符{字母, 数字}->数字"), TransitionUtility::toIntNum('Z'), 35);
 	StandardExtend::testAndOut(std::string("字符{字母, 数字}->数字"), TransitionUtility::toIntNum('a'), 36);
 	StandardExtend::testAndOut(std::string("字符{字母, 数字}->数字"), TransitionUtility::toIntNum('z'), 61);
+}
+
+void bigIntegerTest() {
+	std::string lhs = "7860000053";
+	std::string rhs = std::to_string(MAX_INT32);
+
+	std::string sum = "";
+	TransitionUtility::bigPlush(lhs, rhs, sum, 10);
+	StandardExtend::testAndOut("字符串大数加法: 进最高位", sum, std::string("10007483700"));
+
+	std::string lhsTmp = lhs;
+	std::string &sumRefLhs = lhsTmp;
+	TransitionUtility::bigPlush(lhsTmp, rhs, sumRefLhs, 10);
+	StandardExtend::testAndOut("字符串大数加法: sum引用lhs", sumRefLhs, std::string("10007483700"));
+
+	std::string const lhsTmp1 = lhs;
+	TransitionUtility::bigPlush(lhsTmp1, rhs, sum, 10);
+	StandardExtend::testAndOut("const字符串大数加法: 进最高位", sum, std::string("10007483700"));
+
+	lhsTmp = lhs;
+	std::string const rhsTmp = rhs;
+	std::string &sumRefLhs1 = lhsTmp;
+	TransitionUtility::bigPlush(lhs, rhsTmp, sumRefLhs1, 10);
+	StandardExtend::testAndOut("const字符串大数加法: sum引用rhs", sumRefLhs1, std::string("10007483700"));
+}
+
+int runRadixTest() {
+	/*
+	BigInteger b = BigInteger(35);
+	b.print();
+
+	mapping
+	std::copy(topLowNumA.begin(), topLowNumA.end() - togetherLenAB, topLowSum.begin());
+
+	obj next(): 迭代并返回当前迭代器中的对象
+	boolean hasNext(): 是否还有下一个
+	void remove(): 删除当前的
+	std::list<int> li;li.end() -  li.begin();
+	std::list<int> tmpL;
+	tmpL.push_back(1);
+	tmpL.push_back(0);
+	std::reverse(tmpL.begin(), tmpL.end());
+	*/
+	functionalTest();
 
 	testBinaryCode(6
 		, std::string("110")
@@ -200,6 +231,8 @@ int runRadixTest() {
 	decTransBothwayTestFun("FFFFFFFF", 16, 2, "11111111111111111111111111111111");
 	decTransBothwayTestFun("1", 16, 2, "1");
 	decTransBothwayTestFun("2", 16, 2, "10");
+
+	bigIntegerTest();
 
 	return 0;
 }

@@ -42,8 +42,11 @@ int runfunctionalTest() {
 }
 
 int main(int argc, char const *argv[]) {
-	runfunctionalTest();
-	runRadixTest();
+	// runfunctionalTest();
+	// 0.830; 0.918; 0.890
+	StandardExtend::testAndDiffClock(runRadixTest, 2, "进制相关测试");
+	puts("任意键继续接下来的测试");
+	getchar();
 	runDataStructureTest();
 
 	return 0;

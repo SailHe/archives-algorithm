@@ -627,7 +627,7 @@ namespace Utility {
 		// 确认是有符号
 		assert(signedNum - signedNum - 1 < 0);
 		// 确认转换后结果正确
-		assert(signedNum > 0);
+		assert(signedNum >= 0);
 	}
 
 	// sNum->signedNum 有符号转为无符号
@@ -635,7 +635,7 @@ namespace Utility {
 	template<class UnT, class T>
 	void toUnsignedNum(T signedNum, UnT &unsignedNum) {
 		// 确认即将转换的结果是正确
-		assert(signedNum > 0);
+		assert(signedNum >= 0);
 		signedNum = (T)unsignedNum;
 	}
 

@@ -56,6 +56,8 @@ namespace TransitionUtility {
 	**/
 	DSAUTILITYEXTENSION_API std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB
 		, std::string &topLowSum, int radix = 10);
+	DSAUTILITYEXTENSION_API std::string bigPlush(std::string const &topLowNumA, std::string const &topLowNumB
+		, std::string &topLowSum, int radix = 10);
 	//去除前导0 若值为0 返回"0"
 	DSAUTILITYEXTENSION_API std::string formatString(std::string const &num);
 
@@ -65,19 +67,25 @@ namespace TransitionUtility {
 	// 原码数字迭代器范围
 	template<class DigitIterator>
 	std::string calcComplementCode(DigitIterator topLowOriginCodeLeftIter, DigitIterator topLowOriginCodeRightIter) {
-		static DigitArray topLowOriginDigitList;
-		topLowOriginDigitList.assign(topLowOriginCodeLeftIter, topLowOriginCodeRightIter);
-		// 反码
-		TransitionUtility::inverseCode(topLowOriginDigitList.begin(), topLowOriginDigitList.end());
+		static DigitArray topLowOriginDigitBufferList;
+		static std::string topLowOriginBinCodeBuffer;
+		const static std::string one("1");
+		topLowOriginBinCodeBuffer.clear();
 
-		static std::string topLowOriginBinCode;
-		topLowOriginBinCode.resize(topLowOriginDigitList.size());
-		TransitionUtility::digitContainerToCharContainer(topLowOriginDigitList.begin(), topLowOriginDigitList.end(), topLowOriginBinCode.begin());
+		topLowOriginDigitBufferList.clear();
+		topLowOriginDigitBufferList.assign(topLowOriginCodeLeftIter, topLowOriginCodeRightIter);
+		// 反码
+		TransitionUtility::inverseCode(topLowOriginDigitBufferList.begin(), topLowOriginDigitBufferList.end());
+
+		topLowOriginBinCodeBuffer.resize(topLowOriginDigitBufferList.size());
+		TransitionUtility::digitContainerToCharContainer(
+			topLowOriginDigitBufferList.begin(), topLowOriginDigitBufferList.end(), topLowOriginBinCodeBuffer.begin()
+		);
 
 		// 补码
-		static std::string one("1");
-		TransitionUtility::bigPlush(topLowOriginBinCode, one, topLowOriginBinCode, 2);
-		return topLowOriginBinCode;
+		TransitionUtility::bigPlush(topLowOriginBinCodeBuffer, one, topLowOriginBinCodeBuffer, 2);
+
+		return topLowOriginBinCodeBuffer;
 	}
 	// 10进制真值
 	DSAUTILITYEXTENSION_API std::string calcComplementCode(int decNum);
