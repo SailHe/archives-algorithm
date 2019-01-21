@@ -124,11 +124,28 @@ namespace TransitionUtility{
 	}
 	std::string calcComplementCode(int decNum) {
 		static DigitArray topLowOriginDigitListBuffer;
-		topLowOriginDigitListBuffer.clear();
-		topLowOriginDigitListBuffer.resize(MathExtend::calcDigitTotalSize(decNum, 2));
-		// д­Ты
-		TransitionUtility::decimalToRadixTopLow(decNum, topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end(), 2);
-		return calcComplementCode(topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end());
+		std::string complementCode;
+		if (decNum == 0) {
+			complementCode = "0";
+		}
+		else {
+			topLowOriginDigitListBuffer.clear();
+			topLowOriginDigitListBuffer.resize(MathExtend::calcDigitTotalSize(decNum, 2));
+			// д­Ты
+			TransitionUtility::decimalToRadixTopLow(
+				std::abs(decNum), topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end(), 2
+			);
+			if (decNum > 0) {
+				complementCode = TransitionUtility::digitContainerToString(
+					topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end()
+				);
+			}
+			else {
+				complementCode = calcComplementCode(topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end());
+			}
+		}
+		
+		return complementCode;
 	}
 
 	DigitIterator stringToDigitArray(char const *str, DigitIterator digitBeginIter, int radix) {

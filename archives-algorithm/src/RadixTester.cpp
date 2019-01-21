@@ -17,9 +17,11 @@
 #include "./else/Transition.h"
 
 
-// 计算二进制补码 (十进制数字)
-void calcBinaryCode(int decNum, std::string &originCode, std::string &inverseCode, std::string &complementCode) {
-	std::string resultBuffer = TransitionUtility::calcComplementCode(decNum);
+// 计算二进制补码 (输入的十进制正数当作负数处理)
+void calcBinaryCode(JCE::SizeType decNum, std::string &originCode, std::string &inverseCode, std::string &complementCode) {
+	int signedValue;
+	Utility::toSignedNum(decNum, signedValue);
+	std::string resultBuffer = TransitionUtility::calcComplementCode(-signedValue);
 
 	std::vector<int> topLow;
 	topLow.resize(MathExtend::calcDigitTotalSize(decNum, 2));
@@ -38,7 +40,7 @@ void calcBinaryCode(int decNum, std::string &originCode, std::string &inverseCod
 	_ASSERT_EXPR(complementCode == resultBuffer1, "rt");
 }
 
-void testBinaryCode(int decValue, std::string const &realOriginCode
+void testBinaryCode(JCE::SizeType decValue, std::string const &realOriginCode
 	, std::string const &realInverseCode, std::string const &realComplementCode) {
 	std::string originCode;
 	std::string inverseCode;
@@ -124,7 +126,7 @@ void functionalTest() {
 	StandardExtend::testAndOut(std::string("字符{字母, 数字}->数字"), TransitionUtility::toIntNum('z'), 61);
 }
 
-void bigIntegerTest() {
+void bigIntegerStringPlushTest() {
 	std::string lhs = "7860000053";
 	std::string rhs = std::to_string(MAX_INT32);
 
@@ -146,6 +148,22 @@ void bigIntegerTest() {
 	std::string &sumRefLhs1 = lhsTmp;
 	TransitionUtility::bigPlush(lhs, rhsTmp, sumRefLhs1, 10);
 	StandardExtend::testAndOut("const字符串大数加法: sum引用rhs", sumRefLhs1, std::string("10007483700"));
+}
+
+void complementCodePlushTestFun(int lhsValue, int rhsValue, int realValue) {
+	std::string lhs = TransitionUtility::calcComplementCode(lhsValue);
+	std::string rhs = TransitionUtility::calcComplementCode(rhsValue);
+	// 补码加法(舍弃最高进位)
+	TransitionUtility::bigPlush(lhs, rhs, rhs, 2);
+	rhs = std::string(rhs.end() - 1, rhs.end());
+	StandardExtend::testAndOut("补码加法", rhs
+		, TransitionUtility::calcComplementCode(realValue));
+}
+
+void complementCodePlushTest() {
+	complementCodePlushTestFun(1, -1, 0);
+	complementCodePlushTestFun(-1, 1, 0);
+	// complementCodePlushTestFun(-1, -1, -2);
 }
 
 int runRadixTest() {
@@ -229,7 +247,8 @@ int runRadixTest() {
 	decTransBothwayTestFun("1", 16, 2, "1");
 	decTransBothwayTestFun("2", 16, 2, "10");
 
-	bigIntegerTest();
+	bigIntegerStringPlushTest();
+	complementCodePlushTest();
 
 	return 0;
 }

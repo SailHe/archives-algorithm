@@ -87,7 +87,7 @@ namespace TransitionUtility {
 
 		return topLowOriginBinCodeBuffer;
 	}
-	// 10进制真值
+	// 10进制真值(处理了正负值)
 	DSAUTILITYEXTENSION_API std::string calcComplementCode(int decNum);
 
 	// 扫描并进位, 返回无法存储的高位进位(如果能存储的话返回0)
