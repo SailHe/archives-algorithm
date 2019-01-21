@@ -65,11 +65,18 @@ void binRadixTransUnidirectionTestFun(int originBits, int targetBits, std::vecto
 void binTransBothwayTestFun(char const *originStr, int originBits_, int targetBits_, char const *targetStr) {
 	static std::vector<int> bufferDigitList;
 	int originRadix_ = (int)pow(2.0, originBits_), targetRadix_ = (int)pow(2.0, targetBits_);
-	TransitionUtility::stringToDigitArray(originStr, bufferDigitList, originRadix_);
+	size_t len = strlen(originStr);
+	bufferDigitList.resize(len);
+	// 使用迭代器而不是传入整个容器 可以使方法具有读写内容权限的同时 防止方法内部修改容器的大小
+	auto digitIterEnd = TransitionUtility::stringToDigitArray(originStr, bufferDigitList.begin(), originRadix_);
+	_ASSERT(digitIterEnd == bufferDigitList.end());
 	binRadixTransUnidirectionTestFun(originBits_, targetBits_, bufferDigitList
 		, std::to_string(originRadix_) + std::string("->") + std::to_string(targetRadix_), targetStr);
 
-	TransitionUtility::stringToDigitArray(targetStr, bufferDigitList, targetRadix_);
+	len = strlen(targetStr);
+	bufferDigitList.resize(len);
+	digitIterEnd = TransitionUtility::stringToDigitArray(targetStr, bufferDigitList.begin(), targetRadix_);
+	_ASSERT(digitIterEnd == bufferDigitList.end());
 	// 约定正确结果targetStr是最简的, 如果传入的originStr含有前导0的话就需要去除(方法返回值也是最简的)
 	binRadixTransUnidirectionTestFun(targetBits_, originBits_, bufferDigitList
 		, std::to_string(targetRadix_) + std::string("->") + std::to_string(originRadix_), TransitionUtility::formatString(std::string(originStr)));
@@ -88,11 +95,17 @@ void decRadixTransUnidirectionTestFun(int originRadix, int targetRadix, std::vec
 // 双向转换测试
 void decTransBothwayTestFun(char const *originStr, int originRadix_, int targetRadix_, char const *targetStr) {
 	static std::vector<int> bufferDigitList;
-	TransitionUtility::stringToDigitArray(originStr, bufferDigitList, originRadix_);
+	size_t len = strlen(originStr);
+	bufferDigitList.resize(len);
+	auto digitIterEnd = TransitionUtility::stringToDigitArray(originStr, bufferDigitList.begin(), originRadix_);
+	_ASSERT(digitIterEnd == bufferDigitList.end());
 	decRadixTransUnidirectionTestFun(originRadix_, targetRadix_, bufferDigitList
 		, std::to_string(originRadix_) + std::string("->") + std::to_string(targetRadix_), targetStr);
 
-	TransitionUtility::stringToDigitArray(targetStr, bufferDigitList, targetRadix_);
+	len = strlen(targetStr);
+	bufferDigitList.resize(len);
+	digitIterEnd = TransitionUtility::stringToDigitArray(targetStr, bufferDigitList.begin(), targetRadix_);
+	_ASSERT(digitIterEnd == bufferDigitList.end());
 	// 约定正确结果targetStr是最简的, 如果传入的originStr含有前导0的话就需要去除(方法返回值也是最简的)
 	decRadixTransUnidirectionTestFun(targetRadix_, originRadix_, bufferDigitList
 		, std::to_string(targetRadix_) + std::string("->") + std::to_string(originRadix_), TransitionUtility::formatString(std::string(originStr)));
@@ -141,8 +154,9 @@ int main(){
 	std::vector<int> targetDigitList;
 	std::string targetDigitStr;
 	BinaryTransition binRadixTransiter(0, 4, 1);
-	TransitionUtility::stringToDigitArray("80000000", targetDigitList, 16);
-	binRadixTransiter.transition(targetDigitList.begin(), targetDigitList.end(), targetDigitList);
+	targetDigitList.resize(100);
+	auto digitIterEnd = TransitionUtility::stringToDigitArray("80000000", targetDigitList.begin(), 16);
+	binRadixTransiter.transition(targetDigitList.begin(), digitIterEnd, targetDigitList);
 	targetDigitStr = TransitionUtility::digitContainerToString(targetDigitList.begin(), targetDigitList.end());
 	StandardExtend::testAndOut(std::string("HEX->BIN"), targetDigitStr, std::string("10000000000000000000000000000000"));
 
@@ -228,5 +242,69 @@ int mainForHashTable() {
 		Insert(h, std::to_string(i).c_str());
 	}
 	printf("%s", Find(h, "3")->Data);
+	return 0;
+}
+
+
+template<class T> using ArrayList = std::vector<T>;
+template<class T> using LinkedList = std::list<T>;
+using SizeType = size_t;
+using Sub = int;
+using I64 = long long;
+
+// 方向枚举
+enum DIRECTION_ENUM {
+	UN_KNOEN_DIR, UP_DIR, DOWM_DIR, LEFT_DIR, RIGHT_DIR, LEFT_UP_DIR, RIGHT_UP_DIR
+};
+
+// 数据库操作枚举
+enum OPTION_CRUD_ENUM {
+	// 创建, 检索, 更新, 删除, 未定义
+	// insert/save, query/find/search, edit/change, remove/erase
+	CREATE_OPT, RETRIEVE_OPT, UPDATE_OPT, DELETE_OPT, UN_DEFINDE_OPT
+};
+
+// 数据操作枚举
+enum OPTION_DATA_ENUM {
+	// 保持不变, 替换, 删除, 插入, 未定义 (优先级按先后排列 以前面的越优)
+	KEEP_DATA_OPT, REPLACE_DATA_OPT, DELETE_DATA_OPT, INSERT_DATA_OPT, UN_DEFINDE_DATA_OPT
+};
+
+// 任意进制之间互相转换(使用了二进制转换器类: BinaryTransition) 基于10进制
+// itoa
+// A not solved
+// @see http://139.196.145.92/contest_show.php?cid=720#problem/B
+/*
+input
+2 9
+1100
+
+16 7
+4CD
+
+10 36
+46
+
+output:
+13
+3404
+1A
+*/
+int mainForAgoj19_1_2SolveB() {
+	int originRadix, targetRadix;
+	std::string origin;
+	origin.resize(20);
+	std::vector<int> digitTopLow;
+	digitTopLow.resize(20);
+	while (std::cin >> originRadix >> targetRadix) {
+		std::cin >> origin;
+		auto originDigitEnd = TransitionUtility::charContainerToDigitContainer(origin.begin(), origin.end(), digitTopLow.begin(), originRadix);
+		// Radix -> DEC
+		int decValueNum = TransitionUtility::radixTopLowToDecimal(digitTopLow.begin(), originDigitEnd, originRadix);
+		// DEC -> Radix
+		auto realLeftIter = TransitionUtility::decimalToRadixTopLowBase(decValueNum, digitTopLow.end(), targetRadix);
+		// output
+		TransitionUtility::outputDigitInRange(realLeftIter, digitTopLow.end());
+	}
 	return 0;
 }

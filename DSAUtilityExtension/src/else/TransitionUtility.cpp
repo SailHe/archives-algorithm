@@ -88,9 +88,10 @@ namespace TransitionUtility{
 	}
 
 	std::string calcComplementCode(std::string &topLowOriginBinCode) {
-		DigitArray topLowOriginCode;
-		TransitionUtility::stringToDigitArray(topLowOriginBinCode, topLowOriginCode, 2);
-		return calcComplementCode(topLowOriginCode.begin(), topLowOriginCode.end());
+		DigitArray topLowOriginCode(topLowOriginBinCode.length());
+		auto digitIterEnd = TransitionUtility::stringToDigitArray(topLowOriginBinCode, topLowOriginCode.begin(), 2);
+		_ASSERT_EXPR(digitIterEnd == topLowOriginCode.end(), "rt");
+		return calcComplementCode(topLowOriginCode.begin(), digitIterEnd);
 	}
 	std::string calcComplementCode(int decNum) {
 		static DigitArray topLow;
@@ -100,13 +101,11 @@ namespace TransitionUtility{
 		return calcComplementCode(topLow.begin(), topLow.end());
 	}
 
-	void stringToDigitArray(char const *str, DigitArray &digitArray, int radix) {
-		JCE::SizeType len = std::strlen(str);
-		digitArray.resize(len);
-		charContainerToDigitContainer(str, str + len, digitArray.begin(), digitArray.end(), radix);
+	DigitIterator stringToDigitArray(char const *str, DigitIterator digitBeginIter, int radix) {
+		std::size_t len = std::strlen(str);
+		return charContainerToDigitContainer(str, str + len, digitBeginIter, radix);
 	}
-	void stringToDigitArray(std::string &str, DigitArray &digitArray, int radix) {
-		digitArray.resize(str.length());
-		charContainerToDigitContainer(str.begin(), str.end(), digitArray.begin(), digitArray.end(), radix);
+	DigitIterator stringToDigitArray(std::string &str, DigitIterator digitBeginIter, int radix) {
+		return charContainerToDigitContainer(str.begin(), str.end(), digitBeginIter, radix);
 	}
 }

@@ -106,16 +106,9 @@ public:
 		
 		// 源中top->low每个bit都转换为2进制(连起来即是源进制数的二进制表示)
 		while (originLeftTop != originRightLow) {
-			// 如4进制用2位表示 输入4 0010 无法完成逆序转换 虽然reTopBit使得即使如此也能完成转换, 但这仍是错的
-			int totalBits = TransitionUtility::decimalToRadixLowTopBase(*originLeftTop++, currentBinNumberPointer, 2);
-			// [源进制数字]转换为2进制后不足[源的比特位数]则向后补齐
-			TransitionUtility::zeroComplementAfterEnd(currentBinNumberPointer, currentBinNumberPointer + totalBits, originBitLeast);
-			// 注意: 每originBitLeast位的逆序储存 无法转换为每targetBitLeast位的逆序储存 因此这个逆序是必须的
-			int reTopBit = std::max(totalBits, originBitLeast);
-			for (int i = 0; i < reTopBit / 2; i++) {
-				std::swap(currentBinNumberPointer[i], currentBinNumberPointer[reTopBit - i - 1]);
-			}
-			currentBinNumberPointer += reTopBit;
+			auto leftTopIter = TransitionUtility::decimalToRadixTopLowBase(*originLeftTop++, currentBinNumberPointer + originBitLeast, 2);
+			std::fill(currentBinNumberPointer, leftTopIter, 0);
+			currentBinNumberPointer += originBitLeast;
 		}
 
 		targetTopLow.reserve((currentBinNumberPointer - binNumberPointer) / targetBitLeast);

@@ -838,8 +838,8 @@ int mainForFibonacci() {
 	int testN[14] = { 10, 20, 30, 40, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59 };
 	MathExtend::buildFibonacci(f, 101);
 	puts("n               递归结果   耗时(ms)      动态规划结果    耗时(ms)");
-	// 只测试前4个
-	for (int i = 0; i < 4; ++i) {
+	// 只测试前3个(4就略费时了..)
+	for (int i = 0; i < 3; ++i) {
 		printf("%d ", testN[i]);
 		start = clock();
 		printf("%20I64d", MathExtend::fibonacciRec(testN[i]));

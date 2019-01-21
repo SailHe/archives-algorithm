@@ -144,17 +144,19 @@ namespace TransitionUtility {
 	}
 
 	// 字符容器{数字, 大小写字母(区分)} -> 指定进制的数字容器
+	// 返回digitIterEnd
 	template<class CharContainerIterator, class DigitContainerIterator>
-	void charContainerToDigitContainer(CharContainerIterator charIterBegin, CharContainerIterator charIterEnd, DigitContainerIterator digitIterBegin, DigitContainerIterator digitIterEnd, int radix) {
-		_ASSERT_EXPR(digitIterEnd - digitIterBegin == charIterEnd - charIterBegin, "容器大小必须相等!");
+	DigitContainerIterator charContainerToDigitContainer(CharContainerIterator charIterBegin, CharContainerIterator charIterEnd, DigitContainerIterator digitIterBegin, int radix) {
 		std::for_each(charIterBegin, charIterEnd, [&](char value) {
 			*digitIterBegin = toRadixIntNum(value, radix);
 			++digitIterBegin;
 		});
+		return digitIterBegin;
 	}
-	DSAUTILITYEXTENSION_API void stringToDigitArray(char const *str, DigitArray &digitArray, int radix);
-	DSAUTILITYEXTENSION_API void stringToDigitArray(std::string &str, DigitArray &digitArray, int radix);
-	
+	// 返回digitIterEnd
+	DSAUTILITYEXTENSION_API DigitIterator stringToDigitArray(char const *str, DigitIterator digitBeginIter, int radix);
+	// 返回digitIterEnd
+	DSAUTILITYEXTENSION_API DigitIterator stringToDigitArray(std::string &str, DigitIterator digitBeginIter, int radix);
 
 	/** =========== 基础(int)进制(10)转换; 中间数值不能超出int范围 =========== **/
 	/*
@@ -164,8 +166,19 @@ namespace TransitionUtility {
 		(但这种不便于使用和调试, 且空间利用率较低)
 
 		于是设计了以下新接口: 
-		rightEndIter transitionLowTopFun(leftBginIter, radix);
-		leftBginIter transitionTopLowFun(rightEndIter, radix);
+		1. 对一些位运算补齐的情况: (EG: 基2进制)
+		   (1位HEX<=>4位BIN)
+		   [4]H -> [0,0,1,?] -尾补> [0,0,1,0] -翻转> [0,1,0,0]
+		   历史遗留考虑: 不预留进位的情况下尾部更便于补充
+		2. HEX->DEC:
+		   [F]H -> [5,1]D -翻转> [1,5]D
+		rightEndIter radixLowTopToDec(decNum, leftBginIter, radix);
+
+		1. 转换之前4位清零; 或是首补
+		   [4]H -> [?,1,0,0] -首补> [0,1,0,0]
+		2. HEX->DEC:
+		   [F]H -> [1,5]D
+		leftBginIter radixTopLowToDec(decNum, rightEndIter, radix);
 		方法命名中的LowTop表示存储的方式, 人类使用习惯是TopLow
 		[leftBginIter, rightEndIter)表示容器中的迭代器
 		接口使用
@@ -182,16 +195,13 @@ namespace TransitionUtility {
 	 // 10进制数字 -> radix进制的数字数组 (10进制数字, 有足够空间的低位->高位数字迭代器)
 	 // 返回位数: totalSizeNum; 结果储存在参数迭代器所处的容器中
 	template<class DigitIterator>
-	int decimalToRadixLowTopBase(unsigned decimaNum, DigitIterator leftIter, int radix) {
-		static int index;
-		index = -1;
+	DigitIterator decimalToRadixLowTopBase(unsigned decimaNum, DigitIterator leftBeginIter, int radix) {
 		// 要保证即使传入0也能执行一次 左侧
 		do {
-			*leftIter++ = decimaNum % radix;
-			++index;
+			*leftBeginIter++ = decimaNum % radix;
 			decimaNum /= radix;
 		} while (decimaNum != 0);
-		return index + 1;
+		return leftBeginIter;
 	}
 	// 除radix取余, 逆序排列;
 	template<class DigitIterator>
@@ -205,6 +215,16 @@ namespace TransitionUtility {
 		return totalSizeNum;*/
 		return 0;
 	}
+	
+	template<class DigitIterator>
+	DigitIterator decimalToRadixTopLowBase(unsigned decimaNum, DigitIterator rightIter, int radix) {
+		// 要保证即使传入0也能执行一次
+		do {
+			*--rightIter = decimaNum % radix;
+			decimaNum /= radix;
+		} while (decimaNum != 0);
+		return rightIter;
+	}
 	/*
 	---- Recommend (checkBoundaryCondition: 边界条件检测, 默认开启, 表示传入的范围是否与转换后的实际范围大小相等)
 	由于此方法默认是需要边界检测的(必须已知转换后的位数, 或者在少数特定情况下关闭)
@@ -216,11 +236,7 @@ namespace TransitionUtility {
 	*/
 	template<class DigitIterator>
 	void decimalToRadixTopLow(unsigned decimaNum, DigitIterator leftIter, DigitIterator rightIter, int radix, bool checkBoundaryCondition = true) {
-		// 要保证即使传入0也能执行一次
-		do {
-			*--rightIter = decimaNum % radix;
-			decimaNum /= radix;
-		} while (decimaNum != 0);
+		rightIter = decimalToRadixTopLowBase(decimaNum, rightIter, radix);
 		// 结束时应该恰好相等
 		_ASSERT_EXPR(!checkBoundaryCondition || leftIter == rightIter, "数字位越界!");
 	}

@@ -81,9 +81,6 @@
     <ClCompile Include="src\agoj\agoj18_12_26.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
-    <ClCompile Include="src\agoj\agoj19_1_2.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
     <ClCompile Include="src\homework\op_practice_12_12.cpp">
       <Filter>源文件\HomeWork</Filter>
     </ClCompile>
