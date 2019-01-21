@@ -302,7 +302,7 @@ int mainForAgoj19_1_2SolveB() {
 		// Radix -> DEC
 		int decValueNum = TransitionUtility::radixTopLowToDecimal(digitTopLow.begin(), originDigitEnd, originRadix);
 		// DEC -> Radix
-		auto realLeftIter = TransitionUtility::decimalToRadixTopLowBase(decValueNum, digitTopLow.end(), targetRadix);
+		auto realLeftIter = TransitionUtility::decimalToRadixTopLow(decValueNum, digitTopLow.end(), targetRadix);
 		// output
 		TransitionUtility::outputDigitInRange(realLeftIter, digitTopLow.end());
 	}

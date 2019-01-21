@@ -160,33 +160,47 @@ namespace TransitionUtility {
 
 	/** =========== 基础(int)进制(10)转换; 中间数值不能超出int范围 =========== **/
 	/*
-		由于进制转换中进位的产生不可避免, 何况某进制下的2位可能只代表另一进制下的1位
-		如果想要提前知晓转换前后的实际准确位数, 唯有先进行一次转换
-		或是使用以前的LowTop接口, 并提前申请足够的预留位, 然后使用相同类型的接口忽略过多位数产生的问题
-		(但这种不便于使用和调试, 且空间利用率较低)
-
-		于是设计了以下新接口: 
-		1. 对一些位运算补齐的情况: (EG: 基2进制)
-		   (1位HEX<=>4位BIN)
-		   [4]H -> [0,0,1,?] -尾补> [0,0,1,0] -翻转> [0,1,0,0]
-		   历史遗留考虑: 不预留进位的情况下尾部更便于补充
-		2. HEX->DEC:
-		   [F]H -> [5,1]D -翻转> [1,5]D
+	范围未知, 但可以预判一个大致范围
+	读数字, 写迭代器
+	前言: 
+	为什么范围是未知的:
+		1位10进制数最少需要4位2进制表示(1010), 但10并不是2进制系的
+		因此一个n位10进制数实际用的bit位可能远小于理论上的值4n
+		EG: 10位10进制数的最大值9999999999, 理论需要4*10=40bit, 但实际只需要36bit
+	如果接口中的迭代器为一对, 那么表示有范围验证
+	checkBoundaryCondition(边界条件检测): 如果实际转换结果与传入的存储范围不一致 则报错)
+	下面讨论的是不定范围的参数:
+		由于上述明显的原因(某进制下的1位不一定只代表另一进制下的1位)
+		以及进制转换过程中中进位的产生不可避免
+		a. 若想提前知晓转换前后的实际准确位数, 唯有先进行一次转换(不可行)
+		b. b1-空间与时间矛盾问题: 提前申请足够的数字位(最大使用位数+预留进位), 可避免进位时的内存申请
+		b.1 使用LowTop类型的接口
+			b2-顺序的问题: 同类接口一起使用能产生忽略效应(但不便于使用和调试)
+		    b2-1-位运算补齐的问题: (PS: 基2进制互相转换可以使用位运算)
+		         (1位HEX<=>4位BIN)
+		         [4]H -> [0,0,1,?] -尾补> [0,0,1,0] -翻转> [0,1,0,0]
+				 HEX->DEC:
+		         [F]H -> [5,1]D -翻转> [1,5]D
+			b4-进位问题有优势: 无论预不预留进位, 进位都在后面, 进位相对方便
+		b.2 于是设计了以下新接口: 
+		原LowTop接口改良
 		rightEndIter radixLowTopToDec(decNum, leftBginIter, radix);
 
-		1. 转换之前4位清零; 或是首补
+		b2-1. 转换之前4位清零; 或是首补
 		   [4]H -> [?,1,0,0] -首补> [0,1,0,0]
-		2. HEX->DEC:
+		b2-2. HEX->DEC:
 		   [F]H -> [1,5]D
 		leftBginIter radixTopLowToDec(decNum, rightEndIter, radix);
-		方法命名中的LowTop表示存储的方式, 人类使用习惯是TopLow
-		[leftBginIter, rightEndIter)表示容器中的迭代器
-		接口使用
-		1. 申请缓存区用于进制转换
-		2. 将该缓存区的对应迭代器按照参数名begin, end直接传入
-		3. 获取返回迭代器, 根据其意义使用该迭代器进一步调用接口
 
-		由于迭代器理论上(java中)自带hasNext判断功能, C++中虽没有这个功能弹回异常, 于是放弃containerMaxSize(最大容量)参数
+	PS
+		1. 方法命名中的LowTop表示存储的方式, 人类使用习惯是TopLow, 进制运算时LowTop更合理, 各有优势
+		2. [leftBginIter, rightEndIter)表示容器中的迭代器
+		3. 接口使用
+		 3-1. 申请缓存区用于进制转换
+		 3-2. 将该缓存区的对应迭代器按照参数名begin, end直接传入
+		 3-3. 获取返回迭代器, 根据其意义使用该迭代器进一步调用接口
+	ELSE
+		由于迭代器理论上(java中)自带hasNext判断功能, C++中虽没有这个功能但会异常, 于是放弃containerMaxSize(最大容量)参数
 		之所以没有像原先那样返回digitNum, 一方面是为了体现迭代器的抽象性;
 		另一方面是如果需要计算可以在外部自行计算O(N), 而且原转换算法中少了一个变量
 		现在这种API既最大限度的使用了迭代器的抽象性, 又没有损失性能, 与原有功能相比只增不减(原来的API不支持list)
@@ -195,113 +209,113 @@ namespace TransitionUtility {
 	 // 10进制数字 -> radix进制的数字数组 (10进制数字, 有足够空间的低位->高位数字迭代器)
 	 // 返回位数: totalSizeNum; 结果储存在参数迭代器所处的容器中
 	template<class DigitIterator>
-	DigitIterator decimalToRadixLowTopBase(unsigned decimaNum, DigitIterator leftBeginIter, int radix) {
+	DigitIterator decimalToRadixLowTopBase(unsigned decimalNum, DigitIterator leftBeginIter, int radix) {
 		// 要保证即使传入0也能执行一次 左侧
 		do {
-			*leftBeginIter++ = decimaNum % radix;
-			decimaNum /= radix;
-		} while (decimaNum != 0);
+			*leftBeginIter++ = decimalNum % radix;
+			decimalNum /= radix;
+		} while (decimalNum != 0);
 		return leftBeginIter;
 	}
 	// 除radix取余, 逆序排列;
 	template<class DigitIterator>
-	int decimalToRadixTopLow_PreDel(unsigned decimaNum, DigitIterator leftIter, DigitIterator rightIter, int radix) {
-		/*auto tmpLeftIter = leftIter;
-		std::unique_ptr<std::vector<int>::iterator> tmpLeftIter_(&tmpLeftIter);
-		int totalSizeNum = decimalToRadixLowTopBase(decimaNum, tmpLeftIter_, radix);
-		_ASSERT_EXPR(tmpLeftIter != rightIter, "数字位越界!");
-		// 基于 decimalToRadixLowTopBase 反转; radixLowTopToDecimalBase 不便于写出
-		std::reverse(leftIter, tmpLeftIter);
-		return totalSizeNum;*/
-		return 0;
+	void decimalToRadixTopLow_PreDel(unsigned decimalNum, DigitIterator leftIter, DigitIterator rightIter, int radix) {
+		auto realRightIter = decimalToRadixLowTopBase(decimalNum, leftIter, radix);
+		_ASSERT_EXPR(realRightIter != rightIter, "数字位越界!");
+		std::reverse(leftIter, rightIter);
 	}
 	
+	// ---- Recommend  realBeginIter
 	template<class DigitIterator>
-	DigitIterator decimalToRadixTopLowBase(unsigned decimaNum, DigitIterator rightIter, int radix) {
+	DigitIterator decimalToRadixTopLow(unsigned decimalNum, DigitIterator rightIter, int radix) {
 		// 要保证即使传入0也能执行一次
 		do {
-			*--rightIter = decimaNum % radix;
-			decimaNum /= radix;
-		} while (decimaNum != 0);
+			*--rightIter = decimalNum % radix;
+			decimalNum /= radix;
+		} while (decimalNum != 0);
 		return rightIter;
 	}
-	/*
-	---- Recommend (checkBoundaryCondition: 边界条件检测, 默认开启, 表示传入的范围是否与转换后的实际范围大小相等)
-	由于此方法默认是需要边界检测的(必须已知转换后的位数, 或者在少数特定情况下关闭)
-	如果无法, 或难以提前得知转换后的数字位数的话请使用Base方法
-
-	1位10进制数最少需要4位2进制表示(1010), 但10并不是2进制系的
-	因此一个n位10进制数实际用的bit位可能远小于理论上的值
-	EG: 10位10进制数的最大值9999999999, 理论需要4*10=40bit, 但实际只需要36bit
-	*/
 	template<class DigitIterator>
-	void decimalToRadixTopLow(unsigned decimaNum, DigitIterator leftIter, DigitIterator rightIter, int radix, bool checkBoundaryCondition = true) {
-		rightIter = decimalToRadixTopLowBase(decimaNum, rightIter, radix);
-		// 结束时应该恰好相等
-		_ASSERT_EXPR(!checkBoundaryCondition || leftIter == rightIter, "数字位越界!");
+	void decimalToRadixTopLow(unsigned decimalNum, DigitIterator leftIter, DigitIterator rightIter, int radix) {
+		rightIter = decimalToRadixTopLow(decimalNum, rightIter, radix);
+		_ASSERT_EXPR(leftIter == rightIter, "数字位越界!");
 	}
 	template<class DigitArrayIterator>
-	void decimalToRadixTopLow(unsigned decimaNum, DigitArrayIterator position, int radix, int totalSizeNum) {
+	void decimalToRadixTopLow_PreDel(unsigned decimalNum, DigitArrayIterator topPosition, int totalSizeNum, int radix) {
 		// 要保证即使传入0也能执行一次
 		do {
-			position[--totalSizeNum] = decimaNum % radix;
-			decimaNum /= radix;
-		} while (decimaNum != 0);
+			topPosition[--totalSizeNum] = decimalNum % radix;
+			decimalNum /= radix;
+		} while (decimalNum != 0);
 	}
 
+	/*
+	范围已知
+	读写迭代器
+	*/
 
-	// ---- Recommend 计算位权多项式
+	// ---- Recommend 计算Radix的DEC位权多项式(源低位迭代器, 目标低位迭代器, 两者的共同大小)
+	// 返回{realOriginLeftIter, realTargetLeftIter}
 	template<class Integer, class DigitIterator>
-	void radixTopLowToDecimalTopLow(DigitIterator originLeftIter, DigitIterator originRightIter, DigitIterator targetLeftIter, DigitIterator targetRightIter, Integer originRadix) {
+	std::pair<DigitIterator, DigitIterator> radixTopLowToDecimalTopLow(
+		DigitIterator originRightIter, DigitIterator targetRightIter, Integer togetherSize, Integer originRadix) {
 		// 位权
 		Integer powNum = 1;
-		_ASSERT_EXPR(originRightIter - originLeftIter == targetRightIter - targetLeftIter, "范围大小不同!");
 		// 从低位(右侧是低位)向高位按权展开 然后以同样的方式存在目标容器里面
-		// && targetLeftIter != targetRightIter
-		while (originLeftIter != originRightIter) {
+		while (togetherSize-- > 0) {
 			*--targetRightIter = *--originRightIter * powNum;
 			powNum *= originRadix;
 		}
+		// 用户肯定是已知大小的, 如何传入: 迭代器组 或 togetherSize
+		// 对于std::vector不必讨论, 对于list来说相对于计算出togetherSize, 获得某个特定的迭代器更困难一些
+		// _ASSERT_EXPR(originRightIter == originLeftIter && targetRightIter == targetLeftIter, "范围大小不同!");
+		return { originRightIter, targetRightIter };
 	}
+
+	/*
+	以下方法的迭代器操作的范围一定是已知的
+	读迭代器, 写入数字
+	传入两个迭代器的优势在于接口一致, 便于记忆(但是传入一个迭代器如果传错了, 多半也能报错检测出来)
+	*/
 
 	// 返回低位到高位按权展开的多项式之和[leftIter, rightIter)底数是radix; 即: 返回任意进制的加权10进制数
 	template<class Integer, class DigitIterator>
 	Integer radixLowTopToDecimalBase(DigitIterator leftIter, DigitIterator rightIter, Integer radix) {
-		static Integer decimaNum;
+		static Integer decimalNum;
 		Integer powNum = 1;
-		decimaNum = 0;
+		decimalNum = 0;
 		//从低位(左侧是低位)向高位按权展开 i是幂
 		while(leftIter != rightIter) {
-			decimaNum += *leftIter * powNum;
+			decimalNum += *leftIter * powNum;
 			++leftIter;
 			powNum *= radix;
 		}
-		return decimaNum;
+		return decimalNum;
 	}
 	// ---- Recommend
 	template<class Integer, class DigitIterator>
 	Integer radixTopLowToDecimal(DigitIterator leftIter, DigitIterator rightIter, Integer radix) {
-		static Integer decimaNum;
+		static Integer decimalNum;
 		Integer powNum = 1;
-		decimaNum = 0;
+		decimalNum = 0;
 		//从低位(右侧是低位)向高位按权展开 i是幂
 		while (leftIter != rightIter) {
-			decimaNum += *--rightIter * powNum;
+			decimalNum += *--rightIter * powNum;
 			powNum *= radix;
 		}
-		return decimaNum;
+		return decimalNum;
 	}
 	template<class Integer, class DigitArrayIterator>
-	Integer radixTopLowToDecimal_PreDel(DigitArrayIterator position, int totalSizeNum, Integer radix) {
-		static Integer decimaNum;
+	Integer radixTopLowToDecimal_PreDel(DigitArrayIterator topPosition, Integer totalSizeNum, Integer radix) {
+		static Integer decimalNum;
 		Integer powNum = 1;
-		decimaNum = 0;
+		decimalNum = 0;
 		//从低位(右侧是低位)向高位按权展开 i是幂
 		for (int i = totalSizeNum - 1; i >= 0; --i) {
-			decimaNum += position[i] * powNum;
+			decimalNum += topPosition[i] * powNum;
 			//powNum = radix^i
 			powNum *= radix;
 		}
-		return decimaNum;
+		return decimalNum;
 	}
 };

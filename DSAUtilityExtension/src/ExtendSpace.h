@@ -617,17 +617,26 @@ namespace Utility {
 		return maxLen;
 	}
 
-	// uNum->resultNum 无符号转为有符号
+	// unsignedNum->signedNum 无符号转为有符号
 	// (PS 使用assert作为判断的 如果assert无效那么等价于强制转换; 无返回值)
 	template<class UnT, class T>
-	void toSignedNum(UnT uNum, T &resultNum) {
-		//确认是无符号
-		assert(uNum - uNum - 1 > 0);
-		resultNum = (T)uNum;
-		//确认是有符号
-		assert(resultNum - resultNum - 1 < 0);
-		//确认转换后结果正确
-		assert(resultNum > 0);
+	void toSignedNum(UnT unsignedNum, T &signedNum) {
+		// 确认是无符号
+		assert(unsignedNum - unsignedNum - 1 > 0);
+		signedNum = (T)unsignedNum;
+		// 确认是有符号
+		assert(signedNum - signedNum - 1 < 0);
+		// 确认转换后结果正确
+		assert(signedNum > 0);
+	}
+
+	// sNum->signedNum 有符号转为无符号
+	// (PS 使用assert作为判断的 如果assert无效那么等价于强制转换; 无返回值)
+	template<class UnT, class T>
+	void toUnsignedNum(T signedNum, UnT &unsignedNum) {
+		// 确认即将转换的结果是正确
+		assert(signedNum > 0);
+		signedNum = (T)unsignedNum;
 	}
 
 	// ===== 排 序 less more greater

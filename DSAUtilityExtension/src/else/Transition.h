@@ -106,7 +106,7 @@ public:
 		
 		// 源中top->low每个bit都转换为2进制(连起来即是源进制数的二进制表示)
 		while (originLeftTop != originRightLow) {
-			auto leftTopIter = TransitionUtility::decimalToRadixTopLowBase(*originLeftTop++, currentBinNumberPointer + originBitLeast, 2);
+			auto leftTopIter = TransitionUtility::decimalToRadixTopLow(*originLeftTop++, currentBinNumberPointer + originBitLeast, 2);
 			std::fill(currentBinNumberPointer, leftTopIter, 0);
 			currentBinNumberPointer += originBitLeast;
 		}
@@ -177,7 +177,10 @@ public:
 		auto beginIt = repositoryBuffer.begin();
 		auto endIt = repositoryBuffer.begin() + originDigitNum;
 
-		TransitionUtility::radixTopLowToDecimalTopLow(originLeftTop, originRightLow, beginIt, endIt, originRadix);
+		auto realIterPair = 
+			TransitionUtility::radixTopLowToDecimalTopLow(originRightLow, endIt
+				, originDigitNum, (JCE::SizeType)originRadix);
+		_ASSERT(originLeftTop == realIterPair.first && beginIt == realIterPair.second);
 
 		// 源进制的1数字位对应的目标进制的数字位数
 		JCE::SizeType originToTargetDigitNum = MathExtend::calcDigitTotalSize(originRadix - 1, targetRadix);
@@ -191,19 +194,21 @@ public:
 		DigitArray buffer;
 		buffer.resize(originToTargetDigitMaxNum);
 		while (beginIt != endIt) {
-			// 此处是自动补齐0的, 无需检查
-			TransitionUtility::decimalToRadixTopLow(*beginIt, buffer.begin(), buffer.end(), targetRadix, false);
+			auto realBginIter = TransitionUtility::decimalToRadixTopLow(*beginIt, buffer.end(), targetRadix);
+			// 0补齐
+			std::fill(buffer.begin(), realBginIter, 0);
 			++beginIt;
 			MathExtend::vectorPlush(
 				bufferTopLowLeft, targetTopLowBuffer.end()
 				, buffer.begin(), buffer.end()
 				, bufferTopLowLeft, targetTopLowBuffer.end()
 			);
-			std::fill(buffer.begin(), buffer.end(), 0);
 		}
 		int carryTop = TransitionUtility::carryTopLow(targetTopLowBuffer.begin(), targetTopLowBuffer.end(), targetRadix);
 		// 理论上最多产生一次进位
 		_ASSERT_EXPR(carryTop == 0, "仍存在未处理的进位!");
+
+		// 计算top非0迭代器
 		auto topIter = targetTopLowBuffer.begin();
 		while(topIter != targetTopLowBuffer.end()) {
 			if (*topIter != 0) {
