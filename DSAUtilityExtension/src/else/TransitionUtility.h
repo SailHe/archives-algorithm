@@ -56,17 +56,68 @@ namespace TransitionUtility {
 	**/
 	DSAUTILITYEXTENSION_API std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB
 		, std::string &topLowSum, int radix = 10);
-	DSAUTILITYEXTENSION_API std::string bigPlush(std::string const &topLowNumA, std::string const &topLowNumB
+	// 返回最终是否有进位(若为true则表示结果的位数多于加数的最大位数, 如果参数是补码的话, 并不一定表示结果产生了溢出错误)
+	DSAUTILITYEXTENSION_API bool bigPlush(std::string const &topLowNumA, std::string const &topLowNumB
 		, std::string &topLowSum, int radix = 10);
 	//去除前导0 若值为0 返回"0"
 	DSAUTILITYEXTENSION_API std::string formatString(std::string const &num);
 
-	// 计算并返回指定参数对应的补码 (2进制限定)
-	// 原码字符串
-	DSAUTILITYEXTENSION_API std::string calcComplementCode(std::string &topLowOriginBinCode);
-	// 原码数字迭代器范围
+	// 扫描并进位, 返回无法存储的高位进位(如果能存储的话返回0)
+	template<class DigitIterator, class Integer>
+	Integer carryTopLow(DigitIterator leftIter, DigitIterator rightIter, Integer radix) {
+		Integer carry = 0;
+		while (leftIter != rightIter) {
+			--rightIter;
+			*rightIter += carry;
+			carry = *rightIter / radix;
+			*rightIter %= radix;
+		}
+		return carry;
+	}
+
+	// 短者高位'添数'相加(这个数就是sum的初始化值): 返回最高有效位产生的的进位值
 	template<class DigitIterator>
-	std::string calcComplementCode(DigitIterator topLowOriginCodeLeftIter, DigitIterator topLowOriginCodeRightIter) {
+	int topLowTogetherPlush(
+		DigitIterator lhsRightIter, int lhsSize
+		, DigitIterator rhsRightIter, int rhsSize
+		, DigitIterator sumRightIter) {
+		auto sumRightIterTmp = sumRightIter;
+		while (lhsSize-- > 0) {
+			*--sumRightIter = *--lhsRightIter;
+		}
+		while (rhsSize-- > 0) {
+			*--sumRightIterTmp += *--rhsRightIter;
+		}
+		int lhsTopBit = *lhsRightIter;
+		int rhsTopBit = *rhsRightIter;
+		int topCarry = (rhsTopBit + lhsTopBit) / 2;
+		return topCarry;
+	}
+
+	template<class DigitIterator>
+	int topLowTogetherPlush(
+		DigitIterator lhsLeftIter, DigitIterator lhsRightIter
+		, DigitIterator rhsLeftIter, DigitIterator rhsRightIter
+		, DigitIterator sumRightIter) {
+		auto sumRightIterTmp = sumRightIter;
+		while (lhsRightIter != lhsLeftIter) {
+			*--sumRightIter = *--lhsRightIter;
+		}
+		while (rhsRightIter != rhsLeftIter) {
+			*--sumRightIterTmp += *--rhsRightIter;
+		}
+		int lhsTopBit = *lhsRightIter;
+		int rhsTopBit = *rhsRightIter;
+		int topCarry = (rhsTopBit + lhsTopBit) / 2;
+		return topCarry;
+	}
+
+	// 计算并返回指定参数对应的补码 (2进制限定); 若带有Unsigned那么表示该方法只是计算补码, 而不管参数是否需要计算补码
+	// 无符号位原码字符串
+	DSAUTILITYEXTENSION_API std::string calcUnsignedComplementCode(std::string &topLowOriginBinCode);
+	// 计算并返回无符号补码 (无符号位原码的数字迭代器范围)
+	template<class DigitIterator>
+	std::string calcUnsignedComplementCode(DigitIterator topLowOriginCodeLeftIter, DigitIterator topLowOriginCodeRightIter) {
 		static DigitArray topLowOriginDigitBufferList;
 		static std::string topLowOriginBinCodeBuffer;
 		const static std::string one("1");
@@ -87,21 +138,22 @@ namespace TransitionUtility {
 
 		return topLowOriginBinCodeBuffer;
 	}
-	// 10进制真值(处理了正负值)
-	DSAUTILITYEXTENSION_API std::string calcComplementCode(int decNum);
+	// 计算并将范围内的无符号原码改为补码
+	template<class DigitIterator>
+	void unsignedComplementCode(DigitIterator topLowOriginCodeLeftIter, DigitIterator topLowOriginCodeRightIter) {
+		// 反码
+		TransitionUtility::inverseCode(topLowOriginCodeLeftIter, topLowOriginCodeRightIter);
+		// 补码
+		auto topLowOriginCodeRightIterTemp = --topLowOriginCodeRightIter;
+		*topLowOriginCodeRightIter += 1;
+		int carray = carryTopLow(topLowOriginCodeLeftIter, topLowOriginCodeRightIterTemp, 2);
 
-	// 扫描并进位, 返回无法存储的高位进位(如果能存储的话返回0)
-	template<class DigitIterator, class Integer>
-	Integer carryTopLow(DigitIterator leftIter, DigitIterator rightIter, Integer radix) {
-		Integer carry = 0;
-		while(leftIter != rightIter) {
-			--rightIter;
-			*rightIter += carry;
-			carry = *rightIter / radix;
-			*rightIter %= radix;
-		}
-		return carry;
 	}
+	// 10进制真值 返回无符号位的补码
+	DSAUTILITYEXTENSION_API std::string calcUnsignedComplementCode(unsigned decNum);
+
+	// 10进制真值(处理了正负值): 返回有符号位的补码
+	DSAUTILITYEXTENSION_API std::string calcComplementCode(int decNum);
 
 	// 位数不足n的倍数则在当前迭代器后面补0; [beginIter, currentIter).size() = kn
 	template<class DigitArrayIterator>
@@ -117,8 +169,9 @@ namespace TransitionUtility {
 	// 对每一位二进制取反
 	template<class DigitIterator>
 	void inverseCode(DigitIterator binIterBegin, DigitIterator binIterEnd) {
-		std::for_each(binIterBegin, binIterEnd, [](int &value) {
-			_ASSERT_EXPR(StandardExtend::inRange(0, value, 2), "所有数字值只能属于{0, 1}!");
+		StandardExtend::iterate(binIterBegin, binIterEnd, [](DigitIterator currentIter) {
+			auto &value = *currentIter;
+			_ASSERT_EXPR(value == 0 || value == 1, "二值数字!");
 			value = value == 0 ? 1 : 0;
 		});
 	}

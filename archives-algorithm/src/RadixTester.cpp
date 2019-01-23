@@ -19,16 +19,14 @@
 
 // 计算二进制补码 (输入的十进制正数当作负数处理)
 void calcBinaryCode(JCE::SizeType decNum, std::string &originCode, std::string &inverseCode, std::string &complementCode) {
-	int signedValue;
-	Utility::toSignedNum(decNum, signedValue);
-	std::string resultBuffer = TransitionUtility::calcComplementCode(-signedValue);
+	std::string resultBuffer = TransitionUtility::calcUnsignedComplementCode(decNum);
 
 	std::vector<int> topLow;
 	topLow.resize(MathExtend::calcDigitTotalSize(decNum, 2));
 	TransitionUtility::decimalToRadixTopLow(decNum, topLow.begin(), topLow.end(), 2);
 	originCode = TransitionUtility::digitContainerToString(topLow.begin(), topLow.end());
 
-	std::string resultBuffer1 = TransitionUtility::calcComplementCode(topLow.begin(), topLow.end());
+	std::string resultBuffer1 = TransitionUtility::calcUnsignedComplementCode(topLow.begin(), topLow.end());
 
 	TransitionUtility::inverseCode(topLow.begin(), topLow.end());
 	inverseCode = TransitionUtility::digitContainerToString(topLow.begin(), topLow.end());
@@ -150,20 +148,82 @@ void bigIntegerStringPlushTest() {
 	StandardExtend::testAndOut("const字符串大数加法: sum引用rhs", sumRefLhs1, std::string("10007483700"));
 }
 
-void complementCodePlushTestFun(int lhsValue, int rhsValue, int realValue) {
-	std::string lhs = TransitionUtility::calcComplementCode(lhsValue);
-	std::string rhs = TransitionUtility::calcComplementCode(rhsValue);
-	// 补码加法(舍弃最高进位)
-	TransitionUtility::bigPlush(lhs, rhs, rhs, 2);
-	rhs = std::string(rhs.end() - 1, rhs.end());
-	StandardExtend::testAndOut("补码加法", rhs
-		, TransitionUtility::calcComplementCode(realValue));
+void complementCodePlushTestFun(
+	int lhsSymbol, std::vector<unsigned>::iterator lhsTopLowOriginRightIrer, size_t lhsTopLowOriginSize
+	, int rhsSymbol, std::vector<unsigned>::iterator rhsTopLowOriginRightIrer, size_t rhsTopLowOriginSize
+	, int realSumSymbol, std::vector<unsigned>::iterator sumTopLowOriginLeftIrer, std::vector<unsigned>::iterator sumTopLowOriginRightIrer) {
+	std::vector<unsigned> sum;
+	// 首位是符号位
+	size_t dis = 1;
+	std::string sumStr;
+	if (lhsTopLowOriginSize > rhsTopLowOriginSize) {
+		sum.resize(lhsTopLowOriginSize + dis);
+		dis += (lhsTopLowOriginSize - rhsTopLowOriginSize);
+	}
+	else {
+		sum.resize(rhsTopLowOriginSize + dis);
+		dis += (rhsTopLowOriginSize - lhsTopLowOriginSize);
+	}
+	TransitionUtility::unsignedComplementCode(lhsTopLowOriginRightIrer - lhsTopLowOriginSize, lhsTopLowOriginRightIrer);
+
+	// 补码相加时不足的一方添1
+	std::fill(sum.begin() + 1, sum.begin() + dis, 1);
+	int topCarry = TransitionUtility::topLowTogetherPlush(lhsTopLowOriginRightIrer
+		, lhsTopLowOriginSize, rhsTopLowOriginRightIrer, rhsTopLowOriginSize, sum.end());
+	sum[0] = TransitionUtility::carryTopLow(sum.begin() + 1, sum.end(), 2);
+	bool isTopCarry = sum[0] == 0;
+	int lhsSymbolBit = lhsSymbol == -1;
+	int rhsSymbolBit = rhsSymbol == -1;
+	int symbolCarry = (rhsSymbolBit + lhsSymbolBit) / 2;
+	bool isOverflow = (topCarry ^ symbolCarry) == 1;
+	sumStr = TransitionUtility::digitContainerToString(sum.begin(), sum.end());
+	if (isOverflow) {
+		std::cout << ((symbolCarry == 0 ? "正" : "负") + std::string("溢出")) << std::endl;
+		// 补码加法(舍弃2^(n + 1)进位)
+		if (isTopCarry) {
+			// 消除溢出的最高进位(溢出就表示无效的, 没有溢出的情况下即使发生[最终高进位]此补码也是正确的)
+			sumStr = TransitionUtility::digitContainerToString(sum.begin() + 1, sum.end());
+		}//else dn
+	}//else;
+	std::string realStr = (realSumSymbol >= 0 ? "0" : "1") + TransitionUtility::calcUnsignedComplementCode(sumTopLowOriginLeftIrer, sumTopLowOriginRightIrer);
+	StandardExtend::testAndOut(
+		"补码加法"
+		, sumStr
+		, realStr
+	);
+}
+
+int getNumSymbol(int num) {
+	return num > 0 ? 1
+		: num < 0 ? -1 : 0;
+}
+
+void complementCodePlushTestProcess(int lhsValue, int rhsValue) {
+	std::vector<unsigned> lhsTopLowOrigin;
+	std::vector<unsigned> rhsTopLowOrigin;
+	std::vector<unsigned> reslTopLowSum;
+	int sumValue = lhsValue + rhsValue;
+	lhsTopLowOrigin.resize(MathExtend::calcDigitTransiTotalSize(10, lhsValue, 2));
+	rhsTopLowOrigin.resize(MathExtend::calcDigitTransiTotalSize(10, rhsValue, 2));
+	reslTopLowSum.resize(std::max(lhsTopLowOrigin.size(), rhsTopLowOrigin.size()) + 1);
+
+	auto realLhsLeftIter = TransitionUtility::decimalToRadixTopLow(abs(lhsValue), lhsTopLowOrigin.end(), 2);
+	auto realRhsLeftIter = TransitionUtility::decimalToRadixTopLow(abs(rhsValue), rhsTopLowOrigin.end(), 2);
+	auto realSumLeftIter = TransitionUtility::decimalToRadixTopLow(abs(sumValue), reslTopLowSum.end(), 2);
+	//TransitionUtility::unsignedComplementCode(realSumLeftIter, reslTopLowSum.end());
+	complementCodePlushTestFun(
+		getNumSymbol(lhsValue), lhsTopLowOrigin.end(), lhsTopLowOrigin.end() - realLhsLeftIter
+		, getNumSymbol(rhsValue), rhsTopLowOrigin.end(), rhsTopLowOrigin.end() - realRhsLeftIter
+		, getNumSymbol(sumValue), realSumLeftIter, reslTopLowSum.end()
+	);
 }
 
 void complementCodePlushTest() {
-	complementCodePlushTestFun(1, -1, 0);
-	complementCodePlushTestFun(-1, 1, 0);
-	// complementCodePlushTestFun(-1, -1, -2);
+	complementCodePlushTestProcess(10, -2);
+	complementCodePlushTestProcess(1, -1);
+	complementCodePlushTestProcess(-1, 1);
+	complementCodePlushTestProcess(-1, -1);
+	complementCodePlushTestProcess(-2, -2);
 }
 
 int runRadixTest() {
@@ -248,7 +308,7 @@ int runRadixTest() {
 	decTransBothwayTestFun("2", 16, 2, "10");
 
 	bigIntegerStringPlushTest();
-	complementCodePlushTest();
+	//complementCodePlushTest();
 
 	return 0;
 }

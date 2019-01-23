@@ -79,7 +79,7 @@ namespace TransitionUtility{
 		return carryNum == 0 ? topLowSum : (topLowSum = "1" + topLowSum);
 	}
 
-	std::string bigPlush(std::string const &topLowNumA, std::string const &topLowNumB, std::string &topLowSum, int radix) {
+	bool bigPlush(std::string const &topLowNumA, std::string const &topLowNumB, std::string &topLowSum, int radix) {
 		_ASSERT_EXPR(StandardExtend::inRange(2, radix, 63), "单个字符无法区分表示指定进制!");
 		int lenA, lenB, togetherLenAB = -1;
 		Utility::toSignedNum(topLowNumA.length(), lenA);
@@ -102,7 +102,7 @@ namespace TransitionUtility{
 			topLowSum[topLowSum.length() - i] = TransitionUtility::toAlphOrAscllNum(sumDigitNum % radix);
 			carryNum = sumDigitNum / radix;
 		}
-		return carryNum == 0 ? topLowSum : (topLowSum = "1" + topLowSum);
+		return (carryNum == 0 ? false : (topLowSum = "1" + topLowSum, true));
 	}
 
 	std::string formatString(std::string const &num) {
@@ -116,17 +116,38 @@ namespace TransitionUtility{
 		return sp == num.size() ? "0" : num.substr(sp);
 	}
 
-	std::string calcComplementCode(std::string &topLowOriginBinCode) {
+	std::string calcUnsignedComplementCode(std::string &topLowOriginBinCode) {
 		DigitArray topLowOriginCode(topLowOriginBinCode.length());
 		auto digitIterEnd = TransitionUtility::stringToDigitArray(topLowOriginBinCode, topLowOriginCode.begin(), 2);
 		_ASSERT_EXPR(digitIterEnd == topLowOriginCode.end(), "rt");
-		return calcComplementCode(topLowOriginCode.begin(), digitIterEnd);
+		return calcUnsignedComplementCode(topLowOriginCode.begin(), digitIterEnd);
+	}
+	std::string calcUnsignedComplementCode(unsigned decNum) {
+		static DigitArray topLowOriginDigitListBuffer;
+		std::string complementCode;
+		if (decNum == 0) {
+			complementCode = "0";
+		}
+		else {
+			topLowOriginDigitListBuffer.clear();
+			topLowOriginDigitListBuffer.resize(MathExtend::calcDigitTotalSize(decNum, 2));
+			// 原码
+			TransitionUtility::decimalToRadixTopLow(
+				decNum, topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end(), 2
+			);
+			complementCode = TransitionUtility::digitContainerToString(
+				topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end()
+			);
+			complementCode = calcUnsignedComplementCode(topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end());
+		}
+
+		return complementCode;
 	}
 	std::string calcComplementCode(int decNum) {
 		static DigitArray topLowOriginDigitListBuffer;
 		std::string complementCode;
 		if (decNum == 0) {
-			complementCode = "0";
+			complementCode = "00";
 		}
 		else {
 			topLowOriginDigitListBuffer.clear();
@@ -139,9 +160,11 @@ namespace TransitionUtility{
 				complementCode = TransitionUtility::digitContainerToString(
 					topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end()
 				);
+				complementCode = "0" + complementCode;
 			}
 			else {
-				complementCode = calcComplementCode(topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end());
+				complementCode = calcUnsignedComplementCode(topLowOriginDigitListBuffer.begin(), topLowOriginDigitListBuffer.end());
+				complementCode = "1" + complementCode;
 			}
 		}
 		
