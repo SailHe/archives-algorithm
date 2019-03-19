@@ -1,0 +1,453 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="GraphTemplate&lt;WeightType&gt;" Collapsed="true">
+    <Position X="6.75" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAEAAAAIAAAACAAAIAAAAAA=</HashCode>
+      <FileName>src\Graph\GraphTemplate.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AdjacentMatrixGraphTemplate&lt;WeightType&gt;" Collapsed="true">
+    <Position X="5.5" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAAAEEABIAAAAAAAgAABCACBAAAQAAACA=</HashCode>
+      <FileName>src\Graph\GraphTemplate.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AdjacentListGraphTemplate&lt;WeightType&gt;" Collapsed="true">
+    <Position X="7.75" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAQAEABAAAgAAAAgAABAACAAAAQAAACA=</HashCode>
+      <FileName>src\Graph\GraphTemplate.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DisjointSet" Collapsed="true">
+    <Position X="16" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAIAAAAAAAAAAgAIAAQACAFAAAAA=</HashCode>
+      <FileName>src\else\DisjointSet.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Graph" Collapsed="true">
+    <Position X="1.75" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAEAAAAAAAAAAAAAAIAAgACAAAAAAAAAA=</HashCode>
+      <FileName>src\Graph\Graph.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AdjacentMatrixGraph" Collapsed="true">
+    <Position X="0.5" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAEEABIAAAAAAAgAABCACAAAAQEAACA=</HashCode>
+      <FileName>src\Graph\Graph.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AdjacentListGraph" Collapsed="true">
+    <Position X="2.75" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAAAAEABAAAgAAQAgAABAACAAAAQAAACA=</HashCode>
+      <FileName>src\Graph\Graph.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoordinatesMap" Collapsed="true">
+    <Position X="19.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAACABAEEAAAEhAAACSEACgQAFAAAAAAQSCA=</HashCode>
+      <FileName>src\Graph\Graph.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SkipLists" Collapsed="true">
+    <Position X="16" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\Graph\GraphUtil.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Tree" Collapsed="true">
+    <Position X="5.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\Graph\TreeObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BinTree&lt;T&gt;" Collapsed="true">
+    <Position X="5.25" Y="2.75" Width="1.5" />
+    <NestedTypes>
+      <Typedef Name="BinTree&lt;T&gt;::Element" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>src\Graph\TreeObject.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="BinTree&lt;T&gt;::BT" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>src\Graph\TreeObject.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="BinTree&lt;T&gt;::Position" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>src\Graph\TreeObject.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Class Name="BinTree&lt;T&gt;::BTNode" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>src\Graph\TreeObject.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AGAAEiDCQQEAAoQAAYCkAEDiAAmAAEBIoIAgCQCIEEA=</HashCode>
+      <FileName>src\Graph\TreeObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BinSearchTree&lt;T&gt;" Collapsed="true">
+    <Position X="6.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAEAAgABCgAAAAAAIEAAEEAEAwgAAPQAggAAAAAA=</HashCode>
+      <FileName>src\Graph\TreeObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AvlTree&lt;T&gt;" Collapsed="true">
+    <Position X="8.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAEGAAAAAAAAAAAAAAAAAAAAQSACAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\Graph\TreeObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StaBinTree&lt;T&gt;" Collapsed="true">
+    <Position X="2" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAgAAIKAoAACAAACAUAgAAAAAAABAAA=</HashCode>
+      <FileName>src\Graph\TreeObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="StaBinSearchTree&lt;T&gt;" Collapsed="true">
+    <Position X="4.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAAAAACAAAEAAAAAEAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\Graph\TreeObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CompleteBinSearchTree&lt;T&gt;" Collapsed="true">
+    <Position X="2" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAACIAAAAAAAAAAEAAAEAAAAACAAAABCQAAAgAAAAQ=</HashCode>
+      <FileName>src\Graph\TreeObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Heap&lt;T&gt;" Collapsed="true">
+    <Position X="2" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAwAAYAACoAAAAAAAAAIAAAAAABAIAAIAIAAAAAAA=</HashCode>
+      <FileName>src\Graph\TreeObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HuffmanTree&lt;T&gt;" Collapsed="true">
+    <Position X="4.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IgAAAAAFEAAAAAAAAAAFAMAAABgAAECAAAgECAIAAAA=</HashCode>
+      <FileName>src\Graph\TreeObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ArrayHuffman" Collapsed="true">
+    <Position X="16" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAABCAAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAgAAAAA=</HashCode>
+      <FileName>src\Graph\TreeObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpressionTree" Collapsed="true">
+    <Position X="8.75" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAIAACAAAAAAAAAABAhACAAAAgAAABEAAA=</HashCode>
+      <FileName>src\Graph\TreeObject.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PtrArray&lt;Base&gt;" Collapsed="true">
+    <Position X="19.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAABAAIAAAABAAgEAAAAAQAAAAAAAABA=</HashCode>
+      <FileName>src\Graph\TreeUtility.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LinkedList&lt;ElementType&gt;" Collapsed="true">
+    <Position X="16" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAMAAGGBBAZAAIMAEiABABACQBAwRKRAJEiIAUEQCA=</HashCode>
+      <FileName>src\LinkedList.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Queue&lt;T&gt;" Collapsed="true">
+    <Position X="21.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAgAEAIAIAAAQACAAAAAACgAAAAAQCA=</HashCode>
+      <FileName>src\Queue.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Deque&lt;T&gt;" Collapsed="true">
+    <Position X="21.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEhAAAAAAAAgAACAEAMCAAAgAACAAEAAABgAIAAASAA=</HashCode>
+      <FileName>src\Queue.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stack&lt;StackElementType&gt;" Collapsed="true">
+    <Position X="17.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAIEIAAQECAMAgIgAgAIAAAAAAQAoAAEAQgA=</HashCode>
+      <FileName>src\Stack.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BigInteger" Collapsed="true">
+    <Position X="17.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EEQIBAgAAAAAAAAAxEMADQAMAQAGKEYAAAAgAgAAQQA=</HashCode>
+      <FileName>src\else\BigInteger.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Transition" Collapsed="true">
+    <Position X="5.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAGAAAAQAAIgAAAIAAAEAAAAIABAAAAAAAAAAAAAQAA=</HashCode>
+      <FileName>src\else\Transition.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BinaryTransition" Collapsed="true">
+    <Position X="4.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAQAAQAAAAAAA=</HashCode>
+      <FileName>src\else\Transition.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DecimalTransition" Collapsed="true">
+    <Position X="6.75" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAEAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>src\else\Transition.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Utility::Double" Collapsed="true">
+    <Position X="19.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAAQACAAACACAAAAAAAAACAAA=</HashCode>
+      <FileName>src\ExtendSpace.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Utility::PointDouble" Collapsed="true">
+    <Position X="17.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAAAAAAAAAAAAAAAABAAAEAAAAhgAAgAAAA=</HashCode>
+      <FileName>src\ExtendSpace.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Utility::Triangle" Collapsed="true">
+    <Position X="19.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CgAABAAAAAAAAAABAAAECAAAAAEBAQAAgABAAAAAAIA=</HashCode>
+      <FileName>src\ExtendSpace.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Utility::Fraction" Collapsed="true">
+    <Position X="21.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAEACAAAAABAAAAAAIAAAAgAAAEAgAAAAgQQAQg=</HashCode>
+      <FileName>src\ExtendSpace.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DllTestNameSpace::DllTestClass" Collapsed="true">
+    <Position X="17.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAABAAAAAAAAAAgAAAAAAAAEAA=</HashCode>
+      <FileName>src\MathLibrary.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="StackSimpleImpl" Collapsed="true">
+    <Position X="1.5" Y="14.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAgAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\List\Stack.cpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="DeStackImple" Collapsed="true">
+    <Position X="12.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAgAkAAAAAAA=</HashCode>
+      <FileName>src\List\Stack.cpp</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="test" Collapsed="true">
+    <Position X="16" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAgEAAAAAAAACAAACAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\GetMyDade.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="laber" Collapsed="true">
+    <Position X="21.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAAAAAAAAAAAAEAAAAAAAAwAAAAAA=</HashCode>
+      <FileName>src\GetMyDade.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Point2Base" Collapsed="true">
+    <Position X="9.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAA=</HashCode>
+      <FileName>src\Graph\GraphUtil.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="SubTwain" Collapsed="true">
+    <Position X="21.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAEASAAAAAAAAQAAAAAAAACAAAAhAAAAAAA=</HashCode>
+      <FileName>src\Graph\GraphUtil.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Point2" Collapsed="true">
+    <Position X="9.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAAAAAAAQAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>src\Graph\GraphUtil.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="ShortestPathResult" Collapsed="true">
+    <Position X="17.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAEAAAEAQAAAAACAgAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\Graph\GraphUtil.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="FamilyTreeNode" Collapsed="true">
+    <Position X="19.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAEAAIAAAQAAAAAEAAEAAQAgAAAAAAA=</HashCode>
+      <FileName>src\Graph\TreeUtility.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="CatalogNode" Collapsed="true">
+    <Position X="17.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAIAAAAAAAAAAAAAAAAQAACAAEBAAAJAAgAAAgAAA=</HashCode>
+      <FileName>src\Graph\TreeUtility.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Accounts" Collapsed="true">
+    <Position X="16" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAACAAAAAQAAAAAAAACAAAAgQgAAAAA=</HashCode>
+      <FileName>src\Graph\TreeUtility.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Olympic" Collapsed="true">
+    <Position X="16" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAgCAAAAAAAACQAAAAACAAAAAAAgAAAAAgA=</HashCode>
+      <FileName>src\Graph\TreeUtility.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Student" Collapsed="true">
+    <Position X="19.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQQAAAAAABAAIAQAAAAAAwAAAAAAgAAAAAgA=</HashCode>
+      <FileName>src\Graph\TreeUtility.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Typedef Name="SimpleStackElemType" Collapsed="true">
+    <Position X="13.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\List\Stack.cpp</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="Stacker" Collapsed="true">
+    <Position X="1.5" Y="16.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\List\Stack.cpp</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="SimpleStackPosition" Collapsed="true">
+    <Position X="13.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\List\Stack.cpp</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="DeElementType" Collapsed="true">
+    <Position X="16" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\List\Stack.cpp</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="DeStack" Collapsed="true">
+    <Position X="12.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\List\Stack.cpp</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="Sub" Collapsed="true">
+    <Position X="11.5" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\ExtendSpace.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="RowsSub" Collapsed="true">
+    <Position X="12.5" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\ExtendSpace.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="ColsSub" Collapsed="true">
+    <Position X="11.5" Y="13.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\ExtendSpace.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="I64" Collapsed="true">
+    <Position X="16" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\ExtendSpace.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="DirectionVector" Collapsed="true">
+    <Position X="21.25" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\Graph\GraphUtil.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="TransitionUtility::DigitArray" Collapsed="true">
+    <Position X="17.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\else\TransitionUtility.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="TransitionUtility::DigitIterator" Collapsed="true">
+    <Position X="19.5" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\else\TransitionUtility.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Enum Name="EnumDeStackTag" Collapsed="true">
+    <Position X="17.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAAAAAAAAAAABAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>src\List\Stack.cpp</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="DirCountEnum" Collapsed="true">
+    <Position X="16" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAiAAAAAAAAAAAAAA=</HashCode>
+      <FileName>src\Graph\GraphUtil.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>
