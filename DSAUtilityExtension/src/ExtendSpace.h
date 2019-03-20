@@ -307,7 +307,12 @@ namespace StandardExtend{
 
 	template<class T, class Iterator>
 	double avlValueStatistics(Iterator left, Iterator right, T ZERO_VALUE){
-		return sumValueStatistics(left, right, ZERO_VALUE) / (double)(right - left);
+		int size = right - left;
+		_ASSERT_EXPR(size != 0, "³ýÁã´íÎó!");
+		if (size == 0) {
+			throw size;
+		}
+		return sumValueStatistics(left, right, ZERO_VALUE) / (double)size;
 	}
 
 };
