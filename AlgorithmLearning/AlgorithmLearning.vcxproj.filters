@@ -42,9 +42,6 @@
     <ClCompile Include="src\homework\op_practice_12_26.cpp">
       <Filter>源文件\HomeWork</Filter>
     </ClCompile>
-    <ClCompile Include="src\agoj\agoj18_9_22.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
     <ClCompile Include="src\agoj\agoj18_10_10.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
@@ -123,13 +120,16 @@
     <ClCompile Include="src\memory\Hash\HashTable.cpp">
       <Filter>源文件\memory\Hash</Filter>
     </ClCompile>
-    <ClCompile Include="src\agoj\agoj19_1_22_final.cpp">
+    <ClCompile Include="src\agoj\agoj19_03_13.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
-    <ClCompile Include="src\agoj\agoj19_3_13.cpp">
+    <ClCompile Include="src\agoj\agoj19_01_22_final.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
-    <ClCompile Include="src\agoj\ago19_j3_20.cpp">
+    <ClCompile Include="src\agoj\agoj19_03_20.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\agoj\agoj18_09_22.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
   </ItemGroup>
