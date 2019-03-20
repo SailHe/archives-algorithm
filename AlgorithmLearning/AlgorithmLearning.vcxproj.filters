@@ -129,6 +129,9 @@
     <ClCompile Include="src\agoj\agoj19_3_13.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
+    <ClCompile Include="src\agoj\ago19_j3_20.cpp">
+      <Filter>源文件\oj</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\stdafx.h">
