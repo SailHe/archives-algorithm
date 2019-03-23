@@ -142,10 +142,6 @@
     <ClCompile Include="src\agoj\agoj19_01_22_final.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\agoj\agoj19_03_13.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj19_03_20.cpp" />
     <ClCompile Include="src\AlgorithmTrainingLegacy.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -186,6 +182,12 @@
     <ClCompile Include="src\practicer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="src\SoftwareTest\SampleProgram\agoj19_03_13.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\SoftwareTest\SampleProgram\agoj19_03_20.cpp" />
+    <ClCompile Include="src\SoftwareTest\SoftwareTest.cpp" />
+    <ClCompile Include="src\SoftwareTest\DataGenerateer.cpp" />
     <ClCompile Include="src\temp\Sort.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -194,6 +196,7 @@
   <ItemGroup>
     <ClInclude Include="src\memory\ArrayLinearList.h" />
     <ClInclude Include="src\memory\Hash\HashTable.h" />
+    <ClInclude Include="src\SoftwareTest\SoftwareTest.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>

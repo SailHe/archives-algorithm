@@ -31,6 +31,12 @@
     <Filter Include="源文件\memory\Hash">
       <UniqueIdentifier>{6116a73e-6058-41cb-805e-967c1deb1f15}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\SoftwareTest">
+      <UniqueIdentifier>{6d9aa07a-bfd5-489b-b234-804d9ad5fbb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\SoftwareTest\SampleProgram">
+      <UniqueIdentifier>{84976b6f-7800-4935-bed5-a5495dbd2932}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AlgorithmTrainingLegacy.cpp">
@@ -120,17 +126,23 @@
     <ClCompile Include="src\memory\Hash\HashTable.cpp">
       <Filter>源文件\memory\Hash</Filter>
     </ClCompile>
-    <ClCompile Include="src\agoj\agoj19_03_13.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
     <ClCompile Include="src\agoj\agoj19_01_22_final.cpp">
-      <Filter>源文件\oj</Filter>
-    </ClCompile>
-    <ClCompile Include="src\agoj\agoj19_03_20.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
     <ClCompile Include="src\agoj\agoj18_09_22.cpp">
       <Filter>源文件\oj</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SoftwareTest\DataGenerateer.cpp">
+      <Filter>源文件\SoftwareTest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SoftwareTest\SoftwareTest.cpp">
+      <Filter>源文件\SoftwareTest</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SoftwareTest\SampleProgram\agoj19_03_13.cpp">
+      <Filter>源文件\SoftwareTest\SampleProgram</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SoftwareTest\SampleProgram\agoj19_03_20.cpp">
+      <Filter>源文件\SoftwareTest\SampleProgram</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +154,9 @@
     </ClInclude>
     <ClInclude Include="src\memory\Hash\HashTable.h">
       <Filter>源文件\memory\Hash</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SoftwareTest\SoftwareTest.h">
+      <Filter>源文件\SoftwareTest</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
