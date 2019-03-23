@@ -13,6 +13,7 @@
 
 // 放到宏定义后有bug
 #include "ExtendSpace.h"
+#include "../SoftwareTest.h"
 
 #define EPS 1E-5
 #define MAX_N 505
@@ -26,38 +27,42 @@
 #define ARRAY_TEMPLATE template<class T, class Iterator>
 
 
-// 1000条测试数据
-int main() {
-	int leftBound, rightLmit;
-	while (std::cin >> leftBound >> rightLmit) {
-		std::cin.get();
-		int currentValue;
-		std::vector<int> integetList;
-		bool isEndInput = false;
-		while (true) {
-			char nextC = std::cin.peek();
-			if (nextC == '\n' || std::cin.eof()) {
-				break;
+class SampleProgram_03_20 : public SoftwareTest::SampleProgram {
+public:
+	// 需要生成1000条测试数据
+	int run() override {
+		int leftBound, rightLmit;
+		while (std::cin >> leftBound >> rightLmit) {
+			std::cin.get();
+			int currentValue;
+			std::vector<int> integetList;
+			bool isEndInput = false;
+			while (true) {
+				char nextC = std::cin.peek();
+				if (nextC == '\n' || std::cin.eof()) {
+					break;
+				}
+				std::cin >> currentValue;
+				// nextC = std::cin.get();
+				if (currentValue == -99999 || isEndInput) {
+					isEndInput = true;
+					continue;
+				}
+				if (StandardExtend::inRange(leftBound, currentValue, rightLmit + 1) && integetList.size() < 1001) {
+					integetList.push_back(currentValue);
+				}
 			}
-			std::cin >> currentValue;
-			// nextC = std::cin.get();
-			if (currentValue == -99999 || isEndInput) {
-				isEndInput = true;
-				continue;
+			auto sumValue = StandardExtend::sumValueStatistics(integetList.begin(), integetList.end(), 0);
+			double avlValue = 0.0;
+			if (integetList.size() != 0) {
+				avlValue = StandardExtend::avlValueStatistics(integetList.begin(), integetList.end(), 0.0);
 			}
-			if (StandardExtend::inRange(leftBound, currentValue, rightLmit + 1) && integetList.size() < 1001) {
-				integetList.push_back(currentValue);
-			}
+			std::cout << std::fixed << std::setprecision(2) << integetList.size() << " " << sumValue << " " << avlValue << std::endl;
 		}
-		auto sumValue = StandardExtend::sumValueStatistics(integetList.begin(), integetList.end(), 0);
-		double avlValue = 0.0;
-		if (integetList.size() != 0) {
-			avlValue = StandardExtend::avlValueStatistics(integetList.begin(), integetList.end(), 0.0);
-		}
-		std::cout << std::fixed << std::setprecision(2) << integetList.size() << " " << sumValue << " " << avlValue << std::endl;
+		return 0;
 	}
-	return 0;
-}
+
+};
 
 /*
 
