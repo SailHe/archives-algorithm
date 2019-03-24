@@ -30,10 +30,13 @@
     <ClCompile Include="UrlRemover.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\RandomTest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Teater.h">
-      <Filter>源文件</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -43,24 +43,24 @@ int generateInputData(std::string &sampleFolderName, std::string &caseFileName, 
 	// 个数为1005, int范围内 每个数字最大值 21370
 	int base = 0;
 	while (testCaseCnt-- > 0) {
-		base = SoftwareTest::RandomP1(200);
-		int lowerBound = base, upperBound =  SoftwareTest::RandomRange(base, 21370);
+		base = RandomSpace::RandomP1(200);
+		int lowerBound = base, upperBound =  RandomSpace::RandomRange(base, 21370);
 		printf("%d %d\n", lowerBound, upperBound);
 		// (10, 1005]
-		unsigned size = 10 + SoftwareTest::RandomUnsignedP1(995);
+		unsigned size = 10 + RandomSpace::RandomUnsignedP1(995);
 		bool printfEnd = false;
 		for (unsigned i = 0; i < size; ++i) {
-			base = SoftwareTest::RandomP1(lowerBound);
+			base = RandomSpace::RandomP1(lowerBound);
 			int currentValue = -99999;
 			// 2/size 的机率遇见中途的中止标志(size > 10) 当然 遇见后就不会再次出现
-			if (SoftwareTest::IsProbability(size - 2, size) || printfEnd) {
+			if (RandomSpace::IsProbability(size - 2, size) || printfEnd) {
 				// 0.5的概率上界减小至少三倍(为了使数据更随机: 负数可能, 小于下界的正整数的概率更大)
 				int realUpperBound = 0;
-				SoftwareTest::loopUntilNotEq([&]() {
-					return realUpperBound = upperBound - (base * (SoftwareTest::IsProbability(1, 2) ?
-						SoftwareTest::RandomP1(upperBound / lowerBound) * 3 : 1));
+				RandomSpace::loopUntilNotEq([&]() {
+					return realUpperBound = upperBound - (base * (RandomSpace::IsProbability(1, 2) ?
+						RandomSpace::RandomP1(upperBound / lowerBound) * 3 : 1));
 				}, 0);
-				currentValue = SoftwareTest::RandomP1(realUpperBound);
+				currentValue = RandomSpace::RandomP1(realUpperBound);
 			}
 			else {
 				printfEnd = true;
@@ -78,7 +78,7 @@ int calcSingleOutputData(
 	std::string &inputCaseFileName, 
 	std::string &outputCaseFileName, 
 	double timeLimit, 
-	SoftwareTest::SampleProgram &sampleSolution
+	SoftwareTestSpace::SampleProgram &sampleSolution
 ) {
 	std::wstring wtmp;
 	toWstringFromString(sampleFolderName, wtmp);
@@ -121,39 +121,39 @@ int generateInputOutputData(std::string &sampleFolderName, std::string &caseFile
 	// 全符合条件 全不符合条件
 	unsigned maxAllEffectiveCount = 1, maxAllNotEffectiveCount = 1;
 	while (testCaseCnt-- > 0) {
-		base = SoftwareTest::RandomP1(200);
-		int lowerBound = base, upperBound = base + SoftwareTest::RandomP1(21370 - base);
+		base = RandomSpace::RandomP1(200);
+		int lowerBound = base, upperBound = base + RandomSpace::RandomP1(21370 - base);
 		printf("%d %d\n", lowerBound, upperBound);
 		// 1%的机率出现1次MAX_SIZE_R_LIMIT, 其余属于[10, MAX_SIZE_R_LIMIT)
-		unsigned size = SoftwareTest::IsProbability(1, 1, maxSizeEffectiveCount) ?
-			MAX_SIZE_R_LIMIT : SoftwareTest::RandomUnsignedRange(10, MAX_SIZE_R_LIMIT);
+		unsigned size = RandomSpace::IsProbability(1, 1, maxSizeEffectiveCount) ?
+			MAX_SIZE_R_LIMIT : RandomSpace::RandomUnsignedRange(10, MAX_SIZE_R_LIMIT);
 		bool printfEnd = false;
 		std::vector<int> integetList;
-		bool isAllOp = SoftwareTest::IsProbability(1, 2, maxOpEffectiveCount);
+		bool isAllOp = RandomSpace::IsProbability(1, 2, maxOpEffectiveCount);
 		bool isAllNe = false;
 		if (!isAllOp) {
-			isAllNe = SoftwareTest::IsProbability(1, 2, maxNeEffectiveCount);
+			isAllNe = RandomSpace::IsProbability(1, 2, maxNeEffectiveCount);
 		}
 		for (unsigned i = 0; i < size; ++i) {
-			base = SoftwareTest::RandomP1(lowerBound);
+			base = RandomSpace::RandomP1(lowerBound);
 			int currentValue = -99999;
 			// 2/size 的机率遇见中途的中止标志(size > 10) 当然 遇见后就不会再次出现
-			if (SoftwareTest::IsProbability(size - 2, size) || printfEnd) {
+			if (RandomSpace::IsProbability(size - 2, size) || printfEnd) {
 				// 0.5的概率上界减小至少三倍(为了使数据更随机: 负数可能, 小于下界的正整数的概率更大)
 				int realUpperBound = 0;
-				if (SoftwareTest::IsProbability(1, 2, maxAllEffectiveCount)) {
-					currentValue = SoftwareTest::RandomRange(lowerBound, upperBound);
+				if (RandomSpace::IsProbability(1, 2, maxAllEffectiveCount)) {
+					currentValue = RandomSpace::RandomRange(lowerBound, upperBound);
 				}
 				else {
-					if (SoftwareTest::IsProbability(1, 2, maxAllNotEffectiveCount)) {
-						currentValue = -SoftwareTest::RandomNotRange(lowerBound, upperBound);
+					if (RandomSpace::IsProbability(1, 2, maxAllNotEffectiveCount)) {
+						currentValue = -RandomSpace::RandomNotRange(lowerBound, upperBound);
 					}
 					else {
-						SoftwareTest::loopUntilNotEq([&]() {
-							return realUpperBound = upperBound - (base * (SoftwareTest::IsProbability(1, 2) ?
-								SoftwareTest::RandomP1(upperBound / lowerBound) * 3 : 1));
+						RandomSpace::loopUntilNotEq([&]() {
+							return realUpperBound = upperBound - (base * (RandomSpace::IsProbability(1, 2) ?
+								RandomSpace::RandomP1(upperBound / lowerBound) * 3 : 1));
 						}, 0);
-						currentValue = SoftwareTest::RandomP1(realUpperBound);
+						currentValue = RandomSpace::RandomP1(realUpperBound);
 					}
 				}
 				// 全正全负 逻辑
@@ -186,32 +186,34 @@ int generateInputOutputData(std::string &sampleFolderName, std::string &caseFile
 // 多输入文件多输出文件 (已有单个输入文件, 已有样例程序 生成对应的多个输入输出文件 最多支持0~9共10组)
 // 由于历史久远且可能没啥用处 已经删除 主要思想是使用数字命名的用例文件名, 然后文件名自增, 然后重新打开该文件(或重定向), 接下来就得具体分析了
 
-int main() {
-	int testCaseCnt = 1000;
-	std::string testCaseFolderName("0123"), fileName("0");
-	/*int num, cnt = 0;
+// 用于测试输入数值数据的个数
+int inputNumberCount() {
+	int num, cnt = 0;
 	while (std::cin >> num) {
-		if (num == 100) {
+		/*if (num == 100) {
 			std::cout << num << " ";
-		}
-		cnt++;
+		}*/
+		++cnt;
 	}
 	std::cout << cnt << std::endl;
+	return cnt;
+}
+
+int main() {
+	int testCaseCnt = 1000;
+	// data/ sample test Judge
+	std::string testCaseFolderName("0123"), fileName("0");
+	/*
+	inputNumberCount();
 	return 0;
 	SampleProgram_03_20().run();
 	return 0;*/
-	bool bm = MIN_INT32 < -1;
-	// 0, 1
-	int a = SoftwareTest::Random(2);
-	// 只产生 -1, 0
-	double b = SoftwareTest::RandomRange(-1, 1);
-	unsigned c = SoftwareTest::RandomUnsignedP1(MAX_INT32);
-
+	
 	// @TODO: 将下面两个方法的重复内容简化, 使通用化(类似calcSingleOutputData即可)
 	//generateInputOutputData(testCaseFolderName, fileName, testCaseCnt);
 	// generateInputData(testCaseFolderName, fileName, testCaseCnt);
 	calcSingleOutputData(testCaseFolderName, fileName, fileName + "_SP", 1000*30, SampleProgram_03_20());
-	SoftwareTest::JudgeByCompare(
+	IOSpace::JudgeByCompare(
 		(testCaseFolderName + "/" + fileName + ".out").c_str(),
 		(testCaseFolderName + "/" + fileName + "_SP" + ".out").c_str(),
 		testCaseCnt

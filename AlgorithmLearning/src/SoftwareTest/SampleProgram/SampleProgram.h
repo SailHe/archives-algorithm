@@ -14,7 +14,7 @@
 #include "else/SoftwareTest.h"
 #include "ExtendSpace.h"
 
-class SampleProgram_03_20 : public SoftwareTest::SampleProgram {
+class SampleProgram_03_20 : public SoftwareTestSpace::SampleProgram {
 public:
 	// 需要生成1000条测试数据
 	int run() override {

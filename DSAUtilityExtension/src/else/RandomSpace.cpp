@@ -1,8 +1,8 @@
-#include "./SoftwareTest.h"
+#include "./RandomSpace.h"
 #include "../ExtendSpace.h"
 
 // 这些方法可信程度还有待彻底的验证
-namespace SoftwareTest {
+namespace RandomSpace {
 
 	// FILE * fp = NULL;
 
@@ -17,7 +17,8 @@ namespace SoftwareTest {
 		// 有的值是随机产生的, 因此仅仅使用断言是有弊端的(无法恢复过来 以及只在Debug中运行)
 		// 因此必要的地方必须有异常处理, 否则代码可能会跳转至某个固定且貌似无关的地方报错
 		if (UpperBound == 0) {
-			throw UpperBound;
+			// throw UpperBound; // 也可以抛出异常值
+			throw std::exception("除数为零!"); // 异常类型也可以抛出值 但只能是int
 		}
 		/*
 		time_t t;
@@ -129,44 +130,6 @@ namespace SoftwareTest {
 			}
 		}
 		return result;
-	}
-
-	/*******ELSE*******/
-
-	// IO初始化
-	FILE *InitIO(char const *fileNameForFp, char const*mode) {
-		FILE *fp = NULL;
-		errno_t flag = fopen_s(&fp, fileNameForFp, mode);
-		if (fp == NULL) {
-			throw "IO初始化失败!";
-		}
-		return fp;
-	}
-	// IO终止
-	void ShutupIO(FILE **fp) {
-		fclose(*fp);
-		*fp = NULL;
-	}
-
-	void JudgeByCompare(char const *lhsFileName, char const *rhsFileName, int Line) {
-		//rename(); //http://blog.csdn.net/wangshubo1989/article/details/49559195
-		// freopen("Judge.out", "w", stdout);
-		FILE *stdouter = stdout;
-		freopen_s(&stdouter, "Judge.out", "w", stdout);
-		FILE *lhsFp = InitIO(lhsFileName, "r");
-		FILE *rhsFp = InitIO(rhsFileName, "r");
-		char c1 = 0, c2 = 0;
-		for (int i = 1; i <= Line; i++) {
-			c1 = c2 = 0;
-			while (c1 != 10 && c1 == c2) {
-				c1 = fgetc(lhsFp);
-				c2 = fgetc(rhsFp);
-			}
-			printf(c1 == c2 ? "" : "Diffrence in line %d\n", i);
-		}
-		puts("end");
-		ShutupIO(&lhsFp);
-		ShutupIO(&rhsFp);
 	}
 
 }

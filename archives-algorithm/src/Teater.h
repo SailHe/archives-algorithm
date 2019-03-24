@@ -16,3 +16,4 @@
 int runRadixTest();
 int runMathTest();
 int runDataStructureTest();
+int runRandomTest();

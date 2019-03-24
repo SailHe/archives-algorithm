@@ -78,7 +78,13 @@
     <ClInclude Include="src\else\Transition.h">
       <Filter>头文件\Radix</Filter>
     </ClInclude>
+    <ClInclude Include="src\else\RandomSpace.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="src\else\SoftwareTest.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\else\IOSpace.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -104,7 +110,10 @@
     <ClCompile Include="src\else\TransitionUtility.cpp">
       <Filter>源文件\Radix</Filter>
     </ClCompile>
-    <ClCompile Include="src\else\SoftwareTest.cpp">
+    <ClCompile Include="src\else\RandomSpace.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\else\IOSpace.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
