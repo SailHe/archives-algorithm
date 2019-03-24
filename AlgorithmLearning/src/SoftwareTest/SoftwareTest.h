@@ -37,7 +37,10 @@ namespace SoftwareTest {
 
 	// 范围无符号伪随机 (LowerBound, UpperBound]
 	unsigned RandomUnsignedRange(unsigned LowerBound, unsigned UpperBound);
+	// 范围外
+	unsigned RandomUnsignedNotRange(unsigned LowerBound, unsigned UpperBound);
 	int RandomRange(int LowerBound, int UpperBound);
+	int RandomNotRange(int LowerBound, int UpperBound);
 	
 	// 伪随机无符号整数 (0, UpperBound]
 	unsigned RandomUnsignedP1(unsigned UpperBound);
@@ -54,6 +57,8 @@ namespace SoftwareTest {
 	char RandomChar(char B, char E);
 	// 以 Numerator / Denominator 的概率进行检测 若成功则返回true
 	bool IsProbability(unsigned Numerator, unsigned Denominator);
+	// 只生效EffectiveCount次
+	bool IsProbability(unsigned Numerator, unsigned Denominator, unsigned &EffectiveCount);
 	
 	// 对比lhs和rhs对应的两个文件的前Line行内容, 对比结果输出到Judge.out(会指出第几行有问题)
 	void JudgeByCompare(char const *lhsFileName, char const *rhsFileName, int Line);

@@ -9,16 +9,24 @@ namespace SoftwareTest {
 	/******随机基础层******/
 
 	unsigned RandomUnsigned(unsigned UpperBound) {
+		static bool isInit = []() {
+			// 利用静态值作方法的初始化
+			srand((unsigned)time(0));
+			return true;
+		}();
 		// 有的值是随机产生的, 因此仅仅使用断言是有弊端的(无法恢复过来 以及只在Debug中运行)
 		// 因此必要的地方必须有异常处理, 否则代码可能会跳转至某个固定且貌似无关的地方报错
 		if (UpperBound == 0) {
 			throw UpperBound;
 		}
+		/*
 		time_t t;
 		time(&t);
 		t %= UpperBound;
-		// rand [0, RAND_MAX] RAND_MAX的具体值由编译器决定，至少为32767
 		return ((rand()*t) % UpperBound);
+		*/
+		// rand [0, RAND_MAX] RAND_MAX的具体值由编译器决定，至少为32767
+		return rand() % UpperBound;
 	}
 
 	int Random(int AbsBound) {
@@ -46,9 +54,20 @@ namespace SoftwareTest {
 		return(LowerBound + RandomUnsigned(UpperBound - LowerBound));
 	}
 
+	unsigned RandomUnsignedNotRange(unsigned LowerBound, unsigned UpperBound) {
+		_ASSERT_EXPR(LowerBound <= UpperBound, "范围参数不符合要求");
+		return IsProbability(1, 2) ?
+			RandomUnsignedRange(MIN_INT32_UNSIGNED, LowerBound) : RandomUnsignedRange(UpperBound, MAX_INT32_UNSIGNED);
+	}
+
 	int RandomRange(int LowerBound, int UpperBound) {
 		_ASSERT_EXPR(LowerBound <= UpperBound, "范围参数不符合要求");
 		return(LowerBound + Random(UpperBound - LowerBound));
+	}
+
+	int RandomNotRange(int LowerBound, int UpperBound) {
+		_ASSERT_EXPR(LowerBound <= UpperBound, "范围参数不符合要求");
+		return IsProbability(1, 2) ? RandomRange(MIN_INT32, LowerBound) : RandomRange(UpperBound, MAX_INT32);
 	}
 
 	unsigned RandomUnsignedP1(unsigned UpperBound) {
@@ -89,10 +108,27 @@ namespace SoftwareTest {
 
 	bool IsProbability(unsigned Numerator, unsigned Denominator) {
 		// 小数概率只包含有理数, 分数概率范围更广, 虽然计算机本来就只能表示极小的一部分数
-		_ASSERT_EXPR(Numerator < Denominator, "此时没必要使用概率");
+		_ASSERT_EXPR(Numerator <= Denominator, "概率不应大于1");
 		// [0, Denominator)
 		unsigned randValue = RandomUnsigned(Denominator);
 		return randValue < Numerator;
+	}
+
+	bool IsProbability(unsigned Numerator, unsigned Denominator, unsigned &EffectiveCount) {
+		bool result = false;
+		if (EffectiveCount == 0) {
+			// DNT
+		}
+		else {
+			if (IsProbability(Numerator, Denominator)) {
+				result = true;
+				--EffectiveCount;
+			}
+			else {
+				// DNT
+			}
+		}
+		return result;
 	}
 
 	/*******ELSE*******/
