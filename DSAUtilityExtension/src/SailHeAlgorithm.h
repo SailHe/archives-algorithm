@@ -52,7 +52,6 @@ using namespace std;
 #define	PY Dir4[n][1]
 #define ALL(object) object.begin(), object.end()
 #define FOR(i, bound, limit) for (int i = bound; i < limit; ++i)
-#define infinity 2147483647
 #define MAX_IN32 2147483647
 #define MIN_IN32 (-MAX_IN32-1)
 #define MAXN 1000000+2
