@@ -185,7 +185,7 @@
     <ClCompile Include="src\SoftwareTest\SampleProgram\agoj19_03_13.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\SoftwareTest\SampleProgram\agoj19_03_20.cpp" />
+    <ClCompile Include="src\SoftwareTest\SampleProgram\SampleProgram.h" />
     <ClCompile Include="src\SoftwareTest\SoftwareTest.cpp" />
     <ClCompile Include="src\SoftwareTest\DataGenerateer.cpp" />
     <ClCompile Include="src\temp\Sort.cpp">

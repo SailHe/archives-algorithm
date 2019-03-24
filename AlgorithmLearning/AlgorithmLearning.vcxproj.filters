@@ -141,7 +141,7 @@
     <ClCompile Include="src\SoftwareTest\SampleProgram\agoj19_03_13.cpp">
       <Filter>源文件\SoftwareTest\SampleProgram</Filter>
     </ClCompile>
-    <ClCompile Include="src\SoftwareTest\SampleProgram\agoj19_03_20.cpp">
+    <ClCompile Include="src\SoftwareTest\SampleProgram\SampleProgram.h">
       <Filter>源文件\SoftwareTest\SampleProgram</Filter>
     </ClCompile>
   </ItemGroup>
