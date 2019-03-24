@@ -186,7 +186,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\SoftwareTest\SampleProgram\SampleProgram.h" />
-    <ClCompile Include="src\SoftwareTest\SoftwareTest.cpp" />
     <ClCompile Include="src\SoftwareTest\DataGenerateer.cpp" />
     <ClCompile Include="src\temp\Sort.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -196,7 +195,6 @@
   <ItemGroup>
     <ClInclude Include="src\memory\ArrayLinearList.h" />
     <ClInclude Include="src\memory\Hash\HashTable.h" />
-    <ClInclude Include="src\SoftwareTest\SoftwareTest.h" />
     <ClInclude Include="src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>

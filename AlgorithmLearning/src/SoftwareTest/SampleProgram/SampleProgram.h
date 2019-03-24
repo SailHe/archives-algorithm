@@ -11,7 +11,7 @@
 #include<map>
 #include<iomanip>//cout¸÷ÖÖ²Ù×ÝÆ÷
 
-#include "../SoftwareTest.h"
+#include "else/SoftwareTest.h"
 #include "ExtendSpace.h"
 
 class SampleProgram_03_20 : public SoftwareTest::SampleProgram {

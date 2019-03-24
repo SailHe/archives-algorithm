@@ -135,9 +135,6 @@
     <ClCompile Include="src\SoftwareTest\DataGenerateer.cpp">
       <Filter>源文件\SoftwareTest</Filter>
     </ClCompile>
-    <ClCompile Include="src\SoftwareTest\SoftwareTest.cpp">
-      <Filter>源文件\SoftwareTest</Filter>
-    </ClCompile>
     <ClCompile Include="src\SoftwareTest\SampleProgram\agoj19_03_13.cpp">
       <Filter>源文件\SoftwareTest\SampleProgram</Filter>
     </ClCompile>
@@ -154,9 +151,6 @@
     </ClInclude>
     <ClInclude Include="src\memory\Hash\HashTable.h">
       <Filter>源文件\memory\Hash</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SoftwareTest\SoftwareTest.h">
-      <Filter>源文件\SoftwareTest</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

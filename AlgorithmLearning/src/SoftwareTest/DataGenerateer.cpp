@@ -1,6 +1,6 @@
 #include <windows.h> // 创建目录
 #include <clocale> // 指定编码(c语言库locale.h)
-#include "SoftwareTest.h"
+#include "./else/SoftwareTest.h"
 #include "SampleProgram\SampleProgram.h"
 
 // @see https://gist.github.com/1901/5684151
@@ -207,6 +207,7 @@ int main() {
 	double b = SoftwareTest::RandomRange(-1, 1);
 	unsigned c = SoftwareTest::RandomUnsignedP1(MAX_INT32);
 
+	// @TODO: 将下面两个方法的重复内容简化, 使通用化(类似calcSingleOutputData即可)
 	//generateInputOutputData(testCaseFolderName, fileName, testCaseCnt);
 	// generateInputData(testCaseFolderName, fileName, testCaseCnt);
 	calcSingleOutputData(testCaseFolderName, fileName, fileName + "_SP", 1000*30, SampleProgram_03_20());
@@ -215,6 +216,7 @@ int main() {
 		(testCaseFolderName + "/" + fileName + "_SP" + ".out").c_str(),
 		testCaseCnt
 	);
+	// 无法在重定向后再次重定向回屏幕
 	// freopen("stdout", "r", stdout);
 	// std::cout << "end" << std::endl;
 	// printf("end2");

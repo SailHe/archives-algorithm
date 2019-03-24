@@ -1,10 +1,10 @@
 #include "./SoftwareTest.h"
-#include "ExtendSpace.h"
+#include "../ExtendSpace.h"
 
 // 这些方法可信程度还有待彻底的验证
 namespace SoftwareTest {
 
-	FILE * fp = NULL;
+	// FILE * fp = NULL;
 
 	/******随机基础层******/
 
@@ -133,35 +133,40 @@ namespace SoftwareTest {
 
 	/*******ELSE*******/
 
+	// IO初始化
+	FILE *InitIO(char const *fileNameForFp, char const*mode) {
+		FILE *fp = NULL;
+		errno_t flag = fopen_s(&fp, fileNameForFp, mode);
+		if (fp == NULL) {
+			throw "IO初始化失败!";
+		}
+		return fp;
+	}
+	// IO终止
+	void ShutupIO(FILE **fp) {
+		fclose(*fp);
+		*fp = NULL;
+	}
+
 	void JudgeByCompare(char const *lhsFileName, char const *rhsFileName, int Line) {
 		//rename(); //http://blog.csdn.net/wangshubo1989/article/details/49559195
-		freopen("Judge.out", "w", stdout);
-		FILE *fp = fopen(lhsFileName, "r");
-		FILE *fpi = fopen(rhsFileName, "r");
+		// freopen("Judge.out", "w", stdout);
+		FILE *stdouter = stdout;
+		freopen_s(&stdouter, "Judge.out", "w", stdout);
+		FILE *lhsFp = InitIO(lhsFileName, "r");
+		FILE *rhsFp = InitIO(rhsFileName, "r");
 		char c1 = 0, c2 = 0;
-		for (int i = 1; i <= Line; i++){
+		for (int i = 1; i <= Line; i++) {
 			c1 = c2 = 0;
 			while (c1 != 10 && c1 == c2) {
-				c1 = fgetc(fp);
-				c2 = fgetc(fpi);
+				c1 = fgetc(lhsFp);
+				c2 = fgetc(rhsFp);
 			}
 			printf(c1 == c2 ? "" : "Diffrence in line %d\n", i);
 		}
 		puts("end");
-	}
-
-	void InitIO() {
-		/**/
-		const char *InName = "test.in";
-		const char *OutName = "test.out";
-		/**
-		char *InName = "sample.in";
-		char *OutName = "sample.out";
-		/**/
-		fp = fopen(InName, "w");//InName.in的写入
-		freopen("sample.in", "r", stdin);
-		//freopen("test.out", "w", stdout);
-		freopen(OutName, "w", stdout);//设置输出流都输出到OutName
+		ShutupIO(&lhsFp);
+		ShutupIO(&rhsFp);
 	}
 
 }
