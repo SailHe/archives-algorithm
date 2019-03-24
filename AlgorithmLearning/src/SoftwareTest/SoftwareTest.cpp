@@ -54,10 +54,12 @@ namespace SoftwareTest {
 		fprintf(DestFp, "\n");
 	}
 
+	// @TODO: unsigned (小数概率实现的意义不大, 除法过后能表示常用的概率了)
 	bool IsProbability(int Numerator, int Denominator) {
-		_ASSERT_EXPR(Numerator <= Denominator, "分子<=分母 否则没必要使用概率");
+		_ASSERT_EXPR(Numerator < Denominator, "分子 < 分母 否则没必要使用概率");
+		// [0, Denominator)
 		int randValue = Random(Denominator);
-		return randValue <= Numerator;
+		return randValue < Numerator;
 	}
 
 	/*******ELSE*******/
