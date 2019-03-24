@@ -1,38 +1,17 @@
-#include <windows.h> // 创建目录
-#include <clocale> // 指定编码(c语言库locale.h)
+#include <windows.h> // CreateDirectory
 #include "./else/SoftwareTest.h"
+#include "./else/StringUtility.h"
 #include "SampleProgram\SampleProgram.h"
-
-// @see https://gist.github.com/1901/5684151
-// @see https://www.cnblogs.com/hnrainll/archive/2011/05/07/2039700.html
-// Key words: std::wstring 转 std::string
-// 把一个wstring转化为string
-void toStringFromeWstring(std::wstring const &origin, std::string &dest) {
-	std::setlocale(LC_CTYPE, "");
-
-	size_t const mbs_len = wcstombs(NULL, origin.c_str(), 0);
-	std::vector<char> tmp(mbs_len + 1);
-	wcstombs(&tmp[0], origin.c_str(), tmp.size());
-
-	dest.assign(tmp.begin(), tmp.end() - 1);
-}
-
-// 把一个string转化为wstring
-void toWstringFromString(std::string const &origin, std::wstring &dest) {
-	//   std::setlocale(LC_CTYPE, "");
-	std::setlocale(LC_CTYPE, "zh_CN");
-
-	size_t const wcs_len = mbstowcs(NULL, origin.c_str(), 0);
-	std::vector<wchar_t> tmp(wcs_len + 1);
-	mbstowcs(&tmp[0], origin.c_str(), origin.size());
-
-	dest.assign(tmp.begin(), tmp.end() - 1);
-}
 
 // 随机生成 Input Data (用例目录名, 用例文件名, 用例个数 一次数据过多貌似会出问题)
 int generateInputData(std::string &sampleFolderName, std::string &caseFileName, int testCaseCnt) {
+	/*
+	// 有时间测试一下两者实际的差距
 	std::wstring wtmp;
-	toWstringFromString(sampleFolderName, wtmp);
+	StringUtility::toWstringFromString(sampleFolderName, wtmp);
+	*/
+	std::wstring wtmp;
+	wtmp = StringUtility::toWstring(sampleFolderName);
 	BOOL flag = CreateDirectory(wtmp.c_str(), NULL);
 	_ASSERT_EXPR(flag == 0, "目录创建失败!");
 	std::string tmp = sampleFolderName;
@@ -81,7 +60,7 @@ int calcSingleOutputData(
 	SoftwareTestSpace::SampleProgram &sampleSolution
 ) {
 	std::wstring wtmp;
-	toWstringFromString(sampleFolderName, wtmp);
+	wtmp = StringUtility::toWstring(sampleFolderName);
 	BOOL flag = CreateDirectory(wtmp.c_str(), NULL);
 	_ASSERT_EXPR(flag == 0, "目录创建失败!");
 	std::string inputFilePath = sampleFolderName + std::string("/") + inputCaseFileName + std::string(".in");
@@ -101,7 +80,7 @@ int calcSingleOutputData(
 // 随机生成Input Data 同时计算出 Output Data (没有输入数据 没有解题程序 适用于那些不好写出解题程序的题)
 int generateInputOutputData(std::string &sampleFolderName, std::string &caseFileName, int testCaseCnt) {
 	std::wstring wtmp;
-	toWstringFromString(sampleFolderName, wtmp);
+	wtmp = StringUtility::toWstring(sampleFolderName);
 	// flag == 0表示已存在该目录, 1表示新创建
 	BOOL flag = CreateDirectory(wtmp.c_str(), NULL);
 	// _ASSERT_EXPR(flag == 0, "目录创建失败!");

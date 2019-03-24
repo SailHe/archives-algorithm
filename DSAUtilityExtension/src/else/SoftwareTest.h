@@ -7,7 +7,7 @@ namespace SoftwareTestSpace {
 
 	class SampleProgram {
 	public:
-		// Ö´ĞĞÀı³Ì (µÈ¼ÛÓÚ½âÌâ³ÌĞòµÄÖ÷º¯Êı)
+		// æ‰§è¡Œä¾‹ç¨‹ (ç­‰ä»·äºè§£é¢˜ç¨‹åºçš„ä¸»å‡½æ•°)
 		virtual int run() = 0;
 	};
 

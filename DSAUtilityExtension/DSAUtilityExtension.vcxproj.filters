@@ -87,6 +87,9 @@
     <ClInclude Include="src\else\IOSpace.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\else\StringUtility.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MathLibrary.cpp">
@@ -114,6 +117,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\else\IOSpace.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\else\StringUtility.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

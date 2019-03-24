@@ -144,6 +144,7 @@
     <ClInclude Include="src\else\IOSpace.h" />
     <ClInclude Include="src\else\RandomSpace.h" />
     <ClInclude Include="src\else\SoftwareTest.h" />
+    <ClInclude Include="src\else\StringUtility.h" />
     <ClInclude Include="src\else\Transition.h" />
     <ClInclude Include="src\else\DisjointSet.h" />
     <ClInclude Include="src\else\TransitionUtility.h" />
@@ -165,6 +166,7 @@
   <ItemGroup>
     <ClCompile Include="src\else\IOSpace.cpp" />
     <ClCompile Include="src\else\RandomSpace.cpp" />
+    <ClCompile Include="src\else\StringUtility.cpp" />
     <ClCompile Include="src\else\Transition.cpp" />
     <ClCompile Include="src\else\TransitionUtility.cpp" />
     <ClCompile Include="src\ExtendSpace.cpp" />
