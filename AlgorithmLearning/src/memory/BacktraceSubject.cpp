@@ -383,7 +383,7 @@ void dfsTribeBodyguard(int depth = 0){
 
 	//剪枝: 当前选好的 + 还没有搜索到的 < 当前已知的最大值(等于的时候要非0懒得判断了)
 	int tmp = MAX_INT32;
-	Utility::toSignedNum(groupListBuffer.size() + nTribeBodyguard - depth, tmp);
+	Utility::AssertToSignedNum(groupListBuffer.size() + nTribeBodyguard - depth, tmp);
 	if (tmp < maxNum)
 		return;
 
@@ -411,7 +411,7 @@ void dfsTribeBodyguard(int depth = 0){
 				groupListBuffer.push_back(i);
 				//visit
 				int tmp = MAX_INT32;
-				Utility::toSignedNum(groupListBuffer.size(), tmp);
+				Utility::AssertToSignedNum(groupListBuffer.size(), tmp);
 				if (tmp > maxNum){
 					maxNum = groupListBuffer.size();
 					memset(groupTribeBodyguard, 0, sizeof(groupTribeBodyguard));
@@ -432,14 +432,14 @@ void dfsBinTribeBodyguard(int depth = 0){
 
 	//剪枝: 当前选好的 + 还没有搜索到的 < 当前已知的最大值(等于的时候要非0懒得判断了) 若不加这句 那么建的必定是颗CBT
 	int tmp = MAX_INT32;
-	Utility::toSignedNum(groupListBuffer.size() + nTribeBodyguard - depth, tmp);
+	Utility::AssertToSignedNum(groupListBuffer.size() + nTribeBodyguard - depth, tmp);
 	if (tmp < maxNum)
 		return;
 
 	if (depth == nTribeBodyguard){
 		//visit
 		tmp = -1;
-		Utility::toSignedNum(groupListBuffer.size(), tmp);
+		Utility::AssertToSignedNum(groupListBuffer.size(), tmp);
 		if (tmp > maxNum){
 			maxNum = groupListBuffer.size();
 			memset(groupTribeBodyguard, 0, sizeof(groupTribeBodyguard));

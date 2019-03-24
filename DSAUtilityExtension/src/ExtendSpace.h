@@ -622,17 +622,29 @@ namespace Utility {
 		return maxLen;
 	}
 
-	// unsignedNum->signedNum 无符号转为有符号
-	// (PS 使用assert作为判断的 如果assert无效那么等价于强制转换; 无返回值)
+	// unsignedNum->signedNum 断言此无符号可直接转为有符号, 若断言成功则转换 (警告! 此方法主要用于测试, 非Debug则等价于强制转换)
 	template<class UnT, class T>
-	void toSignedNum(UnT unsignedNum, T &signedNum) {
-		// 确认是无符号
+	void AssertToSignedNum(UnT unsignedNum, T &signedNum) {
+		// 断言源类型是无符号
 		assert(unsignedNum - unsignedNum - 1 > 0);
 		signedNum = (T)unsignedNum;
-		// 确认是有符号
+		// 断言目标转换类型是有符号
 		assert(signedNum - signedNum - 1 < 0);
-		// 确认转换后结果正确
+		// 断言转换后结果正确
 		assert(signedNum >= 0);
+	}
+
+	// unsignedNum->signedNum [尝试]将无符号转为有符号 若转换成功返回true
+	template<class UnT, class T>
+	bool tryToSignedNum(UnT unsignedNum, T &signedNum) {
+		// 确认源类型是无符号
+		bool result = unsignedNum - unsignedNum - 1 > 0;
+		signedNum = (T)unsignedNum;
+		// 确认目标转换类型是有符号
+		result = result && signedNum - signedNum - 1 < 0;
+		// 确认转换后结果正确
+		result = result && signedNum >= 0;
+		return result;
 	}
 
 	// sNum->signedNum 有符号转为无符号

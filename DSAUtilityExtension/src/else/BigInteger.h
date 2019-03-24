@@ -434,7 +434,7 @@ private:
 	//将源字符串表示的数字转换为本地格式储存
 	void transitionToLocalRadix(std::string const &originNumberTopLow) {
 		int numTotalBit = 0, wordBit = totalBitOf(radix) - 1;
-		Utility::toSignedNum(originNumberTopLow.length(), numTotalBit);
+		Utility::AssertToSignedNum(originNumberTopLow.length(), numTotalBit);
 		//总储存位数(字数)
 		int storeTotalByteNum = numTotalBit / wordBit;
 		//溢出位
@@ -455,8 +455,8 @@ private:
 	//小于返回-1 大于返回1 等于返回0
 	int compare(const BigInteger &rhs) const {
 		int topBit1 = -1, topBit2 = -1, result = 0;
-		Utility::toSignedNum(digitLowTop.size(), topBit1);
-		Utility::toSignedNum(rhs.digitLowTop.size(), topBit2);
+		Utility::AssertToSignedNum(digitLowTop.size(), topBit1);
+		Utility::AssertToSignedNum(rhs.digitLowTop.size(), topBit2);
 		/*if (signum != rhs.signum) {
 			result = signum < rhs.signum ? -1 : 1;
 		}
@@ -488,7 +488,7 @@ private:
 	//返回总的字数
 	int getTotalByteNum() const {
 		int totalByteNum = -1;
-		Utility::toSignedNum(digitLowTop.size(), totalByteNum);
+		Utility::AssertToSignedNum(digitLowTop.size(), totalByteNum);
 		return totalByteNum;
 	}
 	//this*=2

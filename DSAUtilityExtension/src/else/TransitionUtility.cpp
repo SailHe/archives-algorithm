@@ -68,7 +68,7 @@ namespace TransitionUtility{
 		int carryNum = 0;
 		// 右边是低位
 		int i = -1;
-		for (Utility::toSignedNum(togetherLenAB - 1, i); i >= 0; --i) {
+		for (Utility::AssertToSignedNum(togetherLenAB - 1, i); i >= 0; --i) {
 			int sumDigitNum = 
 				TransitionUtility::toRadixIntNum(topLowNumA[i], radix)
 				+ TransitionUtility::toRadixIntNum(topLowNumB[i], radix)
@@ -82,8 +82,8 @@ namespace TransitionUtility{
 	bool bigPlush(std::string const &topLowNumA, std::string const &topLowNumB, std::string &topLowSum, int radix) {
 		_ASSERT_EXPR(StandardExtend::inRange(2, radix, 63), "单个字符无法区分表示指定进制!");
 		int lenA, lenB, togetherLenAB = -1;
-		Utility::toSignedNum(topLowNumA.length(), lenA);
-		Utility::toSignedNum(topLowNumB.length(), lenB);
+		Utility::AssertToSignedNum(topLowNumA.length(), lenA);
+		Utility::AssertToSignedNum(topLowNumB.length(), lenB);
 		if (lenA > lenB) {
 			topLowSum.resize(lenA, '0');
 			togetherLenAB = lenB;
