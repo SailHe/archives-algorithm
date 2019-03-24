@@ -168,9 +168,9 @@ int main() {
 		cnt++;
 	}
 	std::cout << cnt << std::endl;
-	return 0;
-	SampleProgram_03_20().run();
 	return 0;*/
+	SampleProgram_03_20().run();
+	return 0;
 	generateInputOutputData(testCaseFolderName, fileName, testCaseCnt);
 	// generateInputData(testCaseFolderName, fileName, testCaseCnt);
 	calcSingleOutputData(testCaseFolderName, fileName, fileName + "_SP", 1000*30, SampleProgram_03_20());

@@ -11,21 +11,8 @@
 #include<map>
 #include<iomanip>//cout各种操纵器
 
-// 放到宏定义后有bug
-#include "ExtendSpace.h"
 #include "../SoftwareTest.h"
-
-#define EPS 1E-5
-#define MAX_N 505
-
-#define MAX_R 1001
-#define MAX_C 1001
-
-//#define MAX_N 1000+5
-#define MAX_INT32 2147483647
-#define MIN_INT32 (-MAX_INT32-1)
-#define ARRAY_TEMPLATE template<class T, class Iterator>
-
+#include "ExtendSpace.h"
 
 class SampleProgram_03_20 : public SoftwareTest::SampleProgram {
 public:
