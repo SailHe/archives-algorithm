@@ -43,13 +43,13 @@ int generateInputData(std::string &sampleFolderName, std::string &caseFileName, 
 	// 个数为1005, int范围内 每个数字最大值 21370
 	int base = 0;
 	while (testCaseCnt-- > 0) {
-		base = SoftwareTest::Random(200);
-		int leftBound = base, rightLimit = base + SoftwareTest::Random(21370 - base);
+		base = SoftwareTest::Random1(200);
+		int leftBound = base, rightLimit = base + SoftwareTest::Random1(21370 - base);
 		printf("%d %d\n", leftBound, rightLimit);
-		int size = 10 + SoftwareTest::Random(995);
+		int size = 10 + SoftwareTest::Random1(995);
 		bool printfEnd = false;
 		for (int i = 0; i < size; ++i) {
-			base = SoftwareTest::Random(leftBound);
+			base = SoftwareTest::Random1(leftBound);
 			int currentValue = -99999;
 			// 2/size 的机率遇见中途的中止标志(size > 10) 当然 遇见后就不会再次出现
 			if (SoftwareTest::IsProbability(size - 2, size) || printfEnd) {
@@ -58,7 +58,7 @@ int generateInputData(std::string &sampleFolderName, std::string &caseFileName, 
 				SoftwareTest::loopUntilNotEq([&]() {
 					return limit = rightLimit - (base * (SoftwareTest::IsProbability(1, 2) ? 3 : 1));
 				}, 0);
-				currentValue = SoftwareTest::Random(limit);
+				currentValue = SoftwareTest::Random1(limit);
 			}
 			else {
 				printfEnd = true;
@@ -113,15 +113,15 @@ int generateInputOutputData(std::string &sampleFolderName, std::string &caseFile
 	// 个数为1005, int范围内 每个数字最大值 21370
 	int base = 0;
 	while (testCaseCnt-- > 0) {
-		base = SoftwareTest::Random(200);
-		int leftBound = base, rightLimit = base + SoftwareTest::Random(21370 - base);
+		base = SoftwareTest::Random1(200);
+		int leftBound = base, rightLimit = base + SoftwareTest::Random1(21370 - base);
 		printf("%d %d\n", leftBound, rightLimit);
-		int size = 10 + SoftwareTest::Random(995);
+		int size = 10 + SoftwareTest::Random1(995);
 		bool printfEnd = false;
 		std::vector<int> integetList;
 		integetList.clear();
 		for (int i = 0; i < size; ++i) {
-			base = SoftwareTest::Random(leftBound);
+			base = SoftwareTest::Random1(leftBound);
 			int currentValue = -99999;
 			// 2/size 的机率遇见中途的中止标志(size > 10) 当然 遇见后就不会再次出现
 			if (SoftwareTest::IsProbability(size - 2, size) || printfEnd) {
@@ -130,7 +130,7 @@ int generateInputOutputData(std::string &sampleFolderName, std::string &caseFile
 				SoftwareTest::loopUntilNotEq([&]() {
 					return limit = rightLimit - (base * (SoftwareTest::IsProbability(1, 2) ? 3 : 1));
 				}, 0);
-				currentValue = SoftwareTest::Random(limit);
+				currentValue = SoftwareTest::Random1(limit);
 				if (!printfEnd && StandardExtend::inRange(leftBound, currentValue, rightLimit + 1) && integetList.size() < 1001) {
 					integetList.push_back(currentValue);
 				}
@@ -168,9 +168,9 @@ int main() {
 		cnt++;
 	}
 	std::cout << cnt << std::endl;
-	return 0;*/
-	SampleProgram_03_20().run();
 	return 0;
+	SampleProgram_03_20().run();
+	return 0;*/
 	generateInputOutputData(testCaseFolderName, fileName, testCaseCnt);
 	// generateInputData(testCaseFolderName, fileName, testCaseCnt);
 	calcSingleOutputData(testCaseFolderName, fileName, fileName + "_SP", 1000*30, SampleProgram_03_20());

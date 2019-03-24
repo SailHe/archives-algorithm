@@ -1,5 +1,6 @@
 #include "./SoftwareTest.h"
 
+// 所有方法还有很多BUG, 类似负数的情况啦, 是否可信啦...
 namespace SoftwareTest {
 
 	FILE * fp = NULL;
@@ -15,38 +16,48 @@ namespace SoftwareTest {
 		time_t t;
 		time(&t);
 		t %= L;
-		return ((rand()*t) % L) + 1;
+		// rand [0, RAND_MAX] RAND_MAX的具体值由编译器决定，至少为32767
+		return ((rand()*t) % L);
 	}
 
-	double RandomD(int L) {
-		return (double)Random(L) / ((double)Random(9) + 1);
+	int RandomRange(int LowerBound, int UpperBound) {
+		// 上下限(数值): Upper limit, Lower limit
+		// 上下界(抽象EG境界): Upper bound, Lower bound
+		// 关于左和右有争议 https://www.zhihu.com/question/21859177
+		// 姑且认为左小右大, 然后所谓人往高出走, 于是左->右, 草率规定左为起源(Origin)右为目标(Target)或目的地/址(Destnation)
+		// 为统一原有代码或区分C++代码, 使用纯C语言编写的代码全以大驼峰命名(尽量避免混用, 若不能避免则视为C++)
+		return(LowerBound + Random(UpperBound - LowerBound));
 	}
 
-	void PDouble() {
-		printf("%d.%d\n", rand(), rand());
+	int Random1(int L) {
+		return Random(L) + 1;
 	}
 
-	char RandomChar(char s, char e) {
-		return(rand() % (e - s + 1) + s);
+	double RandomDouble(int L) {
+		/// printf("%d.%d\n", rand(), rand()); // 输出随机小数的思路...
+		return (double)Random(L) / ((double)Random1(9));
 	}
 
-	bool IsProbability(int x, int base) {
-		int range = Random(base);
-		return range <= x;
+	char RandomChar(char B, char E) {
+		return RandomRange(B, E);
 	}
 
-	void RandomMatrix(int r, int c, int MaxNum) {
-		//fprintf(fp, "%d \n", r);
-		fprintf(fp, "%d\n", c);
-		while (r-- > 0)
-		{
-			for (int i = 0; i < c; i++)
-			{
-				fprintf(fp, i ? " " : "");
-				fprintf(fp, "%d", Random(MaxNum) - 1);
+	void RandomMatrix(int Rows, int Cols, int LowerBound, int UpperBound, FILE *DestFp) {
+		//fprintf(DestFp, "%d \n", Rows);
+		fprintf(DestFp, "%d\n", Cols);
+		while (Rows-- > 0){
+			for (int c = 0; c < Cols; c++) {
+				fprintf(DestFp, c == 0 ? "" : " ");
+				fprintf(DestFp, "%d", RandomRange(LowerBound, UpperBound));
 			}
 		}
-		fprintf(fp, "\n");
+		fprintf(DestFp, "\n");
+	}
+
+	bool IsProbability(int Numerator, int Denominator) {
+		_ASSERT_EXPR(Numerator <= Denominator, "分子<=分母 否则没必要使用概率");
+		int randValue = Random(Denominator);
+		return randValue <= Numerator;
 	}
 
 	/*******ELSE*******/
