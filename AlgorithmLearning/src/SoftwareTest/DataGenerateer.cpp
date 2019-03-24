@@ -100,15 +100,16 @@ int calcSingleOutputData(
 int generateInputOutputData(std::string &sampleFolderName, std::string &caseFileName, int testCaseCnt) {
 	std::wstring wtmp;
 	toWstringFromString(sampleFolderName, wtmp);
+	// flag == 0表示已存在该目录, 1表示新创建
 	BOOL flag = CreateDirectory(wtmp.c_str(), NULL);
-	_ASSERT_EXPR(flag == 0, "目录创建失败!");
+	// _ASSERT_EXPR(flag == 0, "目录创建失败!");
 	std::string tmp = sampleFolderName;
 	tmp += std::string("/") + caseFileName;
 	std::string inputFilePath = tmp + std::string(".in");
 	std::string outputFilePath = tmp + std::string(".out");
 	// 这玩意没写权限('r') 也没啥反应...
 	freopen(inputFilePath.c_str(), "w", stdout);
-	std::fstream output(outputFilePath);
+	std::ofstream output = std::ofstream(outputFilePath, std::ios::out | std::ios::trunc);
 
 	// 个数为1005, int范围内 每个数字最大值 21370
 	int base = 0;
