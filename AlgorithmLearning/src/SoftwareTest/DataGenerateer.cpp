@@ -154,7 +154,7 @@ int generateInOut(std::string &sampleFolderName, std::string &caseFileName, int 
 					return limit = rightLimit - (base * (IsProbability(1, 2) ? 3 : 1));
 				}, 0);
 				currentValue = Random(limit);
-				if (!printfEnd) {
+				if (!printfEnd && StandardExtend::inRange(leftBound, currentValue, rightLimit + 1) && integetList.size() < 1001) {
 					integetList.push_back(currentValue);
 				}
 			}
@@ -216,10 +216,15 @@ int main() {
 	std::string testCaseFolderName("0123"), fileName("0");
 	/*int num, cnt = 0;
 	while (std::cin >> num) {
+		if (num < 89) {
+			std::cout << num << " ";
+		}
 		cnt++;
 	}
+	std::cout << cnt << std::endl;
+	return 0;
+	SampleProgram_03_20().run();
 	return 0;*/
-	// SampleProgram_03_20().run();
 	generateInOut(testCaseFolderName, fileName, testCaseCnt);
 	// generateInputData(testCaseFolderName, fileName, testCaseCnt);
 	calcSingleOutputData(testCaseFolderName, fileName, fileName + "_SP", 1000*3, SampleProgram_03_20());
