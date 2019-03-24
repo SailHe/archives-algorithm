@@ -43,14 +43,14 @@ int generateInputData(std::string &sampleFolderName, std::string &caseFileName, 
 	// 个数为1005, int范围内 每个数字最大值 21370
 	int base = 0;
 	while (testCaseCnt-- > 0) {
-		base = SoftwareTest::RandomUnsignedP1(200);
-		int lowerBound = base, upperBound =  SoftwareTest::RandomUnsignedRange(base, 21370);
+		base = SoftwareTest::RandomP1(200);
+		int lowerBound = base, upperBound =  SoftwareTest::RandomRange(base, 21370);
 		printf("%d %d\n", lowerBound, upperBound);
 		// (10, 1005]
 		unsigned size = 10 + SoftwareTest::RandomUnsignedP1(995);
 		bool printfEnd = false;
 		for (unsigned i = 0; i < size; ++i) {
-			base = SoftwareTest::RandomUnsignedP1(lowerBound);
+			base = SoftwareTest::RandomP1(lowerBound);
 			int currentValue = -99999;
 			// 2/size 的机率遇见中途的中止标志(size > 10) 当然 遇见后就不会再次出现
 			if (SoftwareTest::IsProbability(size - 2, size) || printfEnd) {
@@ -59,7 +59,7 @@ int generateInputData(std::string &sampleFolderName, std::string &caseFileName, 
 				SoftwareTest::loopUntilNotEq([&]() {
 					return realUpperBound = upperBound - (base * (SoftwareTest::IsProbability(1, 2) ? 3 : 1));
 				}, 0);
-				currentValue = SoftwareTest::RandomUnsignedP1(realUpperBound);
+				currentValue = SoftwareTest::RandomP1(realUpperBound);
 			}
 			else {
 				printfEnd = true;
@@ -115,8 +115,8 @@ int generateInputOutputData(std::string &sampleFolderName, std::string &caseFile
 	// 个数为1005, int范围内 每个数字最大值 21370
 	int base = 0;
 	while (testCaseCnt-- > 0) {
-		base = SoftwareTest::RandomUnsignedP1(200);
-		int lowerBound = base, upperBound = base + SoftwareTest::RandomUnsignedP1(21370 - base);
+		base = SoftwareTest::RandomP1(200);
+		int lowerBound = base, upperBound = base + SoftwareTest::RandomP1(21370 - base);
 		printf("%d %d\n", lowerBound, upperBound);
 		// (10, 1005]
 		unsigned size = 10 + SoftwareTest::RandomUnsignedP1(995);
@@ -124,7 +124,7 @@ int generateInputOutputData(std::string &sampleFolderName, std::string &caseFile
 		std::vector<int> integetList;
 		integetList.clear();
 		for (unsigned i = 0; i < size; ++i) {
-			base = SoftwareTest::RandomUnsignedP1(lowerBound);
+			base = SoftwareTest::RandomP1(lowerBound);
 			int currentValue = -99999;
 			// 2/size 的机率遇见中途的中止标志(size > 10) 当然 遇见后就不会再次出现
 			if (SoftwareTest::IsProbability(size - 2, size) || printfEnd) {
@@ -133,7 +133,7 @@ int generateInputOutputData(std::string &sampleFolderName, std::string &caseFile
 				SoftwareTest::loopUntilNotEq([&]() {
 					return realUpperBound = upperBound - (base * (SoftwareTest::IsProbability(1, 2) ? 3 : 1));
 				}, 0);
-				currentValue = SoftwareTest::RandomUnsignedP1(realUpperBound);
+				currentValue = SoftwareTest::RandomP1(realUpperBound);
 				if (!printfEnd && StandardExtend::inRange(lowerBound, currentValue, upperBound + 1) && integetList.size() < 1001) {
 					integetList.push_back(currentValue);
 				}
@@ -179,6 +179,7 @@ int main() {
 	int a = SoftwareTest::Random(2);
 	// 只产生 -1, 0
 	double b = SoftwareTest::RandomRange(-1, 1);
+	unsigned c = SoftwareTest::RandomUnsignedP1(MAX_INT32);
 
 	generateInputOutputData(testCaseFolderName, fileName, testCaseCnt);
 	// generateInputData(testCaseFolderName, fileName, testCaseCnt);

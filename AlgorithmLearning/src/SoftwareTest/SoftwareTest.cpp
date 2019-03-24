@@ -31,8 +31,8 @@ namespace SoftwareTest {
 		int result = 0;
 		loopUntilNotEq([&]() {
 			resultUnsigned = RandomUnsigned(AbsBound);
-			return Utility::tryToSignedNum(resultUnsigned, result);
-		}, false);
+			return Utility::tryToSignedNum(resultUnsigned, result) ? 1 : 0;
+		}, 0);
 		return IsNegative ? -result : result;
 	}
 
@@ -91,7 +91,7 @@ namespace SoftwareTest {
 		// 小数概率只包含有理数, 分数概率范围更广, 虽然计算机本来就只能表示极小的一部分数
 		_ASSERT_EXPR(Numerator < Denominator, "此时没必要使用概率");
 		// [0, Denominator)
-		int randValue = RandomUnsigned(Denominator);
+		unsigned randValue = RandomUnsigned(Denominator);
 		return randValue < Numerator;
 	}
 
