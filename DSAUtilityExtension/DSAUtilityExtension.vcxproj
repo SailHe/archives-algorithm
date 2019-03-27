@@ -164,6 +164,7 @@
     <ClInclude Include="src\stdafxWin.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\else\DataGenerater.cpp" />
     <ClCompile Include="src\else\IOSpace.cpp" />
     <ClCompile Include="src\else\RandomSpace.cpp" />
     <ClCompile Include="src\else\StringUtility.cpp" />

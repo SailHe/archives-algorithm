@@ -26,7 +26,8 @@ class SampleProgram_03_20 : public SoftwareTestSpace::SampleProgram {
 	// 仅用于数据生成
 	std::vector<int> integetList;
 public:
-	// 需要生成1000条测试数据
+
+	// 解题程序
 	int run() override {
 		int leftBound, rightLmit;
 		while (std::cin >> leftBound >> rightLmit) {
@@ -62,6 +63,7 @@ public:
 		return 0;
 	}
 
+	// 随机输入数据生成闭包
 	std::function<void(void)> inputDataGenClosure() override {
 		// 最大个数为1005, int范围内 每个数字最大值 21370
 		const unsigned MAX_SIZE_R_LIMIT = 1001;
@@ -135,6 +137,7 @@ public:
 		};
 	}
 
+	// 依据已存在的公共"输入数据"计算输出 的闭包
 	std::function<void(std::ofstream &)> outputDataGenClosure() override {
 		return [this](std::ofstream &output) {
 			auto sumValue = StandardExtend::sumValueStatistics(integetList.begin(), integetList.end(), 0);
@@ -147,6 +150,20 @@ public:
 	}
 
 };
+
+int main() {
+	/*
+	DataGenerater::inputNumberCount();
+	return 0;
+	sampleP.run();
+	return 0;
+	*/
+	// 需要生成1000条测试用例数据
+	int testCaseCnt = 10;
+	std::string testCaseFolderName("_TestCaseData"), fileName("0");
+	DataGenerater::trainServices(SampleProgram_03_20(), testCaseCnt, testCaseFolderName, fileName);
+	return 0;
+}
 
 /*
 

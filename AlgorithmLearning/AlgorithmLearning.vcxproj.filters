@@ -132,9 +132,6 @@
     <ClCompile Include="src\agoj\agoj18_09_22.cpp">
       <Filter>源文件\oj</Filter>
     </ClCompile>
-    <ClCompile Include="src\SoftwareTest\DataGenerateer.cpp">
-      <Filter>源文件\SoftwareTest</Filter>
-    </ClCompile>
     <ClCompile Include="src\SoftwareTest\SampleProgram\agoj19_03_13.cpp">
       <Filter>源文件\SoftwareTest\SampleProgram</Filter>
     </ClCompile>
