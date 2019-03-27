@@ -81,13 +81,13 @@
     <ClInclude Include="src\else\RandomSpace.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\else\SoftwareTest.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\else\IOSpace.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\else\StringUtility.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\else\SoftwareTest.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

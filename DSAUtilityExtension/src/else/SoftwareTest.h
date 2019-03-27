@@ -5,10 +5,15 @@
 
 namespace SoftwareTestSpace {
 
+	// Éú³ÉÊı¾İÊ±»áµ÷ÓÃ¶ÔÓ¦µÄº¯Êı ÎªÁË·½±ãÊµÏÖÒÔ¼°×î´óÏŞ¶È±£Áô³ÌĞòµÄ¶ÀÁ¢ĞÔ(½âñî) »ùÓÚÖØ¶¨ÏòÊäÈëÊä³öÊµÏÖ
+	// PS: Éú³ÉÊı¾İÊ±stdout±»µ¼µ½ÊäÈëÊı¾İµÄÎÄ¼ş, outputÊÇÊä³öÎÄ¼şµÄÁ÷ ÎŞ·¨ÔÚÖØ¶¨ÏòºóÔÙ´ÎÖØ¶¨Ïò»ØÆÁÄ»
 	class SampleProgram {
 	public:
-		// æ‰§è¡Œä¾‹ç¨‹ (ç­‰ä»·äºè§£é¢˜ç¨‹åºçš„ä¸»å‡½æ•°)
+		// Ö´ĞĞÀı³Ì (µÈ¼ÛÓÚ½âÌâ³ÌĞòµÄÖ÷º¯Êı)
 		virtual int run() = 0;
+		// ·µ»ØÊäÈëÊı¾İÉú³É±Õ°ü
+		virtual std::function<void(void)> inputDataGenClosure() = 0;
+		// ·µ»ØÊä³öÊı¾İÉú³É±Õ°ü
+		virtual std::function<void(std::ofstream &)> outputDataGenClosure() = 0;
 	};
-
 }
