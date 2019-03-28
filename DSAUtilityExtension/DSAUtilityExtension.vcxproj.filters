@@ -119,10 +119,13 @@
     <ClCompile Include="src\else\IOSpace.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\else\DataGenerater.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="src\else\StringUtility.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\else\DataGenerater.cpp">
+    <ClCompile Include="src\Graph\Tree\TreeObject.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

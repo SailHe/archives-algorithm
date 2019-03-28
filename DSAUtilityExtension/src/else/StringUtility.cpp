@@ -29,14 +29,15 @@ namespace StringUtility {
 		wcstombs_s(&i, pCharBuffer, (size_t)BUFFER_SIZE, WcharBufferArr, (size_t)BUFFER_SIZE);
 		memset(pWcharBufferAll, 0, 13 * sizeof(wchar_t));
 		// char Conversion to wchar
-		// åŠ ä¸Šæ­¤å¥ä¼šä½¿WStrçš„freeå¼‚å¸¸ è¿·
+		// ¼ÓÉÏ´Ë¾ä»áÊ¹WStrµÄfreeÒì³£ ÃÔ
 		// mbstowcs_s(&i, WStr, (size_t)BUFFER_SIZE, pCharBuffer, (size_t)BUFFER_SIZE);
 		mbstowcs_s(&i, wbuffer, (size_t)BUFFER_SIZE, pCharBuffer, (size_t)BUFFER_SIZE);
-		// dest ä¸ºA1å¤„è¡¨ç¤ºçš„å®½å­—ç¬¦æ•°ç»„å°±ä¸è¡Œ: å¯ä»¥è½¬æ¢ ä½†ä¼šä½¿srcæŸå å¾ˆè¿·
+		// dest ÎªA1´¦±íÊ¾µÄ¿í×Ö·ûÊı×é¾Í²»ĞĞ: ¿ÉÒÔ×ª»» µ«»áÊ¹srcËğ»µ ºÜÃÔ
 		mbstowcs_s(&i, pWcharBufferAll, (size_t)BUFFER_SIZE, pCharBuffer, (size_t)BUFFER_SIZE);
 
 		// Output
-		printf(" Characters converted: %u\n", i);
+		// printf(" Characters converted: %u\n", i); // i ÊÇsize_t ²»ÊÇunsigned, ËäÈ»size_tÏÖÔÚÊÇunsigned
+		// std::cout << i << std::endl;
 		printf(" Multibyte character: %s\n\n", pCharBuffer);
 
 		// Free multibyte character buffer
@@ -48,7 +49,7 @@ namespace StringUtility {
 
 	// @see https://gist.github.com/1901/5684151
 	// @see https://www.cnblogs.com/hnrainll/archive/2011/05/07/2039700.html
-	// Key words: std::wstring ×ª std::string
+	// Key words: std::wstring std::string
 	/*void toStringFromeWstring(std::wstring const &origin, std::string &dest) {
 		std::setlocale(LC_CTYPE, "");
 
@@ -68,14 +69,14 @@ namespace StringUtility {
 
 		dest.assign(tmp.begin(), tmp.end() - 1);
 	}*/
-	
+
 	std::string toMstring(std::wstring const &origin) {
 		std::setlocale(LC_CTYPE, "");
 		std::size_t mbs_len = 0;
 		std::string dest;
 		// std::wcstombs();
 		wcstombs_s(
-			&mbs_len, 
+			&mbs_len,
 			// &dest[0], dest.length(), // Expression:sizelnBytes>retsize
 			buffer, BUFFER_SIZE,
 			&origin[0], origin.length()
@@ -95,9 +96,9 @@ namespace StringUtility {
 			&origin[0], origin.length()
 		);
 		dest.assign(wbuffer, wbuffer + origin.length());
-		// stlä¸­stringä¸wstringæ˜¯ç»Ÿä¸€å®¹å™¨çš„ä¸åŒæ³›å‹, è¯¥å®¹å™¨å®ç°äº†stringçš„ç§»åŠ¨(å³å€¼èµ‹å€¼) @see xstring.h 2300è¡Œ
+		// stlÖĞstringÓëwstringÊÇÍ³Ò»ÈİÆ÷µÄ²»Í¬·ºĞÍ, ¸ÃÈİÆ÷ÊµÏÖÁËstringµÄÒÆ¶¯(ÓÒÖµ¸³Öµ) @see xstring.h 2300ĞĞ
 		/*
-		// ä¸è¿‡ç”±äºæ²¡æœ‰å®ç°å³å€¼æ„é€ , æ‰€ä»¥å¾—è¿™ä¹ˆç”¨æ‰è¡Œ
+		// ²»¹ıÓÉÓÚÃ»ÓĞÊµÏÖÓÒÖµ¹¹Ôì, ËùÒÔµÃÕâÃ´ÓÃ²ÅĞĞ
 		std::string s;
 		s = toMstring(L"ss");
 		*/

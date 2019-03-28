@@ -81,7 +81,8 @@ namespace Utility {
 namespace MathExtend {
 	
 	bool isDivisible(char *bigInteger, int MOD) {
-		int len = strlen(bigInteger);
+		int len = -1;
+		Utility::AssertToSignedNum(strlen(bigInteger), len);
 		int ans, i;
 		for (ans = i = 0; i < len; i++) {
 			ans = (ans * 10 + (bigInteger[i] - '0')) % MOD;
@@ -89,16 +90,17 @@ namespace MathExtend {
 		return ans == 0 ? true : false;
 	}
 	void eraseAllSubStr(char *resStr, char *delSubStr) {
-		int i, res_len, del_len;
+		__int64 i;
+		int res_len, del_len;
 		char *p;
-		del_len = strlen(delSubStr);
-		res_len = strlen(resStr);
+		Utility::AssertToSignedNum(strlen(delSubStr), del_len);
+		Utility::AssertToSignedNum(strlen(resStr), res_len);
 
 		for (p = strstr(resStr, delSubStr); p != NULL; p = strstr(resStr, delSubStr)) {
 			for (i = p - resStr; i < res_len - del_len + 1; i++) {
 				resStr[i] = resStr[i + del_len];
 			}
-			res_len = strlen(resStr);
+			Utility::AssertToSignedNum(strlen(resStr), res_len);
 		}
 	}
 	int reverseOrderNumber(int number) {

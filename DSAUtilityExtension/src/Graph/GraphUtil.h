@@ -54,8 +54,12 @@ struct SubTwain {
 		this->c = c;
 	}/**/
 	SubTwain(size_t r, size_t c) {
-		this->r = r;
-		this->c = c;
+		bool result = true;
+		result = result && Utility::tryToSignedNum(r, this->r);
+		result = result && Utility::tryToSignedNum(c, this->c);
+		if (!result) {
+			throw std::exception("转换失败");
+		}
 	}
 	//用当前下标对作为限制下标 解析编号 构造一个点
 	Point2Base const &toPoint2Base(int number) {

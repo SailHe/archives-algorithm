@@ -9,7 +9,7 @@ protected:
 		ElementType Data;
 		LinkedListNode *Next_;
 	};
-	//using ElementType = T;
+
 	//LinkedListImpl
 	typedef LinkedListNode *LinkedListNodePtr;
 	//特指其位置 用地址表示
@@ -30,16 +30,6 @@ public:
 			BaseIter temp = baseIter;
 			baseIter = baseIter->Next_;
 			return Iterator(temp);
-		}
-		Iterator &operator--() {
-			//没有实现
-			baseIter = nullptr;
-			return *this;
-		}
-		Iterator &operator--(int) {
-			//没有实现
-			baseIter = nullptr;
-			return *this;
 		}
 		bool operator==(Iterator const &rhs) const {
 			return baseIter == rhs.baseIter;
@@ -66,8 +56,12 @@ public:
 	LinkedList(LinkedList const &rhs);
 	LinkedList(LinkedList const &&rvalue);
 	//void operator = (LinkedList const &rhs) const = delete;
-	void operator = (LinkedList const &rhs);
+	void operator=(LinkedList const &rhs);
 
+	Iterator begin() const {
+		// 除去头节点0
+		return this->findKth(1);
+	}
 	Iterator const &end() const {
 		static Iterator END = Iterator(nullptr);
 		return END;
@@ -75,7 +69,7 @@ public:
 	//read 返回值用于连锁
 	LinkedList &input();
 	//write
-	LinkedList &output();
+	std::string toString(std::function<std::string(ElementType const&)> toString) const;
 	/***********************************************递增链表操作**************/
 	/*
 	结点不变 原表头置零
@@ -96,11 +90,11 @@ public:
 	*/
 	/*******************************************链表的查找与数据操作*********/
 	//返回链表储存数据的结点个数
-	int length();
+	int length() const ;
 	//返回链表第k条数据  不存在返回ERROR_ELE_VALUE :: k属于(-length, length)
-	Iterator findKth(int k);
+	Iterator findKth(int k) const ;
 	//返回线性表中首次出现ele的位置 找不到返回NULL
-	Iterator findData(ElementType ele);
+	Iterator findData(ElementType ele) const ;
 	//将ele插入L，并保持该序列的有序性，返回插入后的链表头
 	bool insertData(ElementType ele);
 	//在位置iter前插入ele  返回链表头 若参数iter位置非法返回NULL   自带虚拟头节点 即使传入空结点 NLLL 也可以顺利插入
@@ -202,20 +196,23 @@ protected:
 	void ReadList(LinkedListNodePtr *L) {
 		*L = CreateListNew();
 	}
-	void Print(LinkedListNodePtr L)
+	std::string Print(LinkedListNodePtr L, std::function<std::string(ElementType)> toString) const
 	{
+		// 混用C++也是万不得已(懒)
+		std::string result;
 		int n = 0;
 		if (L->Next_)
 		{
 			while (L = L->Next_)
 			{
-				printf(n++ ? " " : "");
-				std::cout << L->Data;
+				result += n++ ? " " : "";
+				result += toString(L->Data);
 			}
 		}
-		else
-			printf("NULL");
-		puts("");
+		else {
+			result += "NULL";
+		}
+		return result;
 	}
 	/***********************************************递增链表操作**************/
 	/*
@@ -295,7 +292,7 @@ protected:
 	*/
 	/*******************************************链表的查找与数据操作*********/
 	//返回结点L及其之后结点个数
-	int Length(LinkedListNodePtr L) {
+	int Length(LinkedListNodePtr L) const {
 		LinkedListNodePtr p = L;
 		int n = 0;
 		while (p != NULL)
@@ -303,7 +300,7 @@ protected:
 		return n;
 	}
 	//返回链表第k条数据  不存在返回NULL :: k属于(0, length)
-	Position FindKth(LinkedListNodePtr L, int k) {
+	Position FindKth(LinkedListNodePtr L, int k) const {
 		int n = 1;
 		while (L = L->Next_) {
 			if (n < k)
@@ -316,12 +313,12 @@ protected:
 		return NULL;
 	}
 	//返回链表倒数第k个元素  不存在返回NULL
-	Position FindRKth(LinkedListNodePtr L, int k) {
+	Position FindRKth(LinkedListNodePtr L, int k) const {
 		//倒数第k个就是正数第len-k个
 		return FindKth(L, Length(L) - k);//若不带头节点length返回值加1
 	}
 	//返回线性表中首次出现X的位置 找不到返回NULL
-	Position FindData(LinkedListNodePtr L, ElementType X) {
+	Position FindData(LinkedListNodePtr L, ElementType X) const {
 		LinkedListNodePtr p = L;
 		p->Data = -X;
 		while (p)
@@ -491,72 +488,6 @@ protected:
 		return Head;
 	}
 
-	/*
-	1 3 5 7 9 11 -1
-	2 4 6 8 10 12 -1
-	*/
-	int mainForLinkedList() {
-		//freopen("input", "r", stdin);
-		LinkedListNodePtr p1 = NULL, p2 = NULL, p = NULL;
-		LinkedListNodePtr pt = NULL;
-		int n;
-		puts("输入链表各元素 以-1结尾");
-		p1 = CreateListNew();
-		p2 = CreateListRe();
-		Print(p1); Print(p2);
-		puts("begain\n");
-
-		puts("以反转后的p2作为新的链表p\n");
-		p = Reverse(p2);
-
-		puts("销毁p2\n");
-		Destroy(p2);
-		puts("输出p并将p赋给p2\n");
-		Print(p2 = p);
-
-		puts("p = 合并p1 p2后的新链表\n");
-		p = Merge(p1, p2); Print(p);
-		n = Length(p);
-		int i = 0;
-		while (p->Next_) {
-			++i;
-
-			Position findPosition = FindKth(p, i);
-			if (findPosition != NULL) {
-				pt = InsertBeforeP(pt, findPosition->Data, pt);
-				printf("find 正数第%d个元素%d\n", i, findPosition->Data);
-			}
-			else {
-				puts("find error");
-			}
-
-			Position findPositionRe = FindRKth(p, 1);
-			if (findPositionRe != NULL) {
-				printf("find 倒数第%d个元素%d\n", 1, findPositionRe->Data);
-			}
-			else {
-				puts("find error");
-			}
-
-			ElementType deleteTemp = findPositionRe->Data;
-			Position findDataPo = FindData(p, deleteTemp);
-			if (DeleteInP(p, &findDataPo) != NULL) {
-				printf("delete %d\n", deleteTemp);
-				Print(p);
-			}
-			else {
-				puts("delete error");
-			}
-		}
-		puts("");
-		pt = CreatHead(pt);
-		Print(pt);
-		p = Reverse(pt);
-		Destroy(pt);
-		Print(pt = p);
-		return 0;
-	}
-
 private:
 	LinkedListNodePtr headNode_;
 };
@@ -590,9 +521,8 @@ LinkedList<ElementType> &LinkedList<ElementType>::input() {
 	return *this;
 }
 template<class ElementType>
-LinkedList<ElementType> &LinkedList<ElementType>::output() {
-	Print(headNode_);
-	return *this;
+std::string LinkedList<ElementType>::toString(std::function<std::string(ElementType const&)> toString) const {
+	return Print(headNode_, toString);
 }
 template<class ElementType>
 LinkedList<ElementType> &LinkedList<ElementType>::merge(LinkedList<ElementType> &rhs) {
@@ -613,15 +543,15 @@ typename LinkedList<ElementType>::Iterator LinkedList<ElementType>::intersection
 	return Intersection(headNode_, rhs.headNode_);
 }
 template<class ElementType>
-int LinkedList<ElementType>::length() {
+int LinkedList<ElementType>::length() const {
 	return Length(headNode_->Next_);
 }
 template<class ElementType>
-typename LinkedList<ElementType>::Iterator LinkedList<ElementType>::findKth(int k) {
+typename LinkedList<ElementType>::Iterator LinkedList<ElementType>::findKth(int k) const {
 	return k >= 0 ? FindKth(headNode_, k) : FindRKth(headNode_, -k);
 }
 template<class ElementType>
-typename LinkedList<ElementType>::Iterator LinkedList<ElementType>::findData(ElementType ele) {
+typename LinkedList<ElementType>::Iterator LinkedList<ElementType>::findData(ElementType ele) const {
 	return FindData(headNode_, ele);
 }
 template<class ElementType>

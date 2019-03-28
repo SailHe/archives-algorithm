@@ -42,6 +42,108 @@ namespace StandardExtend{
 	//using namespace std;
 	//using namespace JCE;
 
+	// 可字符串化的
+	class Stringable {
+	public:
+		virtual std::string toString() = 0;
+	};
+
+	// ************************运算符集合类(不可继承的接口类是一种约定, 虽然貌似可以使用函数指针实现)*********************************
+	/*
+	// 可赋值的(不可继承)
+	class Assignable {
+	public:
+		virtual Assignable operator=(Assignable const &&rvalue) { _ASSERT_EXPR(false, "未实现"); }
+		Assignable operator=(Assignable const &rhs) { _ASSERT_EXPR(false, "未实现"); }
+	};
+	// 可运算的(不可继承)
+	class Computable:public Assignable {
+	public:
+		Computable(int) { _ASSERT_EXPR(false, "未实现"); }
+		virtual Computable operator+=(Computable const &rhs) {_ASSERT_EXPR(false, "未实现");}
+		Computable operator+(Computable const &rhs) const {
+			Computable tmp = *this;
+			tmp += rhs;
+			return tmp;
+		}
+		virtual Computable operator-=(Computable const &rhs) { _ASSERT_EXPR(false, "未实现"); }
+		Computable operator-(Computable const &rhs) const {
+			Computable tmp = *this;
+			tmp -= rhs;
+			return tmp;
+		}
+		// 前置自加
+		Computable &operator++() {
+			*this += 1;
+			return *this;
+		}
+		// 后置自加
+		Computable operator++(int) {
+			Computable tmp = *this;
+			++(*this);
+			return tmp;
+		}
+	};*/
+
+	// 可比较的(不可继承)
+	class Comparable {
+	public:
+		virtual bool operator==(Comparable const &rhs) const = 0;
+		virtual bool operator<(Comparable const &rhs) const = 0;
+		/* 派生的符号重载 */
+		bool operator!=(Comparable const &rhs) const {
+			return !(*this == rhs);
+		}
+		bool operator>=(Comparable const &rhs) const {
+			return !(*this < rhs);//不小于等价于>=
+		}
+		bool operator<=(Comparable const &rhs) const {
+			return (*this < rhs) || (*this == rhs);//小于或等于 等价于 <=
+		}
+		bool operator>(Comparable const &rhs) const {
+			//return !(*this <= rhs);//不 <= 等价于 >
+			return rhs < *this;//this > rhs 等价于 rhs < this
+		}
+	};
+
+	template<typename T>// 单向迭代器
+	class ItertorUnidirectional {
+	public:
+		//virtual ~ItertorUnidirectional() = 0;
+		//virtual ItertorUnidirectional &next() = 0;
+		// 前置自加(返回当前迭代器本身)
+		virtual ItertorUnidirectional &operator++() = 0;
+		// 后置自加(返回当前迭代器的副本)
+		ItertorUnidirectional operator++(int) {
+			ItertorUnidirectional tmp = *this;
+			++(*this);
+			return tmp;
+		}
+		virtual bool operator==(ItertorUnidirectional const &rhs) const = 0;
+		bool operator!=(ItertorUnidirectional const &rhs) const {
+			return !(*this == rhs);
+		}
+		// 如果还有下一个(next)返回true
+		//virtual bool hasNext() = 0;
+		// 如果当前迭代器(current)是有效的返回true
+		virtual operator bool() = 0;
+		virtual T operator*() = 0;
+	};
+
+	template<typename T>
+	class ItertorInterface : public ItertorUnidirectional<T> {
+	public:
+		virtual ~ItertorInterface() = 0;
+		// 前置自减
+		virtual ItertorInterface &operator--() = 0;
+		// 后置自减
+		virtual ItertorInterface operator--(int) = 0;
+		// 如果还有上一个(past)返回true Previous
+		virtual bool hasPast() = 0;
+	};
+
+	// ************************运算符集合类-END*********************************
+
 	// 大写字母->小写字母
 	DSAUTILITYEXTENSION_API char toLowerAlph(char c);
 	// 'A' == 'a' == '0' ... 'J' == 'j' == '9' 以此类推
@@ -82,7 +184,45 @@ namespace StandardExtend{
 		return avlTime;
 	}
 
+	template<typename Iterator>
+	bool isEqual(Iterator lhsBegin, Iterator lhsEnd, Iterator rhsBegin) {
+		bool result = true;
+		while (lhsBegin != lhsEnd) {
+			if (*lhsBegin == *rhsBegin) {
+				// DNT
+			}
+			else {
+				result = false;
+				break;
+			}
+			++lhsBegin;
+			++rhsBegin;
+		}
+		return result;
+	}
 
+	template<typename T>
+	bool isEqual(ItertorUnidirectional<T> lhsBegin, ItertorUnidirectional<T> rhsBegin) {
+		bool result = true;
+		while (lhsBegin){
+			if (*lhsBegin == *rhsBegin) {
+				// DNT
+			}
+			else {
+				result = false;
+				break;
+			}
+			++lhsBegin;
+			++rhsBegin;
+		}
+		return result;
+	}
+
+	template<class T>
+	bool testAssert(T realValue, T expectValue) {
+		assert(realValue == expectValue);
+		return true;
+	}
 
 	template<class T>
 	bool testAndOut(JCE::String const &name, T realValue, T expectValue) {
@@ -650,7 +790,7 @@ namespace Utility {
 	// sNum->signedNum 有符号转为无符号
 	// (PS 使用assert作为判断的 如果assert无效那么等价于强制转换; 无返回值)
 	template<class UnT, class T>
-	void toUnsignedNum(T signedNum, UnT &unsignedNum) {
+	void AssertToUnsignedNum(T signedNum, UnT &unsignedNum) {
 		// 确认即将转换的结果是正确
 		assert(signedNum >= 0);
 		signedNum = (T)unsignedNum;

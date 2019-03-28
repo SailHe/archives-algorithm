@@ -1,186 +1,232 @@
 #include "Teater.h"
 
 using namespace std;
-//Demo
+/**
+template<typename Iterator>
+std::string toString(Iterator begin, Iterator end, std::function<std::string(Iterator)> process) {
 
-int MainForStack() {
+}*/
+
+int testForStack() {
+	int i = 0;
+
+	std::cout << "Stack<int>: " << std::endl;
 	Stack<int> s;
-	for (int i = 0; i < 10; ++i) {
+	for (i = 0; i < 10; ++i) {
 		s.push(i);
 	}
 	while (!s.isEmpty()) {
-		printf("%d\n", s.pop());
+		StandardExtend::testAndOut("", s.pop(), --i);
 	}
 
+	std::cout << "Stack<string>: " << std::endl;
 	Stack<string> ss;
-	for (int i = 0; i < 10; ++i) {
-		ss.push(string("StackData"));
+	for (i = 0; i < 10; ++i) {
+		ss.push(string("StackData") + std::to_string(i));
 	}
 	while (!ss.isEmpty()) {
-		cout << ss.pop() << endl;
+		StandardExtend::testAndOut("", ss.pop(), string("StackData") + std::to_string(--i));
 	}
-	puts(" ===== Stack test end");
+	puts(" ====== Stack test end");
 	return 0;
 }
-int MainForLinkedList() {
+int testForLinkedList() {
+	int i = 0;
 
+	std::cout << "LinkedList<string>: " << std::endl;
 	LinkedList<string> lists = LinkedList<string>();
-	for (int i = 0; i < 5; ++i) {
-		lists.insertData("LinkedListData");
+	for (i = 0; i < 5; ++i) {
+		lists.insertData("LinkedListData" + std::to_string(i));
 	}
+	
 	auto it = lists.findKth(1);
+	i = -1;
 	while (it) {
-		cout << *it << endl;
+		StandardExtend::testAndOut("", *it, "LinkedListData" + std::to_string(++i));
 		++it;
 	}
 
+	std::cout << "LinkedList<std::stack<string>>: " << std::endl;
 	LinkedList<stack<string>> stackList;
-	for (int i = 0; i < 5; ++i) {
+	for (i = 0; i < 5; ++i) {
 		stack<string> s;
-		for (int i = 0; i < 2; ++i) {
-			s.push("List data in Stack");
+		for (int j = 0; j < 2; ++j) {
+			s.push("List data in std::stack" + std::to_string(i) + std::to_string(j));
 		}
 		stackList.insertData(s);
 	}
+	i = -1;
 	auto it2 = stackList.findKth(1);
 	StandardExtend::iterate(it2, stackList.end(), [&](auto it) {
 		auto s = *it;
+		++i;
+		int j = 2;
 		while (!s.empty()) {
-			cout << s.top() << endl;
+			StandardExtend::testAndOut("", s.top(), "List data in std::stack" + std::to_string(i) + std::to_string(--j));
 			s.pop();
 		}
 	});
-
+	/*
+	1 3 5 7 9 11 -1
+	2 4 6 8 10 12 -1
+	*/
+	std::function<std::string(int)> intToString = [](int i) {
+		return std::to_string(i);
+	};
 	LinkedList<int> list1 = LinkedList<int>();
 	LinkedList<int> list2 = LinkedList<int>();
 	LinkedList<int> list3 = LinkedList<int>();
 	int n;
 	JCE::ArrayList<int> listData1 = { -1, 1, 3, 5, 7, 9, 11, 13 };
+	JCE::String listData1Str = "-1 1 3 5 7 9 11 13";
 	JCE::ArrayList<int> listData2 = { -2, 2, 4, 6, 8, 10, 12, 14 };
+	JCE::String listData2Str = "-2 2 4 6 8 10 12 14";
 	for (JCE::SizeType i = 0; i < listData1.size(); ++i) {
 		list1.insertData(listData1[i]);
 		list2.insertData(listData2[i]);
 	}
-	list1.output();
-	list2.output();
+	StandardExtend::testAndOut("", list1.toString(intToString), listData1Str);
+	StandardExtend::testAndOut("", list2.toString(intToString), listData2Str);
 	puts("begain\n");
 
-	puts("反转后list2\n");
-	list2.reverse().output();
+	puts("反转list2\n");
+	std::vector<int> listData2R = listData2;
+	std::reverse(listData2R.begin(), listData2R.end());
+	auto listTmp = std::vector<int>();
+	list2.reverse();
+	std::for_each(list2.begin(), list2.end(), [&listTmp](int ele) {
+		listTmp.emplace_back(ele);
+	});
+	StandardExtend::testAssert(listTmp, listData2R);
+
 	puts("再次反转list2\n");
-	list2.reverse().output();
+	listTmp.clear();
+	list2.reverse();
+	std::reverse(listData2R.begin(), listData2R.end());
+	std::for_each(list2.begin(), list2.end(), [&listTmp](int ele) {
+		listTmp.emplace_back(ele);
+	});
+	StandardExtend::testAssert(listTmp, listData2R);
 
 	puts("有序合并list2到list1\n");
-	list1.merge(list2).output();
+	std::for_each(list1.begin(), list1.end(), [&listTmp](int ele) {
+		listTmp.emplace_back(ele);
+	});
+	
+	std::sort(listTmp.begin(), listTmp.end());
+
+	int index = -1;
+	std::string resultReal;
+	std::for_each(listTmp.begin(), listTmp.end(), [&index, &resultReal](int ele) {
+		resultReal += (++index == 0) ? std::to_string(ele) : " " + std::to_string(ele);
+	});
+	std::string result = list1.merge(list2).toString(intToString);
+	StandardExtend::testAssert(result, resultReal);
 	LinkedList<int>::Iterator iter = list1.findKth(1);
 	n = list1.length();
-	int i = 0;
-	while (true) {
+	i = 0;
+	while (iter) {
 		++i;
-
+		std::cout << list1.toString(intToString) << std::endl;
 		LinkedList<int>::Iterator findIter = list1.findKth(i);
 		if (findIter) {
-			list3.insertInP(*findIter, findIter);
-			printf("find 正数第%d个元素%d\n", i, *findIter);
+			StandardExtend::testAndOut("find 正数第" + std::to_string(i) + "个元素", *findIter, listTmp[i-1]);
 		}
 		else {
-			puts("find error");
+			// 未找到
 		}
 
 		iter = list1.findKth(-1);
 		if (iter) {
-			printf("find 倒数第%d个元素%d\n", 1, *iter);
-		}
-		else {
-			puts("last element is not exist, exit!");
-			break;
-		}
+			StandardExtend::testAndOut("find 倒数第1个元素", *iter, listTmp[listTmp.size() - 1]);
 
-		int deleteTemp = *iter;
-		LinkedList<int>::Iterator findDataPo = list1.findData(deleteTemp);
-		if (list1.deleteInP(findDataPo)) {
-			printf("delete %d\n", deleteTemp);
-			list1.output();
+			int deleteTemp = *iter;
+			LinkedList<int>::Iterator findDataPo = list1.findData(deleteTemp);
+			if (list1.deleteInP(findDataPo)) {
+				int dT = listTmp.back();
+				listTmp.pop_back();
+				StandardExtend::testAndOut("delete元素", deleteTemp, dT);
+			}
+			else {
+				_ASSERT_EXPR(false, "异常");
+			}
 		}
 		else {
-			puts("delete error");
+			// 未找到
 		}
 	}
 
 	cout << " ====== LinkedList test end" << endl;
 	return 0;
 }
-int mainForQueue() {
-	Queue<int> q;
-	for (int i = 0; i < 10; ++i) {
-		q.offer(i);
+
+int subTestForQueueInt(Queue<int> &qInterface) {
+	int i;
+	for (i = 0; i < 10; ++i) {
+		qInterface.offer(i);
 	}
-	while (!q.isEmpty()) {
-		cout << q.poll() << endl;
+	i = -1;
+	while (!qInterface.isEmpty()) {
+		StandardExtend::testAssert(qInterface.poll(), ++i);
 	}
-	Queue<string> qs;
-	for (int i = 0; i < 10; ++i) {
-		qs.offer(string("Queue data"));
-	}
-	while (!qs.isEmpty()) {
-		cout << qs.poll() << endl;
-	}
-	puts(" ====== Queue test end");
 	return 0;
 }
-int mainForDeQueue() {
-	Deque<int> q;
-	for (int i = 0; i < 10; ++i) {
-		q.offer(i);
+int subTestForQueueStr(Queue<std::string> &qsInterface) {
+	int i;
+	for (i = 0; i < 10; ++i) {
+		qsInterface.offer(string("Queue data") + std::to_string(i));
 	}
-	while (!q.isEmpty()) {
-		cout << q.poll() << endl;
+	i = -1;
+	while (!qsInterface.isEmpty()) {
+		StandardExtend::testAssert(qsInterface.poll(), string("Queue data") + std::to_string(++i));
 	}
-
-	Deque<string> qs;
-	for (int i = 0; i < 10; ++i) {
-		qs.offer(string("Deque data"));
-	}
-	while (!qs.isEmpty()) {
-		cout << qs.poll() << endl;
-	}
-
-	Deque<LinkedList<string>> ql;
+	return 0;
+}
+int subTestForQueueList(Queue<LinkedList<std::string>> &qlInterface) {
+	std::function<std::string(std::string const&)> stringToString = [](std::string const &i) {
+		return i;
+	};
 	for (int i = 0; i < 10; ++i) {
 		LinkedList<string> temp;
 		temp.insertData(string("Deque data in list"));
-		ql.offer(temp);
+		qlInterface.offer(temp);
 	}
-	while (!ql.isEmpty()) {
-		ql.poll().output();
+	while (!qlInterface.isEmpty()) {
+		qlInterface.poll().toString(stringToString);
 	}
-	//qs.shell();
+	return 0;
+}
+
+int testForQueue() {
+	LinkedQueue<int> q;
+	subTestForQueueInt(q);
+	LinkedQueue<string> qs;
+	subTestForQueueStr(qs);
+	puts(" ====== Queue test end");
+	return 0;
+}
+int testForDeQueue() {
+	Deque<int> q;
+	subTestForQueueInt(q);
+	Deque<string> qs;
+	subTestForQueueStr(qs);
+	Deque<LinkedList<string>> ql;
+	subTestForQueueList(ql);
 	//ql.shell();
 	puts(" ====== Deque test end");
 	return 0;
 }
-void testForMersenneTwister() {
-	// non-deterministic generator  
-	random_device rd;
-	//梅森旋转演算法（Mersenne twister）是一个伪随机数发生算法。
-	// 由松本真和西村拓士[1]在1997年开发，基于有限二进制字段上的矩阵线性递归。
-	// 可以快速产生高质量的伪随机数，修正了古典随机数发生算法的很多缺陷。
-	mt19937 gen(rd());
-	// to seed mersenne twister.  
-	// replace the call to rd() with a constant value to get repeatable results.  
 
-	// 普通随机数使用时间作为种子 使用0的话每次产生的随机值是一样的
-	srand(clock());
-	for (int i = 0; i < 5; ++i) {
-		// print the raw output of the generator.  
-		cout << "梅森随机数: " << gen() << " ";
-		cout << "普通随机数: " << rand() << endl;
-	}
-	cout << endl;
+// 线性结构测试主函数
+int mainForLinearStructure() {
+	testForLinkedList();
+	testForStack();
+	testForQueue();
+	testForDeQueue();
+	return 0;
 }
 
-
-int mainForExpressionTree() {
+int testForExpressionTree() {
 	//自己改改
 	char s[40] = "1 2 +";
 	while (gets(s)) {
@@ -203,48 +249,230 @@ int lessCmper(int const &lhs, int const &rhs) {
 int moreCmper(int const &lhs, int const &rhs) {
 	return -lessCmper(lhs, rhs);
 }
-int mainForTree() {
-	char post[10] = "hfbdcea";
-	char in[10] = "hbfadec";
-	char pre[10] = "";
-	BinTree<char> binTreeIns;
-	binTreeIns.orderTranslation(pre, nullptr, in, post, 7);
 
-	BinSearchTree<string> bt = BinSearchTree<string>();
+void formatStrAppend(std::string &lhs, std::string const &rhs) {
+	lhs += lhs == "" ? rhs : " " + rhs;
+};
+
+int subTestForBinTree() {
+	// 这里么为了方便测试没使用char
+	const int len = 7;
+	std::string post[len] = { "h", "f", "b", "d", "c", "e", "a" };
+	std::string in[len] = { "h", "b", "f", "a", "d", "e", "c" };
+	std::string pre[len] = {};
+	std::string preReault[len] = { "a", "b", "h", "f", "e", "d", "c" };
+	// 遍历序列转换
+	BinTree<std::string>::orderTranslation(pre, nullptr, in, post, len);
+	StandardExtend::testAssert(StandardExtend::isEqual(pre, pre+len, preReault), true);
+	
+	const int size = 6;
+	auto subTest = [&size](BinTree<char> &btIns) {
+		StandardExtend::testAssert(btIns.size(), size);
+		std::string resultReal;
+		btIns.traversal(BinTree<char>::ORDER_PREFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+			std::string tmp;
+			tmp += bNode->Data;
+			formatStrAppend(resultReal, tmp);
+		});
+		StandardExtend::testAndOut("BT 先根序", resultReal, std::string("1 2 3 4 5 6"));
+
+		resultReal.clear();
+		btIns.traversal(BinTree<char>::ORDER_POST_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+			std::string tmp;
+			tmp += bNode->Data;
+			formatStrAppend(resultReal, tmp);
+		});
+		StandardExtend::testAndOut("BT 后根序", resultReal, std::string("3 4 2 6 5 1"));
+
+		resultReal.clear();
+		btIns.traversal(BinTree<char>::ORDER_INFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+			std::string tmp;
+			tmp += bNode->Data;
+			formatStrAppend(resultReal, tmp);
+		});
+		StandardExtend::testAndOut("BT 中根序", resultReal, std::string("3 2 4 1 6 5"));
+
+		resultReal.clear();
+		btIns.traversal(BinTree<char>::ORDER_LEVEL, [&resultReal](BinTree<char>::BT bNode) {
+			std::string tmp;
+			tmp += bNode->Data;
+			formatStrAppend(resultReal, tmp);
+			return false;
+		});
+		StandardExtend::testAndOut("BT 层序", resultReal, std::string("1 2 5 3 4 6"));
+	};
+	
+	/*
+	先根序遍历堆栈
+	6
+	Push 1
+	Push 2
+	Push 3
+	Pop
+	Pop
+	Push 4
+	Pop
+	Pop
+	Push 5
+	Push 6
+	Pop
+	Pop
+	output:3 4 2 6 5 1
+	
+	结构
+		1
+	 2     5
+	3 4   6 *
+	*/
+	int index = 0;
+	static char order2D[12][6] = { "Push","Push","Push","Pop","Pop","Push","Pop","Pop","Push","Push","Pop","Pop" };
+	BinTree<char> btIns1 = BinTree<char>([&index](std::string &order) {
+		order = std::string(order2D[index++]);
+		return index < 13;
+	}, [](char *num) {
+		static int i = 0;
+		static char nums[] = { '1','2','3','4','5','6' };
+		*num = nums[i++];
+	});
+	subTest(btIns1);
+
+	// char比较好测试
+	// 先序[1] 2  3  4  5  6
+	// { 1, 2, 3, 4, 5, 6 };
+	char preOrder[size + 1] = "123456";
+	// 中序 3  2  4 [1] 6  5
+	// { 3, 2, 4, 1, 6, 5 }
+	char inOrder[size + 1] = "324165";
+	// 后序 3  4  2  6  5 [1]
+	// { 3, 4, 2, 6, 5, 1 }
+	char postOrder[size + 1] = "342651";
+	BinTree<char> btIns2 = BinTree<char>(preOrder, inOrder, size);
+	subTest(btIns2);
+	BinTree<char> btIns3 = BinTree<char>(size, inOrder, postOrder);
+	subTest(btIns3);
+	// 拷贝构造
+	BinTree<char> btIns4 = btIns3;
+	subTest(btIns4);
+
+	auto newBtFun = [&size, &inOrder, &postOrder]() {
+		return BinTree<char>(size, inOrder, postOrder);
+	};
+
+	// 移动构造(@TODO 此处不是移动构造)
+	BinTree<char> btIns5(newBtFun());
+	btIns5 = BinTree<char>(size, inOrder, postOrder);
+	btIns5.clear();
+	btIns5 = BinTree<char>(size, inOrder, postOrder);
+	subTest(btIns5);
+	// 这算stl的bug吗? 一定要比原空间大才能复制
+	JCE::ArrayList<char> fillData(size + 1);
+	std::copy(std::begin(inOrder), std::end(inOrder), fillData.begin());
+	fillData.resize(size);
+	btIns5.fillData(fillData);
+	subTest(btIns5);
+	btIns5.mirReversal();
+	StandardExtend::testAssert(btIns5.omorphism(btIns4), true);
+	auto subTestR = [&size](BinTree<char> &btIns) {
+		StandardExtend::testAssert(btIns.size(), size);
+		std::string resultReal;
+		btIns.traversal(BinTree<char>::ORDER_PREFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+			std::string tmp;
+			tmp += bNode->Data;
+			formatStrAppend(resultReal, tmp);
+		});
+		// 镜像先序与原后序相反
+		StandardExtend::testAndOut("BT 镜像先根序", resultReal, std::string("1 5 6 2 4 3"));
+
+		resultReal.clear();
+		btIns.traversal(BinTree<char>::ORDER_POST_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+			std::string tmp;
+			tmp += bNode->Data;
+			formatStrAppend(resultReal, tmp);
+		});
+		// 镜像后序与原先序相反
+		StandardExtend::testAndOut("BT 镜像后根序", resultReal, std::string("6 5 4 3 2 1"));
+
+		resultReal.clear();
+		btIns.traversal(BinTree<char>::ORDER_INFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+			std::string tmp;
+			tmp += bNode->Data;
+			formatStrAppend(resultReal, tmp);
+		});
+		// 镜像中序与原中序相反
+		StandardExtend::testAndOut("BT 镜像中根序", resultReal, std::string("5 6 1 4 2 3"));
+
+		resultReal.clear();
+		btIns.traversal(BinTree<char>::ORDER_LEVEL, [&resultReal](BinTree<char>::BT bNode) {
+			std::string tmp;
+			tmp += bNode->Data;
+			formatStrAppend(resultReal, tmp);
+			return false;
+		});
+		// 镜像层序与原层序关系难以描述(如果是一颗完全二叉树的话就是每2^d与原层序反转 d为深度)
+		StandardExtend::testAndOut("BT 镜像层序", resultReal, std::string("1 5 2 6 4 3"));
+	};
+	subTestR(btIns5);
+
+	// 共计14个方法, 两组用例(实际上只有一组是完全测试的) 公有方法19个, 基本覆盖
+	return 14;
+}
+int subTestForBinSearchTree(BinSearchTree<std::string> &bst, std::string const &insName) {
+
+	std::string resultBuffer;
+	int b[10] = { 2, 1, 4, 5, 9, 3, 6, 7, 8, 0 };
 	for (int i = 0; i < 10; ++i) {
-		bt.insert(string("BST data") + std::to_string(i));
+		bst.insert(std::to_string(b[i]));
+		formatStrAppend(resultBuffer, std::to_string(i));
 	}
-	puts("顺序");
-	bt.traversal(Tree::ORDER, [&](BinTree<string>::BT node) {
-		cout << node->Data << endl;
-		return false;
-	});
-	puts("倒序 + 中止");
-	bt.traversal(Tree::RE_ORDER, [&](BinTree<string>::BT node) {
-		cout << node->Data << endl;
-		return node->Data == string("BST data5") ? true : false;
-	});
-	puts("先根序");
-	bt.traversal(Tree::ORDER_INFIX_ROOT, [&](BinTree<string>::BT node) {
-		cout << node->Data << endl;
-		//无效返回值
-		return false;
-	});
-	cout << bt.find(string("BST data5"))->Data << endl;
+	std::string resultBufferReal;
 
-	int b[10] = { 2, 1, 4, 5, 9, 3, 6, 7 };
-	AvlTree<int> avlTreeIns = AvlTree<int>();
-	for (int i = 0; i < 8; ++i) {
-		avlTreeIns.insert(b[i]);
-	}
-	puts("avl-倒序");
-	avlTreeIns.traversal(Tree::RE_ORDER, [&](BinTree<int>::BT node) {
-		cout << node->Data << endl;
+	StandardExtend::testAndOut(insName + "find", bst.find(string("5"))->Data, std::string("5"));
+
+	bst.traversal(Tree::ORDER_INFIX_ROOT, [&resultBufferReal](BinSearchTree<string>::BT node) {
+		formatStrAppend(resultBufferReal, node->Data);
+	});
+	StandardExtend::testAndOut(insName + "先根序", resultBufferReal, resultBuffer);
+
+	resultBufferReal.clear();
+	bst.traversal(BinSearchTree<std::string>::ORDER_SEQUENCE, [&resultBufferReal](const BinSearchTree<std::string>::BT node) {
+		formatStrAppend(resultBufferReal, node->Data);
+		return node->Data == string("5") ? true : false;;
+	});
+	// 0 1 2 3 4 5
+	std::string subS = resultBuffer.substr(0, resultBuffer.length() - resultBuffer.find('4'));
+	StandardExtend::testAndOut(insName + "顺序中止", resultBufferReal, subS);
+
+	resultBufferReal.clear();
+	bst.traversal(BinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](BinSearchTree<string>::BT node) {
+		formatStrAppend(resultBufferReal, node->Data);
+		return node->Data == string("5") ? true : false;
+	});
+	std::string subR = resultBuffer.substr(resultBuffer.find('5'), resultBuffer.length() - resultBuffer.find('5'));
+	std::reverse(subR.begin(), subR.end());
+	StandardExtend::testAndOut(insName + "倒序中止", resultBufferReal, subR);
+
+	resultBufferReal.clear();
+	bst.traversal(BinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](BinSearchTree<std::string>::BT node) {
+		formatStrAppend(resultBufferReal, node->Data);
 		return false;
 	});
+	std::string bufR = resultBuffer;
+	std::reverse(bufR.begin(), bufR.end());
+	StandardExtend::testAndOut(insName + "倒序", resultBufferReal, bufR);
+	return 0;
+}
 
+int testForTree() {
+	subTestForBinTree();
+	BinSearchTree<std::string> bsTreeIns = BinSearchTree<std::string>();
+	subTestForBinSearchTree(bsTreeIns, "BST-");
+	AvlTree<std::string> avlTreeIns = AvlTree<std::string>();
+	subTestForBinSearchTree(avlTreeIns, "AVLT-");
+	
+	// 堆是完全二叉树 但不是二叉搜索树 这里实现有问题
 	JCE::ArrayList<int> a = { 6, 15, 3, 9, 7, 4, 12, 10, 15, 14, 5, 13 };
 	Heap<int> heapIns = Heap<int>(a.size() + 5);
+	auto fi = heapIns.find(15);
 	heapIns.build(-1, moreCmper);
 	for (JCE::SizeType i = 0; i < a.size(); heapIns.push(a[i++]));
 	heapIns.pop();
@@ -253,7 +481,7 @@ int mainForTree() {
 	heapIns.push(8);
 	heapIns.push(11);
 	puts("堆-层序");
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&](BinTree<int>::BT b) {
+	heapIns.traversal(heapIns.ORDER_LEVEL, [](BinTree<int>::BT b) {
 		printf("%d ", b->Data);
 		return false;
 	});
@@ -276,7 +504,7 @@ F 10
 G 11
 */
 
-int testerForArrayHuff(int *hufWeightList, int n) {
+int subtestForArrayHuff(int *hufWeightList, int n) {
 	ArrayHuffman::HuffmanTree hufTree = nullptr;
 	ArrayHuffman::HuffmanCode hufCode = nullptr;
 	ArrayHuffman::HuffmanCoding(hufTree, hufCode, hufWeightList, n);
@@ -286,7 +514,7 @@ int testerForArrayHuff(int *hufWeightList, int n) {
 	return result;
 }
 
-int mainForHuffumanTree() {
+int testForHuffumanTree() {
 	const int n = 4;
 	int w[n] = { 1, 2, 3, 4 };
 	int result[][4] = {
@@ -310,8 +538,8 @@ int mainForHuffumanTree() {
 	}
 	int hufWeightList1[] = { 1, 2, 3, 4, 5 };
 	int hufWeightList2[] = { 3, 8, 8 };
-	StandardExtend::testAndOut("哈夫曼编码长度: ", testerForArrayHuff(hufWeightList1, 5), 33);
-	StandardExtend::testAndOut("等权哈夫曼编码长度: ", testerForArrayHuff(hufWeightList2, 3), 30);
+	StandardExtend::testAndOut("哈夫曼编码长度: ", subtestForArrayHuff(hufWeightList1, 5), 33);
+	StandardExtend::testAndOut("等权哈夫曼编码长度: ", subtestForArrayHuff(hufWeightList2, 3), 30);
 	/*const int N = 63;
 	int CodeWPL;//标准
 	int i, n, Freq[N + 1] = { 0 };
@@ -355,7 +583,7 @@ void NewGraphDemo(Graph *&&g) {
 	outPutGraph(*g);
 	delete g; g = nullptr;
 }
-int mainForGraph() {
+int testForGraph() {
 	NewGraphDemo(new AdjacentMatrixGraph(10));
 	NewGraphDemo(new AdjacentListGraph(10));
 	//3*3坐标图 共9个顶点
@@ -393,7 +621,7 @@ int mainForGraph() {
 	return 0;
 }
 
-int mainForGraphTemplate() {
+int testForGraphTemplate() {
 	GraphTemplate<int> *g = new AdjacentMatrixGraphTemplate<int>(10);
 	GraphTemplate<double> *gd = new AdjacentMatrixGraphTemplate<double>(10);
 	// GraphTemplate<PointGeographic> *gp = new AdjacentMatrixGraphTemplate<PointGeographic>(10);
@@ -404,18 +632,18 @@ int mainForGraphTemplate() {
 	return 0;
 }
 
+// 非线性结构测试主函数
+int mainForNonlinearStructure() {
+	testForHuffumanTree();
+	testForTree();
+	//testForExpressionTree();
+	StandardExtend::testAndDiffClock(testForGraph);
+	StandardExtend::testAndDiffClock(testForGraphTemplate);
+	return 0;
+}
 
 int runDataStructureTest() {
-	testForMersenneTwister();
-	mainForHuffumanTree();
-	MainForLinkedList();
-	MainForStack();
-	mainForQueue();
-	mainForDeQueue();
-	mainForTree();
-	//mainForExpressionTree();
-	StandardExtend::testAndDiffClock(mainForGraph);
-	StandardExtend::testAndDiffClock(mainForGraphTemplate);
-
+	mainForLinearStructure();
+	mainForNonlinearStructure();
 	return 0;
 }

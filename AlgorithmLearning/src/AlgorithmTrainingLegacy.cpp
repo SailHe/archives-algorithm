@@ -1487,7 +1487,7 @@ int mainForRankStudent() {
 			//当前元素现在的重复个数
 			int reCnt = 0;
 			AvlTree<T>::Position pastP = NULL;
-			data[t]->traversal(Tree::RE_ORDER, [&](AvlTree<T>::Position bt) {
+			data[t]->traversal(Tree::ORDER_REVERSE, [&](AvlTree<T>::Position bt) {
 				if (pastP != NULL && pastP->Data.score == bt->Data.score)
 					++reCnt;
 				else

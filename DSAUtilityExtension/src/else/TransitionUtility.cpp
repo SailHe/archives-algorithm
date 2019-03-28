@@ -59,7 +59,9 @@ namespace TransitionUtility{
 			maxLenAB = lenB;
 		}
 		topLowSum.resize(maxLenAB, '0');
-		return maxLenAB;
+		int result = -1;
+		Utility::AssertToSignedNum(maxLenAB, result);
+		return result;
 	}
 
 	std::string bigPlush(std::string &topLowNumA, std::string &topLowNumB, std::string &topLowSum, int radix) {

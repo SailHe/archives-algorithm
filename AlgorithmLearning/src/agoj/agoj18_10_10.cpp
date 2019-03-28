@@ -14,7 +14,7 @@ struct PolyNode
 	Pnode next;
 };
 typedef Pnode List;
-const int LEN = sizeof(struct PolyNode);
+const int BT_NODE_LEN = sizeof(struct PolyNode);
 //仅释放当前结点 并将节点地址改为下一个结点的地址 没有 返回NULL
 void DestroyIt(List *P)
 {
@@ -62,11 +62,11 @@ void derivation(List p) {
 List ReadPoly(int termsCount)
 {
 	List Head = NULL, Pleft = NULL, Pright = NULL;
-	Pleft = Head = (List)malloc(LEN);
-	memset(Head, 0, LEN);
+	Pleft = Head = (List)malloc(BT_NODE_LEN);
+	memset(Head, 0, BT_NODE_LEN);
 	while (termsCount-- > 0)
 	{
-		Pright = (List)malloc(LEN);
+		Pright = (List)malloc(BT_NODE_LEN);
 		scanf("%lf%lf", &Pright->expon, &Pright->coef);
 		Pleft->next = Pright;
 		Pleft = Pright;
@@ -77,15 +77,15 @@ List ReadPoly(int termsCount)
 }
 List Add(List L1, List L2)//参数Dest 用于判断是否销毁源链表
 {
-	List Head = (List)malloc(LEN), P = Head;
+	List Head = (List)malloc(BT_NODE_LEN), P = Head;
 	List p1 = L1->next, p2 = L2->next;
 	int ISAdd = 1;
-	memset(Head, 0, sizeof(LEN));
+	memset(Head, 0, sizeof(BT_NODE_LEN));
 	while (p1 && p2)//指数：不等存大挪大 相等存和都挪
 	{
 		if (ISAdd)
 		{
-			P->next = (List)malloc(LEN);
+			P->next = (List)malloc(BT_NODE_LEN);
 			ISAdd = 0;
 		}
 		if (p1->expon == p2->expon)/*合并同类项 二之一*/
@@ -131,11 +131,11 @@ List Add(List L1, List L2)//参数Dest 用于判断是否销毁源链表
 }
 List Muit(List L1, List L2)
 {
-	List SumHead = (List)malloc(LEN);
+	List SumHead = (List)malloc(BT_NODE_LEN);
 	List P1 = L1->next, P2 = L2->next;
-	List Head = (List)malloc(LEN), P = NULL;//中间链表
-	memset(SumHead, 0, LEN);//保证结果链表合法
-	memset(Head, 0, LEN);
+	List Head = (List)malloc(BT_NODE_LEN), P = NULL;//中间链表
+	memset(SumHead, 0, BT_NODE_LEN);//保证结果链表合法
+	memset(Head, 0, BT_NODE_LEN);
 	while (P1)//拆L1
 	{
 		P = Head;
@@ -144,7 +144,7 @@ List Muit(List L1, List L2)
 		{
 			if (P1->coef && P2->coef)
 			{
-				P->next = (List)malloc(LEN);
+				P->next = (List)malloc(BT_NODE_LEN);
 				P->next->coef = P1->coef * P2->coef;
 				P->next->expon = P1->expon + P2->expon;
 				P = P->next;

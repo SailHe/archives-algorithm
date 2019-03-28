@@ -10,25 +10,34 @@
 #include <math.h>
 #include <assert.h>
 //#include "stdafx.h"
+
 template<class T>
 class Queue {
 public:
+	//入队(提议)
+	virtual void offer(T job) = 0;
+	//出队(投票)
+	virtual T poll() = 0;
+	virtual bool isEmpty() = 0;
+};
+
+template<class T>
+class LinkedQueue:public Queue<T> {
+public:
 	typedef T LinkedListQueueElementType;
-	Queue() {
+	LinkedQueue() {
 		baseImpl = CreateLinkedListQueue();
 	}
-	~Queue() {
+	~LinkedQueue() {
 		DestroyLinkedListQueue(baseImpl);
 	}
-	//入队(提议)
-	void offer(LinkedListQueueElementType job) {
+	void offer(LinkedListQueueElementType job) override {
 		EnqueueLinkedListQueue(baseImpl, job);
 	}
-	//出队(投票)
-	LinkedListQueueElementType poll() {
+	LinkedListQueueElementType poll() override {
 		return DequeueLinkedListQueue(baseImpl);
 	}
-	bool isEmpty() {
+	bool isEmpty() override {
 		return IsEmptyLinkedListQueue(baseImpl);
 	}
 protected:
@@ -85,7 +94,7 @@ private:
 };
 
 template<class T>
-class Deque {
+class Deque:public Queue<T> {
 public:
 	typedef T ElementType;
 	Deque() {
@@ -95,15 +104,13 @@ public:
 	~Deque() {
 		DestroyDeque(baseImpl);
 	}
-	//入队(提议)
-	void offer(ElementType job) {
+	void offer(ElementType job) override {
 		Push(baseImpl, job);
 	}
-	//出队(投票)
-	ElementType poll() {
+	ElementType poll() override {
 		return Eject(baseImpl);
 	}
-	bool isEmpty() {
+	bool isEmpty() override {
 		return IsEmptyDeQueue(baseImpl);
 	}
 	void shell() {

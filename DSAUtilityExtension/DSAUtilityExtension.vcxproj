@@ -172,6 +172,7 @@
     <ClCompile Include="src\else\TransitionUtility.cpp" />
     <ClCompile Include="src\ExtendSpace.cpp" />
     <ClCompile Include="src\Graph\GraphTemplate.h" />
+    <ClCompile Include="src\Graph\Tree\TreeObject.cpp" />
     <ClCompile Include="src\List\LinkedList.cpp" />
     <ClCompile Include="src\List\Stack.cpp" />
     <ClCompile Include="src\MathLibrary.cpp" />
