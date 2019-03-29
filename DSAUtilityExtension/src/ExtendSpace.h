@@ -241,8 +241,10 @@ namespace StandardExtend{
 	//t格式805 (表示08:05)
 	DSAUTILITYEXTENSION_API int timeNumDiffrence(int t1, int t2, int *t_h, int *t_min);
 
-	//清空stdin输入流直至遇到end字符
+	// 清空stdin输入流直至遇到end字符(end会被吸收)
 	DSAUTILITYEXTENSION_API void refreshStdin(char end);
+	// 清空标准输入流中的换行符和空格符
+	DSAUTILITYEXTENSION_API void refreshStdin();
 	// 可以替换为: destContainer.resize(origin.end() - origin.begin());
 	// std::copy(origin.begin(), origin.end(), destContainer.begin());
 	// std::vector destContainer(origin.begin(), origin.end());

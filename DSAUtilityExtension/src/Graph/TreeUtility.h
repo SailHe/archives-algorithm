@@ -7,13 +7,13 @@ template<class Base>
 /*管理普通结构体要注意  首次访问时要将外部构造的给它管理(自动析构)  赋值时注意不改变原指针*/
 class PtrArray {
 	JCE::ArrayList<Base*> table;
-	unsigned size_ = 0;
+	unsigned usedSizeUnsigned = 0;
 public:
 	PtrArray() {}
 	//线性Θ(size)
 	PtrArray(int siz_) {
-		size_ = siz_;
-		table.resize(size_);
+		usedSizeUnsigned = siz_;
+		table.resize(usedSizeUnsigned);
 	}
 	~PtrArray() {
 		for (JCE::SizeType i = 0; i < table.size(); ++i) {
@@ -21,12 +21,12 @@ public:
 		}
 	}
 	int size() {
-		return size_;//vector 的size 计算实际上只是两个指针的相减操作
+		return usedSizeUnsigned;//vector 的size 计算实际上只是两个指针的相减操作
 	}
 	//重载[]操作符，返回管理的指针作为左值 越界自动申请内存
 	Base*& operator[](unsigned index) {
-		if (index >= size_) {
-			size_ = index + 1;//实际使用内存
+		if (index >= usedSizeUnsigned) {
+			usedSizeUnsigned = index + 1;//实际使用内存
 			table.resize(index * 2 + 1);
 			//_DEBUG_ERROR("PtrArray subscript out of range");
 		}
@@ -204,7 +204,7 @@ struct Accounts {
 struct Olympic {
 	int id = -1, gold = 0, medal = 0, population = 0;
 	//涉及double比较 重复元素
-	//double data_[5];//0ID 1金牌 2奖牌 3人均金牌 4人均奖牌(per capita)
+	//double tData[5];//0ID 1金牌 2奖牌 3人均金牌 4人均奖牌(per capita)
 	Olympic() {}
 	~Olympic() {}
 	bool operator<(Olympic const &rhs)const {

@@ -72,6 +72,12 @@ namespace StandardExtend{
 	void refreshStdin(char end) {
 		while (getchar() != end);
 	}
+
+	void refreshStdin() {
+		int i;
+		while ((i = getchar()) == '\n' || i == ' ');
+		ungetc(i, stdin);
+	}
 };
 
 namespace Utility {
@@ -551,22 +557,22 @@ namespace MathExtend {
 		return s.empty();
 	}
 	bool isValidityOfStack(char const*str, int len, int cap) {
-		int size_ = 0;
+		int size = 0;
 		for (int i = 0; i < len; ++i) {
 			if (str[i] == 'S') {
-				if (size_ < cap)
-					++size_;
+				if (size < cap)
+					++size;
 				else
 					return false;
 			}
 			else if (str[i] == 'X') {
-				if (size_ > 0)
-					--size_;
+				if (size > 0)
+					--size;
 				else
 					return false;
 			}
 		}
-		return size_ == 0;
+		return size == 0;
 	}
 	void buildPtriangleTable(int tableBuffer[][StandardExtend::MAX_C], int n) {
 		tableBuffer[0][0] = 1;

@@ -257,17 +257,22 @@ void formatStrAppend(std::string &lhs, std::string const &rhs) {
 int subTestForBinTree() {
 	// 这里么为了方便测试没使用char
 	const int len = 7;
-	std::string post[len] = { "h", "f", "b", "d", "c", "e", "a" };
+	std::string pre[len] = { "a", "b", "h", "f", "e", "d", "c" };
 	std::string in[len] = { "h", "b", "f", "a", "d", "e", "c" };
-	std::string pre[len] = {};
-	std::string preReault[len] = { "a", "b", "h", "f", "e", "d", "c" };
+	std::string post[len] = { "h", "f", "b", "d", "c", "e", "a" };
+	std::string preReal[len] = {};
+	std::string postReal[len] = {};
 	// 遍历序列转换
-	BinTree<std::string>::orderTranslation(pre, nullptr, in, post, len);
-	StandardExtend::testAssert(StandardExtend::isEqual(pre, pre+len, preReault), true);
+	BinTree<std::string>::orderTranslation(preReal, nullptr, in, post, len);
+	StandardExtend::testAssert(StandardExtend::isEqual(preReal, preReal + len, pre), true);
+	BinTree<std::string>::orderTranslation(postReal, pre, in, nullptr, len);
+	StandardExtend::testAssert(StandardExtend::isEqual(postReal, postReal + len, post), true);
 	
 	const int size = 6;
 	auto subTest = [&size](BinTree<char> &btIns) {
 		StandardExtend::testAssert(btIns.size(), size);
+		StandardExtend::testAssert(btIns.height(), (int)std::ceil(MathExtend::logRadix(size, 2.0)));
+		StandardExtend::testAssert(btIns.getRoot()->Data, '1');
 		std::string resultReal;
 		btIns.traversal(BinTree<char>::ORDER_PREFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
@@ -325,7 +330,7 @@ int subTestForBinTree() {
 	3 4   6 *
 	*/
 	int index = 0;
-	static char order2D[12][6] = { "Push","Push","Push","Pop","Pop","Push","Pop","Pop","Push","Push","Pop","Pop" };
+	static char order2D[12][size] = { "Push","Push","Push","Pop","Pop","Push","Pop","Pop","Push","Push","Pop","Pop" };
 	BinTree<char> btIns1 = BinTree<char>([&index](std::string &order) {
 		order = std::string(order2D[index++]);
 		return index < 13;
@@ -374,6 +379,8 @@ int subTestForBinTree() {
 	StandardExtend::testAssert(btIns5.omorphism(btIns4), true);
 	auto subTestR = [&size](BinTree<char> &btIns) {
 		StandardExtend::testAssert(btIns.size(), size);
+		StandardExtend::testAssert(btIns.height(), (int)std::ceil(MathExtend::logRadix(size, 2.0)));
+		StandardExtend::testAssert(btIns.getRoot()->Data, '1');
 		std::string resultReal;
 		btIns.traversal(BinTree<char>::ORDER_PREFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
@@ -413,11 +420,106 @@ int subTestForBinTree() {
 	};
 	subTestR(btIns5);
 
-	// 共计14个方法, 两组用例(实际上只有一组是完全测试的) 公有方法19个, 基本覆盖
-	return 14;
-}
-int subTestForBinSearchTree(BinSearchTree<std::string> &bst, std::string const &insName) {
+	/*
+	8
+	1 -
+	- -
+	0 -
+	2 7
+	- -
+	- -
+	5 -
+	4 6
 
+	构造顺序字符序列 0~7 共8个结点
+		抽象结构
+			   3
+		   2       7
+		 0   -   4   6
+		1 -         5 -
+
+		存储结构
+		[ 0  1  2  3  4  5  6  7]
+		 1- -- 0- 27 -- -- 5- 46
+	*/
+	// StandardExtend::refreshStdin();
+	char btsSub[][4] = { "1 -", "- -", "0 -","2 7", "- -", "- -", "5 -", "4 6" };
+	VirtualLinkedBinTree<char> btStIns1 = VirtualLinkedBinTree<char>(8, [](char *tData) {
+		static int i = 0;
+		*tData = TransitionUtility::toAlphOrAscllNum(i++);
+	}, [&btsSub](int *lSub, int *rSub) {
+		static int r = 0;
+		char lSubC, rSubC;
+		lSubC = btsSub[r][0];
+		rSubC = btsSub[r][2];
+		++r;
+		*lSub = lSubC -'0', *rSub = rSubC -'0';
+	}, '-' - '0');
+	std::string resultReal;
+	btStIns1.traversal(BinTree<char>::ORDER_PREFIX_ROOT, [&resultReal](VirtualLinkedBinTree<char>::BTS bNode) {
+		std::string tmp;
+		tmp += bNode->Data;
+		formatStrAppend(resultReal, tmp);
+	});
+	/*
+	9
+	1 6
+	2 3
+	-1 -1
+	-1 4
+	5 -1
+	-1 -1
+	7 -1
+	-1 8
+	-1 -1
+	抽象结构
+			    0
+		   1         6
+		 2   3     7   -
+		      4   - 8 5 -
+		     5 -
+	73 45 11 58 82 25 67 38 42
+	*/
+	const int nSizeBtS2 = 9;
+	std::vector<std::vector<int>> nBstSub = { {1, 6},{2, 3},{-1, -1},{-1, 4 },{5, -1 },{-1, -1},{7, -1 },{-1, 8 },{-1, -1} };
+	std::vector<int> nPre = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+	VirtualLinkedBinTree<int> btStIns2 = VirtualLinkedBinTree<int>(nSizeBtS2, [](int *tData){
+		static int i = 0;
+		*tData = i++;
+	}, [&nBstSub](int *lSub, int *rSub) {
+		static int r = 0;
+		*lSub = nBstSub[r][0];
+		*rSub = nBstSub[r][1];
+		++r;
+	}, -1);
+	std::vector<int> preBts2Real;
+	btStIns2.traversal(BinTree<int>::ORDER_PREFIX_ROOT, [&preBts2Real](VirtualLinkedBinTree<int>::BTS bNode) {
+		preBts2Real.emplace_back(bNode->Data);
+	});
+	StandardExtend::testAssert(preBts2Real, nPre);
+	StandardExtend::testAssert(btStIns2.leavesCount(0), 0);
+	StandardExtend::testAssert(btStIns2.leavesCount(1), 0);
+	StandardExtend::testAssert(btStIns2.leavesCount(2), 1);
+	StandardExtend::testAssert(btStIns2.leavesCount(3), 1);
+	StandardExtend::testAssert(btStIns2.leavesCount(4), 1);
+	StandardExtend::testAssert(btStIns2.leavesCount(5), -1);
+
+	// Bintree共计测试16个方法, 两组用例(实际上只有一组是完全测试的) 公有方法19个, 基本覆盖
+	// VirtualLinkedBinTree共计测试3个方法, 两组用例, 公有方法3个, 完全覆盖
+	return 16;
+}
+int subTestForCompleteBinSearchTree() {
+	// 0 1 2 [[3 4 5 [6] 7 8]] 9
+	int preData1[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	CompleteBinSearchTree<int> cbtIns1 = CompleteBinSearchTree<int>(10, preData1);
+	StandardExtend::testAssert(cbtIns1.find(0)->Data, 0);
+	StandardExtend::testAssert(cbtIns1.find(4)->Data, 4);
+	StandardExtend::testAssert(cbtIns1.find(8)->Data, 8);
+	return 2;
+}
+int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string const &insName) {
+
+	bst.clear();
 	std::string resultBuffer;
 	int b[10] = { 2, 1, 4, 5, 9, 3, 6, 7, 8, 0 };
 	for (int i = 0; i < 10; ++i) {
@@ -428,13 +530,13 @@ int subTestForBinSearchTree(BinSearchTree<std::string> &bst, std::string const &
 
 	StandardExtend::testAndOut(insName + "find", bst.find(string("5"))->Data, std::string("5"));
 
-	bst.traversal(Tree::ORDER_INFIX_ROOT, [&resultBufferReal](BinSearchTree<string>::BT node) {
+	bst.traversal(Tree::ORDER_INFIX_ROOT, [&resultBufferReal](LinkedBinSearchTree<string>::BT node) {
 		formatStrAppend(resultBufferReal, node->Data);
 	});
 	StandardExtend::testAndOut(insName + "先根序", resultBufferReal, resultBuffer);
 
 	resultBufferReal.clear();
-	bst.traversal(BinSearchTree<std::string>::ORDER_SEQUENCE, [&resultBufferReal](const BinSearchTree<std::string>::BT node) {
+	bst.traversal(LinkedBinSearchTree<std::string>::ORDER_SEQUENCE, [&resultBufferReal](const LinkedBinSearchTree<std::string>::BT node) {
 		formatStrAppend(resultBufferReal, node->Data);
 		return node->Data == string("5") ? true : false;;
 	});
@@ -443,7 +545,7 @@ int subTestForBinSearchTree(BinSearchTree<std::string> &bst, std::string const &
 	StandardExtend::testAndOut(insName + "顺序中止", resultBufferReal, subS);
 
 	resultBufferReal.clear();
-	bst.traversal(BinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](BinSearchTree<string>::BT node) {
+	bst.traversal(LinkedBinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](LinkedBinSearchTree<string>::BT node) {
 		formatStrAppend(resultBufferReal, node->Data);
 		return node->Data == string("5") ? true : false;
 	});
@@ -452,7 +554,7 @@ int subTestForBinSearchTree(BinSearchTree<std::string> &bst, std::string const &
 	StandardExtend::testAndOut(insName + "倒序中止", resultBufferReal, subR);
 
 	resultBufferReal.clear();
-	bst.traversal(BinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](BinSearchTree<std::string>::BT node) {
+	bst.traversal(LinkedBinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](LinkedBinSearchTree<std::string>::BT node) {
 		formatStrAppend(resultBufferReal, node->Data);
 		return false;
 	});
@@ -464,15 +566,21 @@ int subTestForBinSearchTree(BinSearchTree<std::string> &bst, std::string const &
 
 int testForTree() {
 	subTestForBinTree();
-	BinSearchTree<std::string> bsTreeIns = BinSearchTree<std::string>();
+	LinkedBinSearchTree<std::string> bsTreeIns = LinkedBinSearchTree<std::string>();
 	subTestForBinSearchTree(bsTreeIns, "BST-");
 	AvlTree<std::string> avlTreeIns = AvlTree<std::string>();
 	subTestForBinSearchTree(avlTreeIns, "AVLT-");
-	
+	subTestForCompleteBinSearchTree();
+	std::string preData3[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+	CompleteBinSearchTree<std::string> cbtIns3 = CompleteBinSearchTree<std::string>(10, preData3);
+	subTestForBinSearchTree(cbtIns3, "CBST-");
+	// 虚存树: 构造器指定函数指针的实现从而实现多态
 	// 堆是完全二叉树 但不是二叉搜索树 这里实现有问题
 	JCE::ArrayList<int> a = { 6, 15, 3, 9, 7, 4, 12, 10, 15, 14, 5, 13 };
 	Heap<int> heapIns = Heap<int>(a.size() + 5);
-	auto fi = heapIns.find(15);
+	int data = 15;
+	LinkedBinSearchTree<int> &heapInsB = heapIns;
+	auto fi = heapIns.find(data);
 	heapIns.build(-1, moreCmper);
 	for (JCE::SizeType i = 0; i < a.size(); heapIns.push(a[i++]));
 	heapIns.pop();
@@ -643,6 +751,16 @@ int mainForNonlinearStructure() {
 }
 
 int runDataStructureTest() {
+	/*
+	lambda捕获列表
+	 lambda是通过创建一个重载了操作符()的小类来实现的，一个lambda函数是该类的一个实例
+	 捕获lambda函数外的具有自动存储时期的变量。函数体与这些变量的集合合起来叫闭包。
+	 一个没有指定任何捕获的lambda函数,可以显式转换成一个具有相同声明形式函数指针
+	 但当捕获列表出现时，其入口包含了实例化时对捕获对象的封装，而这个捕获对象的实体是以类成员的身份存在的，因此无法被转化成函数指针
+
+	 __vfptr: 虚函数表vtable指针
+	 多态实现: 函数指针, 虚函数
+	*/
 	mainForLinearStructure();
 	mainForNonlinearStructure();
 	return 0;

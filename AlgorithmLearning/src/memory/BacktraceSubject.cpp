@@ -617,7 +617,7 @@ int main() {
 	}, 10, "图dfs");
 
 	// 递归lambda函数的情况
-	std::unique_ptr<BinSearchTree<int>> bt(new BinSearchTree<int>());
+	std::unique_ptr<LinkedBinSearchTree<int>> bt(new LinkedBinSearchTree<int>());
 	for (int i = 0; i < 2000; ++i) {
 		bt->insert(i);
 	}

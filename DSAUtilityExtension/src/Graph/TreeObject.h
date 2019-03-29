@@ -63,9 +63,9 @@ public:
 		//设置子类添加字段
 		virtual void setValue(int){}
 		//这样无需默认构造函数
-		BTNode(Element const&data_) : Data(data_){}
-		/*BTNode(Element const&data_){
-			Data = data_;
+		BTNode(Element const&tData) : Data(tData){}
+		/*BTNode(Element const&tData){
+			Data = tData;
 		}*/
 		//拷贝构造 左右孩子结点置NULL
 		BTNode(BTNode &rhs){
@@ -81,7 +81,7 @@ public:
 			return depthOf(this);
 		}
 		//叶子结点判断
-		bool isLeave(){
+		bool isLeave() const {
 			return Left == NULL && Right == NULL;
 		}
 		/*
@@ -125,24 +125,24 @@ public:
 	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
 	BinTree(const BinTree &rhs){
 		DE_PRINTF("BT拷贝构造");
-		assignment(root, rhs.root);
-		size_ = rhs.size_;
+		assignment(root_, rhs.root_);
+		usedSize = rhs.usedSize;
 	}
 	// 移动构造 (保证完全一致)
 	BinTree(BinTree &&rvalue) {
 		DE_PRINTF("BT移动构造");
-		std::swap(root, rvalue.root);
-		std::swap(size_, rvalue.size_);
+		std::swap(root_, rvalue.root_);
+		std::swap(usedSize, rvalue.usedSize);
 		std::swap(isInsert, rvalue.isInsert);
 		std::swap(lastInsertPosition, rvalue.lastInsertPosition);
 	}
 	// 先中序列构造 缺省的遍历序列放置元素个数
 	BinTree(Element const *preOrder, Element const *inOrder, int n){
-		prefInBuild(preOrder, inOrder, root, n);
+		prefInBuild(preOrder, inOrder, root_, n);
 	}
 	// 中后序列构造
 	BinTree(int n, Element const *inOrder, Element const *postOder){
-		postInBuild(root, inOrder, postOder, n);
+		postInBuild(root_, inOrder, postOder, n);
 	}
 	
 	// 先根序遍历操作堆栈构造 (堆栈操作获取方法, 结点数据获取方法)
@@ -170,66 +170,74 @@ public:
 			}
 		}
 		_ASSERT_EXPR(preOrder.size() == inOrder.size(), "Size Error");
-		prefInBuild(preOrder, 0, inOrder, 0, root, preOrder.size());
+		prefInBuild(preOrder, 0, inOrder, 0, root_, preOrder.size());
 	}
 
 	// destructor
 	virtual ~BinTree() {
-		destroy(root);
+		destroy(root_);
 		lastInsertPosition = NULL;
 		DE_PRINTF("BT析构");
 	}
 
 	// 避免无意地二叉树赋值(赋值操作析构原lhs 且只能保证内容一致)
 	BinTree &operator= (const BinTree &rhs) {
-		// 先要析构自己的root
-		destroy(root);
-		assignment(root, rhs.root);
-		size_ = rhs.size_;
+		// 先要析构自己的root_
+		destroy(root_);
+		assignment(root_, rhs.root_);
+		usedSize = rhs.usedSize;
 		return *this;
 	}
 	// 避免无意地二叉树移动(系统自动析构原lhs)
 	BinTree &operator= (BinTree &&rvalue) {
-		std::swap(root, rvalue.root);
-		std::swap(size_, rvalue.size_);
+		std::swap(root_, rvalue.root_);
+		std::swap(usedSize, rvalue.usedSize);
 		std::swap(isInsert, rvalue.isInsert);
 		std::swap(lastInsertPosition, rvalue.lastInsertPosition);
 		return *this;
 	}
 
-	// 清除所有内容(保证是未初始化状态)
+	// 清除所有内容(初始化所有结点的有效性, 结构一定会被摧毁, root_会保留)
 	virtual void clear() {
-		destroy(root);
+		destroy(root_);
 		lastInsertPosition = nullptr;
 		isInsert = false;
-		size_ = 0;
+		usedSize = 0;
 	}
 
-	Element getRootData(){
-		return root->Data;
+	Element getRootData() const {
+		return root_->Data;
 	}
-	BT getRoot(){
-		return root;
+	BT getRoot() const {
+		return root_;
 	}
-	// 若二叉树为空返回true(根结点为空表示整颗树为空 空表示当前结点不存在而非不存在子结点)
-	bool empty(){
-		return empty(root);
+	// 若二叉树为空返回true (存在至少1个结点含有数据) O(1)
+	bool empty() const {
+		// (根结点为空表示整颗树为空 空表示当前结点不存在而非不存在子结点)
+		// return empty(root_);
+		return usedSize == 0;
 	}
-	// 返回树高
-	int height(){
-		return depthOf(root);
+	// 返回树高度|深度 O(H)
+	int height() const {
+		// 若已知size则为log的复杂度(貌似差不多的样子)
+		// ceil(log(size, 2))
+		return depthOf(root_);
+	}
+	// 返回树层数 => [0, height)
+	int layers() const {
+		return height() - 1;
 	}
 
 	// Θ(2*N)     Tree::ORDER, void visit(BinTree<T>::BT node)
 	void traversal(TraversalOrderEnum type, Vister visit){
 		if (type == ORDER_PREFIX_ROOT)
-			preTraversal(root, visit);
+			preTraversal(root_, visit);
 		else if (type == ORDER_INFIX_ROOT)
-			infTraversal(root, visit);
+			infTraversal(root_, visit);
 		else if (type == ORDER_POST_ROOT)
-			postTraversal(root, visit);
+			postTraversal(root_, visit);
 		else if(type == ORDER_LEVEL)
-			levelTraversal(root, visit);
+			levelTraversal(root_, visit);
 		else
 			_ASSERT_EXPR(false, "遍历参数错误 NONE_ORDER 不作traversal_");
 	}
@@ -247,7 +255,7 @@ public:
 	// 镜像树: mirroring reversal镜像反转 转换后不能使用原来的任何基于比较的方法(若是搜索树:左小右大->左大右小)
 	void mirReversal(){
 		queue<Position> q;
-		q.push(root);
+		q.push(root_);
 		while (!q.empty()){
 			Position t = q.front();
 			q.pop();
@@ -262,23 +270,23 @@ public:
 	}
 	// 同构判断
 	bool omorphism(BinTree const &T2){
-		return isomorphic(this->root, T2.root);
+		return isomorphic(this->root_, T2.root_);
 	}
 	// 向现有的树结构中填充数据(可利用静态二叉树储存输入结构 或是原结构)
 	// 普通二叉树->传入中序遍历结果可以获得确定的一颗树
 	// 有序数组->数据符合二叉搜索树要求
 	// 完全二叉树->有数组的构造方法(但仅对完全二叉搜索树有实际意义)
 	bool fillData(ArrayList<T> &dataA){
-		return fillData(dataA, 0, dataA.size(), root);
+		return fillData(dataA, 0, dataA.size(), root_);
 	}
 	int size(){
-		return size_;
+		return usedSize;
 	}
 	
 protected:
 	const static int BT_NODE_LEN = sizeof(class BTNode);
-	Position root = NULL;
-	int size_ = 0;// 有效的元素个数
+	Position root_ = NULL;
+	int usedSize = 0;// 有效的元素个数
 	Position lastInsertPosition = NULL;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
 	bool isInsert = false;// 是否执行了插入操作(判断插入是否成功)
 
@@ -289,16 +297,17 @@ protected:
 	static int scaleOf(BT t) {
 		return empty(t) ? 0 : scaleOf(t->Left) + scaleOf(t->Right) + 1;
 	}
-	//返回结点深度：(根据公式 Height = max(Hl, Hr) + 1 由后序遍历改编实现)
+	// 返回结点深度 (空树深度为零 有root则为1)
 	static int depthOf(Position bT){
 		int HL, HR;
-		if (bT){
+		if (bT) {
 			HL = depthOf(bT->Left);
 			HR = depthOf(bT->Right);
+			// (根据公式 Height = max(Hl, Hr) + 1 由后序遍历改编实现)
 			return (HL > HR ? HL : HR) + 1;
 		}
 		else
-			return 0;//空树深度为零
+			return 0;
 	}
 	// 按原结构填充数据 (数组, 根结点数据下标, 当前根下的数据个数, 结构来源树) O(N^2)
 	static bool fillData(ArrayList<T> &dataA, int dataRootSub, int dataSize, Position bt){
@@ -317,7 +326,7 @@ protected:
 		fillData(dataA, dataRootSub + nl + 1, dataSize - nl - 1, bt->Right);
 		return true;
 	}
-	// 结点指针销毁方法(相当于结点的析构)
+	// 销毁结点(只保证调用后结点内容无效, 不一定会析构结点)
 	virtual void destroy(Position &r){
 		if (r){
 			destroy(r->Left);
@@ -431,9 +440,9 @@ protected:
 
 		//若存在左子树则向左子树递归
 		if (leftSubLen > 0){
-			//先序第一个值(root)右边取左子树的长度即是左子树
+			//先序第一个值(root_)右边取左子树的长度即是左子树
 			string sPreLeftSub = sPre.substr(1, leftSubLen);
-			//root的左边
+			//root_的左边
 			string sMedLeftSub = sMed.substr(0, leftSubLen);
 			calcPostOrder(sPreLeftSub, sMedLeftSub, sPostBuffer);
 		}
@@ -443,9 +452,9 @@ protected:
 
 		//若存在右子树则向右子树递归
 		if (medRootSub + 1 < sMed.size()){
-			//先序第一个值(root)的右边跳过左子树长度取所有即是右子树
+			//先序第一个值(root_)的右边跳过左子树长度取所有即是右子树
 			string sPreRightSub = sPre.substr(1 + leftSubLen);
-			//root的右边
+			//root_的右边
 			string sMedRightSub = sMed.substr(medRootSub + 1);
 			calcPostOrder(sPreRightSub, sMedRightSub, sPostBuffer);
 		}
@@ -454,7 +463,7 @@ protected:
 		}
 
 		if (medRootSub != string::npos){
-			//加上root
+			//加上root_
 			sPostBuffer += sMed.at(medRootSub);
 		}
 		else{
@@ -556,10 +565,10 @@ protected:
 	
 public:
 	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回NULL 只能插入使用
-	virtual Position nodeCreater(Element const &data_){
-		lastInsertPosition = new BTNode(data_);
+	virtual Position nodeCreater(Element const &tData){
+		lastInsertPosition = new BTNode(tData);
 		isInsert = lastInsertPosition == NULL ? false : true;
-		++size_;
+		++usedSize;
 		return lastInsertPosition;
 		/*
 		bST = (BST)malloc(sizeof(struct TNode));
@@ -571,7 +580,7 @@ public:
 	virtual void nodeEraser(Position &del){
 		free(del);
 		del = NULL;
-		--size_;
+		--usedSize;
 	}
 };
 
@@ -595,7 +604,7 @@ n个结点的判定树depthOf = [log2(n)]+1
 4层满二叉树的平均查找次数ASL = (4*8+3*4+2*2+1*1)/15
 */
 template<class T>
-class BinSearchTree : public virtual BinTree<T> {
+class LinkedBinSearchTree : public virtual BinTree<T> {
 public:
 	enum TraversalOrderStopEnum {
 		ORDER_SEQUENCE, // 顺序 (<=>可中止的先根序)
@@ -607,16 +616,16 @@ public:
 	//using Position = BinTree<T>::Position;错误用法
 	typedef typename BinTree<T>::Position Position;
 	typedef typename BinTree<T>::Element Element;
-	using BinTree<T>::root;
+	using BinTree<T>::root_;
 	using BinTree<T>::lastInsertPosition;
 	using BinTree<T>::traversal;
 	using BinTree<T>::destroy;
 	using BinTree<T>::nodeCreater;
 	using BinTree<T>::nodeEraser;
 	//constructor
-	BinSearchTree(){}
+	LinkedBinSearchTree(){}
 	//拷贝构造 直接调的父类方法
-	BinSearchTree(const BinSearchTree &rhs) :BinTree<T>(rhs)/*这样并未发生强制转换*/{
+	LinkedBinSearchTree(const LinkedBinSearchTree &rhs) :BinTree<T>(rhs)/*这样并未发生强制转换*/{
 		DE_PRINTF("BST拷贝构造");
 	}
 	/*只要不改变左右子树各自的先序插入序列其插入结果与先构建左子树或先构建右子树无关
@@ -624,7 +633,7 @@ public:
 	[先序序列]:[82] 76 23 80 | 90 95
 	[插入序列] 82 90 76 23 95 80 构建的树与其是同一棵树*/
 	//先序构造 (先序遍历序列左端,序列右端+元素个数)
-	BinSearchTree(Element *preLeft, Element *preRight, int eqaul = 0){
+	LinkedBinSearchTree(Element *preLeft, Element *preRight, int eqaul = 0){
 		while (preLeft < preRight){
 			if (!insert(*preLeft)){
 				puts("构造失败!");
@@ -634,7 +643,7 @@ public:
 		}
 	}
 	//先序构造 ArrayList
-	BinSearchTree(JCE::ArrayList<Element> &preOrder, int eqaul = 0){
+	LinkedBinSearchTree(JCE::ArrayList<Element> &preOrder, int eqaul = 0){
 		/*若preOrder参数不是引用
 		**会发生:
 		**ArrayList拷贝构造
@@ -647,7 +656,7 @@ public:
 		(不理解为什么在构造函数里 用传值拷贝参数会调用这一系列 我觉得完全没必要啊
 		尤其是一开始没有写相应函数出错了...)
 		注意!!!
-		即便是BinSearchTree t = BinSearchTree(ArrayList<>);
+		即便是LinkedBinSearchTree t = LinkedBinSearchTree(ArrayList<>);
 		这样的语句也不会调用赋值函数 而是调用的拷贝构造函数
 		preOrder是引用的话上面所有的屁事都没了
 		*/
@@ -659,17 +668,17 @@ public:
 		}
 	}
 	//析构deleter
-	virtual ~BinSearchTree() override{
+	virtual ~LinkedBinSearchTree() override{
 		DE_PRINTF("BST析构");
 	}
 	//赋值 很费时间 避免无意间的二叉树赋值
-	BinSearchTree& operator= (const BinSearchTree& rhs){
+	LinkedBinSearchTree& operator= (const LinkedBinSearchTree& rhs){
 		DE_PRINTF("BST赋值");
 		//<==>两次父类拷贝构造 一次父类赋值 两次父类析构
 		//(BinTree)(*this) = (BinTree)rhs;
 		// ==>强制转换其实是调用的拷贝构造方法(这样效率不高) 所以应当为子类编写自己的赋值函数(即使没有新增加的域)
-		BinTree<T>::destroy(root);//先要销毁自己的root
-		BinTree<T>::assignment(root, rhs.root);
+		BinTree<T>::destroy(root_);//先要销毁自己的root_
+		BinTree<T>::assignment(root_, rhs.root_);
 		return *this;
 	}
 
@@ -728,7 +737,7 @@ public:
 	}
 	/*返回二叉搜索树bST中最小元结点的指针；*/
 	Position findMin(){
-		BST bST = root;
+		BST bST = root_;
 		while (bST && bST->Left)
 			bST = bST->Left;
 		return bST;
@@ -746,7 +755,7 @@ public:
 	}
 	/*返回二叉搜索树bST中最大元结点的指针。*/
 	Position findMax(){
-		BST bST = root;
+		BST bST = root_;
 		while (bST && bST->Right)
 			bST = bST->Right;
 		return bST;
@@ -800,24 +809,24 @@ public:
 	//  遍历器返回值为true表示立即中止遍历
 	void traversal(TraversalOrderStopEnum type, StopVister visit) {
 		if (type == ORDER_SEQUENCE)
-			orderTraversal(root, visit);
+			orderTraversal(root_, visit);
 		else if (type == ORDER_REVERSE)
-			reOrderTraversal(root, visit);
+			reOrderTraversal(root_, visit);
 		else
 			_ASSERT_EXPR(false, "遍历参数错误 NONE_ORDER 不作traversal_");
 	}
 	/*返回x在二叉搜索树bST中的位置; 若找不到则返回NULL*/
 	Position find(T const&x){
-		return findOf(root, x);
+		return findOf(root_, x);
 	}
 	//自定义查找(自定义小于符号)
 	template<typename LessCmp>
 	Position find(T const&x, LessCmp less){
-		return findOf(root, x, less);
+		return findOf(root_, x, less);
 	}
 	//插入 O(logN)
 	JCE::pair<Position, bool> insert(Element const&x){
-		root = Insert(root, x);
+		root_ = Insert(root_, x);
 		//与map的insert返回值类似，重复insert 返回<重复Position, false>，这个技巧在面试如何找出2个数组相同的数字的时候有奇效
 		return{ BinTree<T>::lastInsertPosition, BinTree<T>::isInsert };
 	}
@@ -825,18 +834,18 @@ public:
 	//(例如654789)->4 5 [6] Orderly被置false 7 [手动]置true 8 9 可实现局部有序插入
 	JCE::pair<Position, bool> insertOrderly(Element const&x, bool &Orderly){
 		if (!Orderly){//若已经不是有序的插入 则退化为普通插入
-			root = Insert(root, x);
+			root_ = Insert(root_, x);
 		}
 		else{
-			if (!BinTree<T>::empty(root)){
-				if (x < root->Data){//若即将插入的数据在左子树
+			if (!BinTree<T>::empty(root_)){
+				if (x < root_->Data){//若即将插入的数据在左子树
 					if (x < lastInsertPosition->Data){//x已位于左子树 若x还比lastInsertPosition小后者必定也在左子树
 						Insert(lastInsertPosition, x);//于是直接往lastInsertPosition的左边插即可
 						Orderly = true;
 					}
-					else{//否则应该插入的位置位于左子树:root和lastInsertPosition中间
+					else{//否则应该插入的位置位于左子树:root_和lastInsertPosition中间
 						Orderly = false;
-						root = Insert(root, x);
+						root_ = Insert(root_, x);
 					}
 				}
 				else{//相等时直接传入使Insert判断
@@ -846,13 +855,13 @@ public:
 					}
 					else{
 						Orderly = false;
-						root = Insert(root, x);
+						root_ = Insert(root_, x);
 					}
 				}
 			}
 			else{
 				Orderly = true;
-				root = Insert(root, x);
+				root_ = Insert(root_, x);
 			}
 		}
 		return{ lastInsertPosition, BinTree<T>::isInsert };
@@ -860,7 +869,7 @@ public:
 	//删除 删除成功返回true
 	bool erase(Element const&x){
 		bool succeed = true;
-		root = Delete(root, x, succeed);
+		root_ = Delete(root_, x, succeed);
 		return succeed;
 	}
 protected:
@@ -969,13 +978,13 @@ protected:
 */
 /*AVL平衡树 -------------------不能瞎用二叉树的操作(比如删除)*/
 template<class T>//多重继承
-class AvlTree :public BinSearchTree<T> {
-	typedef typename BinSearchTree<T>::BST AVLT;
-	typedef typename BinSearchTree<T>::Position Position;
+class AvlTree :public LinkedBinSearchTree<T> {
+	typedef typename LinkedBinSearchTree<T>::BST AVLT;
+	typedef typename LinkedBinSearchTree<T>::Position Position;
 	typedef typename BinTree<T>::BT BT;
 	using Element = T;
 	using Tree::Max;
-	using BinSearchTree<T>::root;
+	using LinkedBinSearchTree<T>::root_;
 	typedef class AvlNode : public BinTree<T>::BTNode{
 	public:
 		int Height = 0;//树高  Data意义同BinTree
@@ -991,8 +1000,8 @@ class AvlTree :public BinSearchTree<T> {
 		void setHeight(int h)override{
 			Height = h;
 		}
-		AvlNode(int data_, int height_)
-			:BinTree<T>::BTNode(data_){
+		AvlNode(int tData, int height_)
+			:BinTree<T>::BTNode(tData){
 				Height = height_;
 			}
 		virtual ~AvlNode()override{
@@ -1106,146 +1115,51 @@ BST			插入构造O(N*logN) 增删O(H) log(N-1) <= H(BST) <= N, 平均 H = log(N)+1
 顺序CBT实现的Heap:构造 O(N),		push O(logN)		pop O(logN)
 使用顺序储存实现堆是最佳选择
 */
-/*静态二叉树Static Binary Tree(用数组储存的二叉树不一定是完全二叉树)*/
+/*
+使用数组虚拟的二叉树(不是ArrayBinTree)
+静态二叉树Static Binary Tree(用数组储存的二叉树不一定是完全二叉树)
+用StaBinTree实现便于方法内的子树下标的计算
+*/
 template<class T>
-class StaBinTree :public virtual BinTree<T>{
-protected:
-	typedef typename BinTree<T>::BT BT;//levl
-	typedef typename BinTree<T>::Position StructArray;
+class VirtualLinkedBinTree :public virtual BinTree<T>{
 	typedef typename BinTree<T>::Position Position;
-	using BinTree<T>::root;
-	using BinTree<T>::BT_NODE_LEN;
-	typedef T ElementSBT;
-	StructArray struA = NULL;//Left和Right储存左右孩子位于数组内的地址
-	int capacity = 0;//数组长度, 所有元素个数(size+1) 至少为1
-	int size = 0;//已储存,有效 的元素个数 (cap-1) struA尾元素下标
-
-	//通过输入构建树结构 返回根结点 tips: getSub必须将参数置为数组内孩子结点的下标(int)
-	template<class Fun1, class Fun2>
-	Position buildStructure(Fun1 getData, Fun2 getSub, int nullChar){
-		int n = capacity - 1;
-		int i, sum = (n - 1)*n / 2;
-		int leftSub, rightSub;
-		Position rt = struA + 1;
-
-		while ((i = getchar()) == '\n' || i == ' ');
-		ungetc(i, stdin);//清空输入流 bug:工程使用时应去掉
-
-		for (i = 0; i < n; i++){
-			Position leftChild = NULL, rightChild = NULL;
-			getData(&rt[i].Data);
-			getSub(&leftSub, &rightSub);
-			if (leftSub != nullChar){
-				leftChild = rt + leftSub;
-				sum -= leftSub;
-			}
-
-			if (rightSub != nullChar){
-				rightChild = rt + rightSub;
-				sum -= rightSub;
-			}
-			rt[i].Left = leftChild, rt[i].Right = rightChild;
-		}
-		return n == 0 ? NULL :
-			0 < sum&&sum < size ? rt + sum : NULL;
-	}
-	bool full(){
-		return size == capacity - 1;
-	}
-
-	bool empty(){
-		return size == 0;
-	}
-	//构建结构体数组 会自动多申请一个用于存储0号哨兵
-	void reCapacity(int capacity_){
-		struA = (StructArray)realloc(struA, BT_NODE_LEN*++capacity_);
-		if (capacity == 0)//首次申请->全域初始化(排除已使用的size 一般是0)
-			memset(struA + size, 0, BT_NODE_LEN*(capacity_ - size));
-		else//再次申请->root域[struA+cap, struA+cap](排除原有的cap)初始化, struA+cap已经是数组末尾的后一个
-			memset(struA + capacity, 0, BT_NODE_LEN*(capacity_ - capacity));
-		capacity = capacity_;
-	}
+	using BinTree<T>::layers;
+	using BinTree<T>::empty;
 public:
-	using BinTree<T>::height;
-	//初始化root 
-	void iniARoot(){//root不包括哨兵(0号)
-		root = struA + 1;
+	typedef typename BinTree<T>::BT BTS;
+	// 结构已知构造(结点数目, 数据获取方法, 下标获取方法, 空下标) 若结构并不总是完整的 但root_是特定已知的 可以指定root_的下标
+	VirtualLinkedBinTree(int nSize, std::function<void(T *)> getData, std::function<void(Sub *, Sub *)> getSub, int noneSub, int rootSub = -1){
+		// 将这段数组当内存
+		reCapacity(nSize);
+		// 构建链接二叉树
+		root_ = buildStructure(getData, getSub, noneSub);
+		if (rootSub > 0) {
+			_ASSERT_EXPR(rootSub < capacity, "指定根下标越界!");
+			root_ = struA + rootSub;
+		}
+		usedSize = capacity - 1;
 	}
-	//构造静态完全二叉树 root和size需要子类初始化 向上转型时会用root (可存储的元素个数)
-	StaBinTree(int n){
-		reCapacity(n);
-	}
-	/*
-	8
-	1 -
-	- -
-	0 -
-	2 7
-	- -
-	- -
-	5 -
-	4 6
-	*/
-	/*StaBinTree<T> t = StaBinTree<T>(n,
-	[](T*data_){static int i = 0; *data_ = i++; },
-	[](int* lSub, int* rSub){char l, r; scanf("%c %c", &l, &r); *lSub = l-'0', *rSub = r-'0'; },
-	'-'-'0');
-	t.traversal(t.ORDER_POST_ROOT);
-	t.traversalDisplay();*/
-	/*
-	9
-	1 6
-	2 3
-	-1 -1
-	-1 4
-	5 -1
-	-1 -1
-	7 -1
-	-1 8
-	-1 -1
-	73 45 11 58 82 25 67 38 42
-	*/
-	/*StaBinTree<T> t = StaBinTree<T>(n,
-	[](T*data_){static int i = 0; *data_ = i++; },
-	[](int* lSub, int* rSub){scanf("%d %d", lSub, rSub); },
-	-1);*/
-	//结构已知构造(数据数目, 数据获取方法, 下标获取方法, 空数据值)
-	//混淆概念的 这构造出来连顺序储存的二叉树都不是 完完全全只是把这段数组当内存使用然后构建链接二叉树而已
-	/*lambda是通过创建一个重载了操作符()的小类来实现的，一个lambda函数是该类的一个实例
-	**捕获lambda函数外的具有自动存储时期的变量。函数体与这些变量的集合合起来叫闭包。
-	**一个没有指定任何捕获的lambda函数,可以显式转换成一个具有相同声明形式函数指针
-	**但当捕获列表出现时，其入口包含了实例化时对捕获对象的封装，而这个捕获对象的实体是以类成员的身份存在的，因此无法被转化成函数指针。*/
-	//此版本可以使用lambda捕获列表 若结构并不总是完整的 但root是特定的 可以指定root的下标
-	template<class Fun1, class Fun2>
-	StaBinTree(int n, Fun1 getData, Fun2 getSub, int nullChar, int rootSub = -1){
-		reCapacity(n);
-		root = buildStructure(getData, getSub, nullChar);//用StaBinTree实现便于方法内的子树下标的计算
-		if (rootSub > 0)
-			root = struA + rootSub;
-		size = capacity - 1;
-	}
-	virtual ~StaBinTree() override{
-		free(struA);//malloc 不能delete?
-		root = NULL;//保证基类的正常析构
+	virtual ~VirtualLinkedBinTree() override{
+		//free(struA);
+		delete[] struA;
+		// 保证基类的正常析构
+		root_ = NULL;
 		DE_PRINTF("SCT析构");
 	}
-	//返回数组内的结点编号 1号为root 0号为哨兵
-	int index(Position t){
-		/*第一个元素插入时root=NULL 所以链接左右孩子链接方法不能用root 更何况root=1时的规律是针对数组成立的*/
-		return t - struA;
+	virtual void destroy(Position &r) override {
+		root_ = struA + 1;
+		usedSize = 0;
 	}
-	//返回数组内的结点位置
-	Position position(int i){
-		return struA + i;
-	}
-	//返回第lv层最多的结点个数
-	//返回第i层的叶结点个数 lv越界返回-1
-	int leavesCount(int lv){
-		if (lv > height())
+	// 计算第layer层的叶结点个数 (layer越界返回-1) O(N)
+	int leavesCount(int layer) const {
+		// 级(level) 第layer层最多的结点个数: 2^layer layer=[0, height)
+		assert(layer >= 0);
+		if (layer > layers())
 			return -1;
 		int count = 0;
-		JCE::queue<JCE::pair<BT, int>> q;//t, lv
-		q.push(std::make_pair(root, 0));
+		//t, layer
+		JCE::queue<JCE::pair<BTS, int>> q;
+		q.push(std::make_pair(root_, 0));
 		while (!q.empty()){
 			auto p = q.front();
 			q.pop();
@@ -1253,13 +1167,86 @@ public:
 				q.push({ p.first->Left, p.second + 1 });
 			if (!empty(p.first->Right))
 				q.push({ p.first->Right, p.second + 1 });
-			if (p.first->isLeave() && p.second == lv)
+			if (p.first->isLeave() && p.second == layer)
 				++count;
-			else if (p.second > lv)
+			else if (p.second > layer)
 				break;
 			//else continue;
 		}
 		return count;
+	}
+protected:
+	typedef typename BinTree<T>::Position StructArray;
+	using BinTree<T>::root_;
+	using BinTree<T>::BTNode;
+	using BinTree<T>::BT_NODE_LEN;
+	typedef T ElementSBT;
+	// Left和Right储存左右孩子位于数组内的地址
+	StructArray struA = NULL;
+	// 数组长度, 所有元素个数(nSize+1) 至少为1
+	int capacity = 0;
+	// 已储存/有效 的元素个数 (理论上<==>capacity-1, 是struA尾元素的下标)
+	using BinTree<T>::usedSize;
+
+	// 构造静态完全二叉树 (结点个数) 向上转型时会用到的root_和usedSize 必须需要子类初始化
+	VirtualLinkedBinTree(int nSize) {
+		reCapacity(nSize);
+	}
+	//通过输入构建树结构 返回根结点 (数组内孩子结点的下标获取函数)
+	Position buildStructure(std::function<void(T *)> getData, std::function<void(Sub *, Sub *)> getSub, int noneSub) {
+		int nSize = capacity - 1;
+		int i, sum = (nSize - 1)*nSize / 2;
+		int leftSub, rightSub;
+		Position rt = struA + 1;
+
+		for (i = 0; i < nSize; i++) {
+			Position leftChild = NULL, rightChild = NULL;
+			getData(&rt[i].Data);
+			getSub(&leftSub, &rightSub);
+			if (leftSub != noneSub) {
+				leftChild = rt + leftSub;
+				sum -= leftSub;
+			}
+
+			if (rightSub != noneSub) {
+				rightChild = rt + rightSub;
+				sum -= rightSub;
+			}
+			rt[i].Left = leftChild, rt[i].Right = rightChild;
+		}
+		_ASSERT_EXPR(0 <= sum && sum < nSize, "给定数据有误!");
+		return nSize == 0 ? NULL : rt + sum;
+	}
+	bool full() {
+		return usedSize == capacity - 1;
+	}
+	// 构建结构体数组 (结点数目)
+	void reCapacity(int nSize) {
+		// 自动多申请一个用于存储0号哨兵
+		++nSize;
+		struA = new BTNode[nSize];
+		/*
+		struA = (StructArray)realloc(struA, BT_NODE_LEN*nSize);
+		if (capacity == 0)//首次申请->全域初始化(排除已使用的usedSize 一般是0)
+			memset(struA + usedSize, 0, BT_NODE_LEN*(nSize - usedSize));
+		else//再次申请->root_域[struA+cap, struA+cap](排除原有的cap)初始化, struA+cap已经是数组末尾的后一个
+			memset(struA + capacity, 0, BT_NODE_LEN*(nSize - capacity));
+		*/
+		capacity = nSize;
+	}
+	// 初始化root_ 
+	void iniTRoot() {
+		// root_不包括哨兵(0号)
+		root_ = struA + 1;
+	}
+	// 返回数组内的结点编号 1号为root_ 0号为哨兵
+	int index(BTS t) const {
+		/*第一个元素插入时root_=NULL 所以链接左右孩子链接方法不能用root_ 更何况root_=1时的规律是针对数组成立的*/
+		return t - struA;
+	}
+	// 返回数组内的结点位置
+	Position position(int sub) {
+		return struA + sub;
 	}
 };
 
@@ -1277,40 +1264,42 @@ public:
 /*静态二叉搜索树Static Binary Search Tree*/
 /*SequentialBinTree顺序储存的二叉树*/
 template<class T>//虚继承(virtual必须写在中间) 解决多继承中菱形继承的情况下的基类成员的冲突
-class StaBinSearchTree :public virtual StaBinTree<T>, public virtual BinSearchTree<T>{
+class VirtualLinkedBinSearchTree :public VirtualLinkedBinTree<T>, public virtual LinkedBinSearchTree<T> {
 public:
-	StaBinSearchTree(int n) :StaBinTree<T>(n){
-		size = n;
-	}
-	~StaBinSearchTree() override{
+	~VirtualLinkedBinSearchTree() override{
 		DE_PRINTF("SCBT析构");
 	}
 protected:
 	typedef typename BinTree<T>::Position Position;
+	typedef typename BinTree<T>::BT VBT;
 	typedef T Element;
-	typedef Position BT;
-	typedef BT structArray;
-	using BinTree<T>::root;
-	using StaBinTree<T>::struA;
-	using StaBinTree<T>::size;
-	using StaBinTree<T>::capacity;
-	using StaBinTree<T>::full;
-	void nodeEraser(Position &del)override{
-		del->Data = 0;//0代表初始状态 只为了标识用 并无特殊用处
-		del->Left = del->Right = NULL;//静态数组的删除并非实际删除
-		del = NULL;
-		--size;///
-	}
-	BT nodeCreater(Element data_)override{
+	typedef Position structArray;
+	using BinTree<T>::root_;
+	using VirtualLinkedBinTree<T>::struA;
+	using VirtualLinkedBinTree<T>::usedSize;
+	using VirtualLinkedBinTree<T>::capacity;
+	using VirtualLinkedBinTree<T>::full;
+
+	VirtualLinkedBinSearchTree(int nSize) :VirtualLinkedBinTree<T>(nSize){}
+	Position nodeCreater(Element const &tData)override {
 		if (full())
 			return NULL;
-		struA[size + 1].Data = data_;//0号元素用于哨兵
-		++size;///
+		struA[usedSize + 1].Data = tData;//0号元素用于哨兵
+		++usedSize;
 		/*
 		isInsert = lastInsertPosition == NULL ? false : true;  bug
-		BinTree<T>::lastInsertPosition = struA + size + 1;
+		BinTree<T>::lastInsertPosition = struA + usedSize + 1;
 		*/
-		return struA + size + 1;
+		return struA + usedSize + 1;
+	}
+	void nodeEraser(Position &del)override{
+		// 0代表初始状态 只为了标识用 并无特殊用处
+		// malloc就应用memeset初始化free释放 new自动初始化 赋值初始化 delete释放
+		// del->Data = 0; // {}
+		//静态数组的删除并非实际删除
+		del->Left = del->Right = NULL;
+		del = NULL;
+		--usedSize;
 	}
 };
 
@@ -1318,20 +1307,21 @@ protected:
 /*与二分查找是有区别的 二分查找的序列是有序的 建立CBST需要有序序列 但建立完后其本身的内置序列并非有序的(其首元素相当于序列中值)*/
 /*这其实该叫顺序储存的二叉树而不是完全二叉树 只是说完全二叉树用顺序存储很完美*/
 template<class T>
-class CompleteBinSearchTree :public StaBinTree<T>{
+class CompleteBinSearchTree :public VirtualLinkedBinSearchTree<T>{
 public:
-	using Position = typename StaBinTree<T>::Position;
-	using StaBinTree<T>::full;
-	using StaBinTree<T>::index;
-	using StaBinTree<T>::position;
+	using Position = typename VirtualLinkedBinSearchTree<T>::Position;
+	using VirtualLinkedBinTree<T>::full;
+	using VirtualLinkedBinTree<T>::index;
+	using VirtualLinkedBinTree<T>::position;
 protected:
 	typedef typename BinTree<T>::BT BT;
 	typedef Position structArray;
 	typedef T Element;
-	using StaBinTree<T>::root;
-	using StaBinTree<T>::struA;
-	using StaBinTree<T>::size;
-	using StaBinTree<T>::capacity;
+	using VirtualLinkedBinTree<T>::root_;
+	using VirtualLinkedBinTree<T>::struA;
+	using VirtualLinkedBinTree<T>::usedSize;
+	using VirtualLinkedBinTree<T>::capacity;
+	using BinTree<T>::empty;
 	using Tree::Min;
 
 	/*返回StaBinSearchTree左子树的规模 (总结点数)*/
@@ -1343,11 +1333,11 @@ protected:
 	}
 	Position getLeftChild(Position t){
 		int i = index(t);
-		return 2 * i <= size ? struA + 2 * i : nullptr;
+		return 2 * i <= usedSize ? struA + 2 * i : nullptr;
 	}
 	Position getRightChild(Position t){
 		int i = index(t);
-		return 2 * i + 1 <= size ? struA + 2 * i + 1 : nullptr;
+		return 2 * i + 1 <= usedSize ? struA + 2 * i + 1 : nullptr;
 	}
 	Position getParent(Position t){
 		int i = index(t) / 2;
@@ -1371,48 +1361,45 @@ protected:
 		struA[TRoot].Left = buildComplete(first, first + nl, 2 * TRoot);
 		struA[TRoot].Right = buildComplete(first + nl + 1, last, 2 * TRoot + 1);
 		return struA + TRoot;
-		/* 0 1 2 [[3 4 5 [6] 7 8]] 9 */
 	}
 	/*完全二叉树层序遍历(顺序遍历有序数组)*/
 	template<class Fun>
 	void levelTraversal(BT bT, Fun visit){//无法override 但名字应该覆盖了
 		if (bT == NULL)return;
-		FOR(i, 0, size){//bT必须时root不能是struA(root = struA+1)
+		FOR(i, 0, usedSize){//bT必须时root_不能是struA(root_ = struA+1)
 			if (!visit(bT + i))
 				return;//中止
 		}
 	}
+	// 仅用于堆的初始化
+	CompleteBinSearchTree(int nSize) : VirtualLinkedBinSearchTree<T>(nSize) {}
 public:
 	/*sort(iniA, iniA + n, less<T>());
 	**翻转构造:sort(iniA, iniA + n, greater<T>()); 完全二叉树的左大右小树不支持左小右大树的镜像翻转 普通BinTree支持*/
-	//使用数组构造唯一的完全二叉树 (由于完全二叉树不能增删 没有size和capacity之分) tips::若数组有序 则为搜索树
-	CompleteBinSearchTree(int n, T *iniA = NULL)
-		:StaBinTree<T>(n){
-			if (iniA != NULL && n > 0){
-				root = buildComplete(iniA, iniA + n);
-				size = n;
-			}
-		}
+	//使用数组构造唯一的完全二叉树 (由于完全二叉树不能增删 没有usedSize和capacity之分) tips::若数组有序 则为搜索树
+	CompleteBinSearchTree(int nSize, T *iniA): VirtualLinkedBinSearchTree<T>(nSize){
+		assert(iniA != nullptr && nSize > 0);
+		root_ = buildComplete(iniA, iniA + nSize);
+		this->usedSize = nSize;
+	}
 	//直接把数组copy进静态数组里
-	CompleteBinSearchTree(T *iniA, int n)
-		:StaBinTree<T>(n){
-			if (iniA != NULL && n > 0){
-				root = struA + 1;
-				for (int i = 0; i < n; ++i)
-					root[i].Data = iniA[i];
-				size = n;
-			}
-		}
+	/*CompleteBinSearchTree(T *iniA, int nSize): VirtualLinkedBinSearchTree<T>(nSize){
+		assert(iniA != nullptr && nSize > 0);
+		root_ = struA + 1;
+		for (int i = 0; i < nSize; ++i)
+			root_[i].Data = iniA[i];
+		usedSize = nSize;
+	}*/
 	~CompleteBinSearchTree() override{
 		DE_PRINTF("CBT析构");
 	}
 
-	Position find(Element x){
+	/*Position find(Element x){
 		return NULL;//not impl
-	}
+	}*/
 	//返回两个结点的公共祖先 越界返回哨兵(0号结点)
 	Position ancestor(int i1, int i2){
-		if (i1 > size || i2 > size || i1 < 0 || i2 < 0)
+		if (i1 > usedSize || i2 > usedSize || i1 < 0 || i2 < 0)
 			return position(0);
 		if (i1 == i2)
 			return position(i1);
@@ -1439,13 +1426,13 @@ is_heap_until:	找出区间中第一个不满足heap条件的位置. O(N)*/
 template<class T>
 class Heap : public CompleteBinSearchTree<T>{
 	typedef T Element;
-	typedef typename BinSearchTree<T>::Position Position;
-	using BinTree<T>::root;
-	using StaBinTree<T>::struA;
-	using StaBinTree<T>::size;
-	using StaBinTree<T>::capacity;
-	using StaBinTree<T>::full;
-	using StaBinTree<T>::empty;
+	typedef typename LinkedBinSearchTree<T>::Position Position;
+	using BinTree<T>::root_;
+	using VirtualLinkedBinTree<T>::struA;
+	using VirtualLinkedBinTree<T>::usedSize;
+	using VirtualLinkedBinTree<T>::capacity;
+	using VirtualLinkedBinTree<T>::full;
+	using VirtualLinkedBinTree<T>::empty;
 	using CompleteBinSearchTree<T>::getLeftChild;
 	using CompleteBinSearchTree<T>::getRightChild;
 	using CompleteBinSearchTree<T>::getParent;
@@ -1456,12 +1443,16 @@ class Heap : public CompleteBinSearchTree<T>{
 public:
 	/*(堆的大小 小于比较方法 任意初始化序列序列 该序列的元素个数)  注意: 用数组构造的堆与插入初始化的堆 的结构不一样*/
 	Heap(int sizeHeap, T *iniA = NULL, int nIniA = 0)
-		: CompleteBinSearchTree<T>(sizeHeap){
-			root = struA + 1;//没有有效元素也要对root赋值
-			size = nIniA;
-			for (Position t = struA + 1; t < root + nIniA; ++t) {/*为每个元素赋初始权值*/
-				t->Data = iniA[t - root];//若T类型不是基本类型 需要重载赋值号
-				linkToChildren(t);//只要没越界就链接->遍历时以size为结束遍历的标志 而不是子结点是否为空?
+		: CompleteBinSearchTree<T>(sizeHeap) {
+		// 没有有效元素也要对root_赋值
+			root_ = struA + 1;
+			usedSize = nIniA;
+			// 为每个元素赋初始权值
+			for (Position t = struA + 1; t < root_ + nIniA; ++t) {
+				// 若T类型不是基本类型 需要重载赋值号
+				t->Data = iniA[t - root_];
+				// 只要没越界就链接->遍历时以usedSize为结束遍历的标志 而不是子结点是否为空?
+				linkToChildren(t);
 			}
 		}
 	~Heap()override{
@@ -1480,8 +1471,8 @@ public:
 		Element Item = struA[1].Data;/*取出即将返回的值*/
 		/*矛盾在于:Size--删除的是尾元素 但是根据堆的定义我们应该删除1号元素
 		将尾元素替换下滤时的p元素下滤 这样便于操作 且实际上删除的是1号元素*/
-		PercoDown(1, "删除");//注意::方法内size--了
-		unlinkToParent(struA + size);
+		PercoDown(1, "删除");//注意::方法内usedSize--了
+		unlinkToParent(struA + usedSize);
 		return Item;
 	}
 	bool push(Element Item){
@@ -1494,11 +1485,11 @@ public:
 			puts("未构建");
 			return false;
 		}
-		i = ++size;/*i指向[插入后]堆中最后一个元素的位置*/
+		i = ++usedSize;/*i指向[插入后]堆中最后一个元素的位置*/
 		for (; cmper(struA[i / 2].Data, Item) < 0; i /= 2)
 			struA[i].Data = struA[i / 2].Data;//从最后一个有孩子的结点开始 向上过滤结点
 		struA[i].Data = Item;/*插入*/
-		linkToChildren(struA + size);
+		linkToChildren(struA + usedSize);
 		return true;
 	}
 	/*对于一个已读入的数据但需要调整的最大或最小或最小堆(自下而上调整)
@@ -1510,25 +1501,25 @@ public:
 	void build(T sentry, int(*cmper_)(const T &min, const T &max)){
 		cmper = cmper_;
 		struA[0].Data = sentry;
-		for (int i = size / 2; i > 0; i--){
+		for (int i = usedSize / 2; i > 0; i--){
 			PercoDown(i, "下滤");
 		}
 	}
 protected:
 	//上滤 insert调整
-	void percolateUp(int i, Element *struA, int size){
+	void percolateUp(int i, Element *struA, int usedSize){
 		Element Item = struA[i];//i指向堆中需上滤元素的位置
 		for (; struA[i / 2] - Item > 0; i /= 2)
 			struA[i] = struA[i / 2];//从上滤结点的父结点开始 向上过滤结点 若父结点大于子结点则继续
 		struA[i] = Item;
 	}
 	//下滤 :build调整(从末结点开始提升 等价于从最后一个父结点开始下滤) delete调整
-	void percolateDown(int Parent, Element *struA, int size){
+	void percolateDown(int Parent, Element *struA, int usedSize){
 		int Child;
 		Element x = struA[Parent];//取出需要下滤的值
-		for (; 2 * Parent <= size; Parent = Child){
-			Child = 2 * Parent;//若左儿子==size; 则右儿子不存在
-			if (Child != size && struA[Child] - struA[Child + 1] > 0)
+		for (; 2 * Parent <= usedSize; Parent = Child){
+			Child = 2 * Parent;//若左儿子==usedSize; 则右儿子不存在
+			if (Child != usedSize && struA[Child] - struA[Child + 1] > 0)
 				++Child;//选取左右儿子中小的一个
 			if (x - struA[Child] < 0)//插入元素小于目标时终止 大于时继续
 				break;
@@ -1544,11 +1535,11 @@ protected:
 		Element x;
 		/*下滤：取出自己          从自己开始找到一个合适的位置*/
 		/*删除：取出尾元素 Size-- 从堆根开始*/
-		int p = strcmp(Order, "删除") == 0 ? size-- : Start;
+		int p = strcmp(Order, "删除") == 0 ? usedSize-- : Start;
 		x = struA[p].Data;/*取出需要下滤的值*/
-		for (Parent = Start; 2 * Parent <= size; Parent = Child){
-			Child = 2 * Parent;/*若左儿子==size; 则右儿子不存在*/
-			if (Child != size && cmper(struA[Child].Data, struA[Child + 1].Data) < 0)
+		for (Parent = Start; 2 * Parent <= usedSize; Parent = Child){
+			Child = 2 * Parent;/*若左儿子==usedSize; 则右儿子不存在*/
+			if (Child != usedSize && cmper(struA[Child].Data, struA[Child + 1].Data) < 0)
 				Child++;/*选取左右儿子中大或小的一个*/
 			if (cmper(x, struA[Child].Data) >= 0)
 				break;
@@ -1571,7 +1562,7 @@ protected:
 		Position parent = getParent(delChild);
 		//if (!empty(parent))
 		if (parent != nullptr)
-			linkToChildren(parent);//若size已经--那么越界无效valid的子结点会被置NULL
+			linkToChildren(parent);//若usedSize已经--那么越界无效valid的子结点会被置NULL
 	}
 };
 
@@ -1584,7 +1575,7 @@ huffman树的判断标准:最优前缀编码树 <==>最优编码(WPL或textLen最小) && 前缀码(短码
 template<class T>
 class HuffmanTree : public BinTree<T>{
 protected:
-	using BinTree<T>::root;
+	using BinTree<T>::root_;
 	//子类需要递归子结点的地方必定用到Left-Right只能用BinTree的Position-论getValue()存在的必要性
 	using Position = typename BinTree<T>::Position;
 	using Element = typename BinTree<T>::Element;
@@ -1597,8 +1588,8 @@ protected:
 		void setValue(int w)override{
 			Weight = w;
 		}
-		HuTrNode(int data_, int weight_)
-			:BinTree<T>::BTNode(data_){
+		HuTrNode(int tData, int weight_)
+			:BinTree<T>::BTNode(tData){
 				Weight = weight_;
 			}
 		~HuTrNode()override{
@@ -1616,7 +1607,7 @@ public:
 			return max->Weight - min->Weight;
 		});
 		for (int i = 0; i < nHuf; ++i)	h.push(new HuTrNode(character[i], freq[i]));
-		/*做size-1次合并 每次将权值最小的两颗树合并 但是运算途中size会变化 所以用n*/
+		/*做usedSize-1次合并 每次将权值最小的两颗树合并 但是运算途中usedSize会变化 所以用n*/
 		while (nHuf-- > 1){
 			HuTr t = new HuTrNode(0, 0);//当泛型为char时 无效结点为'\0'不会输出(自动省略无效的非叶结点) 否则需要重写遍历方法
 			t->Left = h.pop();
@@ -1625,7 +1616,7 @@ public:
 			h.push(t);
 		}
 		huffRoot = h.pop();
-		root = huffRoot;
+		root_ = huffRoot;
 		delete sentry;
 	}/*频值向量freq[0]代表权值个数 0<=freq[i])是权值 i[1,*freq O(N log(N))*/
 	//对任意句子构造huffman树
@@ -1647,7 +1638,7 @@ public:
 	}
 	//返回长度为maxLen的char型字符串 若get = true自动调用gets(str);
 	static char* newSentence(int maxLen, bool get = false, char end = '\n'){
-		//str.resize(maxLen);//str的length() size都是maxLen 于是弃用 但是若换成new char 又回到了内存管理的问题
+		//str.resize(maxLen);//str的length() usedSize都是maxLen 于是弃用 但是若换成new char 又回到了内存管理的问题
 		//cin.getline(&str[0], maxLen, end);
 		char* str = (char*)malloc(sizeof(char)* maxLen);
 		memset(str, 0, sizeof(char)* maxLen);
@@ -1662,8 +1653,8 @@ public:
 		return code.length();
 	}
 	/*tips:
-	depth = codeLen+1 <-> depth(root)=1; (正规的, 书上的depth定义)
-	depth = codeLen  <--> depth(root)=0
+	depth = codeLen+1 <-> depth(root_)=1; (正规的, 书上的depth定义)
+	depth = codeLen  <--> depth(root_)=0
 	(所以: 文本长度=权重*编码长度, WPL=权重*(编码长度+1))
 	*/
 	//返回文本的WPL
@@ -1767,7 +1758,7 @@ private:
 	//(最短)文本长度 = freq[i]*codeLen
 	int textLen(Position t, int depth){
 		if (!t->Left && !t->Right)
-			return t->getValue()*(depth - 1);//tips:depth(root) = 1
+			return t->getValue()*(depth - 1);//tips:depth(root_) = 1
 		else/*否则一定有两个孩子*/
 			return textLen(t->Left, depth + 1) + textLen(t->Right, depth + 1);
 	}
