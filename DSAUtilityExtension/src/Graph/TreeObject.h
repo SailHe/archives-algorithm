@@ -1122,10 +1122,11 @@ BST			插入构造O(N*logN) 增删O(H) log(N-1) <= H(BST) <= N, 平均 H = log(N)+1
 */
 template<class T>
 class VirtualLinkedBinTree :public virtual BinTree<T>{
+protected:
 	typedef typename BinTree<T>::Position Position;
+public:
 	using BinTree<T>::layers;
 	using BinTree<T>::empty;
-public:
 	typedef typename BinTree<T>::BT BTS;
 	// 结构已知构造(结点数目, 数据获取方法, 下标获取方法, 空下标) 若结构并不总是完整的 但root_是特定已知的 可以指定root_的下标
 	VirtualLinkedBinTree(int nSize, std::function<void(T *)> getData, std::function<void(Sub *, Sub *)> getSub, int noneSub, int rootSub = -1){
@@ -1144,7 +1145,7 @@ public:
 		delete[] struA;
 		// 保证基类的正常析构
 		root_ = NULL;
-		DE_PRINTF("SCT析构");
+		DE_PRINTF("VBT析构");
 	}
 	virtual void destroy(Position &r) override {
 		root_ = struA + 1;
@@ -1185,7 +1186,9 @@ protected:
 	StructArray struA = NULL;
 	// 数组长度, 所有元素个数(nSize+1) 至少为1
 	int capacity = 0;
-	// 已储存/有效 的元素个数 (理论上<==>capacity-1, 是struA尾元素的下标)
+	// 有效的元素个数 (理论上<==>capacity-1)
+	// 由于Heap中0号充当哨兵, 不计入总结点数, 故Heap中既是struA尾元素的下标, 又是结点总数
+	// 0号若正常使用, 含有效数据, 则意味着需要计入总结点数, 于是其仅仅已储存的或已使用的容量而不是下标
 	using BinTree<T>::usedSize;
 
 	// 构造静态完全二叉树 (结点个数) 向上转型时会用到的root_和usedSize 必须需要子类初始化
@@ -1250,6 +1253,56 @@ protected:
 	}
 };
 
+// 完全二叉树
+template<typename T>
+class CompleteBinTree :public VirtualLinkedBinTree<T> {
+public:
+	virtual ~CompleteBinTree() {
+		DE_PRINTF("CBT析构");
+	}
+
+protected:
+	using VirtualLinkedBinTree<T>::struA;
+	using VirtualLinkedBinTree<T>::usedSize;
+	using VirtualLinkedBinTree<T>::capacity;
+	using VirtualLinkedBinTree<T>::index;
+	using Position = typename VirtualLinkedBinTree<T>::Position;
+
+	// 用于Heap和VirtualLinkedBinSearchTree的初始化
+	CompleteBinTree(int nSize) : VirtualLinkedBinTree<T>(nSize) {}
+	Sub getLeftChildSub(int parentIndex) {
+		// 2 * parentIndex;
+		return 2 * parentIndex + 1; // 0为根结点的情况
+	}
+	Position getLeftChild(int parentIndex) {
+		int sub = getLeftChildSub(parentIndex);
+		return sub < capacity ? struA + sub : nullptr;
+	}
+	Sub getRightChildSub(int parentIndex) {
+		//2 * parentIndex + 1; // 1为根结点的情况
+		return 2 * parentIndex + 2;
+	}
+	Position getRightChild(int parentIndex) {
+		int sub = getRightChildSub(parentIndex);
+		return sub < capacity ? struA + sub : nullptr;
+	}
+	Position getParent(int sonIndex) {
+		int i = sonIndex / 2;
+		// 0号是根结点没有父结点 (偶数2/2 == 1, 奇数1/2 == 0)
+		return sonIndex > 0 ?
+			sonIndex % 2 == 0 ? struA + i - 1 : struA + i
+			: nullptr;
+	}
+	Position getSibling(int SibIndex) {
+		// 0号是根结点没有兄弟
+		return SibIndex > 0 ?
+			SibIndex % 2 == 0 ? struA + SibIndex - 1 : struA + SibIndex + 1
+			: nullptr;
+	}
+
+};
+
+
 //说白了就是被限制了内存空间的链接二叉树 但由于普通二叉树不常用(没有有存在意义的insert方法)
 //出现这种冲突的根本原因在于 我将链接结点实现的 二叉树当成了一个既成标准(接口) 而初衷仅仅是为了可以便于向上转型 所以出现了一些矛盾
 //(既想有链接实现的动态性和内存节约 又想有静态实现的随机访问效率
@@ -1266,7 +1319,7 @@ protected:
 template<class T>//虚继承(virtual必须写在中间) 解决多继承中菱形继承的情况下的基类成员的冲突
 class VirtualLinkedBinSearchTree :public VirtualLinkedBinTree<T>, public virtual LinkedBinSearchTree<T> {
 public:
-	~VirtualLinkedBinSearchTree() override{
+	virtual ~VirtualLinkedBinSearchTree() override{
 		DE_PRINTF("SCBT析构");
 	}
 protected:
@@ -1279,8 +1332,9 @@ protected:
 	using VirtualLinkedBinTree<T>::usedSize;
 	using VirtualLinkedBinTree<T>::capacity;
 	using VirtualLinkedBinTree<T>::full;
+	// 仅用于CompleteBinSearchTree的初始化
+	VirtualLinkedBinSearchTree(int nSize) : VirtualLinkedBinTree<T>(nSize) {}
 
-	VirtualLinkedBinSearchTree(int nSize) :VirtualLinkedBinTree<T>(nSize){}
 	Position nodeCreater(Element const &tData)override {
 		if (full())
 			return NULL;
@@ -1307,7 +1361,7 @@ protected:
 /*与二分查找是有区别的 二分查找的序列是有序的 建立CBST需要有序序列 但建立完后其本身的内置序列并非有序的(其首元素相当于序列中值)*/
 /*这其实该叫顺序储存的二叉树而不是完全二叉树 只是说完全二叉树用顺序存储很完美*/
 template<class T>
-class CompleteBinSearchTree :public VirtualLinkedBinSearchTree<T>{
+class CompleteBinSearchTree :public CompleteBinTree<T>, public virtual VirtualLinkedBinSearchTree<T>{
 public:
 	using Position = typename VirtualLinkedBinSearchTree<T>::Position;
 	using VirtualLinkedBinTree<T>::full;
@@ -1331,25 +1385,6 @@ protected:
 		int x = (int)(n + 1 - pow(2.0, h));/*最下层单出的结点数*/
 		return (int)pow(2.0, h - 1) - 1 + Min(x, (int)pow(2.0, h - 1));
 	}
-	Position getLeftChild(Position t){
-		int i = index(t);
-		return 2 * i <= usedSize ? struA + 2 * i : nullptr;
-	}
-	Position getRightChild(Position t){
-		int i = index(t);
-		return 2 * i + 1 <= usedSize ? struA + 2 * i + 1 : nullptr;
-	}
-	Position getParent(Position t){
-		int i = index(t) / 2;
-		return i > 0 ? struA + (i) : nullptr;//1号是根结点没有父结点(1/2==0)
-	}
-	Position getSibling(Position t){
-		int i = index(t);
-		//1号是根结点没有兄弟
-		return i > 1 ?
-			i % 2 == 0 ? struA + i + 1 : struA + i - 1
-			: nullptr;
-	}
 
 	//[完全二叉树]的序列构建  数据源数组(fitst, last) 目标数组struA		func(A, A+n, 0);
 	Position buildComplete(T *first, T *last, int TRoot = 1){
@@ -1371,13 +1406,11 @@ protected:
 				return;//中止
 		}
 	}
-	// 仅用于堆的初始化
-	CompleteBinSearchTree(int nSize) : VirtualLinkedBinSearchTree<T>(nSize) {}
 public:
 	/*sort(iniA, iniA + n, less<T>());
 	**翻转构造:sort(iniA, iniA + n, greater<T>()); 完全二叉树的左大右小树不支持左小右大树的镜像翻转 普通BinTree支持*/
 	//使用数组构造唯一的完全二叉树 (由于完全二叉树不能增删 没有usedSize和capacity之分) tips::若数组有序 则为搜索树
-	CompleteBinSearchTree(int nSize, T *iniA): VirtualLinkedBinSearchTree<T>(nSize){
+	CompleteBinSearchTree(int nSize, T *iniA): CompleteBinTree<T>(nSize), VirtualLinkedBinSearchTree<T>(nSize){
 		assert(iniA != nullptr && nSize > 0);
 		root_ = buildComplete(iniA, iniA + nSize);
 		this->usedSize = nSize;
@@ -1390,7 +1423,7 @@ public:
 			root_[i].Data = iniA[i];
 		usedSize = nSize;
 	}*/
-	~CompleteBinSearchTree() override{
+	virtual ~CompleteBinSearchTree() override{
 		DE_PRINTF("CBT析构");
 	}
 
@@ -1424,81 +1457,102 @@ is_heap_until:	找出区间中第一个不满足heap条件的位置. O(N)*/
 /*堆 是最大(小)树, 完全二叉树*/
 //如果仅仅是出堆而没有入堆的话 排个序O(N*logN) 此时入堆O(N) 出堆O(1)
 template<class T>
-class Heap : public CompleteBinSearchTree<T>{
+class Heap : public CompleteBinTree<T>{
 	typedef T Element;
 	typedef typename LinkedBinSearchTree<T>::Position Position;
 	using BinTree<T>::root_;
-	using VirtualLinkedBinTree<T>::struA;
-	using VirtualLinkedBinTree<T>::usedSize;
-	using VirtualLinkedBinTree<T>::capacity;
-	using VirtualLinkedBinTree<T>::full;
-	using VirtualLinkedBinTree<T>::empty;
-	using CompleteBinSearchTree<T>::getLeftChild;
-	using CompleteBinSearchTree<T>::getRightChild;
-	using CompleteBinSearchTree<T>::getParent;
-	using CompleteBinSearchTree<T>::getSibling;
+	using CompleteBinTree<T>::struA;
+	using CompleteBinTree<T>::usedSize;
+	using CompleteBinTree<T>::capacity;
+
+	using VirtualLinkedBinTree<T>::index;
+	using CompleteBinTree<T>::getLeftChildSub;
+	using CompleteBinTree<T>::getLeftChild;
+	using CompleteBinTree<T>::getRightChildSub;
+	using CompleteBinTree<T>::getRightChild;
+	using CompleteBinTree<T>::getParent;
+	using CompleteBinTree<T>::getSibling;
 
 	//使用less<T> greater<T> 或 比较符号重载 都有同样地问题: 两者没有同一个表示方法(带有重载()的父类)不便于大堆小堆的即时重构
 	int(*cmper)(const T &min, const T &max) = NULL;
 public:
-	/*(堆的大小 小于比较方法 任意初始化序列序列 该序列的元素个数)  注意: 用数组构造的堆与插入初始化的堆 的结构不一样*/
-	Heap(int sizeHeap, T *iniA = NULL, int nIniA = 0)
-		: CompleteBinSearchTree<T>(sizeHeap) {
-		// 没有有效元素也要对root_赋值
-			root_ = struA + 1;
-			usedSize = nIniA;
-			// 为每个元素赋初始权值
-			for (Position t = struA + 1; t < root_ + nIniA; ++t) {
-				// 若T类型不是基本类型 需要重载赋值号
-				t->Data = iniA[t - root_];
-				// 只要没越界就链接->遍历时以usedSize为结束遍历的标志 而不是子结点是否为空?
-				linkToChildren(t);
-			}
+	using CompleteBinTree<T>::full;
+	using CompleteBinTree<T>::empty;
+
+	/*(堆的大小 任意初始化序列序列 该序列的元素个数)  注意: 用数组构造的堆与插入初始化的堆 的结构不一样*/
+	Heap(int heapSize, T *iniA = NULL, int IniASize = 0) : CompleteBinTree<T>(heapSize) {
+		// 此处是临时使用
+		root_ = struA + 1;
+		// 为每个元素赋初始权值
+		for (Position t = root_; t < root_ + IniASize; ++t) {
+			// 若T类型不是基本类型 需要重载赋值号
+			t->Data = iniA[t - root_];
+			// 只要没越界就链接->遍历时以usedSize为结束遍历的标志 而不是子结点是否为空?
+			linkToChildren(t);
 		}
-	~Heap()override{
+		// 0号用于放置哨兵
+		root_ = struA;
+		// 链接root_
+		linkToChildren(root_);
+		usedSize = IniASize;
+	}
+	virtual ~Heap()override{
 		DE_PRINTF("Heap析构");
 	}
 
-	Element pop(){
-		if (empty()){
+	bool push(Element Item){
+		if (full()){
+			throw std::exception("堆已满 无法压入");
+			return false;
+		}
+		if (notBuild()){
+			throw std::exception("未构建");
+			return false;
+		}
+		// @TODO 已提出的percolateUp函数是怎么回事
+		// i指向[插入后]堆中最后一个元素的位置 i=[1, capbility)
+		int i = ++usedSize;
+		for (; cmper(struA[i / 2].Data, Item) < 0; i /= 2) {
+			// 从最后一个有孩子的结点开始 向上过滤结点
+			struA[i].Data = struA[i / 2].Data;
+		}
+		// 压入
+		struA[i].Data = Item;
+		// 因为新加入的元素始终在尾部 因此直接链接尾部的元素即可保证新添元素的链接
+		linkToChildren(struA + usedSize);
+		return true;
+	}
+
+	Element pop() {
+		if (empty()) {
 			puts("堆已空 无法删除");
 			return NULL;
 		}
-		if (notBuild()){
+		if (notBuild()) {
 			puts("未构建");
 			return false;
 		}
 		Element Item = struA[1].Data;/*取出即将返回的值*/
-		/*矛盾在于:Size--删除的是尾元素 但是根据堆的定义我们应该删除1号元素
-		将尾元素替换下滤时的p元素下滤 这样便于操作 且实际上删除的是1号元素*/
-		PercoDown(1, "删除");//注意::方法内usedSize--了
-		unlinkToParent(struA + usedSize);
+		/*
+		矛盾在于:usedSize--删除的是尾元素 但是根据堆的定义我们应该删除1号元素
+		将尾元素替换下滤时的p元素下滤 这样便于操作 且实际上删除的是1号元素
+		*/
+		// 注意::此方法内usedSize--
+		// *失效暂留* 自动链接了变动结点的关系(待删除元素链接没有改变)
+		PercoDown(1, "删除");
+		// 解除已删除的尾元素与父结点的链接
+		unlinkToParent(usedSize + 1);
 		return Item;
 	}
-	bool push(Element Item){
-		int i;
-		if (full()){
-			puts("堆已满 无法插入");
-			return false;
-		}
-		if (notBuild()){
-			puts("未构建");
-			return false;
-		}
-		i = ++usedSize;/*i指向[插入后]堆中最后一个元素的位置*/
-		for (; cmper(struA[i / 2].Data, Item) < 0; i /= 2)
-			struA[i].Data = struA[i / 2].Data;//从最后一个有孩子的结点开始 向上过滤结点
-		struA[i].Data = Item;/*插入*/
-		linkToChildren(struA + usedSize);
-		return true;
-	}
-	/*对于一个已读入的数据但需要调整的最大或最小或最小堆(自下而上调整)
+	/*
+	对于一个已读入的数据但需要调整的最大或最小或最小堆(自下而上调整)
 	从[最后一个子节点的父节点 即 倒数第一个有儿子的结点]
-	每次从左右结点中挑一个"大"的结点做下滤操作开始调整到根节点1*/
-	/*线性堆重构 复杂度O(N)*/
-	//最小堆 参数: maxCmp(大于)哨兵(最小值)	注意: 负数太小减法会变正:传入MAX_INT32/2即可
-	//最大堆 参数: mixCmp(小于)哨兵(最大值)
-	void build(T sentry, int(*cmper_)(const T &min, const T &max)){
+	每次从左右结点中挑一个"大"的结点做下滤操作开始调整到根节点1
+	*/
+	// 最小堆 参数: moreCmper(大于)哨兵(最小值)	注意: 负数太小减法会变正:传入MAX_INT32/2即可
+	// 最大堆 参数: lessCmper(小于)哨兵(最大值)
+	// 构建堆 复杂度O(N) (哨兵, 小于比较方法)
+	void build(T sentry, int(*cmper_)(const T &lhs, const T &rhs)){
 		cmper = cmper_;
 		struA[0].Data = sentry;
 		for (int i = usedSize / 2; i > 0; i--){
@@ -1532,21 +1586,25 @@ protected:
 	/*下滤函数 将H中以H->Data[p]为根的子堆调整为最大或最小或最小堆*/
 	void PercoDown(int Start, char const *Order){
 		int Parent, Child;
-		Element x;
 		/*下滤：取出自己          从自己开始找到一个合适的位置*/
 		/*删除：取出尾元素 Size-- 从堆根开始*/
 		int p = strcmp(Order, "删除") == 0 ? usedSize-- : Start;
-		x = struA[p].Data;/*取出需要下滤的值*/
+		Element x = struA[p].Data;/*取出需要下滤的值*/
 		for (Parent = Start; 2 * Parent <= usedSize; Parent = Child){
 			Child = 2 * Parent;/*若左儿子==usedSize; 则右儿子不存在*/
 			if (Child != usedSize && cmper(struA[Child].Data, struA[Child + 1].Data) < 0)
 				Child++;/*选取左右儿子中大或小的一个*/
+
 			if (cmper(x, struA[Child].Data) >= 0)
 				break;
-			else/*将孩子上移<==>将temp下移*/
+			else {
+				// 将孩子上移 <= = > 将x下移 由于Child还要作为Parent参与后续的比较因此不能移动
 				struA[Parent].Data = struA[Child].Data;
+				// 重新链接变动的结点 链接关系只与位置有关 与数据无关 因此除非是实际使用的位置增减 否则不用重链
+				// linkToChildren(struA + Parent);
+			}
 		}
-		struA[Parent].Data = x;
+		struA[Parent].Data = std::move(x);
 	}
 	//返回是否已经构建
 	bool notBuild(){
@@ -1554,15 +1612,44 @@ protected:
 	}
 	//子结点链接:链接当前结点的孩子结点
 	void linkToChildren(Position parent){
-		parent->Left = getLeftChild(parent);
-		parent->Right = getRightChild(parent);
+		int i = index(parent);
+		parent->Left = getLeftChild(i);
+		parent->Right = getRightChild(i);
 	}
 	//子结点分离:解除父亲结点对孩子结点的链接
-	void unlinkToParent(Position delChild){
-		Position parent = getParent(delChild);
-		//if (!empty(parent))
-		if (parent != nullptr)
-			linkToChildren(parent);//若usedSize已经--那么越界无效valid的子结点会被置NULL
+	void unlinkToChildren(int parentIndex) {
+		Position parent = getParent(parentIndex);
+		if (!empty(parent)) {
+			// 置空无效子结点
+			int lSub = getLeftChildSub(parentIndex);
+			if (lSub > usedSize) {
+				parent->Left = nullptr;
+			}
+			else;
+			int rSub = getRightChildSub(parentIndex);
+			if (rSub > usedSize) {
+				parent->Right = nullptr;
+			}
+			else;
+		}
+	}
+	//子结点分离:解除父亲结点对孩子结点的链接
+	void unlinkToParent(int childIndex){
+		Position parent = getParent(childIndex);
+		if (!empty(parent)) {
+			Sub parentIndex = index(parent);
+			// 置空无效子结点
+			int lSub = getLeftChildSub(parentIndex);
+			if (lSub > usedSize) {
+				parent->Left = nullptr;
+			}
+			else;
+			int rSub = getRightChildSub(parentIndex);
+			if (rSub > usedSize) {
+				parent->Right = nullptr;
+			}
+			else;
+		}
 	}
 };
 
