@@ -1276,7 +1276,7 @@ protected:
 	}
 	Position getLeftChild(int parentIndex) {
 		int sub = getLeftChildSub(parentIndex);
-		return sub < capacity ? struA + sub : nullptr;
+		return sub <= usedSize ? struA + sub : nullptr;
 	}
 	Sub getRightChildSub(int parentIndex) {
 		//2 * parentIndex + 1; // 1为根结点的情况
@@ -1284,14 +1284,19 @@ protected:
 	}
 	Position getRightChild(int parentIndex) {
 		int sub = getRightChildSub(parentIndex);
-		return sub < capacity ? struA + sub : nullptr;
+		return sub <= usedSize ? struA + sub : nullptr;
 	}
-	Position getParent(int sonIndex) {
-		int i = sonIndex / 2;
+	// 若没有父结点返回-1
+	Sub getParentSub(int sonIndex) {
+		int parentIndex = sonIndex / 2;
 		// 0号是根结点没有父结点 (偶数2/2 == 1, 奇数1/2 == 0)
 		return sonIndex > 0 ?
-			sonIndex % 2 == 0 ? struA + i - 1 : struA + i
-			: nullptr;
+			sonIndex % 2 == 0 ? parentIndex - 1 : parentIndex
+			: -1;
+	}
+	Position getParent(int sonIndex) {
+		int parentIndex = getParentSub(sonIndex);
+		return parentIndex == -1 ? nullptr : struA + parentIndex;
 	}
 	Position getSibling(int SibIndex) {
 		// 0号是根结点没有兄弟
@@ -1470,6 +1475,7 @@ class Heap : public CompleteBinTree<T>{
 	using CompleteBinTree<T>::getLeftChild;
 	using CompleteBinTree<T>::getRightChildSub;
 	using CompleteBinTree<T>::getRightChild;
+	using CompleteBinTree<T>::getParentSub;
 	using CompleteBinTree<T>::getParent;
 	using CompleteBinTree<T>::getSibling;
 
@@ -1479,6 +1485,12 @@ public:
 	using CompleteBinTree<T>::full;
 	using CompleteBinTree<T>::empty;
 
+	virtual void destroy(Position &r) override {
+		root_ = struA;
+		for (Position it = struA; it < struA + usedSize; ++it) {
+			it->Left = it->Right = nullptr;
+		}
+	}
 	/*(堆的大小 任意初始化序列序列 该序列的元素个数)  注意: 用数组构造的堆与插入初始化的堆 的结构不一样*/
 	Heap(int heapSize, T *iniA = NULL, int IniASize = 0) : CompleteBinTree<T>(heapSize) {
 		// 此处是临时使用
@@ -1512,62 +1524,67 @@ public:
 		// @TODO 已提出的percolateUp函数是怎么回事
 		// i指向[插入后]堆中最后一个元素的位置 i=[1, capbility)
 		int i = ++usedSize;
-		for (; cmper(struA[i / 2].Data, Item) < 0; i /= 2) {
+		for (int parI = -1; cmper(struA[(parI = getParentSub(i))].Data, Item) < 0; i = parI) {
 			// 从最后一个有孩子的结点开始 向上过滤结点
-			struA[i].Data = struA[i / 2].Data;
+			struA[i].Data = struA[parI].Data;
 		}
 		// 压入
 		struA[i].Data = Item;
 		// 因为新加入的元素始终在尾部 因此直接链接尾部的元素即可保证新添元素的链接
-		linkToChildren(struA + usedSize);
+		linkToChildren(getParent(usedSize));
 		return true;
 	}
 
 	Element pop() {
 		if (empty()) {
-			puts("堆已空 无法删除");
+			throw std::exception("堆已空 无法删除");
 			return NULL;
 		}
 		if (notBuild()) {
-			puts("未构建");
+			throw std::exception("未构建");
 			return false;
 		}
-		Element Item = struA[1].Data;/*取出即将返回的值*/
+		// 取出即将返回的值
+		int minSub = cmper(struA[1].Data, struA[2].Data) > 0 ? 1 : 2;
+		Element Item = struA[minSub].Data;
 		/*
 		矛盾在于:usedSize--删除的是尾元素 但是根据堆的定义我们应该删除1号元素
 		将尾元素替换下滤时的p元素下滤 这样便于操作 且实际上删除的是1号元素
 		*/
-		// 注意::此方法内usedSize--
-		// *失效暂留* 自动链接了变动结点的关系(待删除元素链接没有改变)
-		PercoDown(1, "删除");
+		// 删除：取出尾元素 从堆根开始 usedSize--
+		PercoDown(minSub, usedSize--);
 		// 解除已删除的尾元素与父结点的链接
 		unlinkToParent(usedSize + 1);
 		return Item;
 	}
-	/*
-	对于一个已读入的数据但需要调整的最大或最小或最小堆(自下而上调整)
-	从[最后一个子节点的父节点 即 倒数第一个有儿子的结点]
-	每次从左右结点中挑一个"大"的结点做下滤操作开始调整到根节点1
-	*/
 	// 最小堆 参数: moreCmper(大于)哨兵(最小值)	注意: 负数太小减法会变正:传入MAX_INT32/2即可
 	// 最大堆 参数: lessCmper(小于)哨兵(最大值)
 	// 构建堆 复杂度O(N) (哨兵, 小于比较方法)
 	void build(T sentry, int(*cmper_)(const T &lhs, const T &rhs)){
 		cmper = cmper_;
 		struA[0].Data = sentry;
-		for (int i = usedSize / 2; i > 0; i--){
-			PercoDown(i, "下滤");
+		/*
+		对于一个已读入的数据但需要调整的最大或最小或最小堆(自下而上调整)
+		从[最后一个子节点的父节点 即 倒数第一个有儿子的结点]开始
+		取出该结点
+		每次从左右结点中挑一个"大"的结点做[下滤]操作开始调整到根节点1
+		*/
+		for (int i = getParentSub(usedSize); i > 0; i--){
+			PercoDown(i, i);
 		}
 	}
 protected:
-	//上滤 insert调整
+	//上滤 push调整
 	void percolateUp(int i, Element *struA, int usedSize){
-		Element Item = struA[i];//i指向堆中需上滤元素的位置
-		for (; struA[i / 2] - Item > 0; i /= 2)
-			struA[i] = struA[i / 2];//从上滤结点的父结点开始 向上过滤结点 若父结点大于子结点则继续
+		// i指向堆中需上滤元素的位置
+		Element Item = struA[i];
+		for (; struA[i / 2] - Item > 0; i /= 2) {
+			// 从上滤结点的父结点开始 向上过滤结点 若父结点大于子结点则继续
+			struA[i] = struA[i / 2];
+		}
 		struA[i] = Item;
 	}
-	//下滤 :build调整(从末结点开始提升 等价于从最后一个父结点开始下滤) delete调整
+	//下滤 :build/pop调整(从末结点开始提升 等价于从最后一个父结点开始下滤)
 	void percolateDown(int Parent, Element *struA, int usedSize){
 		int Child;
 		Element x = struA[Parent];//取出需要下滤的值
@@ -1584,33 +1601,27 @@ protected:
 	}
 
 	/*下滤函数 将H中以H->Data[p]为根的子堆调整为最大或最小或最小堆*/
-	void PercoDown(int Start, char const *Order){
-		int Parent, Child;
-		/*下滤：取出自己          从自己开始找到一个合适的位置*/
-		/*删除：取出尾元素 Size-- 从堆根开始*/
-		int p = strcmp(Order, "删除") == 0 ? usedSize-- : Start;
+	void PercoDown(int parentSub, int p){
 		Element x = struA[p].Data;/*取出需要下滤的值*/
-		for (Parent = Start; 2 * Parent <= usedSize; Parent = Child){
-			Child = 2 * Parent;/*若左儿子==usedSize; 则右儿子不存在*/
-			if (Child != usedSize && cmper(struA[Child].Data, struA[Child + 1].Data) < 0)
-				Child++;/*选取左右儿子中大或小的一个*/
+		for (int childSub = -1; (childSub = getLeftChildSub(parentSub)) <= usedSize; parentSub = childSub){
+			// 选取存在的左右儿子中大或小的一个
+			if (childSub != usedSize && cmper(struA[childSub].Data, struA[childSub + 1].Data) < 0)
+				childSub++;
 
-			if (cmper(x, struA[Child].Data) >= 0)
+			if (cmper(x, struA[childSub].Data) >= 0)
 				break;
 			else {
-				// 将孩子上移 <= = > 将x下移 由于Child还要作为Parent参与后续的比较因此不能移动
-				struA[Parent].Data = struA[Child].Data;
-				// 重新链接变动的结点 链接关系只与位置有关 与数据无关 因此除非是实际使用的位置增减 否则不用重链
-				// linkToChildren(struA + Parent);
+				// 将孩子上移 <= = > 将x下移 由于childSub还要作为parentSub参与后续的比较因此不能移动
+				struA[parentSub].Data = struA[childSub].Data;
 			}
 		}
-		struA[Parent].Data = std::move(x);
+		struA[parentSub].Data = std::move(x);
 	}
 	//返回是否已经构建
 	bool notBuild(){
 		return struA[0].Data == NULL;
 	}
-	//子结点链接:链接当前结点的孩子结点
+	//子结点链接:链接当前结点的孩子结点 链接关系只与位置有关 与数据无关 因此除非是实际使用的位置增减 否则不用重链
 	void linkToChildren(Position parent){
 		int i = index(parent);
 		parent->Left = getLeftChild(i);

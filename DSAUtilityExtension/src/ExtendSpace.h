@@ -1257,8 +1257,55 @@ namespace MathExtend {
 	DSAUTILITYEXTENSION_API bool isMatchingParenthesis(char const*str, int len);
 	// 判断给定堆栈操作是否合法
 	DSAUTILITYEXTENSION_API bool isValidityOfStack(char const*str, int len, int cap);
-	//生成n行 的杨辉三角
+	// 生成n行的杨辉三角
 	DSAUTILITYEXTENSION_API void buildPtriangleTable(int tableBuffer[][StandardExtend::MAX_C], int n);
+	// 将列表以n叉树树的格式输出
+	template<typename Iterator>
+	void outputWithTree(Iterator begin, Iterator end, int size, int n = 2, int numSpace = 2) {
+		assert(n > 0);
+		int powNum = 1;
+		// root所在的层数|高度为1 深度为0
+		// 如果采用ceil[当且仅当]元素个数为2的整数倍时log2(size)==depth
+		// 如果是在计算机整数的意义下(int)log2(size)==depth恒成立
+		// 在上述定义的基础上每层最多元素个数为2^depth个
+		int depth = (int)logRadix(size, n);
+		int depthTmp = depth;
+		auto printMutiChar = [](int spaceCnt, char c) {
+			while (spaceCnt-- > 0) {
+				std::cout << c;
+			}
+		};
+		printMutiChar((int)std::pow(2, depthTmp) * numSpace * 2, '=');
+		std::cout << std::endl;
+		int index = 0;
+		while (begin != end) {
+			int spaceCntC = (int)(std::ceil(std::pow(2, depth + 1)) - 1) * numSpace;
+			int spaceCntLR = (int)(std::ceil(std::pow(2, depth)) - 1) * numSpace;
+
+			int pCnt = powNum;
+			while (pCnt > 0 && begin != end) {
+				printMutiChar(pCnt == powNum ? spaceCntLR : spaceCntC, ' ');
+				std::cout << std::setw(numSpace) << std::setfill('0') << *begin;
+				--pCnt;
+				++begin;
+			}
+			std::cout << std::endl;
+
+			// 输出下标
+			pCnt = powNum;
+			while (pCnt > 0) {
+				printMutiChar(pCnt == powNum ? spaceCntLR : spaceCntC, ' ');
+				std::cout << std::setw(numSpace) << std::setfill('0') << index++;
+				--pCnt;
+			}
+			std::cout << std::endl;
+
+			--depth;
+			powNum *= n;
+		}
+		printMutiChar((int)std::pow(2, depthTmp) * numSpace * 2, '=');
+		std::cout << std::endl;
+	}
 }
 
 #endif
