@@ -580,19 +580,47 @@ int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string c
 
 	return 9;
 }
-int lessCmper(int const &lhs, int const &rhs) {
+int LessIntegerCmper(int const &lhs, int const &rhs) {
 	return lhs - rhs;
 }
-int moreCmper(int const &lhs, int const &rhs) {
-	return -lessCmper(lhs, rhs);
+// more std::greater<int>;
+int GreaterIntegerCmper(int const &lhs, int const &rhs) {
+	return -LessIntegerCmper(lhs, rhs);
 }
-int subTestForHeapBuild() {
+int subTestForHeapRebuild() {
+	JCE::ArrayList<int> heapData = { 6, 2, 3, 15, 9, 7, 4, 12, 10, 15, 14, 5, 13, 0, 8, 1, 11 };
+	JCE::ArrayList<int> heapDataReal;
+
+	// 最小堆重建为最大堆(数据不变)
+	Heap<int> heapIns = Heap<int>(heapData.size() + 4, -1, GreaterIntegerCmper, &heapData[0], (int)heapData.size());
+	heapIns.clear();
+	heapIns.initialize();
+	heapIns.rebuild(LessIntegerCmper);
+	for (JCE::SizeType i = 0; i < heapData.size(); heapIns.push(heapData[i++]));
+	std::string resultHeap;
+	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
+		formatStrAppend(resultHeap, std::to_string(b->Data));
+	});
+	StandardExtend::testAndOut("Heap-层序", resultHeap, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
+
+	heapIns.build(&heapData[0], (int)heapData.size(), LessIntegerCmper);
+
+	heapDataReal.clear();
+	while (!heapIns.empty()) {
+		heapDataReal.emplace_back(heapIns.pop());
+	}
+	// "Heap-Pop With push"
+	StandardExtend::testAssert(heapDataReal, std::vector<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 }));
+	// 花式rebuild
+	return 1;
+}
+int subTestForHeapClearBuild() {
 	JCE::ArrayList<int> heapData = { 6, 2, 3, 15, 9, 7, 4, 12, 10, 15, 14, 5, 13 };
 	JCE::ArrayList<int> heapDataReal;
 
-	// rebuild + pop;
-	Heap<int> heapIns0 = Heap<int>(heapData.size(), - 1, moreCmper, &heapData[0], (int)heapData.size());
-	// heapIns0.rebuild(-1, moreCmper);
+	// Build + pop;
+	Heap<int> heapIns0 = Heap<int>(heapData.size(), - 1, GreaterIntegerCmper, &heapData[0], (int)heapData.size());
+	// heapIns0.rebuild(-1, GreaterIntegerCmper);
 	while (!heapIns0.empty()) {
 		heapDataReal.emplace_back(heapIns0.pop());
 	}
@@ -600,12 +628,11 @@ int subTestForHeapBuild() {
 	StandardExtend::testAssert(heapDataReal, std::vector<int>({ 2, 3, 4, 5, 6, 7, 9, 10, 12, 13, 14, 15, 15 }));
 
 	// rebuild + clear + push + traversal, p1:clear后直接push的话root可能没有更新
-	Heap<int> heapIns = Heap<int>(heapData.size() + 4, -1, moreCmper, &heapData[0], (int)heapData.size());
-	// heapIns.rebuild(-1, moreCmper);
+	Heap<int> heapIns = Heap<int>(heapData.size() + 4, -1, GreaterIntegerCmper, &heapData[0], (int)heapData.size());
+	// heapIns.rebuild(-1, GreaterIntegerCmper);
 	heapIns.clear();
-	heapIns.rebuild();
+	heapIns.initialize();
 	for (JCE::SizeType i = 0; i < heapData.size(); heapIns.push(heapData[i++]));
-	// StandardExtend::testAssert(heapIns.pop(), 2);
 	heapIns.push(0);
 	heapIns.push(1);
 	heapIns.push(8);
@@ -630,7 +657,7 @@ int subTestForHeap() {
 	// 堆是完全二叉树 但不是二叉搜索树
 	JCE::ArrayList<int> heapData = { 6, 2, 3, 15, 9, 7, 4, 12, 10, 15, 14, 5, 13 , 0, 1, 8, 11};
 	JCE::ArrayList<int> heapDataReal;
-	Heap<int> heapIns = Heap<int>(heapData.size() + 4, -1, moreCmper);
+	Heap<int> heapIns = Heap<int>(heapData.size() + 4, -1, GreaterIntegerCmper);
 	std::vector<int> tmp;
 	for (JCE::SizeType i = 0; i < heapData.size(); ++i) {
 		/*
@@ -676,7 +703,7 @@ int subTestForHeap() {
 	});
 	StandardExtend::testAssert(resultHeapStr, std::string(""));
 	// 主要是 构造 析构 空rebuild push pop empty 在内的5个公有方法
-	return 6 + subTestForHeapBuild();
+	return 6 + subTestForHeapClearBuild() + subTestForHeapRebuild();
 }
 
 int testForTree() {

@@ -198,14 +198,14 @@ protected:
 	}
 	Position getLeftChild(int parentIndex) {
 		int sub = getLeftChildSub(parentIndex);
-		return sub <= usedSize ? struA + sub : nullptr;
+		return 0 < sub && sub <= usedSize ? struA + sub : nullptr;
 	}
 	Sub getRightChildSub(int parentIndex) {
 		return 2 * parentIndex + 1;
 	}
 	Position getRightChild(int parentIndex) {
 		int sub = getRightChildSub(parentIndex);
-		return sub <= usedSize ? struA + sub : nullptr;
+		return 0 < sub && sub <= usedSize ? struA + sub : nullptr;
 	}
 	// 返回父结点下标 1号是根结点没有父结点返回哨兵:0
 	Sub getParentSub(int sonIndex) {
@@ -413,7 +413,7 @@ public:
 	Heap(int heapSize, T sentry, int(*cmper)(const T &, const T &), T *iniA = nullptr, int IniASize = 0) 
 		: CompleteBinTree<T>(heapSize + 1) {
 		struA[0].Data = sentry;
-		rebuild(iniA, IniASize, cmper);
+		build(iniA, IniASize, cmper);
 	}
 	virtual ~Heap()override {
 		DE_PRINTF("Heap析构");
@@ -421,9 +421,9 @@ public:
 
 	bool push(Element Item) {
 		bool result = true;
-		if (notBuild()) {
+		if (isNotInit()) {
 			result = false;
-			throw std::exception("未构建");
+			throw std::exception("未初始化");
 		}
 		if (full()) {
 			result = false;
@@ -446,11 +446,11 @@ public:
 	}
 
 	Element pop() {
-		if (notBuild()) {
-			throw std::exception("未构建");
+		if (isNotInit()) {
+			throw std::exception("未初始化");
 		}
 		if (empty()) {
-			throw std::exception("堆已空 无法删除");
+			throw std::exception("堆已空 无法抛出");
 		}
 		else {
 			// 取出即将返回的值
@@ -463,28 +463,8 @@ public:
 		}
 	}
 
-	// 构建堆 复杂度O(N)
-	void rebuild(T *iniA = nullptr, int IniASize = 0, int(*cmper)(const T &, const T &) = nullptr) {
-		// 先初始化已使用结点数目否则无法链接
-		if (iniA != nullptr) {
-			usedSize = IniASize;
-		}
-
-		if (empty(root_)) {
-			// root_不包括哨兵(0号) 内存空间会自动多申请一个
-			root_ = struA + 1;
-			// 链接root_
-			linkToChildren(root_);
-		}
-
-		// 为每个元素赋初始权值
-		for (Position t = root_; t < root_ + IniASize; ++t) {
-			// 若T类型不是基本类型 需要重载赋值号
-			t->Data = iniA[t - root_];
-			// 只要没越界就链接->遍历时以usedSize为结束遍历的标志 而不是子结点是否为空?
-			linkToChildren(t);
-		}
-
+	// 重新构建堆 复杂度O(N)
+	void rebuild(int(*cmper)(const T &, const T &) = nullptr) {
 		if (cmper != nullptr) {
 			cmper_ = cmper;
 		}
@@ -499,7 +479,35 @@ public:
 		}
 	}
 
+	// 初始化
+	void initialize() {
+		if (empty(root_)) {
+			// root_不包括哨兵(0号) 内存空间会自动多申请一个
+			root_ = struA + 1;
+		}
+	}
+
+	// 构建堆
+	void build(T *iniA, int IniASize, int(*cmper)(const T &, const T &) = nullptr) {
+		initialize();
+		// 重设已使用结点数目(否则无法链接)
+		usedSize = IniASize;
+		// 链接root_
+		linkToChildren(root_);
+		// 为每个元素赋初始权值
+		for (Position t = root_; t < root_ + IniASize; ++t) {
+			// 若T类型不是基本类型 需要重载赋值号
+			t->Data = iniA[t - root_];
+			// 只要没越界就链接->遍历时以usedSize为结束遍历的标志 而不是子结点是否为空?
+			linkToChildren(t);
+		}
+
+		// 数据改变一定得重建堆
+		rebuild(cmper);
+	}
+
 protected:
+	
 	//上滤 push调整
 	void PercolateUp_DEL(int i, Element *struA, int usedSize) {
 		// i指向堆中需上滤元素的位置
@@ -544,8 +552,8 @@ protected:
 		}
 		struA[parentSub].Data = std::move(pdEle);
 	}
-	//返回是否已经构建
-	bool notBuild() {
+	// 返回是否已初始化
+	bool isNotInit() {
 		return root_ == nullptr;
 	}
 	//子结点链接:链接当前结点的孩子结点 链接关系只与位置有关 与数据无关 因此除非是实际使用的位置增减 否则不用重链
