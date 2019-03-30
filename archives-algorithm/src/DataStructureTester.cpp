@@ -245,13 +245,6 @@ int testForExpressionTree() {
 	}
 	return 0;
 }
-int lessCmper(int const &lhs, int const &rhs) {
-	return lhs - rhs;
-}
-int moreCmper(int const &lhs, int const &rhs) {
-	return -lessCmper(lhs, rhs);
-}
-
 void formatStrAppend(std::string &lhs, std::string const &rhs) {
 	lhs += lhs == "" ? rhs : " " + rhs;
 };
@@ -517,6 +510,7 @@ int subTestForCompleteBinSearchTree() {
 	StandardExtend::testAssert(cbtIns1.find(0)->Data, 0);
 	StandardExtend::testAssert(cbtIns1.find(4)->Data, 4);
 	StandardExtend::testAssert(cbtIns1.find(8)->Data, 8);
+	StandardExtend::testAssert(cbtIns1.getRootData(), 6);
 	return 2;
 }
 int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string const &insName) {
@@ -525,7 +519,7 @@ int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string c
 	std::string resultBuffer;
 	int b[10] = { 2, 1, 4, 5, 9, 3, 6, 7, 8, 0 };
 	for (int i = 0; i < 10; ++i) {
-		bst.insert(std::to_string(b[i]));
+		StandardExtend::testAssert(bst.insert(std::to_string(b[i])).second, true);
 		formatStrAppend(resultBuffer, std::to_string(i));
 	}
 	std::string resultBufferReal;
@@ -586,14 +580,19 @@ int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string c
 
 	return 9;
 }
-
+int lessCmper(int const &lhs, int const &rhs) {
+	return lhs - rhs;
+}
+int moreCmper(int const &lhs, int const &rhs) {
+	return -lessCmper(lhs, rhs);
+}
 int subTestForHeapBuild() {
 	JCE::ArrayList<int> heapData = { 6, 2, 3, 15, 9, 7, 4, 12, 10, 15, 14, 5, 13 };
 	JCE::ArrayList<int> heapDataReal;
 
 	// rebuild + pop;
-	Heap<int> heapIns0 = Heap<int>(heapData.size() + 4, &heapData[0], (int)heapData.size());
-	heapIns0.rebuild(-1, moreCmper);
+	Heap<int> heapIns0 = Heap<int>(heapData.size(), - 1, moreCmper, &heapData[0], (int)heapData.size());
+	// heapIns0.rebuild(-1, moreCmper);
 	while (!heapIns0.empty()) {
 		heapDataReal.emplace_back(heapIns0.pop());
 	}
@@ -601,11 +600,10 @@ int subTestForHeapBuild() {
 	StandardExtend::testAssert(heapDataReal, std::vector<int>({ 2, 3, 4, 5, 6, 7, 9, 10, 12, 13, 14, 15, 15 }));
 
 	// rebuild + clear + push + traversal, p1:clear后直接push的话root可能没有更新
-	Heap<int> heapIns = Heap<int>(heapData.size() + 4, &heapData[0], (int)heapData.size());
-	// resultHeapStr = "-1 2 6 3 10 9 5 4 12 15 15 14 7 13 -842150451 -842150451 -842150451 -842150451"
-	heapIns.rebuild(-1, moreCmper);
+	Heap<int> heapIns = Heap<int>(heapData.size() + 4, -1, moreCmper, &heapData[0], (int)heapData.size());
+	// heapIns.rebuild(-1, moreCmper);
 	heapIns.clear();
-	heapIns.rebuild(-1, moreCmper);
+	heapIns.rebuild();
 	for (JCE::SizeType i = 0; i < heapData.size(); heapIns.push(heapData[i++]));
 	// StandardExtend::testAssert(heapIns.pop(), 2);
 	heapIns.push(0);
@@ -628,13 +626,11 @@ int subTestForHeapBuild() {
 	// 新测试的只有 clear 这1个公有方法
 	return 1;
 }
-
 int subTestForHeap() {
 	// 堆是完全二叉树 但不是二叉搜索树
 	JCE::ArrayList<int> heapData = { 6, 2, 3, 15, 9, 7, 4, 12, 10, 15, 14, 5, 13 , 0, 1, 8, 11};
 	JCE::ArrayList<int> heapDataReal;
-	Heap<int> heapIns = Heap<int>(heapData.size() + 4);
-	heapIns.rebuild(-1, moreCmper);
+	Heap<int> heapIns = Heap<int>(heapData.size() + 4, -1, moreCmper);
 	std::vector<int> tmp;
 	for (JCE::SizeType i = 0; i < heapData.size(); ++i) {
 		/*

@@ -52,7 +52,7 @@ public:
 		//free(struA);
 		delete[] struA;
 		// 保证基类的正常析构
-		root_ = NULL;
+		root_ = nullptr;
 		DE_PRINTF("VBT析构");
 	}
 	virtual void destroy(Position &r) override {
@@ -103,7 +103,7 @@ protected:
 	using BinTree<T>::BT_NODE_LEN;
 	typedef T ElementSBT;
 	// Left和Right储存左右孩子位于数组内的地址
-	StructArray struA = NULL;
+	StructArray struA = nullptr;
 	// 数组长度, 所有元素个数(nSize+1) 至少为1
 	int capacity = 0;
 	// 有效的元素个数 (理论上<==>capacity-1)
@@ -117,36 +117,33 @@ protected:
 	}
 	//通过输入构建树结构 返回根结点 (数组内孩子结点的下标获取函数)
 	Position buildStructure(std::function<void(T *)> getData, std::function<void(Sub *, Sub *)> getSub, int noneSub) {
-		int nSize = capacity - 1;
+		int nSize = capacity;
 		int i, sum = (nSize - 1)*nSize / 2;
 		int leftSub, rightSub;
-		Position rt = struA + 1;
 
 		for (i = 0; i < nSize; i++) {
-			Position leftChild = NULL, rightChild = NULL;
-			getData(&rt[i].Data);
+			Position leftChild = nullptr, rightChild = nullptr;
+			getData(&struA[i].Data);
 			getSub(&leftSub, &rightSub);
 			if (leftSub != noneSub) {
-				leftChild = rt + leftSub;
+				leftChild = struA + leftSub;
 				sum -= leftSub;
 			}
 
 			if (rightSub != noneSub) {
-				rightChild = rt + rightSub;
+				rightChild = struA + rightSub;
 				sum -= rightSub;
 			}
-			rt[i].Left = leftChild, rt[i].Right = rightChild;
+			struA[i].Left = leftChild, struA[i].Right = rightChild;
 		}
 		_ASSERT_EXPR(0 <= sum && sum < nSize, "给定数据有误!");
-		return nSize == 0 ? NULL : rt + sum;
+		return nSize == 0 ? nullptr : struA + sum;
 	}
 	bool full() {
-		return usedSize == capacity - 1;
+		return usedSize == capacity;
 	}
 	// 构建结构体数组 (结点数目)
 	void reCapacity(int nSize) {
-		// 自动多申请一个用于存储0号哨兵
-		++nSize;
 		struA = new BTNode[nSize];
 		/*
 		struA = (StructArray)realloc(struA, BT_NODE_LEN*nSize);
@@ -157,17 +154,10 @@ protected:
 		*/
 		capacity = nSize;
 	}
-	// 初始化root_ 
-	void initRoot() {
-		// root_不包括哨兵(0号)
-		root_ = struA + 1;
-	}
-	Position getRoot_(){
-		return root_;
-	}
+	
 	// 返回数组内的结点编号 1号为root_ 0号为哨兵
 	int index(BTS t) const {
-		/*第一个元素插入时root_=NULL 所以链接左右孩子链接方法不能用root_ 更何况root_=1时的规律是针对数组成立的*/
+		/*第一个元素插入时root_=nullptr 所以链接左右孩子链接方法不能用root_ 更何况root_=1时的规律是针对数组成立的*/
 		return t - struA;
 	}
 	// 返回数组内的结点位置
@@ -179,7 +169,16 @@ protected:
 // 完全二叉树
 template<typename T>
 class CompleteBinTree :public VirtualLinkedBinTree<T> {
+	using VirtualLinkedBinTree<T>::root_;
 public:
+	// 直接把数组copy进静态数组里
+	CompleteBinTree(T *iniA, int nSize): VirtualLinkedBinTree<T>(nSize){
+		assert(iniA != nullptr && nSize > 0);
+		root_ = struA;
+		for (int i = 0; i < nSize; ++i)
+			root_[i].Data = iniA[i];
+		usedSize = nSize;
+	}
 	virtual ~CompleteBinTree() {
 		DE_PRINTF("CBT析构");
 	}
@@ -258,15 +257,17 @@ protected:
 	VirtualLinkedBinSearchTree(int nSize) : VirtualLinkedBinTree<T>(nSize) {}
 
 	Position nodeCreater(Element const &tData)override {
-		if (full())
-			return nullptr;
-		++usedSize;
-		struA[usedSize].Data = tData;
-		/*
-		isInsert = lastInsertPosition == NULL ? false : true;  bug
-		BinTree<T>::lastInsertPosition = struA + usedSize + 1;
-		*/
-		return struA + usedSize;
+		Position newNode = nullptr;
+		if (full()) {
+			// DNT
+		}
+		else {
+			struA[usedSize].Data = tData;
+			newNode = struA + (usedSize++);
+			BinTree<T>::lastInsertPosition = newNode;
+			BinTree<T>::isInsert = BinTree<T>::lastInsertPosition == nullptr ? false : true;
+		}
+		return newNode;
 	}
 	virtual void nodeEraser(Position &del) override {
 		// 0代表初始状态 只为了标识用 并无特殊用处
@@ -309,20 +310,21 @@ protected:
 	}
 
 	//[完全二叉树]的序列构建  数据源数组(fitst, last) 目标数组struA		func(A, A+n, 0);
-	Position buildComplete(T *first, T *last, int TRoot = 1) {
+	Position buildComplete(T *first, T *last, int rootSub) {
 		int n = last - first;
 		if (n == 0)
-			return NULL;
+			return nullptr;
 		int nl = getLeftScaleL(n);
-		struA[TRoot].Data = first[nl];/*first由0开始数nl个即是子树根*//*左子树从1开始编号下标是2i*/
-		struA[TRoot].Left = buildComplete(first, first + nl, 2 * TRoot);
-		struA[TRoot].Right = buildComplete(first + nl + 1, last, 2 * TRoot + 1);
-		return struA + TRoot;
+		struA[rootSub].Data = first[nl];
+		// first由0开始数nl个即是子树根 (root_在struA中sub为0 左子树sub = 2*rootSub + 1)
+		struA[rootSub].Left = buildComplete(first, first + nl, 2 * rootSub + 1);
+		struA[rootSub].Right = buildComplete(first + nl + 1, last, 2 * rootSub + 2);
+		return struA + rootSub;
 	}
 	/*完全二叉树层序遍历(顺序遍历有序数组)*/
 	template<class Fun>
 	void levelTraversal(BT bT, Fun visit) {//无法override 但名字应该覆盖了
-		if (bT == NULL)return;
+		if (bT == nullptr)return;
 		FOR(i, 0, usedSize) {//bT必须时root_不能是struA(root_ = struA+1)
 			if (!visit(bT + i))
 				return;//中止
@@ -334,23 +336,16 @@ public:
 	//使用数组构造唯一的完全二叉树 (由于完全二叉树不能增删 没有usedSize和capacity之分) tips::若数组有序 则为搜索树
 	CompleteBinSearchTree(int nSize, T *iniA) : CompleteBinTree<T>(nSize), VirtualLinkedBinSearchTree<T>(nSize) {
 		assert(iniA != nullptr && nSize > 0);
-		root_ = buildComplete(iniA, iniA + nSize);
+		// 0表示根结点的Sub
+		root_ = buildComplete(iniA, iniA + nSize, 0);
 		this->usedSize = nSize;
 	}
-	//直接把数组copy进静态数组里
-	/*CompleteBinSearchTree(T *iniA, int nSize): VirtualLinkedBinSearchTree<T>(nSize){
-		assert(iniA != nullptr && nSize > 0);
-		root_ = struA + 1;
-		for (int i = 0; i < nSize; ++i)
-			root_[i].Data = iniA[i];
-		usedSize = nSize;
-	}*/
 	virtual ~CompleteBinSearchTree() override {
 		DE_PRINTF("CBT析构");
 	}
 
 	/*Position find(Element x){
-		return NULL;//not impl
+		return nullptr;//not impl
 	}*/
 	//返回两个结点的公共祖先 越界返回哨兵(0号结点)
 	Position ancestor(int i1, int i2) {
@@ -365,19 +360,25 @@ public:
 	}
 };
 
-/*	make_heap:		根据指定的迭代器区间以及一个可选的比较函数，来创建一个heap. O(N)
+/*
+C++中heap以算法的形式提供，要使用这几个api需要#include <algorithm>
+
+make_heap:		根据指定的迭代器区间以及一个可选的比较函数，来创建一个heap. O(N)
 push_heap:		把指定区间的最后一个元素插入到heap中. O(logN)
 pop_heap:		弹出heap顶元素, 将其放置于区间末尾. O(logN)
 sort_heap：		堆排序算法，通常通过反复调用pop_heap来实现. N*O(logN)
 C++11加入了两个新成员：
 is_heap:		判断给定区间是否是一个heap. O(N)
-is_heap_until:	找出区间中第一个不满足heap条件的位置. O(N)*/
-/*C++中heap以算法的形式提供，要使用这几个api需要#include <algorithm>*/
-/*本算法以面向对象式实现
+is_heap_until:	找出区间中第一个不满足heap条件的位置. O(N)
+
+本算法以面向对象式实现
 若存放非基本类型时 需重载赋值号
-若存放指针时 需要自行销毁哨兵以及自己申请的内存 建议使用插入构造*/
-/*堆 是最大(小)树, 完全二叉树*/
-//如果仅仅是出堆而没有入堆的话 排个序O(N*logN) 此时入堆O(N) 出堆O(1)
+*/
+/*
+堆 是最大(小)树, 完全二叉树
+建堆O(N) 入堆O(logN) 出堆O(logN)
+排序平均O(N*logN): N次出堆
+*/
 template<class T>
 class Heap : public CompleteBinTree<T> {
 	typedef T Element;
@@ -388,7 +389,6 @@ class Heap : public CompleteBinTree<T> {
 	using CompleteBinTree<T>::capacity;
 
 	using VirtualLinkedBinTree<T>::index;
-	using VirtualLinkedBinTree<T>::initRoot;
 	using VirtualLinkedBinTree<T>::nodeEraser;
 	using CompleteBinTree<T>::getLeftChildSub;
 	using CompleteBinTree<T>::getLeftChild;
@@ -404,18 +404,16 @@ public:
 	using CompleteBinTree<T>::full;
 	using CompleteBinTree<T>::empty;
 
-	/*(堆的大小 任意初始化序列序列 该序列的元素个数)  注意: 用数组构造的堆与插入初始化的堆 的结构不一样*/
-	Heap(int heapSize, T *iniA = nullptr, int IniASize = 0) : CompleteBinTree<T>(heapSize) {
-		initRoot();
-		// 先初始化已使用结点数目否则无法链接
-		usedSize = IniASize;
-		// 为每个元素赋初始权值
-		for (Position t = root_; t < root_ + IniASize; ++t) {
-			// 若T类型不是基本类型 需要重载赋值号
-			t->Data = iniA[t - root_];
-			// 只要没越界就链接->遍历时以usedSize为结束遍历的标志 而不是子结点是否为空?
-			linkToChildren(t);
-		}
+	/*
+	(堆的大小, 哨兵, 小于比较方法, 任意初始化序列序列 该序列的元素个数) 
+	最小堆 参数: moreCmper(大于)哨兵(最小值)	注意: 负数太小减法会变正:传入MAX_INT32/2即可
+	最大堆 参数: lessCmper(小于)哨兵(最大值)
+	注意: 用数组构造的堆与插入初始化的堆 的结构不一样
+	*/
+	Heap(int heapSize, T sentry, int(*cmper)(const T &, const T &), T *iniA = nullptr, int IniASize = 0) 
+		: CompleteBinTree<T>(heapSize + 1) {
+		struA[0].Data = sentry;
+		rebuild(iniA, IniASize, cmper);
 	}
 	virtual ~Heap()override {
 		DE_PRINTF("Heap析构");
@@ -448,33 +446,48 @@ public:
 	}
 
 	Element pop() {
-		if (empty()) {
-			throw std::exception("堆已空 无法删除");
-			return NULL;
-		}
 		if (notBuild()) {
 			throw std::exception("未构建");
-			return false;
 		}
-		// 取出即将返回的值
-		Element Item = root_->Data;
-		// 从堆根开始下滤 删除尾元素(useedSize--即可)
-		PercoDown(index(root_), usedSize--);
-		// 解除已删除的尾元素与父结点的链接
-		unlinkToParent(usedSize + 1);
-		return Item;
+		if (empty()) {
+			throw std::exception("堆已空 无法删除");
+		}
+		else {
+			// 取出即将返回的值
+			Element Item = root_->Data;
+			// 从堆根开始下滤 删除尾元素(useedSize--即可)
+			percolateDown(index(root_), usedSize--);
+			// 解除已删除的尾元素与父结点的链接
+			unlinkToParent(usedSize + 1);
+			return Item;
+		}
 	}
-	// 最小堆 参数: moreCmper(大于)哨兵(最小值)	注意: 负数太小减法会变正:传入MAX_INT32/2即可
-	// 最大堆 参数: lessCmper(小于)哨兵(最大值)
-	// 构建堆 复杂度O(N) (哨兵, 小于比较方法)
-	void rebuild(T sentry, int(*cmper)(const T &, const T &)) {
+
+	// 构建堆 复杂度O(N)
+	void rebuild(T *iniA = nullptr, int IniASize = 0, int(*cmper)(const T &, const T &) = nullptr) {
+		// 先初始化已使用结点数目否则无法链接
+		if (iniA != nullptr) {
+			usedSize = IniASize;
+		}
+
 		if (empty(root_)) {
-			initRoot();
+			// root_不包括哨兵(0号) 内存空间会自动多申请一个
+			root_ = struA + 1;
 			// 链接root_
 			linkToChildren(root_);
 		}
-		cmper_ = cmper;
-		struA[0].Data = sentry;
+
+		// 为每个元素赋初始权值
+		for (Position t = root_; t < root_ + IniASize; ++t) {
+			// 若T类型不是基本类型 需要重载赋值号
+			t->Data = iniA[t - root_];
+			// 只要没越界就链接->遍历时以usedSize为结束遍历的标志 而不是子结点是否为空?
+			linkToChildren(t);
+		}
+
+		if (cmper != nullptr) {
+			cmper_ = cmper;
+		}
 		/*
 		对于一个已读入的数据但需要调整的最大或最小或最小堆(自下而上调整)
 		从[最后一个子节点的父节点 即 倒数第一个有儿子的结点]开始
@@ -482,12 +495,13 @@ public:
 		每次从左右结点中挑一个"大"的结点做[下滤]操作开始调整到根节点1
 		*/
 		for (int i = getParentSub(usedSize); i > 0; i--) {
-			PercoDown(i, i);
+			percolateDown(i, i);
 		}
 	}
+
 protected:
 	//上滤 push调整
-	void percolateUp(int i, Element *struA, int usedSize) {
+	void PercolateUp_DEL(int i, Element *struA, int usedSize) {
 		// i指向堆中需上滤元素的位置
 		Element Item = struA[i];
 		for (; struA[i / 2] - Item > 0; i /= 2) {
@@ -497,7 +511,7 @@ protected:
 		struA[i] = Item;
 	}
 	//下滤 :rebuild|pop调整(从末结点开始提升 等价于从最后一个父结点开始下滤)
-	void percolateDown(int Parent, Element *struA, int usedSize) {
+	void PercolateDown_DEL(int Parent, Element *struA, int usedSize) {
 		int Child;
 		Element x = struA[Parent];//取出需要下滤的值
 		for (; 2 * Parent <= usedSize; Parent = Child) {
@@ -512,22 +526,23 @@ protected:
 		struA[Parent] = x;
 	}
 
-	/*下滤函数 将H中以H->Data[p]为根的子堆调整为最大或最小或最小堆*/
-	void PercoDown(int parentSub, int p) {
-		Element x = struA[p].Data;/*取出需要下滤的值*/
+	// 下滤 将Heap中pdIndex处的元素提升至parentSub处 然后将以 struA + parentSub 为根的子堆调整为最大或最小或最小堆
+	void percolateDown(int parentSub, int pdIndex) {
+		// 取出需要下滤的值
+		Element pdEle = struA[pdIndex].Data;
 		for (int childSub = -1; (childSub = getLeftChildSub(parentSub)) <= usedSize; parentSub = childSub) {
 			// 选取存在的左右儿子中大或小的一个
 			if (childSub != usedSize && cmper_(struA[childSub].Data, struA[childSub + 1].Data) < 0)
 				childSub++;
 
-			if (cmper_(x, struA[childSub].Data) >= 0)
+			if (cmper_(pdEle, struA[childSub].Data) >= 0)
 				break;
 			else {
-				// 将孩子上移 <= = > 将x下移 由于childSub还要作为parentSub参与后续的比较因此不能移动
+				// 将孩子上移 <==> 将pdEle下移 由于childSub还要作为parentSub参与后续的比较因此不能移动
 				struA[parentSub].Data = struA[childSub].Data;
 			}
 		}
-		struA[parentSub].Data = std::move(x);
+		struA[parentSub].Data = std::move(pdEle);
 	}
 	//返回是否已经构建
 	bool notBuild() {

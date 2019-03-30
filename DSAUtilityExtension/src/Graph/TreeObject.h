@@ -67,10 +67,10 @@ public:
 		/*BTNode(Element const&tData){
 			Data = tData;
 		}*/
-		//拷贝构造 左右孩子结点置NULL
+		//拷贝构造 左右孩子结点置nullptr
 		BTNode(BTNode &rhs){
 			(*this) = rhs;
-			Left = Right = NULL;
+			Left = Right = nullptr;
 		}
 		virtual ~BTNode(){
 			DE_PRINTF("BTNode析构");
@@ -82,7 +82,7 @@ public:
 		}
 		//叶子结点判断
 		bool isLeave() const {
-			return Left == NULL && Right == NULL;
+			return Left == nullptr && Right == nullptr;
 		}
 		/*
 		bool operator=(HuTrNode const &rhs){
@@ -111,8 +111,8 @@ public:
 		}
 		*/
 
-		BTNode* Left = NULL;		/* 指向左子树 */
-		BTNode* Right = NULL;		/* 指向右子树 */
+		BTNode* Left = nullptr;		/* 指向左子树 */
+		BTNode* Right = nullptr;		/* 指向右子树 */
 		bool v = false;				/* 表示是否visit过此结点 */
 		Element Data;				/* 结点数据:若为结构体,结构体提供比较方法key(增删查都会使用的关键字)在结构体内 否则key就是Data weight-height不能作为key(不唯一)*/
 
@@ -259,9 +259,9 @@ public:
 			Position t = q.front();
 			q.pop();
 			// 将所有非空子树送入转换队列
-			if (t->Left != NULL)
+			if (t->Left != nullptr)
 				q.push(t->Left);
-			if (t->Right != NULL)
+			if (t->Right != nullptr)
 				q.push(t->Right);
 			// 将树根的左右子树转换
 			std::swap(t->Left, t->Right);
@@ -284,13 +284,13 @@ public:
 	
 protected:
 	const static int BT_NODE_LEN = sizeof(class BTNode);
-	Position root_ = NULL;
+	Position root_ = nullptr;
 	int usedSize = 0;// 有效的元素个数
-	Position lastInsertPosition = NULL;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
+	Position lastInsertPosition = nullptr;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
 	bool isInsert = false;// 是否执行了插入操作(判断插入是否成功)
 
 	// queue<Element*> freeMem;//空闲内存
-	// Element *memoryBlock = NULL;//内存块 可将二叉树的局部储存在这里 超出部分使用外部分配的内存
+	// Element *memoryBlock = nullptr;//内存块 可将二叉树的局部储存在这里 超出部分使用外部分配的内存
 
 	// 返回子二叉树的规模 O(N)
 	static int scaleOf(BT t) {
@@ -393,7 +393,7 @@ protected:
 	void prefInBuild(Element const *preOrder, Element const *inOrder, Position &bt, int n){
 		int Ln;/*左子子树长度*/
 		if (n == 0)return;
-		if (bt == NULL)
+		if (bt == nullptr)
 			bt = nodeCreater(*preOrder);
 		else/*转化关系:先序遍历数组的首元素就是子树根*/
 			bt->Data = *preOrder;
@@ -405,7 +405,7 @@ protected:
 	void prefInBuild(ArrayList<Element> &preOrder, int preRoot, ArrayList<Element> &inOrder, int inRoot, Position &bt, int n){
 		int Ln;/*左子子树长度*/
 		if (n == 0)return;
-		if (bt == NULL)
+		if (bt == nullptr)
 			bt = nodeCreater(preOrder[preRoot]);
 		else/*转化关系:先序遍历数组的首元素就是子树根*/
 			bt->Data = preOrder[preRoot];
@@ -417,7 +417,7 @@ protected:
 	void postInBuild(Position &bt, Element const *inOrder, Element const *postOder, int n){
 		int Ln;/*左子树长度*/
 		if (n == 0)return;
-		if (bt == NULL)
+		if (bt == nullptr)
 			bt = nodeCreater(postOder[n - 1]);
 		else/*转化关系:后序遍历数组的尾元素就是子树根*/
 			bt->Data = postOder[n - 1];
@@ -428,7 +428,7 @@ protected:
 	//后中构建 优化版(@TODO size)
 	static BT postInBuild(int *inOrder, int *postOder, int n){
 		int Ln;/*左子树长度*/
-		if (n == 0)	return NULL;
+		if (n == 0)	return nullptr;
 
 		Position bt = (Position)malloc(sizeof(struct TreeNode));
 		memset(bt, 0, sizeof(struct TreeNode));
@@ -532,10 +532,10 @@ protected:
 	// 返回是否T1与T2是否同构 isomorphic(adj. [物] 同构的；同形的)  isomorphism_(n. 类质同像，[物化] 类质同晶；同形)
 	static bool isomorphic(BT T1, BT T2){
 		// 深度不同
-		if ((T1 == NULL && T2 != NULL) || (T1 != NULL && T2 == NULL))
+		if ((T1 == nullptr && T2 != nullptr) || (T1 != nullptr && T2 == nullptr))
 			return false;
 		// 叶子结点
-		else if (T1 == NULL && T2 == NULL)
+		else if (T1 == nullptr && T2 == nullptr)
 			return true;
 		else {// 两颗树都不为空
 			// 数据不同
@@ -565,7 +565,7 @@ protected:
 	}
 	// 判断二叉树是否为空
 	static bool empty(BT bT) {
-		return bT == NULL;
+		return bT == nullptr;
 	}
 
 	//镜像赋值(负号)
@@ -578,10 +578,10 @@ protected:
 	}
 	
 public:
-	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回NULL 只能插入使用
+	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
 	virtual Position nodeCreater(Element const &tData){
 		lastInsertPosition = new BTNode(tData);
-		isInsert = lastInsertPosition == NULL ? false : true;
+		isInsert = lastInsertPosition == nullptr ? false : true;
 		++usedSize;
 		return lastInsertPosition;
 		/*
@@ -592,7 +592,7 @@ public:
 	}
 	//结点擦除器 将结点置为未使用状态
 	virtual void nodeEraser(Position &del){
-		// free(del); del = NULL;
+		// free(del); del = nullptr;
 		delete del;
 		del = nullptr;
 		--usedSize;
@@ -698,7 +698,7 @@ public:
 		return *this;
 	}
 
-	//返回倒数第k大的元素位置 不存在返回NULL;(利用BST中序遍历是顺序的特点:反过来是逆序)
+	//返回倒数第k大的元素位置 不存在返回nullptr;(利用BST中序遍历是顺序的特点:反过来是逆序)
 	BST findRKth(BST t, int *k){
 		if (t){
 			BST r = findRKth(t->Right, k);//1.<阶段一>一直到最右边
@@ -708,9 +708,9 @@ public:
 				return t;//终点返回: 已是倒数第k个结点
 
 			return findRKth(t->Left, k);//4.<阶段三>前面都没有返回 说明满足要求的结点在左子树(中序):相当于一个新的调用
-			//调用返回: 返回给1; 返回给4; 返回给初始调用0; 可能由1 2(NULL 其实也是4 NULL的情况只可能是最左边到头仍没有得到3的返回) 3返回而来
+			//调用返回: 返回给1; 返回给4; 返回给初始调用0; 可能由1 2(nullptr 其实也是4 nullptr的情况只可能是最左边到头仍没有得到3的返回) 3返回而来
 		}
-		return NULL;//2.终点返回: 到头 返回NULL
+		return nullptr;//2.终点返回: 到头 返回nullptr
 	}
 	//返回正数第k个元素(序号为k的元素 从1开始)
 	BST findKth(int k){
@@ -739,9 +739,9 @@ public:
 		cnt = cnt < 0 ? BinTree<T>::size() : cnt;//默认计算所有人的排名
 		int pastId = 0;//序号
 		int reCnt = 0;//当前元素现在的重复个数
-		Position pastP = NULL;
+		Position pastP = nullptr;
 		traversal(Tree::ORDER_REVERSE, [&](Position bt){
-			if (pastP != NULL && pastP->Data.score == bt->Data.score)
+			if (pastP != nullptr && pastP->Data.score == bt->Data.score)
 				++reCnt;
 			else
 				reCnt = 0;
@@ -759,8 +759,8 @@ public:
 		return bST;
 		/*
 		//1.
-		if (!bST)//基本定义：树为空返回NULL
-		return NULL;
+		if (!bST)//基本定义：树为空返回nullptr
+		return nullptr;
 		else if (!bST->Left)
 		return bST;//基本定义：左子叶结点是最小元素
 		else
@@ -807,9 +807,9 @@ public:
 			if (u > t->Data && v > t->Data)
 				return ancestor(t->Right, u, v);
 			/*一大一小 返回 优化存在判断*/
-			return ((find(t, u) && find(t, v)) ? t : NULL);
+			return ((find(t, u) && find(t, v)) ? t : nullptr);
 		}
-		return NULL;
+		return nullptr;
 	}
 	void clearVisit(Tree::TraversalOrderEnum type_){
 		BinTree<T>::traversal(type_, [&](Position const t){
@@ -831,7 +831,7 @@ public:
 		else
 			_ASSERT_EXPR(false, "遍历参数错误 NONE_ORDER 不作traversal_");
 	}
-	/*返回x在二叉搜索树bST中的位置; 若找不到则返回NULL*/
+	/*返回x在二叉搜索树bST中的位置; 若找不到则返回nullptr*/
 	Position find(T const&x){
 		return findOf(root_, x);
 	}
@@ -899,7 +899,7 @@ protected:
 			else
 				return  bST;
  		}
-		return NULL;
+		return nullptr;
 	}
 	template<typename LessCmp>
 	Position findOf(Position bST, T const&x, LessCmp less){
@@ -911,7 +911,7 @@ protected:
 			else
 				return  bST;
 		}
-		return NULL;
+		return nullptr;
 	}
 	/*函数Insert将x插入二叉搜索树bST并返回结果树的根结点指针*/
 	virtual Position Insert(Position bST, Element const&x){
@@ -943,7 +943,7 @@ protected:
 			/*阶段三:维持结构*/
 			bST->Right = Delete(bST->Right, del->Data, tag);//删除右子树的最小元素
 		}
-		else {//只有一个结点或无结点(返回Left的NULL)
+		else {//只有一个结点或无结点(返回Left的nullptr)
 			if (!bST->Left)
 				bST = bST->Right;
 			else
