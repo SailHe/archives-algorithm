@@ -152,8 +152,10 @@
     <ClInclude Include="src\GetMyDade.h" />
     <ClInclude Include="src\Graph\Graph.h" />
     <ClInclude Include="src\Graph\GraphUtil.h" />
+    <ClInclude Include="src\Graph\HuffmanTree.h" />
     <ClInclude Include="src\Graph\TreeObject.h" />
     <ClInclude Include="src\Graph\TreeUtility.h" />
+    <ClInclude Include="src\Graph\VirtualTree.h" />
     <ClInclude Include="src\LinkedList.h" />
     <ClInclude Include="src\MathLibrary.h" />
     <ClInclude Include="src\pch.h" />
@@ -173,6 +175,7 @@
     <ClCompile Include="src\ExtendSpace.cpp" />
     <ClCompile Include="src\Graph\GraphTemplate.h" />
     <ClCompile Include="src\Graph\Tree\TreeObject.cpp" />
+    <ClCompile Include="src\Graph\VirtualTree.cpp" />
     <ClCompile Include="src\List\LinkedList.cpp" />
     <ClCompile Include="src\List\Stack.cpp" />
     <ClCompile Include="src\MathLibrary.cpp" />

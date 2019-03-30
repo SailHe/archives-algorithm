@@ -90,6 +90,12 @@
     <ClInclude Include="src\else\SoftwareTest.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\Graph\VirtualTree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graph\HuffmanTree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MathLibrary.cpp">
@@ -126,6 +132,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Graph\Tree\TreeObject.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graph\VirtualTree.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

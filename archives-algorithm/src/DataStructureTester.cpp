@@ -1,4 +1,6 @@
 #include "Teater.h"
+#include "Graph\VirtualTree.h"
+#include "Graph\HuffmanTree.h"
 
 using namespace std;
 /**
@@ -561,7 +563,28 @@ int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string c
 	std::string bufR = resultBuffer;
 	std::reverse(bufR.begin(), bufR.end());
 	StandardExtend::testAndOut(insName + "µπ–Ú", resultBufferReal, bufR);
-	return 0;
+
+	int idel = 0;
+	while (!bst.empty()) {
+		bst.erase(std::to_string(idel++));
+	}
+	resultBufferReal.clear();
+	bst.traversal(LinkedBinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](LinkedBinSearchTree<std::string>::BT node) {
+		formatStrAppend(resultBufferReal, node->Data);
+		return false;
+	});
+	StandardExtend::testAndOut(insName + "…æ≥˝±‰ø’", resultBufferReal, std::string(""));
+	
+	bst.insert("sss");
+	bst.clear();
+	resultBufferReal.clear();
+	bst.traversal(LinkedBinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](LinkedBinSearchTree<std::string>::BT node) {
+		formatStrAppend(resultBufferReal, node->Data);
+		return false;
+	});
+	StandardExtend::testAndOut(insName + "clear±‰ø’", resultBufferReal, std::string(""));
+
+	return 9;
 }
 
 int subTestForHeapBuild() {
@@ -634,8 +657,9 @@ int subTestForHeap() {
 	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
 		formatStrAppend(resultHeap, std::to_string(b->Data));
 	});
-	StandardExtend::testAndOut("Heap-≤„–Ú", resultHeap, std::string("-1 1 0 3 10 5 2 4 11 15 15 14 9 13 7 6 8 12"));
+	// StandardExtend::testAndOut("Heap-≤„–Ú", resultHeap, std::string("-1 1 0 3 10 5 2 4 11 15 15 14 9 13 7 6 8 12"));
 	// StandardExtend::testAndOut("Heap-≤„–Ú", resultHeap, std::string("-1 0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
+	StandardExtend::testAndOut("Heap-≤„–Ú", resultHeap, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
 	heapDataReal.emplace_back(heapIns.pop());
 	resultHeap.clear();
 	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
