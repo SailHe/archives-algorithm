@@ -588,21 +588,24 @@ int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string c
 }
 
 int subTestForHeapBuild() {
-	// 堆是完全二叉树 但不是二叉搜索树
 	JCE::ArrayList<int> heapData = { 6, 2, 3, 15, 9, 7, 4, 12, 10, 15, 14, 5, 13 };
 	JCE::ArrayList<int> heapDataReal;
+
+	// rebuild + pop;
 	Heap<int> heapIns0 = Heap<int>(heapData.size() + 4, &heapData[0], (int)heapData.size());
-	heapIns0.build(-1, moreCmper);
+	heapIns0.rebuild(-1, moreCmper);
 	while (!heapIns0.empty()) {
 		heapDataReal.emplace_back(heapIns0.pop());
 	}
 	// "Heap-Pop With Build"
 	StandardExtend::testAssert(heapDataReal, std::vector<int>({ 2, 3, 4, 5, 6, 7, 9, 10, 12, 13, 14, 15, 15 }));
 
+	// rebuild + clear + push + traversal, p1:clear后直接push的话root可能没有更新
 	Heap<int> heapIns = Heap<int>(heapData.size() + 4, &heapData[0], (int)heapData.size());
-	// resultHeap = "-1 2 6 3 10 9 5 4 12 15 15 14 7 13 -842150451 -842150451 -842150451 -842150451"
-	heapIns.build(-1, moreCmper);
+	// resultHeapStr = "-1 2 6 3 10 9 5 4 12 15 15 14 7 13 -842150451 -842150451 -842150451 -842150451"
+	heapIns.rebuild(-1, moreCmper);
 	heapIns.clear();
+	heapIns.rebuild(-1, moreCmper);
 	for (JCE::SizeType i = 0; i < heapData.size(); heapIns.push(heapData[i++]));
 	// StandardExtend::testAssert(heapIns.pop(), 2);
 	heapIns.push(0);
@@ -613,28 +616,17 @@ int subTestForHeapBuild() {
 	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
 		formatStrAppend(resultHeap, std::to_string(b->Data));
 	});
-	StandardExtend::testAndOut("Heap-层序", resultHeap, std::string("-1 0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
-	heapDataReal.emplace_back(heapIns.pop());
-	resultHeap.clear();
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
-		formatStrAppend(resultHeap, std::to_string(b->Data));
-	});
-	// 中间过程是否正常链接
-	StandardExtend::testAssert(resultHeap, std::string("-1 1 6 2 8 9 5 3 10 12 15 14 7 13 4 11 15"));
-
+	StandardExtend::testAndOut("Heap-层序", resultHeap, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
+	
+	heapDataReal.clear();
 	while (!heapIns.empty()) {
 		heapDataReal.emplace_back(heapIns.pop());
 	}
 	// "Heap-Pop With push"
 	StandardExtend::testAssert(heapDataReal, std::vector<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 }));
 
-	resultHeap.clear();
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
-		formatStrAppend(resultHeap, std::to_string(b->Data));
-	});
-	StandardExtend::testAssert(resultHeap, std::string("-1"));
-	// 包括构造析构在内的5个公有方法
-	return 5;
+	// 新测试的只有 clear 这1个公有方法
+	return 1;
 }
 
 int subTestForHeap() {
@@ -642,56 +634,53 @@ int subTestForHeap() {
 	JCE::ArrayList<int> heapData = { 6, 2, 3, 15, 9, 7, 4, 12, 10, 15, 14, 5, 13 , 0, 1, 8, 11};
 	JCE::ArrayList<int> heapDataReal;
 	Heap<int> heapIns = Heap<int>(heapData.size() + 4);
-	heapIns.build(-1, moreCmper);
+	heapIns.rebuild(-1, moreCmper);
 	std::vector<int> tmp;
 	for (JCE::SizeType i = 0; i < heapData.size(); ++i) {
+		/*
 		tmp.clear();
 		heapIns.traversal(heapIns.ORDER_LEVEL, [&tmp](BinTree<int>::BT b) {
 			tmp.emplace_back(b->Data);
 		});
 		MathExtend::outputWithTree(tmp.begin(), tmp.end(), tmp.size());
-
+		*/
 		heapIns.push(heapData[i]);
 	}
-	std::string resultHeap;
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
-		formatStrAppend(resultHeap, std::to_string(b->Data));
+	std::string resultHeapStr;
+	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
+		formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
-	// StandardExtend::testAndOut("Heap-层序", resultHeap, std::string("-1 1 0 3 10 5 2 4 11 15 15 14 9 13 7 6 8 12"));
-	// StandardExtend::testAndOut("Heap-层序", resultHeap, std::string("-1 0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
-	StandardExtend::testAndOut("Heap-层序", resultHeap, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
+	StandardExtend::testAndOut("Heap-层序", resultHeapStr, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
 	heapDataReal.emplace_back(heapIns.pop());
-	resultHeap.clear();
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
-		formatStrAppend(resultHeap, std::to_string(b->Data));
+	resultHeapStr.clear();
+	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
+		formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
-	// 中间过程是否正常链接 resultHeap = "-1 1 2 3 10 5 7 4 11 15 15 14 9 13 12 6 8"
-	// StandardExtend::testAssert(resultHeap, std::string("-1 3 0 4 10 5 2 6 11 15 15 14 9 13 7 12 8"));
-	// StandardExtend::testAssert(resultHeap, std::string("-1 1 6 2 8 9 5 3 10 12 15 14 7 13 4 11 15"));
+	// 中间过程是否正常链接
+	StandardExtend::testAssert(resultHeapStr, std::string("1 6 2 8 9 5 3 10 12 15 14 7 13 4 11 15"));
 
 	while (!heapIns.empty()) {
-		
+		/*
 		tmp.clear();
-		heapIns.traversal(heapIns.ORDER_LEVEL, [&tmp, &resultHeap](BinTree<int>::BT b) {
+		heapIns.traversal(heapIns.ORDER_LEVEL, [&tmp, &resultHeapStr](BinTree<int>::BT b) {
 			tmp.emplace_back(b->Data);
 		});
 		MathExtend::outputWithTree(tmp.begin(), tmp.end(), tmp.size());
-
+		*/
 		int tmpP = heapIns.pop();
-		std::cout << "pop: " << tmpP << std::endl;
+		//std::cout << "pop: " << tmpP << std::endl;
 		heapDataReal.emplace_back(tmpP);
 	}
 	// "Heap-Pop"
 	StandardExtend::testAssert(heapDataReal, std::vector<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 }));
 
-	resultHeap.clear();
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
-		formatStrAppend(resultHeap, std::to_string(b->Data));
+	resultHeapStr.clear();
+	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
+		formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
-	StandardExtend::testAssert(resultHeap, std::string("-1"));
-	subTestForHeapBuild();
-	// 包括构造析构在内的5个公有方法
-	return 5;
+	StandardExtend::testAssert(resultHeapStr, std::string(""));
+	// 主要是 构造 析构 空rebuild push pop empty 在内的5个公有方法
+	return 6 + subTestForHeapBuild();
 }
 
 int testForTree() {

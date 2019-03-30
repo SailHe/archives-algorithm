@@ -40,7 +40,7 @@ public:
 		Heap<HuTr> h = Heap<HuTr>(nHuf);
 		HuTr sentry = new HuTrNode(0, -MAX_INT32 / 2);//没有赋值方法 只能new?
 		//lambda表达式, 匿名函数 p345
-		h.build(sentry, [/*捕获列表*/](const HuTr &min, const HuTr &max) {
+		h.rebuild(sentry, [/*捕获列表*/](const HuTr &min, const HuTr &max) {
 			return max->Weight - min->Weight;
 		});
 		for (int i = 0; i < nHuf; ++i)	h.push(new HuTrNode(character[i], freq[i]));

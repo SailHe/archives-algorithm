@@ -158,7 +158,7 @@ protected:
 		capacity = nSize;
 	}
 	// 初始化root_ 
-	void iniTRoot() {
+	void initRoot() {
 		// root_不包括哨兵(0号)
 		root_ = struA + 1;
 	}
@@ -388,6 +388,8 @@ class Heap : public CompleteBinTree<T> {
 	using CompleteBinTree<T>::capacity;
 
 	using VirtualLinkedBinTree<T>::index;
+	using VirtualLinkedBinTree<T>::initRoot;
+	using VirtualLinkedBinTree<T>::nodeEraser;
 	using CompleteBinTree<T>::getLeftChildSub;
 	using CompleteBinTree<T>::getLeftChild;
 	using CompleteBinTree<T>::getRightChildSub;
@@ -397,15 +399,16 @@ class Heap : public CompleteBinTree<T> {
 	using CompleteBinTree<T>::getSibling;
 
 	//使用less<T> greater<T> 或 比较符号重载 都有同样地问题: 两者没有同一个表示方法(带有重载()的父类)不便于大堆小堆的即时重构
-	int(*cmper)(const T &min, const T &max) = NULL;
+	int(*cmper_)(const T &min, const T &max) = nullptr;
 public:
 	using CompleteBinTree<T>::full;
 	using CompleteBinTree<T>::empty;
 
 	/*(堆的大小 任意初始化序列序列 该序列的元素个数)  注意: 用数组构造的堆与插入初始化的堆 的结构不一样*/
-	Heap(int heapSize, T *iniA = NULL, int IniASize = 0) : CompleteBinTree<T>(heapSize) {
-		// 0号用于放置哨兵
-		root_ = struA + 1;
+	Heap(int heapSize, T *iniA = nullptr, int IniASize = 0) : CompleteBinTree<T>(heapSize) {
+		initRoot();
+		// 先初始化已使用结点数目否则无法链接
+		usedSize = IniASize;
 		// 为每个元素赋初始权值
 		for (Position t = root_; t < root_ + IniASize; ++t) {
 			// 若T类型不是基本类型 需要重载赋值号
@@ -413,35 +416,35 @@ public:
 			// 只要没越界就链接->遍历时以usedSize为结束遍历的标志 而不是子结点是否为空?
 			linkToChildren(t);
 		}
-		// 链接root_
-		linkToChildren(root_);
-		usedSize = IniASize;
 	}
 	virtual ~Heap()override {
 		DE_PRINTF("Heap析构");
 	}
 
 	bool push(Element Item) {
-		if (full()) {
-			throw std::exception("堆已满 无法压入");
-			return false;
-		}
+		bool result = true;
 		if (notBuild()) {
+			result = false;
 			throw std::exception("未构建");
-			return false;
 		}
-		// @TODO 已提出的percolateUp函数是怎么回事
-		// i指向[插入后]堆中最后一个元素的位置 i=[1, capbility)
-		int i = ++usedSize;
-		for (int parI = -1; cmper(struA[(parI = getParentSub(i))].Data, Item) < 0; i = parI) {
-			// 从最后一个有孩子的结点开始 向上过滤结点
-			struA[i].Data = struA[parI].Data;
+		if (full()) {
+			result = false;
+			throw std::exception("堆已满 无法压入");
 		}
-		// 压入
-		struA[i].Data = Item;
-		// 因为新加入的元素始终在尾部 因此直接链接尾部的元素即可保证新添元素的链接
-		linkToChildren(getParent(usedSize));
-		return true;
+		else {
+			// @TODO 已提出的percolateUp函数是怎么回事
+			// i指向[插入后]堆中最后一个元素的位置 i=[1, capbility)
+			int i = ++usedSize;
+			for (int parI = -1; cmper_(struA[(parI = getParentSub(i))].Data, Item) < 0; i = parI) {
+				// 从最后一个有孩子的结点开始 向上过滤结点
+				struA[i].Data = struA[parI].Data;
+			}
+			// 压入
+			struA[i].Data = Item;
+			// 因为新加入的元素始终在尾部 因此直接链接尾部的元素即可保证新添元素的链接
+			linkToChildren(getParent(usedSize));
+		}
+		return result;
 	}
 
 	Element pop() {
@@ -455,11 +458,7 @@ public:
 		}
 		// 取出即将返回的值
 		Element Item = root_->Data;
-		/*
-		矛盾在于:usedSize--删除的是尾元素 但是根据堆的定义我们应该删除1号元素
-		将尾元素替换下滤时的p元素下滤 这样便于操作 且实际上删除的是1号元素
-		*/
-		// 删除：取出尾元素 从堆根开始 usedSize--
+		// 从堆根开始下滤 删除尾元素(useedSize--即可)
 		PercoDown(index(root_), usedSize--);
 		// 解除已删除的尾元素与父结点的链接
 		unlinkToParent(usedSize + 1);
@@ -468,8 +467,13 @@ public:
 	// 最小堆 参数: moreCmper(大于)哨兵(最小值)	注意: 负数太小减法会变正:传入MAX_INT32/2即可
 	// 最大堆 参数: lessCmper(小于)哨兵(最大值)
 	// 构建堆 复杂度O(N) (哨兵, 小于比较方法)
-	void build(T sentry, int(*cmper_)(const T &lhs, const T &rhs)) {
-		cmper = cmper_;
+	void rebuild(T sentry, int(*cmper)(const T &, const T &)) {
+		if (empty(root_)) {
+			initRoot();
+			// 链接root_
+			linkToChildren(root_);
+		}
+		cmper_ = cmper;
 		struA[0].Data = sentry;
 		/*
 		对于一个已读入的数据但需要调整的最大或最小或最小堆(自下而上调整)
@@ -492,7 +496,7 @@ protected:
 		}
 		struA[i] = Item;
 	}
-	//下滤 :build/pop调整(从末结点开始提升 等价于从最后一个父结点开始下滤)
+	//下滤 :rebuild|pop调整(从末结点开始提升 等价于从最后一个父结点开始下滤)
 	void percolateDown(int Parent, Element *struA, int usedSize) {
 		int Child;
 		Element x = struA[Parent];//取出需要下滤的值
@@ -513,10 +517,10 @@ protected:
 		Element x = struA[p].Data;/*取出需要下滤的值*/
 		for (int childSub = -1; (childSub = getLeftChildSub(parentSub)) <= usedSize; parentSub = childSub) {
 			// 选取存在的左右儿子中大或小的一个
-			if (childSub != usedSize && cmper(struA[childSub].Data, struA[childSub + 1].Data) < 0)
+			if (childSub != usedSize && cmper_(struA[childSub].Data, struA[childSub + 1].Data) < 0)
 				childSub++;
 
-			if (cmper(x, struA[childSub].Data) >= 0)
+			if (cmper_(x, struA[childSub].Data) >= 0)
 				break;
 			else {
 				// 将孩子上移 <= = > 将x下移 由于childSub还要作为parentSub参与后续的比较因此不能移动
@@ -527,7 +531,7 @@ protected:
 	}
 	//返回是否已经构建
 	bool notBuild() {
-		return struA[0].Data == NULL;
+		return root_ == nullptr;
 	}
 	//子结点链接:链接当前结点的孩子结点 链接关系只与位置有关 与数据无关 因此除非是实际使用的位置增减 否则不用重链
 	void linkToChildren(Position parent) {
@@ -568,6 +572,11 @@ protected:
 				parent->Right = nullptr;
 			}
 			else;
+
+			// 当子结点是root_的时候需要将root_置为空
+			if (parent == struA) {
+				root_ = nullptr;
+			}
 		}
 	}
 };
