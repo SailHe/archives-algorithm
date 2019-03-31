@@ -421,8 +421,8 @@ public:
 	bool push(Element Item) {
 		bool result = true;
 		if (isNotInit()) {
-			result = false;
-			throw std::exception("未初始化");
+			// 一般只可能是pop变空了, 重新使用之前的数据初始化即可
+			initialize(struA[0].Data);
 		}
 		if (full()) {
 			result = false;
@@ -445,9 +445,6 @@ public:
 	}
 
 	Element pop() {
-		if (isNotInit()) {
-			throw std::exception("未初始化");
-		}
 		if (empty()) {
 			throw std::exception("堆已空 无法抛出");
 		}

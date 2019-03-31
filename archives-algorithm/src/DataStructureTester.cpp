@@ -635,8 +635,8 @@ int subTestForHeapRebuild() {
 
 	// 3. 使用新的数据构建(上一个用例已确认此方法可以重建出合理的堆)
 	heapIns.build(&heapData[0], (int)heapData.size(), MIN_INT32, GreaterIntegerCmper);
-	heapIns.initialize(MAX_INT32, LessIntegerCmper);
 	// 最小堆重建为最大堆(数据不变)
+	heapIns.initialize(MAX_INT32, LessIntegerCmper);
 	heapIns.rebuild();
 	heapRealDataList.clear();
 	while (!heapIns.empty()) {
@@ -664,7 +664,7 @@ int subTestForHeapClearBuild() {
 	Heap<int> heapIns = Heap<int>(heapData.size() + 4, -1, GreaterIntegerCmper, &heapData[0], (int)heapData.size());
 	// heapIns.rebuild(-1, GreaterIntegerCmper);
 	heapIns.clear();
-	heapIns.initialize(-1);
+	// heapIns.initialize(-1);
 	for (JCE::SizeType i = 0; i < heapData.size(); heapIns.push(heapData[i++]));
 	heapIns.push(0);
 	heapIns.push(1);
@@ -739,29 +739,17 @@ int subTestForHeap() {
 	return 6 + subTestForHeapClearBuild() + subTestForHeapRebuild();
 }
 
-int subtestForArrayHuff(int *hufWeightList, int n) {
-	/*
-	小写字母，01反、且2点对换；有2点重合
-	7
-	A 1 B 1 C 1 D 3 E 3 F 6 G 6
-	1
-	A 00000
-	B 00001
-	C 0001
-	D 001
-	E 00
-	F 10
-	G 11
-	*/
-	ArrayHuffman::HuffmanTree hufTree = nullptr;
-	ArrayHuffman::HuffmanCode hufCode = nullptr;
-	ArrayHuffman::HuffmanCoding(hufTree, hufCode, hufWeightList, n);
-	int result = ArrayHuffman::codingLen(hufCode, n, hufWeightList);
-	free(hufTree); hufTree = nullptr;
-	free(hufCode); hufCode = nullptr;
-	return result;
-}
 int testForHuffumanTree() {
+	// 数组实现哈夫曼编码树计算编码长度
+	auto ArrayHuffCodeLen = [](int *hufWeightList, int n) {
+		ArrayHuffman::HuffmanTree hufTree = nullptr;
+		ArrayHuffman::HuffmanCode hufCode = nullptr;
+		ArrayHuffman::HuffmanCoding(hufTree, hufCode, hufWeightList, n);
+		int result = ArrayHuffman::codingLen(hufCode, n, hufWeightList);
+		free(hufTree); hufTree = nullptr;
+		free(hufCode); hufCode = nullptr;
+		return result;
+	};
 	const int n = 4;
 	int w[n] = { 1, 2, 3, 4 };
 	int result[][4] = {
@@ -785,24 +773,46 @@ int testForHuffumanTree() {
 	}
 	int hufWeightList1[] = { 1, 2, 3, 4, 5 };
 	int hufWeightList2[] = { 3, 8, 8 };
-	StandardExtend::testAndOut("哈夫曼编码长度: ", subtestForArrayHuff(hufWeightList1, 5), 33);
-	StandardExtend::testAndOut("等权哈夫曼编码长度: ", subtestForArrayHuff(hufWeightList2, 3), 30);
-	/*const int N = 63;
-	int CodeWPL;//标准
-	int i, n, Freq[N + 1] = { 0 };
-	//int j, m;
-	char ch[N + 1], s[N][2 * N];
+	StandardExtend::testAndOut("哈夫曼编码长度: ", ArrayHuffCodeLen(hufWeightList1, 5), 33);
+	StandardExtend::testAndOut("等权哈夫曼编码长度: ", ArrayHuffCodeLen(hufWeightList2, 3), 30);
+
+	/*
+	小写字母，01反、且2点对换；有2点重合
+	7
+	A 1 B 1 C 1 D 3 E 3 F 6 G 6
+	1
+	A 00000
+	B 00001
+	C 0001
+	D 001
+	E 00
+	F 10
+	G 11
+	*/
+	const int N = 63;
+	// 标准
+	int CodeWPL;
+	int i;
+	char ch[N + 1] = {'A', 'B', 'C', 'D', 'E', 'F', 'G'};
+	int Freq[N + 1] = { 1, 1, 1, 3, 3, 6, 6 };
+	HuffmanTree<char> huffT(ch, Freq, n);
+	CodeWPL = huffT.wpl();
+	char s[N][2 * N];
 	while (~scanf("%d\n", &n)) {
-		Freq[0] = n; memset(s, 0, N*N);
-		memset(ch, 0, N + 1); ch[0] = 32;//初始化
+		// 初始化
+		memset(s, 0, N*N);
+		memset(ch, 0, N + 1);
+		// Freq[0] = n;
+		// ch[0] = 32;
+
 		for (i = 1; i <= n; i++) {
 			ch[i] = getchar();
 			scanf("%d", Freq + i);
 			getchar();
 		}
-		HuffmanTree<char> T(ch, Freq, n);
-		CodeWPL = T.wpl();
-	}*/
+		HuffmanTree<char> huffT(ch, Freq, n);
+		CodeWPL = huffT.wpl();
+	}
 	return 0;
 }
 
@@ -910,11 +920,14 @@ int mainForNonlinearStructure() {
 
 int runDataStructureTest() {
 	/*
-	lambda捕获列表
-	 lambda是通过创建一个重载了操作符()的小类来实现的，一个lambda函数是该类的一个实例
-	 捕获lambda函数外的具有自动存储时期的变量。函数体与这些变量的集合合起来叫闭包。
-	 一个没有指定任何捕获的lambda函数,可以显式转换成一个具有相同声明形式函数指针
-	 但当捕获列表出现时，其入口包含了实例化时对捕获对象的封装，而这个捕获对象的实体是以类成员的身份存在的，因此无法被转化成函数指针
+	lambda表达式(匿名函数)
+		P345
+		[捕获列表](函数签名) {函数体};
+		捕获列表:
+			lambda是通过创建一个重载了操作符()的小类来实现的，一个lambda函数是该类的一个实例
+			捕获lambda函数外的具有自动存储时期的变量。函数体与这些变量的集合合起来叫闭包。
+			一个没有指定任何捕获的lambda函数,可以显式转换成一个具有相同声明形式函数指针
+			但当捕获列表出现时，其入口包含了实例化时对捕获对象的封装，而这个捕获对象的实体是以类成员的身份存在的，因此无法被转化成函数指针
 
 	 __vfptr: 虚函数表vtable指针
 	 多态实现: 函数指针, 虚函数

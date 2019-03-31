@@ -35,32 +35,38 @@ protected:
 	}*HuTr;//哈夫曼树
 	HuTr huffRoot = NULL;
 public:
-	/*哈夫曼树的构建 最小堆实现 (字符序列, 权重序列(一般是频值freq), 序列公共大小, huf叶子结点数)*/
-	HuffmanTree(T* character, int *freq, int nHuf) {
-		Heap<HuTr> h = Heap<HuTr>(nHuf);
-		HuTr sentry = new HuTrNode(0, -MAX_INT32 / 2);//没有赋值方法 只能new?
-		//lambda表达式, 匿名函数 p345
-		h.rebuild(sentry, [/*捕获列表*/](const HuTr &min, const HuTr &max) {
-			return max->Weight - min->Weight;
+	/*
+	任意句子构造
+	哈夫曼树的构建 最小堆实现 (字符序列, 权重序列(一般是频值freq), 序列公共大小, huf叶子结点数)
+	频值向量freq[0]代表权值个数 权值freq[i]>=0; i[1,*freq) O(N*logN)
+	*/
+	HuffmanTree(T *character, int *freq, int nHuf) {
+		// 使用new构造哨兵(没有重载运算符: 赋值, 比较)
+		HuTr sentry = new HuTrNode(0, -MAX_INT32 / 2);
+		Heap<HuTr> h = Heap<HuTr>(nHuf, sentry, [](const HuTr &lhs, const HuTr &rhs) {
+			return rhs->Weight - lhs->Weight;
+			// return rhs->Weight < lhs->Weight ? : -1 : rhs->Weight == lhs->Weight ? 0 : 1;
 		});
+		//h.rebuild();
 		for (int i = 0; i < nHuf; ++i)	h.push(new HuTrNode(character[i], freq[i]));
-		/*做usedSize-1次合并 每次将权值最小的两颗树合并 但是运算途中usedSize会变化 所以用n*/
+		// 做usedSize-1次合并 每次将权值最小的两颗树合并 但是运算途中usedSize会变化 所以用n
 		while (nHuf-- > 1) {
-			HuTr t = new HuTrNode(0, 0);//当泛型为char时 无效结点为'\0'不会输出(自动省略无效的非叶结点) 否则需要重写遍历方法
+			// 当泛型为char时 无效结点为'\0'不会输出(自动省略无效的非叶结点) 否则需要重写遍历方法
+			HuTr t = new HuTrNode(0, 0);
 			t->Left = h.pop();
 			t->Right = h.pop();
-			t->setValue(t->Left->getValue() + t->Right->getValue());/*计算新权值*/
+			// 计算新权值
+			t->setValue(t->Left->getValue() + t->Right->getValue());
 			h.push(t);
 		}
 		huffRoot = h.pop();
 		root_ = huffRoot;
 		delete sentry;
-	}/*频值向量freq[0]代表权值个数 0<=freq[i])是权值 i[1,*freq O(N log(N))*/
-	//对任意句子构造huffman树
-
+	}
 	~HuffmanTree()override {
 		DE_PRINTF("HuffmanTree析构");
 	}
+
 	//清空输入流直到遇见end前所有字符
 	static void flushInput(char end) {
 		char c;
