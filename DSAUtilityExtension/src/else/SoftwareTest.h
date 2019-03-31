@@ -23,6 +23,17 @@ namespace SoftwareTestSpace {
 		// 返回单个输出用例数据生成的闭包
 		virtual std::function<void(std::ofstream &)> outputDataGenClosure() = 0;
 	};
+
+	// 返回该列表的初始化列表字串(指程序中的初始化列表)
+	template<typename Itorator, typename T>
+	std::string getInitString(Itorator begin, Itorator end, std::function<std::string(T)> toString) {
+		std::string initListStr;
+		std::for_each(begin, end, [&initListStr, &toString](T curVa) {
+			StandardExtend::formatStrAppend(initListStr, toString(curVa), ",");
+		});
+		return "{" + initListStr + "}";
+	}
+
 }
 
 namespace DataGenerater {

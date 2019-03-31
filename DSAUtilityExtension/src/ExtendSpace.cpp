@@ -45,6 +45,9 @@ namespace StandardExtend{
 		clock_t stopClock = clock();
 		return (double)(stopClock - startClock) / CLK_TCK;
 	}
+	void formatStrAppend(std::string &lhs, std::string const &rhs, std::string interval, std::string empty) {
+		lhs += (lhs == empty ? rhs : interval + rhs);
+	};
 	int isIntercalary(int year) {
 		return (year % 4 == 0 && year % 100 != 0 || year % 400 == 0);
 	}

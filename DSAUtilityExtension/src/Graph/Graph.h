@@ -760,7 +760,7 @@ public:
 		operator bool()const{
 			return valid;
 		}
-		//cout<<
+		// cout<<; 只输出vertexValue
 		friend std::ostream &operator<<(std::ostream &os, const CoordinatesMap::Vertex &rhs) {
 			int out = rhs;
 			os << out;
@@ -776,17 +776,26 @@ public:
 		dest = ArraySub();
 		limitR = limitRow, limitC = limitCol;
 		validCoordinates.resize(limitRow);
+		static Vertex initVertex(invalidSign, -1);
 		FOR(i, 0, limitRow){
-			validCoordinates[i].assign(limitCol, invalidSign);
+			validCoordinates[i].assign(limitCol, initVertex);
 		}
 	}
 	~CoordinatesMap(){}
 
-	//坐标图概览
+	// 坐标图概览(如果值宽度大于2格式可能不好看)
 	void output(size_t coutWidth = 2) {
-		std::cout << "坐标图概览(对应坐标点的值为-1表示无效): " << std::endl;
-		//StandardExtend::outPutIterable(validCoordinates.begin(), validCoordinates.end(), 2, '\0', validCoordinates.size());
-		StandardExtend::outPut2DArrayList(validCoordinates, '\0', coutWidth);
+		std::cout << "坐标图概览(无效使用'x'表示): " << std::endl;
+		// StandardExtend::outPutIterable(validCoordinates.begin(), validCoordinates.end(), 2, '\0', validCoordinates.size());
+		// StandardExtend::outPut2DArrayList(validCoordinates, '\0', coutWidth);
+		std::for_each(validCoordinates.begin(), validCoordinates.end(), [](std::vector<Vertex> const &cur) {
+			int i = -1;
+			std::for_each(cur.begin(), cur.end(), [&i](Vertex const &v) {
+				std::cout << (++i == 0 ? "" : " ") 
+					<< std::setw(2) << std::setfill('0') << (v ? std::to_string((int)v) : "xx");
+			});
+			std::cout << std::endl;
+		});
 	}
 
 	//设置目的坐标点

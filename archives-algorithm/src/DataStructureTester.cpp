@@ -1,6 +1,7 @@
 #include "Teater.h"
 #include "Graph\VirtualTree.h"
 #include "Graph\HuffmanTree.h"
+#include "else\SoftwareTest.h"
 
 using namespace std;
 /**
@@ -228,36 +229,6 @@ int mainForLinearStructure() {
 	return 0;
 }
 
-int testForExpressionTree() {
-	//自己改改
-	char s[40] = "1 2 +";
-	while (gets(s)) {
-		//ExpressionTree ET = ExpressionTree(s, ExpressionTree::POST_EXPRESSION);
-		//ExpressionTree ET = ExpressionTree(s, ExpressionTree::PREFIX_EXPRESSION);
-		ExpressionTree ET = ExpressionTree(s, ExpressionTree::INFIX_EXPRESSION);
-		auto ans = ET.eval();
-		if (ans == MAX_INT32) {
-			puts("ERROR Expression");
-		}
-		else {
-			printf("%.1lf\n", ans);
-		}
-	}
-	return 0;
-}
-void formatStrAppend(std::string &lhs, std::string const &rhs, std::string interval = " ", std::string empty = "") {
-	lhs += (lhs == empty ? rhs : interval + rhs);
-};
-
-template<typename Itorator, typename T>
-std::string getInitString(Itorator begin, Itorator end, std::function<std::string(T)> toString) {
-	std::string initListStr;
-	std::for_each(begin, end, [&initListStr, &toString](T curVa) {
-		formatStrAppend(initListStr, toString(curVa), ",");
-	});
-	return "{" + initListStr + "}";
-}
-
 int subTestForBinTree() {
 	// 这里么为了方便测试没使用char
 	const int len = 7;
@@ -281,7 +252,7 @@ int subTestForBinTree() {
 		btIns.traversal(BinTree<char>::ORDER_PREFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
-			formatStrAppend(resultReal, tmp);
+			StandardExtend::formatStrAppend(resultReal, tmp);
 		});
 		StandardExtend::testAndOut("BT 先根序", resultReal, std::string("1 2 3 4 5 6"));
 
@@ -289,7 +260,7 @@ int subTestForBinTree() {
 		btIns.traversal(BinTree<char>::ORDER_POST_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
-			formatStrAppend(resultReal, tmp);
+			StandardExtend::formatStrAppend(resultReal, tmp);
 		});
 		StandardExtend::testAndOut("BT 后根序", resultReal, std::string("3 4 2 6 5 1"));
 
@@ -297,7 +268,7 @@ int subTestForBinTree() {
 		btIns.traversal(BinTree<char>::ORDER_INFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
-			formatStrAppend(resultReal, tmp);
+			StandardExtend::formatStrAppend(resultReal, tmp);
 		});
 		StandardExtend::testAndOut("BT 中根序", resultReal, std::string("3 2 4 1 6 5"));
 
@@ -305,7 +276,7 @@ int subTestForBinTree() {
 		btIns.traversal(BinTree<char>::ORDER_LEVEL, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
-			formatStrAppend(resultReal, tmp);
+			StandardExtend::formatStrAppend(resultReal, tmp);
 			return false;
 		});
 		StandardExtend::testAndOut("BT 层序", resultReal, std::string("1 2 5 3 4 6"));
@@ -389,7 +360,7 @@ int subTestForBinTree() {
 		btIns.traversal(BinTree<char>::ORDER_PREFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
-			formatStrAppend(resultReal, tmp);
+			StandardExtend::formatStrAppend(resultReal, tmp);
 		});
 		// 镜像先序与原后序相反
 		StandardExtend::testAndOut("BT 镜像先根序", resultReal, std::string("1 5 6 2 4 3"));
@@ -398,7 +369,7 @@ int subTestForBinTree() {
 		btIns.traversal(BinTree<char>::ORDER_POST_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
-			formatStrAppend(resultReal, tmp);
+			StandardExtend::formatStrAppend(resultReal, tmp);
 		});
 		// 镜像后序与原先序相反
 		StandardExtend::testAndOut("BT 镜像后根序", resultReal, std::string("6 5 4 3 2 1"));
@@ -407,7 +378,7 @@ int subTestForBinTree() {
 		btIns.traversal(BinTree<char>::ORDER_INFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
-			formatStrAppend(resultReal, tmp);
+			StandardExtend::formatStrAppend(resultReal, tmp);
 		});
 		// 镜像中序与原中序相反
 		StandardExtend::testAndOut("BT 镜像中根序", resultReal, std::string("5 6 1 4 2 3"));
@@ -416,7 +387,7 @@ int subTestForBinTree() {
 		btIns.traversal(BinTree<char>::ORDER_LEVEL, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
-			formatStrAppend(resultReal, tmp);
+			StandardExtend::formatStrAppend(resultReal, tmp);
 			return false;
 		});
 		// 镜像层序与原层序关系难以描述(如果是一颗完全二叉树的话就是每2^d与原层序反转 d为深度)
@@ -463,7 +434,7 @@ int subTestForBinTree() {
 	btStIns1.traversal(BinTree<char>::ORDER_PREFIX_ROOT, [&resultReal](VirtualLinkedBinTree<char>::BTS bNode) {
 		std::string tmp;
 		tmp += bNode->Data;
-		formatStrAppend(resultReal, tmp);
+		StandardExtend::formatStrAppend(resultReal, tmp);
 	});
 	/*
 	9
@@ -529,20 +500,20 @@ int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string c
 	int b[10] = { 2, 1, 4, 5, 9, 3, 6, 7, 8, 0 };
 	for (int i = 0; i < 10; ++i) {
 		StandardExtend::testAssert(bst.insert(std::to_string(b[i])).second, true);
-		formatStrAppend(resultBuffer, std::to_string(i));
+		StandardExtend::formatStrAppend(resultBuffer, std::to_string(i));
 	}
 	std::string resultBufferReal;
 
 	StandardExtend::testAndOut(insName + "find", bst.find(string("5"))->Data, std::string("5"));
 
 	bst.traversal(Tree::ORDER_INFIX_ROOT, [&resultBufferReal](LinkedBinSearchTree<string>::BT node) {
-		formatStrAppend(resultBufferReal, node->Data);
+		StandardExtend::formatStrAppend(resultBufferReal, node->Data);
 	});
 	StandardExtend::testAndOut(insName + "先根序", resultBufferReal, resultBuffer);
 
 	resultBufferReal.clear();
 	bst.traversal(LinkedBinSearchTree<std::string>::ORDER_SEQUENCE, [&resultBufferReal](const LinkedBinSearchTree<std::string>::BT node) {
-		formatStrAppend(resultBufferReal, node->Data);
+		StandardExtend::formatStrAppend(resultBufferReal, node->Data);
 		return node->Data == string("5") ? true : false;;
 	});
 	// 0 1 2 3 4 5
@@ -551,7 +522,7 @@ int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string c
 
 	resultBufferReal.clear();
 	bst.traversal(LinkedBinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](LinkedBinSearchTree<string>::BT node) {
-		formatStrAppend(resultBufferReal, node->Data);
+		StandardExtend::formatStrAppend(resultBufferReal, node->Data);
 		return node->Data == string("5") ? true : false;
 	});
 	std::string subR = resultBuffer.substr(resultBuffer.find('5'), resultBuffer.length() - resultBuffer.find('5'));
@@ -560,7 +531,7 @@ int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string c
 
 	resultBufferReal.clear();
 	bst.traversal(LinkedBinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](LinkedBinSearchTree<std::string>::BT node) {
-		formatStrAppend(resultBufferReal, node->Data);
+		StandardExtend::formatStrAppend(resultBufferReal, node->Data);
 		return false;
 	});
 	std::string bufR = resultBuffer;
@@ -573,7 +544,7 @@ int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string c
 	}
 	resultBufferReal.clear();
 	bst.traversal(LinkedBinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](LinkedBinSearchTree<std::string>::BT node) {
-		formatStrAppend(resultBufferReal, node->Data);
+		StandardExtend::formatStrAppend(resultBufferReal, node->Data);
 		return false;
 	});
 	StandardExtend::testAndOut(insName + "删除变空", resultBufferReal, std::string(""));
@@ -582,7 +553,7 @@ int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string c
 	bst.clear();
 	resultBufferReal.clear();
 	bst.traversal(LinkedBinSearchTree<std::string>::ORDER_REVERSE, [&resultBufferReal](LinkedBinSearchTree<std::string>::BT node) {
-		formatStrAppend(resultBufferReal, node->Data);
+		StandardExtend::formatStrAppend(resultBufferReal, node->Data);
 		return false;
 	});
 	StandardExtend::testAndOut(insName + "clear变空", resultBufferReal, std::string(""));
@@ -611,18 +582,13 @@ int subTestForHeapRebuild() {
 	for (JCE::SizeType i = 0; i < heapData.size(); heapIns.push(heapData[i++]));
 	std::string resultHeapStr;
 	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
-		formatStrAppend(resultHeapStr, std::to_string(b->Data));
+		StandardExtend::formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
 	StandardExtend::testAndOut("Heap-层序", resultHeapStr, std::string("15 15 13 11 14 7 8 10 9 6 12 3 5 0 4 1 2"));
 	heapRealDataList.clear();
 	while (!heapIns.empty()) {
 		heapRealDataList.emplace_back(heapIns.pop());
 	}
-	/*
-	std::cout << getInitString<std::vector<int>::iterator, int>(heapRealDataList.begin(), heapRealDataList.end(), [](int ele) {
-		return std::to_string(ele);
-	}) << std::endl;
-	*/
 	StandardExtend::testAssert(heapRealDataList, std::vector<int>({ 15,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0 }));
 
 	// 2. 使用新的数据构建
@@ -672,7 +638,7 @@ int subTestForHeapClearBuild() {
 	heapIns.push(11);
 	std::string resultHeap;
 	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
-		formatStrAppend(resultHeap, std::to_string(b->Data));
+		StandardExtend::formatStrAppend(resultHeap, std::to_string(b->Data));
 	});
 	StandardExtend::testAndOut("Heap-层序", resultHeap, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
 	
@@ -704,13 +670,13 @@ int subTestForHeap() {
 	}
 	std::string resultHeapStr;
 	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
-		formatStrAppend(resultHeapStr, std::to_string(b->Data));
+		StandardExtend::formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
 	StandardExtend::testAndOut("Heap-层序", resultHeapStr, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
 	heapRealDataList.emplace_back(heapIns.pop());
 	resultHeapStr.clear();
 	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
-		formatStrAppend(resultHeapStr, std::to_string(b->Data));
+		StandardExtend::formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
 	// 中间过程是否正常链接
 	StandardExtend::testAssert(resultHeapStr, std::string("1 6 2 8 9 5 3 10 12 15 14 7 13 4 11 15"));
@@ -732,7 +698,7 @@ int subTestForHeap() {
 
 	resultHeapStr.clear();
 	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
-		formatStrAppend(resultHeapStr, std::to_string(b->Data));
+		StandardExtend::formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
 	StandardExtend::testAssert(resultHeapStr, std::string(""));
 	// 主要是 构造 析构 空rebuild push pop empty 在内的5个公有方法
@@ -819,6 +785,24 @@ int testForHuffumanTree() {
 	return 4 + 5;
 }
 
+int testForExpressionTree() {
+	//自己改改
+	char s[40] = "1 2 +";
+	while (gets(s)) {
+		//ExpressionTree ET = ExpressionTree(s, ExpressionTree::POST_EXPRESSION);
+		//ExpressionTree ET = ExpressionTree(s, ExpressionTree::PREFIX_EXPRESSION);
+		ExpressionTree ET = ExpressionTree(s, ExpressionTree::INFIX_EXPRESSION);
+		auto ans = ET.eval();
+		if (ans == MAX_INT32) {
+			puts("ERROR Expression");
+		}
+		else {
+			printf("%.1lf\n", ans);
+		}
+	}
+	return 0;
+}
+
 int testForTree() {
 	int sumTestCnt = 0;
 	sumTestCnt += subTestForBinTree();
@@ -840,49 +824,68 @@ int testForTree() {
 	return sumTestCnt;
 }
 
-void outPutGraph(Graph &g) {
-	cout << "边数: " << g.getEdgeNum() << endl;
-	JCE::ArrayList<Graph::VertexKey> dist, path;
-	g.shortestPath(0, dist, path);
-	cout << "由0号顶点出发的最短距离值: " << endl;
-	StandardExtend::outPutIterable(dist.begin(), dist.end(), 2);
-	cout << "由0号顶点出发的最短路径: " << endl;
-	StandardExtend::outPutIterable(path.begin(), path.end(), 2);
-	puts("");
-}
-void NewGraphDemo(Graph *&&g) {
-	for (int i = 0; i < 10; ++i) {
-		g->insertEdge(Graph::Edge(0, i, 10));
-		//重复添加视为更新
-		g->insertEdge(Graph::Edge(0, i, 11));
-	}
-	for (int i = 0; i < 10; ++i) {
-		g->insertEdge(Graph::Edge(1, i, 5));
-		g->insertEdge(Graph::Edge(i, 1, 5));
-	}
-	outPutGraph(*g);
-	delete g; g = nullptr;
-}
 int testForGraph() {
-	NewGraphDemo(new AdjacentMatrixGraph(10));
-	NewGraphDemo(new AdjacentListGraph(10));
-	//3*3坐标图 共9个顶点
-	//CoordinatesMap cg(3, 3, Graph::DirCountEnum::DIR8);
+	auto judgeGraphFun = [](Graph &g, std::vector<int> const &resultDist, std::vector<int> const &resultPath, bool suc = true) {
+		JCE::ArrayList<Graph::VertexKey> dist, path;
+		StandardExtend::testAssert(g.shortestPath(0, dist, path), suc);
+		/*std::cout << SoftwareTestSpace::getInitString<std::vector<int>::iterator, int>(dist.begin(), dist.end(), [](int ele) {
+			return std::to_string(ele);
+		}) << std::endl;
+		std::cout << SoftwareTestSpace::getInitString<std::vector<int>::iterator, int>(path.begin(), path.end(), [](int ele) {
+			return std::to_string(ele);
+		}) << std::endl;*/
+		// 由0号顶点出发的最短距离值: 
+		// StandardExtend::outPutIterable(dist.begin(), dist.end(), 2);
+		StandardExtend::testAssert(dist, resultDist);
+		// 由0号顶点出发的最短路径: 
+		// StandardExtend::outPutIterable(path.begin(), path.end(), 2);
+		StandardExtend::testAssert(path, resultPath);
+	};
+	auto judgeGraph = [&judgeGraphFun](Graph *&&g) {
+		for (int i = 0; i < 10; ++i) {
+			g->insertEdge(Graph::Edge(0, i, 10));
+			// 重复添加视为更新权值
+			g->insertEdge(Graph::Edge(0, i, 11));
+		}
+		StandardExtend::testAssert(g->getEdgeNum(), 10u);
+		for (int i = 0; i < 10; ++i) {
+			g->insertEdge(Graph::Edge(1, i, 5));
+			g->insertEdge(Graph::Edge(i, 1, 5));
+		}
+		// 总共30条有向边, 0->1和1->0这两条分别重复添加了两次不增加总边数
+		// 需要注意的是: 自己到自己也算一条边(可以理解为停留在原地的消费) 当然 最短路径时出发点是自己 因此与自己的距离是0 这么实现不知道有没有问题
+		StandardExtend::testAssert(g->getEdgeNum(), 28u);
+		judgeGraphFun(*g, std::vector<int>({ 0,5,10,10,10,10,10,10,10,10 }), std::vector<int>({ -1,0,1,1,1,1,1,1,1,1 }));
+		delete g; g = nullptr;
+	};
+	judgeGraph(new AdjacentMatrixGraph(10));
+	judgeGraph(new AdjacentListGraph(10));
+	// 3*3坐标图 共9个顶点
 	CoordinatesMap cg(3, 3, DirCountEnum::DIR8);
-	//默认全是无效的坐标点 此句只用于演示API
+	// 默认全是无效的坐标点 此句只用于演示API
 	cg.setInvalid(1, 0);
-	//设置是否可以通过 这两个相邻的有效点视为为这两个坐标点之间存在无向边
+	// 设置是否可以通过 这两个相邻的有效点视为为这两个坐标点之间存在无向边
 	cg.setValid(0, 0);
 	cg.setValid(0, 1);
 	cg.setValid(0, 2);
 	cg.setValid(1, 2);
 	/*
-	01 01 01
-	-- -- 01
-	-- -- --
+	-1 -1 -1
+	xx xx -1
+	xx xx xx
 	*/
 	cg.output();
-	outPutGraph(cg.parityGraph());
+	// 转为等权图
+	judgeGraphFun(cg.parityGraph(), 
+		std::vector<int>({ 0,1,2,Graph::INF,Graph::INF,3,Graph::INF,Graph::INF,Graph::INF }),
+		std::vector<int>({ -1,0,1,-1,-1,2,-1,-1,-1 })
+	);
+	// 转为权重图(负权回路->最短路执行失败)
+	judgeGraphFun(cg.parityGraph(true),
+		std::vector<int>({ -16,-15,-14,Graph::INF,Graph::INF,Graph::INF,Graph::INF,Graph::INF,Graph::INF }),
+		std::vector<int>({ 1,0,1,-1,-1,-1,-1,-1,-1 }),
+		false
+	);
 
 	//设置有效的同时设置顶点值(转换为权重)
 	//由于默认的值可能是任何值(实际是-1 但不应该把这个当成有效值)而没有设置值的有效顶点转换为权值就会出问题, 两个API最好不要混用
@@ -892,11 +895,27 @@ int testForGraph() {
 	cg.setValidVertex({ 1, 2 }, 12);
 	/*
 	00 01 02
-	-- -- 12
-	-- -- --
+	xx xx 12
+	xx xx xx
 	*/
 	cg.output();
-	outPutGraph(cg.parityGraph(true));
+	judgeGraphFun(cg.parityGraph(true), 
+		std::vector<int>({ 0,1,3,Graph::INF,Graph::INF,15,Graph::INF,Graph::INF,Graph::INF }), 
+		std::vector<int>({ -1,0,1,-1,-1,2,-1,-1,-1 })
+	);
+
+	/*
+	00 01 02
+	xx xx -1
+	xx xx xx
+	*/
+	/*cg.setValidVertex({ 1, 2 }, -1);
+	cg.output();
+	// 负权正常情况
+	judgeGraphFun(cg.parityGraph(true),
+		std::vector<int>({ 0,1,3,Graph::INF,Graph::INF,2,Graph::INF,Graph::INF,Graph::INF }),
+		std::vector<int>({ -1,0,1,-1,-1,2,-1,-1,-1 })
+	);*/
 	cout << " ====== Graph test end" << endl;
 	return 0;
 }

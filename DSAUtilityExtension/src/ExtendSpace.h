@@ -231,6 +231,9 @@ namespace StandardExtend{
 		return true;
 	}
 
+	// 每间隔一个空格(首部没有空格)将rhs添加到lhs上
+	DSAUTILITYEXTENSION_API void formatStrAppend(std::string &lhs, std::string const &rhs, std::string interval = " ", std::string empty = "");
+
 	//闰年判断
 	DSAUTILITYEXTENSION_API int isIntercalary(int year);
 	//计算参数(月, 日)是参数(年)中的第几天 即: 将 年-月-日 转换为 天数
