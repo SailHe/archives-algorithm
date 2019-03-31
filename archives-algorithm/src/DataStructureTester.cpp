@@ -698,7 +698,7 @@ int subTestForHeap() {
 		heapIns.traversal(heapIns.ORDER_LEVEL, [&tmp](BinTree<int>::BT b) {
 			tmp.emplace_back(b->Data);
 		});
-		MathExtend::outputWithTree(tmp.begin(), tmp.end(), tmp.size());
+		MathExtend::outputCompleteTreeLevel(tmp.begin(), tmp.end(), tmp.size());
 		*/
 		heapIns.push(heapData[i]);
 	}
@@ -721,7 +721,7 @@ int subTestForHeap() {
 		heapIns.traversal(heapIns.ORDER_LEVEL, [&tmp, &resultHeapStr](BinTree<int>::BT b) {
 			tmp.emplace_back(b->Data);
 		});
-		MathExtend::outputWithTree(tmp.begin(), tmp.end(), tmp.size());
+		MathExtend::outputCompleteTreeLevel(tmp.begin(), tmp.end(), tmp.size());
 		*/
 		int tmpP = heapIns.pop();
 		//std::cout << "pop: " << tmpP << std::endl;
@@ -738,21 +738,51 @@ int subTestForHeap() {
 	// 主要是 构造 析构 空rebuild push pop empty 在内的5个公有方法
 	return 6 + subTestForHeapClearBuild() + subTestForHeapRebuild();
 }
-
 int testForHuffumanTree() {
-	// 数组实现哈夫曼编码树计算编码长度
-	auto ArrayHuffCodeLen = [](int *hufWeightList, int n) {
-		ArrayHuffman::HuffmanTree hufTree = nullptr;
-		ArrayHuffman::HuffmanCode hufCode = nullptr;
-		ArrayHuffman::HuffmanCoding(hufTree, hufCode, hufWeightList, n);
-		int result = ArrayHuffman::codingLen(hufCode, n, hufWeightList);
-		free(hufTree); hufTree = nullptr;
-		free(hufCode); hufCode = nullptr;
-		return result;
-	};
-	const int n = 4;
-	int w[n] = { 1, 2, 3, 4 };
-	int result[][4] = {
+	/*
+	小写字母，01反、且2点对换；有2点重合
+	A 1 B 1 C 1 D 3 E 3 F 6 G 6
+	*/
+	// 待编码元素个数
+	const int CH_N = 7;
+	char chArr[CH_N + 1] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', '\0'};
+	int freqArr[CH_N] = { 1, 1, 1, 3, 3, 6, 6 };
+	const int WPL_STAND = 6*2 + 6*2 + 3*2 + 3*3 + 4*1 + 5*1 + 5*1;
+	char codesArr[CH_N][CH_N + 1] = { "10001", "10000", "1001", "11", "101", "01", "00"}; // 最优前缀码之一
+
+	vector<std::string> codesArr1 = { "01010", "01011", "0100", "011", "10", "11", "00"}; // 最优前缀码之一
+	vector<std::string> codesArr2 = { "00000", "00001", "0001", "001", "01", "10", "11"}; // 最优前缀码之一
+	std::string codesArr3[CH_N] = { "000", "001", "010", "011", "100", "101", "110"}; // 无关最优前缀码
+	char codesArr4[CH_N][CH_N + 1] = { "00000", "00001", "0001", "001", "00", "10", "11"}; // 非前缀码
+	std::string codesArr5[CH_N] = { "000000", "000001", "00001", "0001", "001", "01", "1"}; // 前缀码 非最优
+
+	StandardExtend::testAssert(HuffmanTree<char>::isPrefixCodes(codesArr, codesArr + CH_N), true);
+	StandardExtend::testAssert(HuffmanTree<char>::isPrefixCodes(codesArr1.begin(), codesArr1.end()), true);
+	StandardExtend::testAssert(HuffmanTree<char>::isPrefixCodes(codesArr2.begin(), codesArr2.end()), true);
+	StandardExtend::testAssert(HuffmanTree<char>::isPrefixCodes(codesArr3, codesArr3 + CH_N), true);
+	StandardExtend::testAssert(HuffmanTree<char>::isPrefixCodes(codesArr4, codesArr4 + CH_N), false);
+	StandardExtend::testAssert(HuffmanTree<char>::isPrefixCodes(codesArr5, codesArr5 + CH_N), true);
+
+	HuffmanTree<char> huffT(chArr, freqArr, CH_N);
+	StandardExtend::testAssert(huffT.wpl(), WPL_STAND);
+	// 带权路径长度WPL<==>最短文本编码长度
+	// 哈夫曼的WPL<==>哈夫曼编码长度<==>最优前缀码的文本编码长度
+	//  codingLen
+	StandardExtend::testAssert(HuffmanTree<char>::textLen(std::begin(codesArr), std::end(codesArr), freqArr), WPL_STAND);
+	StandardExtend::testAssert(HuffmanTree<char>::textLen(std::begin(codesArr1), std::end(codesArr1), freqArr), WPL_STAND);
+	StandardExtend::testAssert(HuffmanTree<char>::textLen(std::begin(codesArr2), std::end(codesArr2), freqArr), WPL_STAND);
+	StandardExtend::testAssert(HuffmanTree<char>::textLen(std::begin(codesArr3), std::end(codesArr3), freqArr) == WPL_STAND, false);
+	StandardExtend::testAssert(HuffmanTree<char>::textLen(std::begin(codesArr4), std::end(codesArr4), freqArr), WPL_STAND);
+	StandardExtend::testAssert(HuffmanTree<char>::textLen(std::begin(codesArr5), std::end(codesArr5), freqArr) == WPL_STAND, false);
+	// string const codes[]          最方便
+	// LinkedList<std::string> codes 动态性强
+	// ArrayList<std::string> codes  随机访问性高
+	// ArrayList<char const*> codes  内存需要自己管理, 构造及其不方便(需要手动一个个push_back进去)
+	// Iterator模板					 兼容性上述所有, 当接口比较合适
+
+	const int N_HT = 4;
+	int w[N_HT] = { 1, 2, 3, 4 };
+	int resultHt[][4] = {
 		{ 1, 5, 0, 0},
 		{ 2, 5, 0, 0},
 		{ 3, 6, 0, 0},
@@ -761,59 +791,32 @@ int testForHuffumanTree() {
 		{ 6, 7, 3, 5},
 		{ 10, 0, 4, 6}
 	};
-	ArrayHuffman::HuffmanTree ht;
-	ArrayHuffman::HuffmanCode hc;
-	ArrayHuffman::HuffmanCoding(ht, hc, w, n);
-	//0号是空结点
-	for (int i = 1; i < n; ++i) {
-		StandardExtend::testAndOut("weight" + to_string(i) + ": ", ht[i].weight, result[i - 1][0]);
-		StandardExtend::testAndOut("parent" + to_string(i) + ": ", ht[i].parent, result[i - 1][1]);
-		StandardExtend::testAndOut("lchild" + to_string(i) + ": ", ht[i].lchild, result[i - 1][2]);
-		StandardExtend::testAndOut("rchild" + to_string(i) + ": ", ht[i].rchild, result[i - 1][3]);
+	std::vector<std::string> huffmanCodes;
+	ArrayHuffman arrHufT(w, N_HT, huffmanCodes);
+	ArrayHuffman::HuffmanTreeArray ht = arrHufT.getHuffmanTreeArray();
+	// 0号是空结点
+	for (int i = 1; i < N_HT; ++i) {
+		StandardExtend::testAssert(ht[i].weight, resultHt[i - 1][0]);
+		StandardExtend::testAssert(ht[i].parent, resultHt[i - 1][1]);
+		StandardExtend::testAssert(ht[i].lchild, resultHt[i - 1][2]);
+		StandardExtend::testAssert(ht[i].rchild, resultHt[i - 1][3]);
 	}
+
+	// 计算编码长度(基于数组式哈夫曼编码树)
+	auto ArrayHuffCodeLen = [&huffmanCodes](int *hufWeightList, int N_HT) {
+		huffmanCodes.clear();
+		ArrayHuffman arrHufT1(hufWeightList, N_HT, huffmanCodes);
+		return HuffmanTree<char>::textLen(huffmanCodes.begin(), huffmanCodes.end(), hufWeightList);
+	};
 	int hufWeightList1[] = { 1, 2, 3, 4, 5 };
 	int hufWeightList2[] = { 3, 8, 8 };
-	StandardExtend::testAndOut("哈夫曼编码长度: ", ArrayHuffCodeLen(hufWeightList1, 5), 33);
-	StandardExtend::testAndOut("等权哈夫曼编码长度: ", ArrayHuffCodeLen(hufWeightList2, 3), 30);
+	int hufWeightList3[] = { 1, 1, MAX_INT32-4 };
+	StandardExtend::testAndOut("huffCodeLen: ", ArrayHuffCodeLen(hufWeightList1, 5), 33);
+	StandardExtend::testAndOut("等权huffCodeLen: ", ArrayHuffCodeLen(hufWeightList2, 3), 30);
+	StandardExtend::testAndOut("临界值huffCodeLen: ", ArrayHuffCodeLen(hufWeightList3, 3), MAX_INT32);
 
-	/*
-	小写字母，01反、且2点对换；有2点重合
-	7
-	A 1 B 1 C 1 D 3 E 3 F 6 G 6
-	1
-	A 00000
-	B 00001
-	C 0001
-	D 001
-	E 00
-	F 10
-	G 11
-	*/
-	const int N = 63;
-	// 标准
-	int CodeWPL;
-	int i;
-	char ch[N + 1] = {'A', 'B', 'C', 'D', 'E', 'F', 'G'};
-	int Freq[N + 1] = { 1, 1, 1, 3, 3, 6, 6 };
-	HuffmanTree<char> huffT(ch, Freq, n);
-	CodeWPL = huffT.wpl();
-	char s[N][2 * N];
-	while (~scanf("%d\n", &n)) {
-		// 初始化
-		memset(s, 0, N*N);
-		memset(ch, 0, N + 1);
-		// Freq[0] = n;
-		// ch[0] = 32;
-
-		for (i = 1; i <= n; i++) {
-			ch[i] = getchar();
-			scanf("%d", Freq + i);
-			getchar();
-		}
-		HuffmanTree<char> huffT(ch, Freq, n);
-		CodeWPL = huffT.wpl();
-	}
-	return 0;
+	// 4个数组式公有方法 + 5个链接式公有方法(含构造析构) PS: 共一组用例, 其中有多组测试数据
+	return 4 + 5;
 }
 
 int testForTree() {
@@ -833,7 +836,7 @@ int testForTree() {
 	//testForExpressionTree();
 
 	// 虚存树: 构造器指定函数指针的实现从而实现多态
-	puts(" ====== Tree test end");
+	std::cout << " ====== Tree test end 测试点小计: " << sumTestCnt << std::endl;
 	return sumTestCnt;
 }
 

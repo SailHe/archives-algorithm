@@ -80,76 +80,77 @@ public:
 		if (get) gets(str);
 		return str;
 	}
-	//返回编码长度(编码字串)
-	static int codeLen(char *code) {
-		return strlen(code);
+	// 返回编码长度|即霍夫曼树中的路径长度 (编码字串)
+	static int codeLen(char const *code) {
+		int len = -1;
+		Utility::tryToSignedNum(strlen(code), len);
+		return len;
 	}
-	static int codeLen(JCE::String const&code) {
+	static int codeLen(JCE::String const &code) {
 		return code.length();
 	}
+	// 返回第一个子串的下标 没有返回-1
+	static int findSubStr(char const *code, char const *subCode) {
+		char const *fR = std::strstr(code, subCode);
+		return fR == NULL ? -1 : code - fR;
+	}
+	static int findSubStr(JCE::String const &code, JCE::String const &subCode) {
+		return code.find(subCode);
+	}
 	/*tips:
-	depth = codeLen+1 <-> depth(root_)=1; (正规的, 书上的depth定义)
+	depth = codeLen+1 <-> depth(root_)=1; (书上P119的depth定义, 但是维基上定义的不同, 根结点层数为0, 高度, 深度都是同一个概念, 这个倒是一致)
 	depth = codeLen  <--> depth(root_)=0
 	(所以: 文本长度=权重*编码长度, WPL=权重*(编码长度+1))
 	*/
-	//返回文本的WPL
-	static int wpl(JCE::ArrayList<char*> &s, int *freq) {
-		int textLen, i, n = s.size();
-		for (textLen = i = 0; i < n; ++i) {
-			textLen += freq[i] * (codeLen(s[i]) + 1);
+	// 直接计算文本的WPL StringIterator里面必须是string或char*
+	template<typename StringIterator, typename FreqIterator>
+	static int textLen(StringIterator codeBegin, StringIterator codeEnd, FreqIterator freqBegin) {
+		// 文本编码长度|文本长度 = (空间占位 = codeLen*1)
+		int textLenSum = 0;
+		while (codeBegin != codeEnd) {
+			textLenSum += *freqBegin * codeLen(*codeBegin);
+			++codeBegin;
+			++freqBegin;
 		}
-		return textLen;
+		return textLenSum;
 	}
-	//返回一套编码的文本长度 = freq*codeLen
-	static int textLen(JCE::ArrayList<char*> &s, int *freq) {
-		int textLen, i, n = s.size();
-		for (textLen = i = 0; i < n; ++i) {
-			textLen += freq[i] * codeLen(s[i]);
-		}
-		return textLen;
-	}
-	//检查文本是否前缀码 //string const codes[]-> 与用ArrayList存效果差不多?
-	static bool isPrefixCodes(JCE::ArrayList<JCE::String> const &codes) {
-		int n = codes.size();
-		for (size_t i = 0; i < n; i++) {
-			for (size_t j = 0; j != i && j < n; j++) {
-				if (codes[j].find(codes[i]) == 0)//前缀冲突
+	// 若文本是前缀码返回true
+	template<typename StringIterator>
+	static bool isPrefixCodes(StringIterator codeBegin, StringIterator codeEnd) {
+		while (codeBegin != codeEnd) {
+			StringIterator codeBegin0 = codeBegin;
+			++codeBegin;
+			StringIterator codeBegin1 = codeBegin;
+			while (codeBegin1 != codeEnd) {
+				// 首个子串位于0时表示前缀冲突
+				if (findSubStr(*codeBegin0, *codeBegin1) == 0)
 					return false;
+				++codeBegin1;
 			}
 		}
 		return true;
 	}
-	//返回本huffman编码的带权路径长度 [路径长度]:从根结点到目标结点须经过的总边数(分支数 )(经过的结点总数-1)
+	// 返回本huffman编码的带权路径长度 [路径长度]:从根结点到目标结点须经过的总边数|分支数 (经过的结点总数-1)
 	int wpl() {
-		return WPL(root_, 1);
-	}
-	//返回本huffman编码的(最短)文本长度 (空间占位 = textLen*1)
-	int textLen() {
-		return textLen(root_, 1);
+		return WPL(root_, 0);
 	}
 	//判断是否最优编码
 	bool isOptimalCoding(JCE::ArrayList<JCE::String> &codes, int *freq) {
-		//也可以比较wpl
-		int textLen, i, len, n = codes.size();
-		for (textLen = i = 0; i < n; ++i) {
-			len = codeLen(codes[i]);
-			if (len > n - 1)/*n个结点最长编码长度为n-1*/
-				return false;//效率优于直接计算并比较textLen
-			textLen += freq[i] * len;
+		int codeLen = 0, i = 0, len = 0, n = codes.size();
+		for (; i < n; ++i) {
+			len = textLen(codes[i]);
+			// n个结点最长编码长度为n-1 (效率优于直接计算并比较codeLen)
+			if (len > n - 1)
+				return false;
+			codeLen += freq[i] * len;
 		}
-		return textLen == this->textLen() ? true : false;
+		return codeLen == wpl() ? true : false;
 	}
-	//返回本huffman编码文本的空间占用=codeLen*sizeof(字符)
+	// 返回本huffman编码文本的空间占用=codeLen*sizeof(字符)
 	int memory() {
-		return textLen() * sizeof(T);
+		return wpl() * sizeof(T);
 	}
 private:
-	void destroy(HuTr &t) {
-		Position tmp = t;
-		//可以直接调用 但引用不能传给父类
-		BinTree<T>::destroy(tmp);
-		t = NULL;
-	}
 	//返回给出的编码的前缀编码树 若所给的编码不是前缀码返回 NULL 若有频值则按频值依次填入 否则全部置1(有未知bug 若判断一套编码是否huffman编码)
 	HuTr buildPreCodeTree(JCE::ArrayList<JCE::String> const &codes, int *freq = NULL) {
 		int n = codes.size(), sub = 0;
@@ -183,19 +184,13 @@ private:
 		}
 		return rt;
 	}
-	//带权路径长度(weightted path length)=sum(weight*depth)
+	//[最短]文本长度|带权路径长度(weightted path length)=sum(weight*depth)
+	//tips: depth(root_) = 1; 路径长度(即路径上的链接的个数, 即二值编码的个数, 即编码的长度)
 	int WPL(Position t, int depth) {
-		if (!t->Left && !t->Right)
+		if (t->Left == nullptr && t->Right == nullptr)
 			return t->getValue()*depth;
-		else/*否则一定有两个孩子*/
+		else// 否则一定有两个孩子
 			return WPL(t->Left, depth + 1) + WPL(t->Right, depth + 1);
-	}
-	//(最短)文本长度 = freq[i]*codeLen
-	int textLen(Position t, int depth) {
-		if (!t->Left && !t->Right)
-			return t->getValue()*(depth - 1);//tips:depth(root_) = 1
-		else/*否则一定有两个孩子*/
-			return textLen(t->Left, depth + 1) + textLen(t->Right, depth + 1);
 	}
 	//返回仅含大写英文句子的频率数组 改为map?
 	JCE::ArrayList<int> frequency(JCE::String sentence) {
@@ -254,98 +249,107 @@ class ArrayHuffman {
 		//只用于sub方法查找是是否已使用的判断 注意此处借用了memset的初始化巧合
 		bool isUsed;
 	};
-public:
-	typedef HTNode *HuffmanTree;
 	typedef char ** HuffmanCode;
+public:
+	typedef HTNode const *HuffmanTreeArray;
+
 protected:
-	static void swap(int &s1, int &s2) {
-		int tmp = s1;
-		s1 = s2;
-		s2 = tmp;
-	}
-	static void swapC(char &s1, char &s2) {
-		char tmp = s1;
-		s1 = s2;
-		s2 = tmp;
-	}
-	//从1到upbound中找出father为0的节点赋给s1,s2,（为了保证答案唯一，请让s1的节点编号小于s2）
-	static void SelectTwoMin(int upbound, HuffmanTree ht/*这tm是个数组!!!*/, int &s1, int &s2) {
+	typedef HTNode *HTNodeArr;
+	// 从1到upbound中找出father为0的节点赋给s1,s2 (为保证答案唯一: assert(s1 <= s2))
+	static void selectTwoMinNode(int upbound, HuffmanTreeArray htArr, int &s1, int &s2) {
 		s1 = s2 = 0;
-		//找出weight最小的两个的sub
+		// 找出weight最小的两个的sub
 		for (int i = 1; i < upbound; ++i) {
-			if (ht[i].parent == 0) {
-				if (ht[s1].weight > ht[i].weight)
+			if (htArr[i].parent == 0) {
+				if (htArr[s1].weight > htArr[i].weight)
 					s1 = i;
 			}
 		}
 		for (int i = 1; i < upbound; ++i) {
-			if (ht[i].parent == 0) {
-				if (ht[s2].weight > ht[i].weight && i != s1)
+			if (htArr[i].parent == 0) {
+				if (htArr[s2].weight > htArr[i].weight && i != s1)
 					s2 = i;
 			}
 		}
 		if (s1 > s2) {
-			swap(s1, s2);
+			std::swap(s1, s2);
 		}
 	}
-	//查找并返回数组哈夫曼树中某个权值的结点的下标 不存在返回0
-	static int sub(HuffmanTree ht, int wei, int n) {
+	// 查找并返回数组哈夫曼树中某个权值的结点的下标 不存在返回0
+	static int findSub(HTNodeArr htArr, int wei, int n) {
 		for (int i = 1; i < n; ++i) {
-			if (!ht[i].isUsed && ht[i].weight == wei) {
-				ht[i].isUsed = true;
+			if (!htArr[i].isUsed && htArr[i].weight == wei) {
+				htArr[i].isUsed = true;
 				return i;
 			}
 		}
 		return 0;
 	}
-public:
-	//构造哈夫曼树ht 并 计算哈夫曼编码hc w为权值(频率)数组 n为权值个数 (需要手动free)
-	static void HuffmanCoding(HuffmanTree &ht, HuffmanCode &hc, int *w, int n) {
-		// 构造哈夫曼树(伪)
-		ht = (HuffmanTree)malloc(sizeof(HTNode)*(2 * n));
-		memset(ht, 0, (sizeof(HTNode)*(2 * n)));
-		ht[0].weight = 1001;
-		for (int i = 0; i < n; ++i) ht[i + 1].weight = w[i];
-		//做n-1次合并 每次将权值最小的两颗树合并
-		int size = n;
-		for (int i = 1; i < n; ++i) {
-			++size;
-			//"pop" and "push"
-			SelectTwoMin(size, ht, ht[size].lchild, ht[size].rchild);
-			//计算新权值
-			ht[size].weight = ht[ht[size].lchild].weight + ht[ht[size].rchild].weight;
-			ht[ht[size].lchild].parent = ht[ht[size].rchild].parent = size;
-		}
-		// 计算编码
-		hc = (HuffmanCode)malloc(sizeof(char*)*n);
+
+	// 计算哈夫曼编码
+	void huffmanCoding(int const *w, int n, std::vector<std::string> &huffmanCodes) {
+		HuffmanCode hc = (HuffmanCode)malloc(sizeof(char*)*n);
 		memset(hc, 0, (sizeof(char)*n));
 		for (int i = 0; i < n; ++i) {
 			hc[i] = (char*)malloc(sizeof(char)* n);
 			memset(hc[i], 0, sizeof(char)* n);
-			//n结点最长编码长度n - 1+'\0' = n 下标c为顶级结点下标size时终止
-			for (int c = sub(ht, w[i], size), codeIndex = 0; c != size; c = ht[c].parent) {
-				int parent = ht[c].parent;
-				//hc[i][codeIndex++] = ht[parent].lchild == c ? '0' : '1';
-				//左子树代表频度 < 右子树频度 编码为0
-				hc[i][codeIndex++] = ht[parent].lchild == c ? '1' : '0';
+			// n结点最长编码长度n - 1+'\0' = n 下标c为顶级结点下标currentSub时终止
+			for (int c = findSub(htArr, w[i], currentSub), codeIndex = 0; c != currentSub; c = htArr[c].parent) {
+				int parent = htArr[c].parent;
+				//hc[i][codeIndex++] = htArr[parent].lchild == c ? '0' : '1';
+				// 左子树代表频度 < 右子树频度 编码为0
+				hc[i][codeIndex++] = htArr[parent].lchild == c ? '1' : '0';
 			}
 		}
 		for (int i = 0; i < n; ++i) {
-			//将每个编码逆转
+			// 将每个编码逆转
 			for (int lhs = 0, len = strlen(hc[i]); lhs < len / 2; ++lhs) {
 				int rhs = len - lhs - 1;
-				swapC(hc[i][lhs], hc[i][rhs]);
+				std::swap(hc[i][lhs], hc[i][rhs]);
 			}
 		}
+
+		for (int i = 0; i < n; ++i) {
+			huffmanCodes.emplace_back(hc[i]);
+		}
+		free(hc);
+		hc = nullptr;
 	}
 
-	//返回编码长度
-	static int codingLen(ArrayHuffman::HuffmanCode const hufCode, int n, int *weightList) {
-		int sum = 0;
-		for (int i = 0; i < n; ++i) {
-			sum += weightList[i] * strlen(hufCode[i]);
+public:
+	// (权值|频率数组, 权值个数, 待计算的hf编码)
+	ArrayHuffman(int const *w, int n, std::vector<std::string> &huffmanCodes) {
+		// 构造哈夫曼树(伪)
+		htArr = (HTNodeArr)malloc(sizeof(HTNode)*(2 * n));
+		memset(htArr, 0, (sizeof(HTNode)*(2 * n)));
+		htArr[0].weight = MAX_INT32;
+		for (int i = 0; i < n; ++i) htArr[i + 1].weight = w[i];
+		// 做n-1次合并 每次将权值最小的两颗树合并
+		currentSub = n;
+		for (int i = 1; i < n; ++i) {
+			++currentSub;
+			// "pop" and "push"
+			selectTwoMinNode(currentSub, htArr, htArr[currentSub].lchild, htArr[currentSub].rchild);
+			// 计算新权值
+			htArr[currentSub].weight = htArr[htArr[currentSub].lchild].weight + htArr[htArr[currentSub].rchild].weight;
+			// 防止溢出
+			assert(htArr[currentSub].weight > htArr[htArr[currentSub].lchild].weight);
+			assert(htArr[currentSub].weight > htArr[htArr[currentSub].rchild].weight);
+			htArr[htArr[currentSub].lchild].parent = htArr[htArr[currentSub].rchild].parent = currentSub;
 		}
-		return sum;
+		huffmanCoding(w, n, huffmanCodes);
 	}
+	~ArrayHuffman() {
+		free(htArr);
+		htArr = nullptr;
+	}
+
+	HuffmanTreeArray getHuffmanTreeArray() {
+		return htArr;
+	}
+
+private:
+	int currentSub = 0;
+	HTNodeArr htArr = nullptr;
 };
 

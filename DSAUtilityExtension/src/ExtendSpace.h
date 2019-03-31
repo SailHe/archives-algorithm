@@ -1261,9 +1261,10 @@ namespace MathExtend {
 	DSAUTILITYEXTENSION_API bool isValidityOfStack(char const*str, int len, int cap);
 	// 生成n行的杨辉三角
 	DSAUTILITYEXTENSION_API void buildPtriangleTable(int tableBuffer[][StandardExtend::MAX_C], int n);
-	// 将列表以n叉树树的格式输出
+
+	// 将完全n叉树的层序遍历列表以树状格式输出 (迭代器范围, 范围大小, 元素最大暂用宽度)
 	template<typename Iterator>
-	void outputWithTree(Iterator begin, Iterator end, int size, int n = 2, int numSpace = 2) {
+	void outputCompleteTreeLevel(Iterator begin, Iterator end, int size, int numSpace = 2, bool isOutputSub = false, int n = 2) {
 		assert(n > 0);
 		int powNum = 1;
 		// root所在的层数|高度为1 深度为0
@@ -1290,21 +1291,25 @@ namespace MathExtend {
 				std::cout << std::setw(numSpace) << std::setfill('0') << *begin;
 				--pCnt;
 				++begin;
+				--size;
 			}
 			std::cout << std::endl;
 
 			// 输出下标
-			pCnt = powNum;
-			while (pCnt > 0) {
-				printMutiChar(pCnt == powNum ? spaceCntLR : spaceCntC, ' ');
-				std::cout << std::setw(numSpace) << std::setfill('0') << index++;
-				--pCnt;
+			if (isOutputSub) {
+				pCnt = powNum;
+				while (pCnt > 0) {
+					printMutiChar(pCnt == powNum ? spaceCntLR : spaceCntC, ' ');
+					std::cout << std::setw(numSpace) << std::setfill('0') << index++;
+					--pCnt;
+				}
+				std::cout << std::endl;
 			}
-			std::cout << std::endl;
-
+			
 			--depth;
 			powNum *= n;
 		}
+		_ASSERT_EXPR(size == 0, "指定的实际范围与传入的范围大小不一致");
 		printMutiChar((int)std::pow(2, depthTmp) * numSpace * 2, '=');
 		std::cout << std::endl;
 	}
