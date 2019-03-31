@@ -69,14 +69,20 @@ namespace StandardExtend{
 		return *t_h * 60 + *t_min;
 	}
 
-	void refreshStdin(char end) {
-		while (getchar() != end);
+	char getFirstCharStdin(char ch) {
+		char c;
+		while ((c = getchar()) != ch);
+		return c;
+	}
+
+	void flushStdin(char end) {
+		ungetc(getFirstCharStdin(end), stdin);
 	}
 
 	void refreshStdin() {
-		int i;
-		while ((i = getchar()) == '\n' || i == ' ');
-		ungetc(i, stdin);
+		char c;
+		while ((c = getchar()) == '\n' || c == ' ');
+		ungetc(c, stdin);
 	}
 };
 

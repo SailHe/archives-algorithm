@@ -33,7 +33,6 @@ protected:
 			DE_PRINTF("HuTrNode析构");
 		}
 	}*HuTr;//哈夫曼树
-	HuTr huffRoot = NULL;
 public:
 	/*
 	任意句子构造
@@ -47,32 +46,25 @@ public:
 			return rhs->Weight - lhs->Weight;
 			// return rhs->Weight < lhs->Weight ? : -1 : rhs->Weight == lhs->Weight ? 0 : 1;
 		});
-		//h.rebuild();
 		for (int i = 0; i < nHuf; ++i)	h.push(new HuTrNode(character[i], freq[i]));
 		// 做usedSize-1次合并 每次将权值最小的两颗树合并 但是运算途中usedSize会变化 所以用n
 		while (nHuf-- > 1) {
 			// 当泛型为char时 无效结点为'\0'不会输出(自动省略无效的非叶结点) 否则需要重写遍历方法
-			HuTr t = new HuTrNode(0, 0);
-			t->Left = h.pop();
-			t->Right = h.pop();
+			HuTr ht = new HuTrNode(0, 0);
+			ht->Left = h.pop();
+			ht->Right = h.pop();
 			// 计算新权值
-			t->setValue(t->Left->getValue() + t->Right->getValue());
-			h.push(t);
+			ht->setValue(ht->Left->getValue() + ht->Right->getValue());
+			h.push(ht);
 		}
-		huffRoot = h.pop();
-		root_ = huffRoot;
+		root_ = h.pop();
+		// 除了哨兵 其余所有new的元素都在ht中受其管理
 		delete sentry;
 	}
 	~HuffmanTree()override {
 		DE_PRINTF("HuffmanTree析构");
 	}
 
-	//清空输入流直到遇见end前所有字符
-	static void flushInput(char end) {
-		char c;
-		while ((c = getchar()) != end);
-		ungetc(c, stdin);
-	}
 	//清空输入流的换行与空格并返回非换行空格的那个字符 不可见的(Invisible)
 	static void flushBlanckLF() {
 		char c;
@@ -129,11 +121,11 @@ public:
 	}
 	//返回本huffman编码的带权路径长度 [路径长度]:从根结点到目标结点须经过的总边数(分支数 )(经过的结点总数-1)
 	int wpl() {
-		return WPL(huffRoot, 1);
+		return WPL(root_, 1);
 	}
 	//返回本huffman编码的(最短)文本长度 (空间占位 = textLen*1)
 	int textLen() {
-		return textLen(huffRoot, 1);
+		return textLen(root_, 1);
 	}
 	//判断是否最优编码
 	bool isOptimalCoding(JCE::ArrayList<JCE::String> &codes, int *freq) {
