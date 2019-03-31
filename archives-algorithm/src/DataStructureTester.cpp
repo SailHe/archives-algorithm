@@ -245,9 +245,18 @@ int testForExpressionTree() {
 	}
 	return 0;
 }
-void formatStrAppend(std::string &lhs, std::string const &rhs) {
-	lhs += lhs == "" ? rhs : " " + rhs;
+void formatStrAppend(std::string &lhs, std::string const &rhs, std::string interval = " ", std::string empty = "") {
+	lhs += (lhs == empty ? rhs : interval + rhs);
 };
+
+template<typename Itorator, typename T>
+std::string getInitString(Itorator begin, Itorator end, std::function<std::string(T)> toString) {
+	std::string initListStr;
+	std::for_each(begin, end, [&initListStr, &toString](T curVa) {
+		formatStrAppend(initListStr, toString(curVa), ",");
+	});
+	return "{" + initListStr + "}";
+}
 
 int subTestForBinTree() {
 	// 这里么为了方便测试没使用char
@@ -581,57 +590,81 @@ int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string c
 	return 9;
 }
 int LessIntegerCmper(int const &lhs, int const &rhs) {
-	return lhs - rhs;
+	// return lhs - rhs;// 容易越界
+	return lhs < rhs ? -1 : 
+		lhs == rhs ? 
+		0 : 1;
 }
-// more std::greater<int>;
+// more std::greater<int>()
 int GreaterIntegerCmper(int const &lhs, int const &rhs) {
 	return -LessIntegerCmper(lhs, rhs);
 }
 int subTestForHeapRebuild() {
 	JCE::ArrayList<int> heapData = { 6, 2, 3, 15, 9, 7, 4, 12, 10, 15, 14, 5, 13, 0, 8, 1, 11 };
-	JCE::ArrayList<int> heapDataReal;
+	JCE::ArrayList<int> heapRealDataList;
 
-	// 最小堆重建为最大堆(数据不变)
+	// 1. 最小堆重建为最大堆(数据清空后push) PS: 哨兵不是MIN_INT32, 因此可以排除比较方法的越界错误
 	Heap<int> heapIns = Heap<int>(heapData.size() + 4, -1, GreaterIntegerCmper, &heapData[0], (int)heapData.size());
 	heapIns.clear();
-	heapIns.initialize();
-	heapIns.rebuild(LessIntegerCmper);
+	heapIns.initialize(MAX_INT32, LessIntegerCmper);
+	heapIns.rebuild();
 	for (JCE::SizeType i = 0; i < heapData.size(); heapIns.push(heapData[i++]));
-	std::string resultHeap;
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
-		formatStrAppend(resultHeap, std::to_string(b->Data));
+	std::string resultHeapStr;
+	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
+		formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
-	StandardExtend::testAndOut("Heap-层序", resultHeap, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
-
-	heapIns.build(&heapData[0], (int)heapData.size(), LessIntegerCmper);
-
-	heapDataReal.clear();
+	StandardExtend::testAndOut("Heap-层序", resultHeapStr, std::string("15 15 13 11 14 7 8 10 9 6 12 3 5 0 4 1 2"));
+	heapRealDataList.clear();
 	while (!heapIns.empty()) {
-		heapDataReal.emplace_back(heapIns.pop());
+		heapRealDataList.emplace_back(heapIns.pop());
 	}
-	// "Heap-Pop With push"
-	StandardExtend::testAssert(heapDataReal, std::vector<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 }));
-	// 花式rebuild
+	/*
+	std::cout << getInitString<std::vector<int>::iterator, int>(heapRealDataList.begin(), heapRealDataList.end(), [](int ele) {
+		return std::to_string(ele);
+	}) << std::endl;
+	*/
+	StandardExtend::testAssert(heapRealDataList, std::vector<int>({ 15,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0 }));
+
+	// 2. 使用新的数据构建
+	heapIns.build(&heapData[0], (int)heapData.size(), MIN_INT32, GreaterIntegerCmper);
+	heapRealDataList.clear();
+	while (!heapIns.empty()) {
+		heapRealDataList.emplace_back(heapIns.pop());
+	}
+	StandardExtend::testAssert(heapRealDataList, std::vector<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 }));
+
+	// 3. 使用新的数据构建(上一个用例已确认此方法可以重建出合理的堆)
+	heapIns.build(&heapData[0], (int)heapData.size(), MIN_INT32, GreaterIntegerCmper);
+	heapIns.initialize(MAX_INT32, LessIntegerCmper);
+	// 最小堆重建为最大堆(数据不变)
+	heapIns.rebuild();
+	heapRealDataList.clear();
+	while (!heapIns.empty()) {
+		heapRealDataList.emplace_back(heapIns.pop());
+	}
+	StandardExtend::testAssert(heapRealDataList, std::vector<int>({ 15,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0 }));
+
+	// 花式rebuild, 一组数据, 共3组用例
 	return 1;
 }
 int subTestForHeapClearBuild() {
 	JCE::ArrayList<int> heapData = { 6, 2, 3, 15, 9, 7, 4, 12, 10, 15, 14, 5, 13 };
-	JCE::ArrayList<int> heapDataReal;
+	JCE::ArrayList<int> heapRealDataList;
 
 	// Build + pop;
 	Heap<int> heapIns0 = Heap<int>(heapData.size(), - 1, GreaterIntegerCmper, &heapData[0], (int)heapData.size());
 	// heapIns0.rebuild(-1, GreaterIntegerCmper);
 	while (!heapIns0.empty()) {
-		heapDataReal.emplace_back(heapIns0.pop());
+		heapRealDataList.emplace_back(heapIns0.pop());
 	}
 	// "Heap-Pop With Build"
-	StandardExtend::testAssert(heapDataReal, std::vector<int>({ 2, 3, 4, 5, 6, 7, 9, 10, 12, 13, 14, 15, 15 }));
+	StandardExtend::testAssert(heapRealDataList, std::vector<int>({ 2, 3, 4, 5, 6, 7, 9, 10, 12, 13, 14, 15, 15 }));
 
 	// rebuild + clear + push + traversal, p1:clear后直接push的话root可能没有更新
 	Heap<int> heapIns = Heap<int>(heapData.size() + 4, -1, GreaterIntegerCmper, &heapData[0], (int)heapData.size());
 	// heapIns.rebuild(-1, GreaterIntegerCmper);
 	heapIns.clear();
-	heapIns.initialize();
+	heapIns.initialize(-1);
 	for (JCE::SizeType i = 0; i < heapData.size(); heapIns.push(heapData[i++]));
 	heapIns.push(0);
 	heapIns.push(1);
@@ -643,12 +676,12 @@ int subTestForHeapClearBuild() {
 	});
 	StandardExtend::testAndOut("Heap-层序", resultHeap, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
 	
-	heapDataReal.clear();
+	heapRealDataList.clear();
 	while (!heapIns.empty()) {
-		heapDataReal.emplace_back(heapIns.pop());
+		heapRealDataList.emplace_back(heapIns.pop());
 	}
 	// "Heap-Pop With push"
-	StandardExtend::testAssert(heapDataReal, std::vector<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 }));
+	StandardExtend::testAssert(heapRealDataList, std::vector<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 }));
 
 	// 新测试的只有 clear 这1个公有方法
 	return 1;
@@ -656,7 +689,7 @@ int subTestForHeapClearBuild() {
 int subTestForHeap() {
 	// 堆是完全二叉树 但不是二叉搜索树
 	JCE::ArrayList<int> heapData = { 6, 2, 3, 15, 9, 7, 4, 12, 10, 15, 14, 5, 13 , 0, 1, 8, 11};
-	JCE::ArrayList<int> heapDataReal;
+	JCE::ArrayList<int> heapRealDataList;
 	Heap<int> heapIns = Heap<int>(heapData.size() + 4, -1, GreaterIntegerCmper);
 	std::vector<int> tmp;
 	for (JCE::SizeType i = 0; i < heapData.size(); ++i) {
@@ -674,7 +707,7 @@ int subTestForHeap() {
 		formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
 	StandardExtend::testAndOut("Heap-层序", resultHeapStr, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
-	heapDataReal.emplace_back(heapIns.pop());
+	heapRealDataList.emplace_back(heapIns.pop());
 	resultHeapStr.clear();
 	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
 		formatStrAppend(resultHeapStr, std::to_string(b->Data));
@@ -692,10 +725,10 @@ int subTestForHeap() {
 		*/
 		int tmpP = heapIns.pop();
 		//std::cout << "pop: " << tmpP << std::endl;
-		heapDataReal.emplace_back(tmpP);
+		heapRealDataList.emplace_back(tmpP);
 	}
 	// "Heap-Pop"
-	StandardExtend::testAssert(heapDataReal, std::vector<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 }));
+	StandardExtend::testAssert(heapRealDataList, std::vector<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 }));
 
 	resultHeapStr.clear();
 	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
@@ -706,36 +739,20 @@ int subTestForHeap() {
 	return 6 + subTestForHeapClearBuild() + subTestForHeapRebuild();
 }
 
-int testForTree() {
-	subTestForBinTree();
-	LinkedBinSearchTree<std::string> bsTreeIns = LinkedBinSearchTree<std::string>();
-	subTestForBinSearchTree(bsTreeIns, "BST-");
-	AvlTree<std::string> avlTreeIns = AvlTree<std::string>();
-	subTestForBinSearchTree(avlTreeIns, "AVLT-");
-	subTestForCompleteBinSearchTree();
-	std::string preData3[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-	CompleteBinSearchTree<std::string> cbtIns3 = CompleteBinSearchTree<std::string>(10, preData3);
-	subTestForBinSearchTree(cbtIns3, "CBST-");
-	subTestForHeap();
-	// 虚存树: 构造器指定函数指针的实现从而实现多态
-	puts(" ====== Tree test end");
-	return 0;
-}
-/*
-小写字母，01反、且2点对换；有2点重合
-7
-A 1 B 1 C 1 D 3 E 3 F 6 G 6
-1
-A 00000
-B 00001
-C 0001
-D 001
-E 00
-F 10
-G 11
-*/
-
 int subtestForArrayHuff(int *hufWeightList, int n) {
+	/*
+	小写字母，01反、且2点对换；有2点重合
+	7
+	A 1 B 1 C 1 D 3 E 3 F 6 G 6
+	1
+	A 00000
+	B 00001
+	C 0001
+	D 001
+	E 00
+	F 10
+	G 11
+	*/
 	ArrayHuffman::HuffmanTree hufTree = nullptr;
 	ArrayHuffman::HuffmanCode hufCode = nullptr;
 	ArrayHuffman::HuffmanCoding(hufTree, hufCode, hufWeightList, n);
@@ -744,7 +761,6 @@ int subtestForArrayHuff(int *hufWeightList, int n) {
 	free(hufCode); hufCode = nullptr;
 	return result;
 }
-
 int testForHuffumanTree() {
 	const int n = 4;
 	int w[n] = { 1, 2, 3, 4 };
@@ -790,6 +806,26 @@ int testForHuffumanTree() {
 	return 0;
 }
 
+int testForTree() {
+	int sumTestCnt = 0;
+	sumTestCnt += subTestForBinTree();
+	LinkedBinSearchTree<std::string> bsTreeIns = LinkedBinSearchTree<std::string>();
+	sumTestCnt += subTestForBinSearchTree(bsTreeIns, "BST-");
+	AvlTree<std::string> avlTreeIns = AvlTree<std::string>();
+	sumTestCnt += subTestForBinSearchTree(avlTreeIns, "AVLT-");
+	sumTestCnt += subTestForCompleteBinSearchTree();
+	std::string preData3[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+	CompleteBinSearchTree<std::string> cbtIns3 = CompleteBinSearchTree<std::string>(10, preData3);
+	sumTestCnt += subTestForBinSearchTree(cbtIns3, "CBST-");
+	sumTestCnt += subTestForHeap();
+
+	sumTestCnt += testForHuffumanTree();
+	//testForExpressionTree();
+
+	// 虚存树: 构造器指定函数指针的实现从而实现多态
+	puts(" ====== Tree test end");
+	return sumTestCnt;
+}
 
 void outPutGraph(Graph &g) {
 	cout << "边数: " << g.getEdgeNum() << endl;
@@ -865,9 +901,8 @@ int testForGraphTemplate() {
 
 // 非线性结构测试主函数
 int mainForNonlinearStructure() {
-	testForHuffumanTree();
-	testForTree();
-	//testForExpressionTree();
+	int sumTestCnt = 0;
+	sumTestCnt += testForTree();
 	StandardExtend::testAndDiffClock(testForGraph);
 	StandardExtend::testAndDiffClock(testForGraphTemplate);
 	return 0;

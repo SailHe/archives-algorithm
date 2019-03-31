@@ -412,8 +412,7 @@ public:
 	*/
 	Heap(int heapSize, T sentry, int(*cmper)(const T &, const T &), T *iniA = nullptr, int IniASize = 0) 
 		: CompleteBinTree<T>(heapSize + 1) {
-		struA[0].Data = sentry;
-		build(iniA, IniASize, cmper);
+		build(iniA, IniASize, sentry, cmper);
 	}
 	virtual ~Heap()override {
 		DE_PRINTF("Heap析构");
@@ -464,9 +463,9 @@ public:
 	}
 
 	// 重新构建堆 复杂度O(N)
-	void rebuild(int(*cmper)(const T &, const T &) = nullptr) {
-		if (cmper != nullptr) {
-			cmper_ = cmper;
+	void rebuild() {
+		if (isNotInit()) {
+			throw std::exception("未初始化");
 		}
 		/*
 		对于一个已读入的数据但需要调整的最大或最小或最小堆(自下而上调整)
@@ -480,7 +479,13 @@ public:
 	}
 
 	// 初始化
-	void initialize() {
+	void initialize(T sentry, int(*cmper)(const T &, const T &) = nullptr) {
+		// 更改比较方法一定得更改哨兵 反之不一定
+		struA[0].Data = sentry;
+		if (cmper != nullptr) {
+			cmper_ = cmper;
+		}
+		assert(cmper_ != nullptr);
 		if (empty(root_)) {
 			// root_不包括哨兵(0号) 内存空间会自动多申请一个
 			root_ = struA + 1;
@@ -488,8 +493,8 @@ public:
 	}
 
 	// 构建堆
-	void build(T *iniA, int IniASize, int(*cmper)(const T &, const T &) = nullptr) {
-		initialize();
+	void build(T *iniA, int IniASize, T sentry, int(*cmper)(const T &, const T &) = nullptr) {
+		initialize(sentry, cmper);
 		// 重设已使用结点数目(否则无法链接)
 		usedSize = IniASize;
 		// 链接root_
@@ -498,12 +503,14 @@ public:
 		for (Position t = root_; t < root_ + IniASize; ++t) {
 			// 若T类型不是基本类型 需要重载赋值号
 			t->Data = iniA[t - root_];
+			// 确保哨兵是列表中所有元素的极值(最小堆对应极小值, 最大堆对应极大值), 即lhs比rhs大或小恒成立, 成立则比较值>0,不成立则<0,相等则=0
+			assert(cmper_(struA[0].Data, t->Data) > 0);
 			// 只要没越界就链接->遍历时以usedSize为结束遍历的标志 而不是子结点是否为空?
 			linkToChildren(t);
 		}
 
 		// 数据改变一定得重建堆
-		rebuild(cmper);
+		rebuild();
 	}
 
 protected:
