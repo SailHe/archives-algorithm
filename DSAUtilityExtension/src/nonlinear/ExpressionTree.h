@@ -1,9 +1,10 @@
 #pragma once
 #include "TreeObject.h"
 
+template class BinTree<JCE::String>;
 
 //表达式树 @TODO 并未通过PTA测试(主要是后缀表达式计算时的负号问题 考虑添加前缀表达式计算)
-class ExpressionTree : private BinTree<JCE::String> {
+class DSAUTILITYEXTENSION_API ExpressionTree : private BinTree<JCE::String> {
 public:
 	enum ExpressionTypeEnum {
 		PREFIX_EXPRESSION,//前缀表达式
@@ -12,20 +13,20 @@ public:
 		ERROR_EXPRESSION//错误的表达式
 	};
 	//中缀表达式构建的表达式树不唯一
-	ExpressionTree(string express, ExpressionTypeEnum type_);
+	ExpressionTree(JCE::String express, ExpressionTypeEnum type_);
 	//类型检查 检查完成后将类型置为willBe?
 	bool check(ExpressionTypeEnum should, ExpressionTypeEnum willBe);
 	//返回下一个运算符号
-	string nextOper();
+	JCE::String nextOper();
 	/*
 	1. 从左往右扫描串
 	　2. 遇到操作符则递归构造树节点，当前操作符是根节点，并递归构造左右子节点
 	 　3. 后序遍历当前结果，并返回
 	  */
 	  //表达式转换  不允许不检查直接调用
-	string prefixToPost();
+	JCE::String prefixToPost();
 	//transform
-	string toPost();
+	JCE::String toPost();
 	double eval();
 	/*后缀表达式计算*/
 
@@ -35,7 +36,7 @@ public:
 	double evalPostfix();
 private:
 	//BinTree base;
-	string expression;
+	JCE::String expression;
 	//表达式当前类型
 	ExpressionTypeEnum type;
 };

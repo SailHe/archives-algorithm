@@ -1,6 +1,6 @@
 #include "../../nonlinear/ExpressionTree.h"
 
-ExpressionTree::ExpressionTree(string express, ExpressionTree::ExpressionTypeEnum type_) {
+ExpressionTree::ExpressionTree(JCE::String express, ExpressionTree::ExpressionTypeEnum type_) {
 	expression = express;
 	type = type_;
 }
@@ -35,7 +35,7 @@ bool ExpressionTree::check(ExpressionTree::ExpressionTypeEnum should, Expression
 	}
 }
 
-std::string ExpressionTree::nextOper() {
+JCE::String ExpressionTree::nextOper() {
 	static size_t ind = 0;
 	string next;
 	for (; ind < expression.size(); ind++) {
@@ -48,7 +48,7 @@ std::string ExpressionTree::nextOper() {
 	return next;
 }
 
-std::string ExpressionTree::prefixToPost() {
+JCE::String ExpressionTree::prefixToPost() {
 	string next = nextOper(), ans;
 	if (!isdigit(next[0])) {
 		Position node = nodeCreater(next);//µÝ¹é¹¹ÔìÊ÷
@@ -68,7 +68,7 @@ std::string ExpressionTree::prefixToPost() {
 	else
 		return next;
 }
-std::string ExpressionTree::toPost() {
+JCE::String ExpressionTree::toPost() {
 	if (type == PREFIX_EXPRESSION) {
 		if (check(PREFIX_EXPRESSION, POST_EXPRESSION))
 			return expression = prefixToPost();

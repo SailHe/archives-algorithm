@@ -1,4 +1,5 @@
 #include "Teater.h"
+#include "./nonlinear/ExpressionTree.h"
 
 using namespace std;
 /**

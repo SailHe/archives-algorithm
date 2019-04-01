@@ -236,7 +236,7 @@ private:
 };
 
 /*数组式huffman*/
-class ArrayHuffman {
+class DSAUTILITYEXTENSION_API ArrayHuffman {
 	struct HTNode {
 		//权重
 		int weight;
