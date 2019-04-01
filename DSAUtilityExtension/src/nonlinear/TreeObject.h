@@ -226,6 +226,31 @@ public:
 	int layers() const {
 		return height() - 1;
 	}
+	// 计算第layer层的叶结点个数 (layer越界返回-1) O(N)
+	int leavesCount(int layer) const {
+		// 级(level) 第layer层最多的结点个数: 2^layer layer=[0, height)
+		assert(layer >= 0);
+		if (layer > layers())
+			return -1;
+		int count = 0;
+		//t, layer
+		JCE::queue<JCE::pair<BT, int>> q;
+		q.push(std::make_pair(root_, 0));
+		while (!q.empty()) {
+			auto p = q.front();
+			q.pop();
+			if (!empty(p.first->Left))
+				q.push({ p.first->Left, p.second + 1 });
+			if (!empty(p.first->Right))
+				q.push({ p.first->Right, p.second + 1 });
+			if (p.first->isLeave() && p.second == layer)
+				++count;
+			else if (p.second > layer)
+				break;
+			//else continue;
+		}
+		return count;
+	}
 
 	// Θ(2*N)     Tree::ORDER, void visit(BinTree<T>::BT node)
 	void traversal(TraversalOrderEnum type, Vister visit){
