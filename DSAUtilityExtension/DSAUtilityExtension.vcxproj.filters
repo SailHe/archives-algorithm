@@ -46,6 +46,9 @@
     <Filter Include="源文件\DataStructure\NonlinearStructure">
       <UniqueIdentifier>{ff195f3e-da28-454b-9b3b-da5a522007ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Utility\Radix">
+      <UniqueIdentifier>{fc5148da-6a30-4512-ac90-24addeaec3fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\DSAUEdll.h">
@@ -108,12 +111,6 @@
     <ClInclude Include="src\utility\StringUtility.h">
       <Filter>头文件\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="src\utility\Transition.h">
-      <Filter>头文件\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utility\TransitionUtility.h">
-      <Filter>头文件\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="src\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -131,6 +128,12 @@
     </ClInclude>
     <ClInclude Include="src\nonlinear\CoordinatesMap.h">
       <Filter>头文件\DataStructure\NonlinearStructure\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\Transition.h">
+      <Filter>头文件\Utility\Radix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\TransitionUtility.h">
+      <Filter>头文件\Utility\Radix</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -158,12 +161,6 @@
     <ClCompile Include="src\_implement\utility\StringUtility.cpp">
       <Filter>源文件\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="src\_implement\utility\Transition.cpp">
-      <Filter>源文件\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="src\_implement\utility\TransitionUtility.cpp">
-      <Filter>源文件\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="src\_implement\ExtendSpace.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -187,6 +184,12 @@
     </ClCompile>
     <ClCompile Include="src\_implement\nonlinear\CoordinatesMap.cpp">
       <Filter>源文件\DataStructure\NonlinearStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\utility\TransitionUtility.cpp">
+      <Filter>源文件\Utility\Radix</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\utility\Transition.cpp">
+      <Filter>源文件\Utility\Radix</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -22,20 +22,126 @@ namespace TransitionUtility {
 	   且隐含需要提前得知范围(转换后的总位数大小); 此时也可以用rbgain(), 但为了避免混淆最好不用
 	5. Position 专指低一级的ArrayContainer{S, Array}的迭代器, 不分左右;
 	   常与size一同使用, 表示position后面有至少size个元素位(如果API中未出现size, 则需自己把握情况, 一般传begin就行)
-	6. 不推荐使用ArrayContainer{DigitArray}:
+	6. 不推荐使用ArrayContainer{DigitVarrays}:
 	   此类迭代器泛型中使用了数组运算符'[]', 其使[迭代器降级]
 	7. 迭代器降级: 降低了迭代器的抽象级别, 使之必须支持任意合理值的迭代器加减运算
 	*/
+/*
+聚合类：
+	1. 数组
+	2. [没有]这些内容的类, 结构和联合: 
+		构造函数(使用new操作符时才能构造);
+		私有或受保护的成员;
+		基类;
+		虚函数(如果使用memset初始化的话虚函数表会出问题);
+否则称非聚合类
+*/
+	// 可变整数数字数组(动态数组) 旧称: DigitBitArray(数字位元数组)
+	class DSAUTILITYEXTENSION_API DigitVarrays {
+		
+		// 数字(必须是聚合类)
+		typedef int Digit;
+		typedef unsigned SizeType;
 
-	/*
-	//只需改一两处就可以替换
-	typedef int *DigitArray;
-	typedef DigitArray DigitIterator;
-	*/
-	// 是基于整数数字数组的 (类似于字符串) 原称: DigitBitArray(数字位元数组)
-	typedef std::vector<int> DigitArray;
-	// BitIter -> Biter
-	typedef DigitArray::iterator DigitIterator;
+	public:
+
+		// BitIter -> Biter
+		typedef Digit *Iterator;
+
+		DigitVarrays() {
+			resize(0);
+		}
+		DigitVarrays(SizeType size) {
+			resize(size);
+		}
+		~DigitVarrays() {
+			free(digitArr_);
+			digitArr_ = NULL;
+		}
+		void resize(SizeType newSize) {
+			if (newSize <= __capacity) {
+				// DNT
+			}
+			else {
+				reallocInit(&digitArr_, newSize);
+			}
+			init(digitArr_, __size, newSize);
+			__size = newSize;
+		}
+		void reserver(SizeType newCapacity) {
+			reallocInit(&digitArr_, newCapacity);
+			// init(digitArr_, __capacity, newCapacity);
+			__capacity = newCapacity;
+		}
+		template<typename Iterator1>
+		void assign(Iterator1 begin, Iterator1 end) {
+			Iterator tBegin = this->begin();
+			Iterator tEnd = this->end();
+			while (begin != end) {
+				if (tBegin != tEnd) {
+					*tBegin = *begin;
+					++tBegin;
+				}
+				else {
+					push_back(*begin);
+				}
+				++begin;
+			}
+		}
+		void push_back(Digit ele) {
+			if (__size < __capacity) {
+				// DNT
+			}
+			else {
+				reserver(2 * __size + 1);
+			}
+			resize(__size + 1);
+			*(end() - 1) = ele;
+		}
+		SizeType size() {
+			return __size;
+		}
+		void clear() {
+			init(digitArr_, 0, __size);
+			__size = 0;
+		}
+		Digit operator[](int i) {
+			assert(0 < i);
+			assert((SizeType)i < __size);
+			return digitArr_[i];
+		}
+		Iterator begin() {
+			return digitArr_;
+		}
+		Iterator end() {
+			return digitArr_ + __size;
+		}
+
+	private:
+		// (重申请内存指针的指针, 新申请大小)
+		static void reallocInit(Digit **result, SizeType newSize) {
+			*result = (Digit*)realloc(*result, sizeof(Digit)*newSize);
+			assert(*result != NULL);
+		}
+		// (初始化内存指针, 保留大小, 初始化大小)
+		static void init(Digit *result, SizeType keepSize, SizeType initSize) {
+			if (initSize >= keepSize) {
+				// 初始化(排除原有的__size)
+				memset(result + keepSize, 0, sizeof(Digit)*(initSize - keepSize));
+			}
+		}
+
+		int *digitArr_ = NULL;
+		// 已使用的大小(一般与__capacity相等 这个可能没啥用会删除)
+		SizeType __size = 0u;
+		// 数组大小(已申请的容量)
+		SizeType __capacity = 0u;
+	};
+
+	//using DigitVariableArray = std::vector<int>;
+	//using DigitVariableArrayIterator = DigitVariableArray::iterator;
+	using DigitVariableArray = DigitVarrays;
+	using DigitVariableArrayIterator = DigitVariableArray::Iterator;
 
 	// UppercaseAscll
 
@@ -118,7 +224,7 @@ namespace TransitionUtility {
 	// 计算并返回无符号补码 (无符号位原码的数字迭代器范围)
 	template<class DigitIterator>
 	std::string calcUnsignedComplementCode(DigitIterator topLowOriginCodeLeftIter, DigitIterator topLowOriginCodeRightIter) {
-		static DigitArray topLowOriginDigitBufferList;
+		static DigitVariableArray topLowOriginDigitBufferList;
 		static std::string topLowOriginBinCodeBuffer;
 		const static std::string one("1");
 		topLowOriginBinCodeBuffer.clear();
@@ -215,9 +321,16 @@ namespace TransitionUtility {
 		return digitIterBegin;
 	}
 	// 返回digitIterEnd
-	DSAUTILITYEXTENSION_API DigitIterator stringToDigitArray(char const *str, DigitIterator digitBeginIter, int radix);
+	template<class DigitIterator>
+	DigitIterator stringToDigitArray(char const *str, DigitIterator digitBeginIter, int radix) {
+		std::size_t len = std::strlen(str);
+		return charContainerToDigitContainer(str, str + len, digitBeginIter, radix);
+	}
 	// 返回digitIterEnd
-	DSAUTILITYEXTENSION_API DigitIterator stringToDigitArray(std::string &str, DigitIterator digitBeginIter, int radix);
+	template<class DigitIterator>
+	DigitIterator stringToDigitArray(std::string &str, DigitIterator digitBeginIter, int radix) {
+		return charContainerToDigitContainer(str.begin(), str.end(), digitBeginIter, radix);
+	}
 
 	/** =========== 基础(int)进制(10)转换; 中间数值不能超出int范围 =========== **/
 	/*
@@ -317,9 +430,9 @@ namespace TransitionUtility {
 
 	// ---- Recommend 计算Radix的DEC位权多项式(源低位迭代器, 目标低位迭代器, 两者的共同大小)
 	// 返回{realOriginLeftIter, realTargetLeftIter}
-	template<class Integer, class DigitIterator>
-	std::pair<DigitIterator, DigitIterator> radixTopLowToDecimalTopLow(
-		DigitIterator originRightIter, DigitIterator targetRightIter, Integer togetherSize, Integer originRadix) {
+	template<class Integer, typename DigitIterator1, typename DigitIterator2>
+	std::pair<DigitIterator1, DigitIterator2> radixTopLowToDecimalTopLow(
+		DigitIterator1 originRightIter, DigitIterator2 targetRightIter, Integer togetherSize, Integer originRadix) {
 		// 位权
 		Integer powNum = 1;
 		// 从低位(右侧是低位)向高位按权展开 然后以同样的方式存在目标容器里面

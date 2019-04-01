@@ -2,16 +2,15 @@
 #include "../pch.h"
 #include "TransitionUtility.h"
 #include "../ExtendSpace.h"
+#include "../DSAUEdll.h"
 
 // 进制转换器
-class Transition {
+class DSAUTILITYEXTENSION_API Transition {
 public:
-	using DigitArray = TransitionUtility::DigitArray;
-	using DigitIterator = DigitArray::iterator;
-	Transition(int bufferRadix) {
-		this->bufferRadix = bufferRadix;
-	}
-	virtual ~Transition() {}
+	using DigitArray = TransitionUtility::DigitVariableArray;
+	using DigitIterator = TransitionUtility::DigitVariableArrayIterator;
+	Transition(int bufferRadix);
+	virtual ~Transition();
 protected:
 	// 返回本转换器对应的两种进制互相转换时的最小缓存预留位(就是最大进制的位最大值对应的缓存进制的位数)
 	int calcMinDigitNum() {
@@ -41,7 +40,7 @@ protected:
 	int originRadix;
 
 	int bufferRadix;
-	DigitArray repositoryBuffer;// = NULL
+	DigitArray repositoryBuffer;
 
 	int targetBitLeast;
 	int targetRadix;
@@ -89,7 +88,8 @@ public:
 	}
 
 	// 2基底大数转换: 源基2进制->二进制->目标基2进制; targetTopLow储存最终的结果(不会出现多余的0)
-	void transition(DigitIterator originLeftTop, DigitIterator originRightLow, DigitArray &targetTopLow) {
+	template<class DigitIterator>
+	void transition(DigitIterator originLeftTop, DigitIterator originRightLow, std::vector<int> &targetTopLow) {
 		// 源数值在目标进制下最多要用多少位表示
 		JCE::SizeType originDigitNum = originRightLow - originLeftTop;
 		// ................一共.............
@@ -101,9 +101,9 @@ public:
 			reSizeBuffer(originToTargetDigitMaxNum + minDigitNum);
 		}
 		// top处预留一个[进位段]用于进位补齐
-		DigitIterator bitIterator = repositoryBuffer.begin() + targetBitLeast;
+		auto bitIterator = repositoryBuffer.begin() + targetBitLeast;
 		//bitIterator = repositoryBuffer + targetBitLeast;
-		DigitIterator currentBitIterator = bitIterator;
+		auto currentBitIterator = bitIterator;
 		
 		// 源中top->low每个bit都转换为2进制(连起来即是源进制数的二进制表示)
 		while (originLeftTop != originRightLow) {
@@ -165,7 +165,7 @@ public:
 	// 返回最结果的高位迭代器topLeftIterator
 	// targetTopLowBuffer不能和origin相同(同类型不同容器的迭代器是无法比较的, 难以检测)
 	template<class DigitIterator>
-	DigitArray::iterator transition(DigitIterator originLeftTop, DigitIterator originRightLow, DigitArray &targetTopLowBuffer) {
+	std::vector<int>::iterator transition(DigitIterator originLeftTop, DigitIterator originRightLow, std::vector<int> &targetTopLowBuffer) {
 		// 1. 计算源进制的10进制位数
 		// 2. 将源进制每1位数 转为10进制 存储在缓存中: 1位源进制数字->1个10进制数字(可能不止一位, 但存储意义上只占用1位数字)
 		// 3. 将缓存中的10进制数字转为目标进制

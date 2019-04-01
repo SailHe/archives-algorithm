@@ -1,3 +1,6 @@
 #include "../../utility/Transition.h"
 
-// Transition::DigitArray Transition::repositoryBuffer;
+Transition::Transition(int bufferRadix) {
+	this->bufferRadix = bufferRadix;
+}
+Transition::~Transition() {}
