@@ -120,13 +120,6 @@ protected:
 	// 构建结构体数组 (结点数目)
 	void reCapacity(int nSize) {
 		struA = new BTNode[nSize];
-		/*
-		struA = (StructArray)realloc(struA, BT_NODE_LEN*nSize);
-		if (capacity == 0)//首次申请->全域初始化(排除已使用的usedSize 一般是0)
-			memset(struA + usedSize, 0, BT_NODE_LEN*(nSize - usedSize));
-		else//再次申请->root_域[struA+cap, struA+cap](排除原有的cap)初始化, struA+cap已经是数组末尾的后一个
-			memset(struA + capacity, 0, BT_NODE_LEN*(nSize - capacity));
-		*/
 		capacity = nSize;
 	}
 	
