@@ -886,11 +886,11 @@ namespace MathExtend {
 	//using namespace Utility;
 	
 	// 向量加法 sumVector = lhsVector + rhsVector(两向量可以相同)
-	template<class VectorIterator>
+	template<typename VectorIterator1, typename VectorIterator2, typename VectorIterator3>
 	void vectorPlush(
-		VectorIterator lhsLeftVectorIter, VectorIterator lhsRightVectorIter
-		, VectorIterator rhsLeftVectorIter, VectorIterator rhsRightVectorIter
-		, VectorIterator sumLeftVectorIter, VectorIterator sumRightVectorIter) {
+		VectorIterator1 lhsLeftVectorIter, VectorIterator1 lhsRightVectorIter
+		, VectorIterator2 rhsLeftVectorIter, VectorIterator2 rhsRightVectorIter
+		, VectorIterator3 sumLeftVectorIter, VectorIterator3 sumRightVectorIter) {
 		// && rhsLeftVectorIter != rhsRightVectorIter && sumLeftVectorIter != sumRightVectorIter
 		while (lhsLeftVectorIter != lhsRightVectorIter) {
 			*sumLeftVectorIter = *lhsLeftVectorIter + *rhsLeftVectorIter;
