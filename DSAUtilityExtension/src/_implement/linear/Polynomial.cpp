@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
+#define scanf scanf_s
 typedef struct PolyNode *Pnode;
 struct PolyNode
 {
