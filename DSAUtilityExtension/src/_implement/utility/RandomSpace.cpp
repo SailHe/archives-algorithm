@@ -1,5 +1,5 @@
-#include "./RandomSpace.h"
-#include "../ExtendSpace.h"
+#include "../../utility/RandomSpace.h"
+#include "../../ExtendSpace.h"
 
 // 这些方法可信程度还有待彻底的验证
 namespace RandomSpace {

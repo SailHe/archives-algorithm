@@ -13,8 +13,8 @@
 
 //#include "MathLibrary.h"
 #include "ExtendSpace.h"
-#include "./else/TransitionUtility.h"
-#include "./else/Transition.h"
+#include "./utility/TransitionUtility.h"
+#include "./utility/Transition.h"
 
 
 // 计算二进制补码 (输入的十进制正数当作负数处理)

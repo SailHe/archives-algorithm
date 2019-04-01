@@ -1,4 +1,5 @@
-#include "../Stack.h"
+#include "../../pch.h"
+#include "../../linear/Stack.h"
 
 typedef int ElementTypeList;
 typedef struct ArrayLinkedListNode *ArrayLinkedList;

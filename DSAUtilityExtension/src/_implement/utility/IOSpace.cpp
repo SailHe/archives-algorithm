@@ -1,6 +1,6 @@
-#include "../ExtendSpace.h"
+#include "../../ExtendSpace.h"
 // 要想导出Dll 这里必须引入对应的头文件
-#include "IOSpace.h"
+#include "../../utility/IOSpace.h"
 
 namespace IOSpace {
 	// IO初始化

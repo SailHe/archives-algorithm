@@ -1,7 +1,4 @@
 #include "Teater.h"
-#include "Graph\VirtualTree.h"
-#include "Graph\HuffmanTree.h"
-#include "else\SoftwareTest.h"
 
 using namespace std;
 /**

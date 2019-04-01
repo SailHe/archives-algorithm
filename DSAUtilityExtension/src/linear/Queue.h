@@ -11,6 +11,7 @@
 #include <assert.h>
 //#include "stdafx.h"
 
+// 队列接口
 template<class T>
 class Queue {
 public:
@@ -21,6 +22,7 @@ public:
 	virtual bool isEmpty() = 0;
 };
 
+// 链接队列
 template<class T>
 class LinkedQueue:public Queue<T> {
 public:
@@ -93,6 +95,7 @@ private:
 	PtrLinkedListQueue baseImpl;
 };
 
+// 双端队列
 template<class T>
 class Deque:public Queue<T> {
 public:

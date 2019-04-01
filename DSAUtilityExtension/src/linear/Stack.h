@@ -1,6 +1,7 @@
 #pragma once
 #include "LinkedList.h"
 
+// Á´½Ó¶ÑÕ»
 template<class StackElementType>
 class Stack {
 public:

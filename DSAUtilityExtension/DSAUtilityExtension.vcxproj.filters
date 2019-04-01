@@ -13,11 +13,38 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="头文件\Radix">
+    <Filter Include="头文件\DataStructure">
+      <UniqueIdentifier>{f01918af-ae72-4afb-804e-1cb9cdf3e311}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\DataStructure\LinearStructure">
+      <UniqueIdentifier>{0b606080-0752-4e9c-ae13-66ad4a028098}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\DataStructure\NonlinearStructure">
+      <UniqueIdentifier>{d1e39d48-4364-414f-9b6a-db16baf171d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\DataStructure\NonlinearStructure\Tree">
+      <UniqueIdentifier>{cc494ece-d536-4b07-bdf1-7332524137a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\DataStructure\NonlinearStructure\Graph">
+      <UniqueIdentifier>{04f235bf-3210-4ca9-bb97-ecd3b2a2919b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Utility">
       <UniqueIdentifier>{d3d751d5-c158-43d3-bac4-c1d3a4ebcd17}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\Radix">
+    <Filter Include="源文件\Utility">
       <UniqueIdentifier>{044362d0-96d7-41ff-964b-ab45a2006fc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Utility\Radix">
+      <UniqueIdentifier>{912d4793-989f-4530-871b-dd9ea7e4732d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\DataStructure">
+      <UniqueIdentifier>{d3ac67ba-6260-40a6-b9f2-3848d7dc8785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\DataStructure\LinearStructure">
+      <UniqueIdentifier>{2311c932-a3a3-494b-9c3b-87f4e9c8bd87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\DataStructure\NonlinearStructure">
+      <UniqueIdentifier>{ff195f3e-da28-454b-9b3b-da5a522007ef}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -30,115 +57,130 @@
     <ClInclude Include="src\GetMyDade.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\LinkedList.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\MathLibrary.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Queue.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\SailHeAlgorithm.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\Stack.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\stdafx.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graph\Graph.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graph\TreeObject.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graph\TreeUtility.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graph\GraphUtil.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\else\DisjointSet.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\pch.h">
       <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\else\BigInteger.h">
-      <Filter>头文件\Radix</Filter>
-    </ClInclude>
-    <ClInclude Include="src\else\TransitionUtility.h">
-      <Filter>头文件\Radix</Filter>
     </ClInclude>
     <ClInclude Include="src\stdafxWin.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\else\Transition.h">
-      <Filter>头文件\Radix</Filter>
+    <ClInclude Include="src\nonlinear\Graph.h">
+      <Filter>头文件\DataStructure\NonlinearStructure\Graph</Filter>
     </ClInclude>
-    <ClInclude Include="src\else\RandomSpace.h">
+    <ClInclude Include="src\nonlinear\GraphTemplate.h">
+      <Filter>头文件\DataStructure\NonlinearStructure\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nonlinear\GraphUtil.h">
+      <Filter>头文件\DataStructure\NonlinearStructure\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nonlinear\VirtualTree.h">
+      <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nonlinear\TreeUtility.h">
+      <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nonlinear\TreeObject.h">
+      <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nonlinear\HuffmanTree.h">
+      <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\BigInteger.h">
+      <Filter>头文件\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\DisjointSet.h">
+      <Filter>头文件\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\IOSpace.h">
+      <Filter>头文件\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\RandomSpace.h">
+      <Filter>头文件\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\SoftwareTest.h">
+      <Filter>头文件\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\StringUtility.h">
+      <Filter>头文件\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\Transition.h">
+      <Filter>头文件\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\TransitionUtility.h">
+      <Filter>头文件\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\else\IOSpace.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="src\linear\LinkedList.h">
+      <Filter>头文件\DataStructure\LinearStructure</Filter>
     </ClInclude>
-    <ClInclude Include="src\else\StringUtility.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="src\linear\Queue.h">
+      <Filter>头文件\DataStructure\LinearStructure</Filter>
     </ClInclude>
-    <ClInclude Include="src\else\SoftwareTest.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="src\linear\Stack.h">
+      <Filter>头文件\DataStructure\LinearStructure</Filter>
     </ClInclude>
-    <ClInclude Include="src\Graph\VirtualTree.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graph\HuffmanTree.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\MathLibrary.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ExtendSpace.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\List\LinkedList.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\List\Stack.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graph\GraphTemplate.h">
-      <Filter>头文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\else\Transition.cpp">
-      <Filter>源文件\Radix</Filter>
-    </ClCompile>
-    <ClCompile Include="src\else\TransitionUtility.cpp">
-      <Filter>源文件\Radix</Filter>
-    </ClCompile>
-    <ClCompile Include="src\else\RandomSpace.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\else\IOSpace.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\else\DataGenerater.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\else\StringUtility.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graph\Tree\TreeObject.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graph\VirtualTree.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\_implement\nonlinear\Graph_C.cpp">
+      <Filter>源文件\DataStructure\NonlinearStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\nonlinear\HuffmanTree.cpp">
+      <Filter>源文件\DataStructure\NonlinearStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\nonlinear\Tree_C.cpp">
+      <Filter>源文件\DataStructure\NonlinearStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\nonlinear\TreeObject.cpp">
+      <Filter>源文件\DataStructure\NonlinearStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\nonlinear\VirtualTree.cpp">
+      <Filter>源文件\DataStructure\NonlinearStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\utility\DataGenerater.cpp">
+      <Filter>源文件\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\utility\IOSpace.cpp">
+      <Filter>源文件\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\utility\RandomSpace.cpp">
+      <Filter>源文件\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\utility\StringUtility.cpp">
+      <Filter>源文件\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\utility\Transition.cpp">
+      <Filter>源文件\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\utility\TransitionUtility.cpp">
+      <Filter>源文件\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\ExtendSpace.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\MathLibrary.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\linear\Polynomial.cpp">
+      <Filter>源文件\DataStructure\LinearStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\linear\Queue.cpp">
+      <Filter>源文件\DataStructure\LinearStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\linear\Stack.cpp">
+      <Filter>源文件\DataStructure\LinearStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\linear\VirtualList.cpp">
+      <Filter>源文件\DataStructure\LinearStructure</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

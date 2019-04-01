@@ -1,6 +1,6 @@
 //跟Graph.h没有直接关系
+#include "../../llinear/Queue.h"
 
-#include "../Queue.h"
 #define MaxVertexNum 100/*最大顶点数*/
 #define INFINTY 65535/*无穷大<<双字节无符号整数的最大值*/
 #define MAP_MAX_SIZE 128/*无穷大<<双字节无符号整数的最大值*/

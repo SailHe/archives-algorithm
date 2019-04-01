@@ -1,7 +1,10 @@
 #pragma once
-#include "stdafx.h"
+#include "../stdafx.h"
 //#include "ExtendSpace.h"
-
+/*
+[单向链表](含头节点)
+[头节点]: 不带数据的结点
+*/
 template<class ElementType>
 class LinkedList {
 protected:

@@ -12,7 +12,7 @@
 #include <time.h>
 
 #include "ExtendSpace.h"
-#include "./else/SoftwareTest.h"
+#include "./utility/SoftwareTest.h"
 
 void functionalRandomTest() {
 	StandardExtend::testAndOut("最大值可比较", MAX_INT32 > 1, true);

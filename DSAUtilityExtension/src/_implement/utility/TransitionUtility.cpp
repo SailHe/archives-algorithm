@@ -1,5 +1,5 @@
-#include "TransitionUtility.h"
-#include "../ExtendSpace.h"
+#include "../../utility/TransitionUtility.h"
+#include "../../ExtendSpace.h"
 
 namespace TransitionUtility{
 	char toAlphOrAscllNum(int num) {

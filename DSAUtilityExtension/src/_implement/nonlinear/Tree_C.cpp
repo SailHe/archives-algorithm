@@ -20,9 +20,9 @@
 有序树：如果树中结点的各子树之间的次序是重要的, 不可以交换位置。
 森林：0个或多个不相交的树组成。对森林加上一个根，森林即成为树；删去根，树即成为森林。
 */
-#include "Tree_C.h"
-#include "../Stack.h"
-#include "../Queue.h"
+#include "../../nonlinear/Tree_C.h"
+#include "../../linear/Stack.h"
+#include "../../linear/Queue.h"
 int Max(int a, int b)
 {
 	return a > b ? a : b;
@@ -47,7 +47,7 @@ void LevelOrderTraversal_WithQueue(BinTree BT)
 {
 	if (!BT)return;
 	BinTree T = BT;
-	Queue<ElementTypeQueue> queue;
+	Queue<ElementTypeQueue> &queue = LinkedQueue<ElementTypeQueue>();
 	queue.offer(T);
 	while (!queue.isEmpty())
 	{

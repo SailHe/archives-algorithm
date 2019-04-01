@@ -140,48 +140,59 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\DSAUEdll.h" />
-    <ClInclude Include="src\else\BigInteger.h" />
-    <ClInclude Include="src\else\IOSpace.h" />
-    <ClInclude Include="src\else\RandomSpace.h" />
-    <ClInclude Include="src\else\SoftwareTest.h" />
-    <ClInclude Include="src\else\StringUtility.h" />
-    <ClInclude Include="src\else\Transition.h" />
-    <ClInclude Include="src\else\DisjointSet.h" />
-    <ClInclude Include="src\else\TransitionUtility.h" />
     <ClInclude Include="src\ExtendSpace.h" />
     <ClInclude Include="src\GetMyDade.h" />
-    <ClInclude Include="src\Graph\Graph.h" />
-    <ClInclude Include="src\Graph\GraphUtil.h" />
-    <ClInclude Include="src\Graph\HuffmanTree.h" />
-    <ClInclude Include="src\Graph\TreeObject.h" />
-    <ClInclude Include="src\Graph\TreeUtility.h" />
-    <ClInclude Include="src\Graph\VirtualTree.h" />
-    <ClInclude Include="src\LinkedList.h" />
+    <ClInclude Include="src\linear\LinkedList.h" />
+    <ClInclude Include="src\linear\Queue.h" />
+    <ClInclude Include="src\linear\Stack.h" />
     <ClInclude Include="src\MathLibrary.h" />
+    <ClInclude Include="src\nonlinear\Graph.h" />
+    <ClInclude Include="src\nonlinear\GraphTemplate.h" />
+    <ClInclude Include="src\nonlinear\GraphUtil.h" />
+    <ClInclude Include="src\nonlinear\HuffmanTree.h" />
+    <ClInclude Include="src\nonlinear\TreeObject.h" />
+    <ClInclude Include="src\nonlinear\TreeUtility.h" />
+    <ClInclude Include="src\nonlinear\VirtualTree.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Queue.h" />
     <ClInclude Include="src\SailHeAlgorithm.h" />
-    <ClInclude Include="src\Stack.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\stdafxWin.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\else\DataGenerater.cpp" />
-    <ClCompile Include="src\else\IOSpace.cpp" />
-    <ClCompile Include="src\else\RandomSpace.cpp" />
-    <ClCompile Include="src\else\StringUtility.cpp" />
-    <ClCompile Include="src\else\Transition.cpp" />
-    <ClCompile Include="src\else\TransitionUtility.cpp" />
-    <ClCompile Include="src\ExtendSpace.cpp" />
-    <ClCompile Include="src\Graph\GraphTemplate.h" />
-    <ClCompile Include="src\Graph\Tree\TreeObject.cpp" />
-    <ClCompile Include="src\Graph\VirtualTree.cpp" />
-    <ClCompile Include="src\List\LinkedList.cpp" />
-    <ClCompile Include="src\List\Stack.cpp" />
-    <ClCompile Include="src\MathLibrary.cpp" />
+    <ClInclude Include="src\utility\BigInteger.h" />
+    <ClInclude Include="src\utility\DisjointSet.h" />
+    <ClInclude Include="src\utility\IOSpace.h" />
+    <ClInclude Include="src\utility\RandomSpace.h" />
+    <ClInclude Include="src\utility\SoftwareTest.h" />
+    <ClInclude Include="src\utility\StringUtility.h" />
+    <ClInclude Include="src\utility\Transition.h" />
+    <ClInclude Include="src\utility\TransitionUtility.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\_implement\ExtendSpace.cpp" />
+    <ClCompile Include="src\_implement\linear\Polynomial.cpp" />
+    <ClCompile Include="src\_implement\linear\Queue.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\_implement\linear\Stack.cpp" />
+    <ClCompile Include="src\_implement\linear\VirtualList.cpp" />
+    <ClCompile Include="src\_implement\MathLibrary.cpp" />
+    <ClCompile Include="src\_implement\nonlinear\Graph_C.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\_implement\nonlinear\HuffmanTree.cpp" />
+    <ClCompile Include="src\_implement\nonlinear\TreeObject.cpp" />
+    <ClCompile Include="src\_implement\nonlinear\Tree_C.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\_implement\nonlinear\VirtualTree.cpp" />
+    <ClCompile Include="src\_implement\utility\DataGenerater.cpp" />
+    <ClCompile Include="src\_implement\utility\IOSpace.cpp" />
+    <ClCompile Include="src\_implement\utility\RandomSpace.cpp" />
+    <ClCompile Include="src\_implement\utility\StringUtility.cpp" />
+    <ClCompile Include="src\_implement\utility\Transition.cpp" />
+    <ClCompile Include="src\_implement\utility\TransitionUtility.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

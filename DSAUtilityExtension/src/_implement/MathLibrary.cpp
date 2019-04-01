@@ -7,7 +7,7 @@
 #include <utility>
 #include <limits.h>
 #include <string>
-#include "MathLibrary.h"
+#include "../MathLibrary.h"
 
 // DLL internal state variables:
 static unsigned long long previous_;  // Previous value, if any

@@ -1,7 +1,7 @@
 #include <windows.h> // CreateDirectory
-#include "./SoftwareTest.h"
-#include "./StringUtility.h"
-#include "IOSpace.h"
+#include "../../utility/SoftwareTest.h"
+#include "../../utility/StringUtility.h"
+#include "../../utility/IOSpace.h"
 
 namespace DataGenerater {
 	// 创建一个目录 返回值: 0表示已存在该目录, 1表示新创建
