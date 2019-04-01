@@ -146,6 +146,7 @@
     <ClInclude Include="src\linear\Queue.h" />
     <ClInclude Include="src\linear\Stack.h" />
     <ClInclude Include="src\MathLibrary.h" />
+    <ClInclude Include="src\nonlinear\ExpressionTree.h" />
     <ClInclude Include="src\nonlinear\Graph.h" />
     <ClInclude Include="src\nonlinear\GraphTemplate.h" />
     <ClInclude Include="src\nonlinear\GraphUtil.h" />
@@ -182,7 +183,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\_implement\nonlinear\HuffmanTree.cpp" />
-    <ClCompile Include="src\_implement\nonlinear\TreeObject.cpp" />
+    <ClCompile Include="src\_implement\nonlinear\ExpressionTree.cpp" />
     <ClCompile Include="src\_implement\nonlinear\Tree_C.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>

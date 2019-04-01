@@ -126,6 +126,9 @@
     <ClInclude Include="src\linear\Stack.h">
       <Filter>头文件\DataStructure\LinearStructure</Filter>
     </ClInclude>
+    <ClInclude Include="src\nonlinear\ExpressionTree.h">
+      <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
@@ -138,9 +141,6 @@
       <Filter>源文件\DataStructure\NonlinearStructure</Filter>
     </ClCompile>
     <ClCompile Include="src\_implement\nonlinear\Tree_C.cpp">
-      <Filter>源文件\DataStructure\NonlinearStructure</Filter>
-    </ClCompile>
-    <ClCompile Include="src\_implement\nonlinear\TreeObject.cpp">
       <Filter>源文件\DataStructure\NonlinearStructure</Filter>
     </ClCompile>
     <ClCompile Include="src\_implement\nonlinear\VirtualTree.cpp">
@@ -181,6 +181,9 @@
     </ClCompile>
     <ClCompile Include="src\_implement\linear\VirtualList.cpp">
       <Filter>源文件\DataStructure\LinearStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\nonlinear\ExpressionTree.cpp">
+      <Filter>源文件\DataStructure\NonlinearStructure</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
