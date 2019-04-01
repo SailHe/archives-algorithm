@@ -415,28 +415,34 @@ protected:
 	}
 	//后中构建
 	void postInBuild(Position &bt, Element const *inOrder, Element const *postOder, int n){
-		int Ln;/*左子树长度*/
+		// 左子树长度
+		int Ln = -1;
 		if (n == 0)return;
 		if (bt == nullptr)
 			bt = nodeCreater(postOder[n - 1]);
-		else/*转化关系:后序遍历数组的尾元素就是子树根*/
+		else// 转化关系:后序遍历数组的尾元素就是子树根
 			bt->Data = postOder[n - 1];
-		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; Ln++);//获取左子树长度
-		postInBuild(bt->Left, inOrder, postOder, Ln);/*先序遍历数组进入左子树*/
-		postInBuild(bt->Right, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);/*进入右子树*/
+		// 获取左子树长度
+		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; Ln++);
+		// 先序遍历数组进入左子树
+		postInBuild(bt->Left, inOrder, postOder, Ln);
+		// 进入右子树
+		postInBuild(bt->Right, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);
 	}
-	//后中构建 优化版(@TODO size)
-	static BT postInBuild(int *inOrder, int *postOder, int n){
-		int Ln;/*左子树长度*/
-		if (n == 0)	return nullptr;
-
-		Position bt = (Position)malloc(sizeof(struct TreeNode));
-		memset(bt, 0, sizeof(struct TreeNode));
-		bt->Element = postOder[n - 1];/*转化关系:后序遍历数组的尾元素就是子树根*/
-
-		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; Ln++);//获取左子树长度
-		bt->Left = postInBuild(inOrder, postOder, Ln);/*先序遍历数组进入左子树*/
-		bt->Right = postInBuild(inOrder + Ln + 1, postOder + Ln, n - Ln - 1);/*进入右子树*/
+	//后中构建 优化版
+	static Position postInBuild(Element const *inOrder, Element const *postOder, int n){
+		// 左子树长度
+		int Ln = -1;
+		if (n == 0)
+			return nullptr;
+		// 转化关系:后序遍历数组的尾元素就是子树根
+		Position bt = new BTNode(postOder[n - 1]);
+		// 获取左子树长度
+		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; Ln++);
+		// 先序遍历数组进入左子树
+		bt->Left = postInBuild(inOrder, postOder, Ln);
+		// 进入右子树
+		bt->Right = postInBuild(inOrder + Ln + 1, postOder + Ln, n - Ln - 1);
 		return bt;
 	}
 
