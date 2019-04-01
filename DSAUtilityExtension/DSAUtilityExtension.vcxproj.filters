@@ -129,6 +129,9 @@
     <ClInclude Include="src\nonlinear\ExpressionTree.h">
       <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
     </ClInclude>
+    <ClInclude Include="src\nonlinear\CoordinatesMap.h">
+      <Filter>头文件\DataStructure\NonlinearStructure\Graph</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
@@ -141,9 +144,6 @@
       <Filter>源文件\DataStructure\NonlinearStructure</Filter>
     </ClCompile>
     <ClCompile Include="src\_implement\nonlinear\Tree_C.cpp">
-      <Filter>源文件\DataStructure\NonlinearStructure</Filter>
-    </ClCompile>
-    <ClCompile Include="src\_implement\nonlinear\VirtualTree.cpp">
       <Filter>源文件\DataStructure\NonlinearStructure</Filter>
     </ClCompile>
     <ClCompile Include="src\_implement\utility\DataGenerater.cpp">
@@ -182,7 +182,10 @@
     <ClCompile Include="src\_implement\linear\VirtualList.cpp">
       <Filter>源文件\DataStructure\LinearStructure</Filter>
     </ClCompile>
-    <ClCompile Include="src\_implement\nonlinear\ExpressionTree.cpp">
+    <ClCompile Include="src\_implement\nonlinear\Graph.cpp">
+      <Filter>源文件\DataStructure\NonlinearStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="src\_implement\nonlinear\CoordinatesMap.cpp">
       <Filter>源文件\DataStructure\NonlinearStructure</Filter>
     </ClCompile>
   </ItemGroup>

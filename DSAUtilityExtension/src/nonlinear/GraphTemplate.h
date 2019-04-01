@@ -623,12 +623,14 @@ public:
 	}
 	/* 邻接表存储 - 拓扑排序算法: 若图中不存在回路 则计算成功 返回true*/
 	bool topologySort(JCE::ArrayList<VertexKey> &topOrderBuffer) {
+		_ASSERT_EXPR(false, "not impl");
 		/* 对GraphTemplate进行拓扑排序,  topOrderBuffer[]顺序存储排序后的顶点下标 */
 		topOrderBuffer.resize(vertexNum);
 		JCE::ArrayList<VertexKey> indegree(vertexNum);
 		//queue<VertexKey> q;
 		//保证在同等排名下优先输出序号小的
 		std::priority_queue<VertexKey, JCE::ArrayList<VertexKey>, JCE::greater<VertexKey>> q;
+		return false;
 	}
 };
 

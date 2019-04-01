@@ -1,5 +1,6 @@
 #include "Teater.h"
 #include "./nonlinear/ExpressionTree.h"
+#include "./nonlinear/CoordinatesMap.h"
 
 using namespace std;
 /**

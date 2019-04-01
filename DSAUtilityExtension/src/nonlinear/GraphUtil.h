@@ -42,7 +42,7 @@ struct Point2Base {
 };
 
 //下标对结构
-struct SubTwain {
+struct DSAUTILITYEXTENSION_API SubTwain {
 	int r;//行标
 	int c;//列标
 	const static int ERROR_SUB = -1;
