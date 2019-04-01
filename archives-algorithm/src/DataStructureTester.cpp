@@ -855,7 +855,15 @@ int testForGraph() {
 		// 总共30条有向边, 0->1和1->0这两条分别重复添加了两次不增加总边数
 		// 需要注意的是: 自己到自己也算一条边(可以理解为停留在原地的消费) 当然 最短路径时出发点是自己 因此与自己的距离是0 这么实现不知道有没有问题
 		StandardExtend::testAssert(g->getEdgeNum(), 28u);
+		// 0=11=>所有(除开0) 1<=5=>所有
 		judgeGraphFun(*g, std::vector<int>({ 0,5,10,10,10,10,10,10,10,10 }), std::vector<int>({ -1,0,1,1,1,1,1,1,1,1 }));
+
+		// 负权正常情况(9 =-2=> 8)
+		// 0=9=>8: 0=11-> 9=-2=> 8
+		// 0=8=>8: 0=5-> 1=5=> 9=-2=> 8
+		g->insertEdge(Graph::Edge(9, 8, -2));
+		judgeGraphFun(*g, std::vector<int>({ 0,5,10,10,10,10,10,10,8,10 }), std::vector<int>({ -1,0,1,1,1,1,1,1,9,1 }));
+
 		delete g; g = nullptr;
 	};
 	judgeGraph(new AdjacentMatrixGraph(10));
@@ -904,18 +912,6 @@ int testForGraph() {
 		std::vector<int>({ -1,0,1,-1,-1,2,-1,-1,-1 })
 	);
 
-	/*
-	00 01 02
-	xx xx -1
-	xx xx xx
-	*/
-	/*cg.setValidVertex({ 1, 2 }, -1);
-	cg.output();
-	// 负权正常情况
-	judgeGraphFun(cg.parityGraph(true),
-		std::vector<int>({ 0,1,3,Graph::INF,Graph::INF,2,Graph::INF,Graph::INF,Graph::INF }),
-		std::vector<int>({ -1,0,1,-1,-1,2,-1,-1,-1 })
-	);*/
 	cout << " ====== Graph test end" << endl;
 	return 0;
 }
