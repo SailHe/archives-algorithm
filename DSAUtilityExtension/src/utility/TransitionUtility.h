@@ -105,8 +105,8 @@ namespace TransitionUtility {
 			init(digitArr_, 0, __size);
 			__size = 0;
 		}
-		Digit operator[](int i) {
-			assert(0 < i);
+		Digit &operator[](int i) {
+			assert(0 <= i);
 			assert((SizeType)i < __size);
 			return digitArr_[i];
 		}
