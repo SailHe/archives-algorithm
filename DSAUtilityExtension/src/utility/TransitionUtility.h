@@ -106,7 +106,7 @@ namespace TransitionUtility {
 			__size = 0;
 		}
 		Digit operator[](int i) {
-			assert(0 < i);
+			assert(0 <= i);
 			assert((SizeType)i < __size);
 			return digitArr_[i];
 		}
