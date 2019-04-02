@@ -48,28 +48,26 @@ template<class T>
 class BinTree :public Tree{
 public:
 	typedef T Element;
-	/*二叉树结点*/
+	// 二叉树结点
 	typedef class BTNode{
 	public:
 		BTNode(){}
-		//获取子类height字段
+		// 获取子类height字段
 		virtual int getHeight(){
 			return depthOf(this);
 		}
-		//设置子类height字段
+		// 设置子类height字段
 		virtual void setHeight(int){}
-		//获取子类的添加字段:weight
+		// 获取子类的添加字段:weight (曾考虑过在这里添加字段 并重载比较符号 但极容易引起误会以及存在其它很多劣势故作罢)
 		virtual int getValue(){
 			return 0;
 		}
-		//设置子类添加字段
+		// 设置子类添加字段
 		virtual void setValue(int){}
-		//这样无需默认构造函数
+
+		// 这样无需默认构造函数
 		BTNode(Element const&tData) : Data(tData){}
-		/*BTNode(Element const&tData){
-			Data = tData;
-		}*/
-		//拷贝构造 左右孩子结点置nullptr
+		// 拷贝构造 仅拷贝数据 子结点置nullptr
 		BTNode(BTNode &rhs){
 			(*this) = rhs;
 			Left = Right = nullptr;
@@ -77,46 +75,25 @@ public:
 		virtual ~BTNode(){
 			DE_PRINTF("BTNode析构");
 		}
-		//赋值 默认的全域赋值
-		BTNode& operator=(const BTNode&) = default;
+		// 赋值 默认的全域赋值
+		BTNode &operator=(const BTNode&) = default;
+
 		int height(){
 			return depthOf(this);
 		}
-		//叶子结点判断
+		// 叶子结点判断
 		bool isLeave() const {
 			return Left == nullptr && Right == nullptr;
 		}
-		/*
-		bool operator=(HuTrNode const &rhs){
-		return Weight == rhs.Weight;
-		}
-		bool operator=(int const &rhs){
-		return Weight == rhs;
-		}
-		bool operator<(HuTrNode const &rhs){
-		return Weight < rhs.Weight;
-		}
-		bool operator>(HuTrNode const &rhs){
-		return Weight > rhs.Weight;
-		}
-		bool operator<=(HuTrNode const &rhs){
-		return Weight <= rhs.Weight;
-		}
-		bool operator>=(HuTrNode const &rhs){
-		return Weight >= rhs.Weight;
-		}
-		bool operator==(HuTrNode const &rhs){
-		return Weight == rhs.Weight;
-		}
-		bool operator!=(HuTrNode const &rhs){
-		return Weight != rhs.Weight;
-		}
-		*/
 
-		BTNode* Left = nullptr;		/* 指向左子树 */
-		BTNode* Right = nullptr;		/* 指向右子树 */
-		bool v = false;				/* 表示是否visit过此结点 */
-		Element Data;				/* 结点数据:若为结构体,结构体提供比较方法key(增删查都会使用的关键字)在结构体内 否则key就是Data weight-height不能作为key(不唯一)*/
+		// 指向左子树
+		BTNode* Left = nullptr;
+		// 指向右子树
+		BTNode* Right = nullptr;
+		// 表示是否visit过此结点
+		bool v = false;
+		// 结点数据:若为结构体,结构体提供比较方法key(增删查都会使用的关键字)在结构体内 否则key就是Data weight-height不能作为key(不唯一)
+		Element Data;
 
 	} *Position;
 	// 简单说Position有修改权限 对应的BT没有
