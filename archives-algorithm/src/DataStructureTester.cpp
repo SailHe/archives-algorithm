@@ -189,6 +189,9 @@ int testForVarrays() {
 	for (int i = 0; i < 10; ++i) {
 		StandardExtend::testAssert(c[i], std::to_string(i));
 	}
+	c.reserver(1);
+	StandardExtend::testAssert(c.capacity(), 1u);
+
 	return 11;
 }
 int subTestForQueueInt(Queue<int> &qInterface) {

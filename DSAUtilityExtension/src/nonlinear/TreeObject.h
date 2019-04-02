@@ -1,8 +1,10 @@
 #ifndef _TREEOBJECT_H
 #define _TREEOBJECT_H
 
-#include"../stdafx.h"
-#include"../ExtendSpace.h"
+#include "../stdafx.h"
+#include "../ExtendSpace.h"
+#include "BinTreeAlgorithm.h"
+
 /*
 *结语:
 *树毕竟只是容器 适合于增删查的动态操作 不适合用来作遍历
@@ -377,7 +379,8 @@ protected:
 
 	// 层序遍历---从上到下->从左到右(队列实现)
 	static void levelTraversal(BT bT, Vister visit){
-		if (!bT)return;
+		if (empty(bT))
+			return;
 		queue<BT> q;
 		q.push(bT);
 		while (!q.empty()){
@@ -391,7 +394,7 @@ protected:
 	}
 	// 先序---子树根->左子树->右子树;(递归实现)
 	static void preTraversal(BT bT, Vister visit){
-		if (bT){
+		if (!empty(bT)){
 			visit(bT);
 			preTraversal(bT->Left, visit);
 			preTraversal(bT->Right, visit);
@@ -399,7 +402,7 @@ protected:
 	}
 	// 中序---左子树->子树根->右子树;
 	static void infTraversal(BT bT, Vister visit){
-		if (bT){
+		if (!empty(bT)){
 			infTraversal(bT->Left, visit);
 			visit(bT);
 			infTraversal(bT->Right, visit);
@@ -407,7 +410,7 @@ protected:
 	}
 	// 后序---左子树->右子树->子树根;
 	static void postTraversal(BT bT, Vister visit){
-		if (bT){
+		if (!empty(bT)){
 			postTraversal(bT->Left, visit);
 			postTraversal(bT->Right, visit);
 			visit(bT);
@@ -556,7 +559,7 @@ protected:
 	}
 	/*根据后序和中序遍历输出层序遍历序列 后中->先->先序建树->层序遍历*/
 	static void calcLeveOrder(Element *preOrder, Element *inOrder, Element *postOder, int n){
-		puts("has not imp");
+		_ASSERT_EXPR(false, "has not impl");
 		exit(-1);
 	}
 
