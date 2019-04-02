@@ -145,6 +145,7 @@
     <ClInclude Include="src\linear\LinkedList.h" />
     <ClInclude Include="src\linear\Queue.h" />
     <ClInclude Include="src\linear\Stack.h" />
+    <ClInclude Include="src\linear\Varrays.h" />
     <ClInclude Include="src\MathLibrary.h" />
     <ClInclude Include="src\nonlinear\CoordinatesMap.h" />
     <ClInclude Include="src\nonlinear\ExpressionTree.h" />

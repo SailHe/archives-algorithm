@@ -1,106 +1,9 @@
 #include "Teater.h"
+#include "linear/Varrays.h"
 #include "./nonlinear/ExpressionTree.h"
 #include "./nonlinear/CoordinatesMap.h"
 
 using namespace std;
-
-// 动态数组
-//template<class ET>
-class VirtualVariableArray {
-protected:
-	typedef typename int ET;
-	typedef typename ET *Position;
-	typedef typename ET *Iterator;
-	typedef unsigned SizeType;
-
-public:
-	VirtualVariableArray() {
-		resize(0);
-	}
-	VirtualVariableArray(SizeType size) {
-		resize(size);
-	}
-	~VirtualVariableArray() {
-		delete[] baseImplArr;
-		baseImplArr = nullptr;
-	}
-
-	void resize(SizeType newSize) {
-		if (newSize <= __capacity) {
-			// DNT
-		}
-		else {
-			reallocProcess(&baseImplArr, __size, newSize);
-		}
-		__size = newSize;
-	}
-	void reserver(SizeType newCapacity) {
-		reallocProcess(&baseImplArr, __size, newCapacity);
-		__capacity = newCapacity;
-	}
-	template<typename Iterator1>
-	void assign(Iterator1 begin, Iterator1 end) {
-		Iterator tBegin = this->begin();
-		Iterator tEnd = this->end();
-		while (begin != end) {
-			if (tBegin != tEnd) {
-				*tBegin = *begin;
-				++tBegin;
-			}
-			else {
-				push_back(*begin);
-			}
-			++begin;
-		}
-	}
-	void push_back(ET ele) {
-		if (__size < __capacity) {
-			// DNT
-		}
-		else {
-			reserver(2 * __size + 1);
-		}
-		resize(__size + 1);
-		*(end() - 1) = ele;
-	}
-	SizeType size() {
-		return __size;
-	}
-	void clear() {
-		__size = 0;
-	}
-	ET operator[](int i) {
-		assert(0 < i);
-		assert((SizeType)i < __size);
-		return baseImplArr[i];
-	}
-	Iterator begin() {
-		return baseImplArr;
-	}
-	Iterator end() {
-		return baseImplArr + __size;
-	}
-
-private:
-	// (重申请内存指针的指针, 新申请大小)
-	static void reallocProcess(ET **result, SizeType oldSize, SizeType newSize) {
-		Position newArr = new ET[newSize];
-		assert(newArr != nullptr);
-		SizeType tegSize = newSize > oldSize ? oldSize : newSize;
-		for (SizeType i = 0; i < tegSize; ++i) {
-			newArr[i] = (*result)[i];
-		}
-		delete[] (*result);
-		*result = newArr;
-	}
-
-	typedef typename Position BaseImpl;
-	BaseImpl baseImplArr = nullptr;
-	// 已使用的大小(一般与__capacity相等 这个可能没啥用会删除)
-	SizeType __size = 0u;
-	// 数组大小(已申请的容量)
-	SizeType __capacity = 0u;
-};
 
 int testForStack() {
 	int i = 0;
@@ -254,7 +157,40 @@ int testForLinkedList() {
 	cout << " ====== LinkedList test end" << endl;
 	return 0;
 }
+int testForVarrays() {
+	Varrays<int> a;
+	for (int i = 0; i < 10; ++i) {
+		a.push_back(i);
+	}
+	StandardExtend::testAssert(a.size(), 10u);
+	for (int i = 0; i < 10; ++i) {
+		StandardExtend::testAssert(a[i], i);
+	}
+	a.resize(a.size() + 1);
+	StandardExtend::testAssert(a.size(), 11u);
+	a[10] = 10;
+	StandardExtend::testAssert(a[10], 10);
+	Varrays<int> b;
+	b.assign(a.begin(), a.end());
+	a.clear();
+	StandardExtend::testAssert(a.size(), 0u);
+	a.assign(b.begin(), b.end());
+	for (int i = 0; i < 11; ++i) {
+		StandardExtend::testAssert(a[i], i);
+		StandardExtend::testAssert(b[i], i);
+	}
 
+
+	Varrays<std::string> c;
+	for (int i = 0; i < 10; ++i) {
+		c.push_back(std::to_string(i));
+	}
+	StandardExtend::testAssert(c.size(), 10u);
+	for (int i = 0; i < 10; ++i) {
+		StandardExtend::testAssert(c[i], std::to_string(i));
+	}
+	return 11;
+}
 int subTestForQueueInt(Queue<int> &qInterface) {
 	int i;
 	for (i = 0; i < 10; ++i) {
@@ -291,7 +227,6 @@ int subTestForQueueList(Queue<LinkedList<std::string>> &qlInterface) {
 	}
 	return 0;
 }
-
 int testForQueue() {
 	LinkedQueue<int> q;
 	subTestForQueueInt(q);
@@ -314,6 +249,7 @@ int testForDeQueue() {
 
 // 线性结构测试主函数
 int mainForLinearStructure() {
+	testForVarrays();
 	testForLinkedList();
 	testForStack();
 	testForQueue();

@@ -135,6 +135,9 @@
     <ClInclude Include="src\utility\TransitionUtility.h">
       <Filter>头文件\Utility\Radix</Filter>
     </ClInclude>
+    <ClInclude Include="src\linear\Varrays.h">
+      <Filter>头文件\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
