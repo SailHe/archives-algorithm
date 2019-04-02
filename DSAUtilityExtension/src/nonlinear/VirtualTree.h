@@ -31,10 +31,11 @@ template<class T>
 class VirtualLinkedBinTree :public virtual BinTree<T> {
 protected:
 	typedef typename BinTree<T>::Position Position;
+	using BinTree<T>::root_;
+	using BinTree<T>::BinTreeImplType;
 public:
 	using BinTree<T>::layers;
 	using BinTree<T>::empty;
-	using BinTree<T>::root_;
 	typedef typename BinTree<T>::BT BTS;
 	// 结构已知构造(结点数目, 数据获取方法, 下标获取方法, 空下标) 若结构并不总是完整的 但root_是特定已知的 可以指定root_的下标
 	VirtualLinkedBinTree(
@@ -58,29 +59,13 @@ public:
 		root_ = nullptr;
 		DE_PRINTF("VBT析构");
 	}
-	virtual void destroy(Position &r) override {
-		std::queue<Position> q;
-		q.emplace(r);
-		while (!q.empty()) {
-			Position current = q.front();
-			q.pop();
-			if (!empty(current->Left)) {
-				q.emplace(current->Left);
-				current->Left = nullptr;
-			}
-			if (!empty(current->Right)) {
-				q.emplace(current->Right);
-				current->Right = nullptr;
-			}
-		}
-		r = nullptr;
-	}
+	
 protected:
-	typedef typename BinTree<T>::Position StructArray;
+	typedef typename BinTree<T>::Position NodeArray;
 	using BinTree<T>::BTNode;
 	typedef T ElementSBT;
 	// Left和Right储存左右孩子位于数组内的地址 Varrays
-	StructArray baseArray = nullptr;
+	NodeArray baseArray = nullptr;
 	// 数组容量, 最多元素(nSize 结点个数)个数至少为1
 	int capacity = 0;
 	// 有效的元素个数|已储存的|已使用的容量
@@ -88,6 +73,7 @@ protected:
 
 	// 构造静态完全二叉树 (结点个数) 向上转型时会用到的root_和usedSize 必须需要子类初始化
 	VirtualLinkedBinTree(int nSize) {
+		BinTreeImplType = Tree::LinearBlock;
 		baseArray = new BTNode[nSize];
 		capacity = nSize;
 	}

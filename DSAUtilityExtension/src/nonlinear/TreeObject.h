@@ -26,6 +26,12 @@ public:
 		ORDER_POST_ROOT, // 后根序
 		ORDER_LEVEL, // 层序
 	};
+	enum TreeImplTypeEnum {
+		// 线性内存块 Virtual Linked
+		LinearBlock,
+		// 非线性内存块 Real Linked
+		NonlinearBlock,
+	};
 	int Min(int a, int b){
 		return a < b ? a : b;
 	}
@@ -176,7 +182,7 @@ public:
 	}
 
 	// 清除所有内容(初始化所有结点的有效性, 结构一定会被摧毁, root_会保留)
-	virtual void clear() {
+	void clear() {
 		destroy(root_);
 		lastInsertPosition = nullptr;
 		isInsert = false;
@@ -292,7 +298,7 @@ protected:
 	int usedSize = 0;// 有效的元素个数
 	Position lastInsertPosition = nullptr;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
 	bool isInsert = false;// 是否执行了插入操作(判断插入是否成功)
-
+	TreeImplTypeEnum BinTreeImplType = NonlinearBlock;
 	// queue<Element*> freeMem;//空闲内存
 	// Element *memoryBlock = nullptr;//内存块 可将二叉树的局部储存在这里 超出部分使用外部分配的内存
 
@@ -330,7 +336,7 @@ protected:
 		return true;
 	}
 	// 销毁结点(只保证调用后结点内容无效, 不一定会析构结点)
-	virtual void destroy(Position &r){
+	void destroy(Position &r){
 		if (empty(r)) {
 			// DNT
 		}
@@ -348,7 +354,12 @@ protected:
 					q.emplace(current->Right);
 					current->Right = nullptr;
 				}
-				delete current;
+				if (BinTreeImplType == NonlinearBlock) {
+					delete current;
+				}
+				else {
+					// 线性的虚拟链接其内存不由此处管理 只需置空即可
+				}
 			}
 			r = nullptr;
 		}
