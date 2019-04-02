@@ -9,31 +9,16 @@ class DSAUTILITYEXTENSION_API Transition {
 public:
 	using DigitArray = TransitionUtility::DigitVariableArray;
 	using DigitIterator = TransitionUtility::DigitVariableArrayIterator;
+	
+protected:
 	Transition(int bufferRadix);
 	virtual ~Transition();
-protected:
 	// 返回本转换器对应的两种进制互相转换时的最小缓存预留位(就是最大进制的位最大值对应的缓存进制的位数)
-	int calcMinDigitNum() {
-		return (std::max)(this->originBitLeast, this->targetBitLeast);
-	}
+	int calcMinDigitNum();
 	// 重设缓存进制占用数字位, 返回最小预留位数的变化量
-	int resetBits(int originBitLeast, int targetBitLeast) {
-		// 有增有减->最后考虑abs; 多个变量->变量合成:max; 计算变化量: 减法
-		int currentMaxBits = calcMinDigitNum();
-		this->originBitLeast = originBitLeast;
-		this->targetBitLeast = targetBitLeast;
-		int nextMaxBits = calcMinDigitNum();
-		// 如果总比特位相等&&最大比特位相等 则disBits=0 否则disBits = nextMaxBits - currentMaxBits
-		int disBits = nextMaxBits - currentMaxBits;
-		return disBits;
-	}
+	int resetBits(int originBitLeast, int targetBitLeast);
 
-	void reSizeBuffer(JCE::SizeType nextSize) {
-		repositoryBuffer.resize(nextSize);
-		// 预留的[进位段]必须初始化为0 否则进位时会出错
-		std::for_each(repositoryBuffer.begin(), repositoryBuffer.begin() + targetBitLeast, [](int &bit) {bit = 0; });
-		//memset(repositoryBuffer, 0, targetBitLeast*sizeof(int));
-	}
+	void reSizeBuffer(JCE::SizeType nextSize);
 
 	// 转换双方的储存位: 一位数字至少(就是刚好的意思)需要多少缓存进制数字位表示
 	int originBitLeast;
@@ -65,27 +50,13 @@ PS:
    input:  1  3  7   F(15)    V(31)
    output: 1 11 111  1111     11111
 */
-class BinaryTransition : public Transition {
+class DSAUTILITYEXTENSION_API BinaryTransition : public Transition {
 public:
 	// 参数列表: {计算过程中二进制缓存的最大比特位数(若实际情况比这个大则会自动重申), 源进制比特位数, 目标进制比特位数}
-	BinaryTransition(JCE::SizeType maxBitSize, int originBitLeast = 1, int targetBitLeast = 1) : Transition(2) {
-		this->originBitLeast = 0;
-		this->targetBitLeast = 0;
-		this->originRadix = 0;
-		this->targetRadix = 0;
-		//repositoryBuffer = (int *)malloc(sizeof(int)*maxBitSize);
-		repositoryBuffer.resize(maxBitSize);
-		reset(originBitLeast, targetBitLeast);
-	}
+	BinaryTransition(JCE::SizeType maxBitSize, int originBitLeast = 1, int targetBitLeast = 1);
 
 	// 重设进制位数: 自动计算缓存[增减量]然后重设最小缓存空间(至少满足最大进制的1位), 同时初始化[进位段]
-	void reset(int originBitLeast, int targetBitLeast) {
-		_ASSERT_EXPR(StandardExtend::inRange(1, originBitLeast, 32), "radixBits => [1, 32)");
-		_ASSERT_EXPR(StandardExtend::inRange(1, targetBitLeast, 32), "radixBits => [1, 32)");
-		reSizeBuffer(repositoryBuffer.size() + resetBits(originBitLeast, targetBitLeast));
-		this->originRadix = (int)pow(2.0, originBitLeast);
-		this->targetRadix = (int)pow(2.0, targetBitLeast);
-	}
+	void reset(int originBitLeast, int targetBitLeast);
 
 	// 2基底大数转换: 源基2进制->二进制->目标基2进制; targetTopLow储存最终的结果(不会出现多余的0)
 	template<class DigitIterator>
@@ -136,30 +107,13 @@ public:
 基于10进制的进制转换器
 PS: 其API和二进制转换器有些许区别
 */
-class DecimalTransition : public Transition {
+class DSAUTILITYEXTENSION_API DecimalTransition : public Transition {
 public:
 	// 参数列表: {计算过程中10进制缓存的最大数字位数{若位数不足会自动重申}, 源进制, 目标进制}
-	DecimalTransition(JCE::SizeType maxDigitSize, int originRadix, int targetRadix) : Transition(10) {
-		this->originBitLeast = 0;
-		this->targetBitLeast = 0;
-		this->originRadix = 0;
-		this->targetRadix = 0;
-		//repositoryBuffer = (int *)malloc(sizeof(int)*maxDigitSize);
-		repositoryBuffer.resize(maxDigitSize);
-		reset(originRadix, targetRadix);
-	}
+	DecimalTransition(JCE::SizeType maxDigitSize, int originRadix, int targetRadix);
 
 	// 重设转换进制: 自动计算缓存[增减量]然后重设最小缓存空间(至少满足最大进制的1位), 同时初始化必要的元素
-	void reset(int originRadix, int targetRadix) {
-		// 最大进制要保证允许表示该进制的最大值的两倍
-		_ASSERT_EXPR(StandardExtend::inRange(2, originRadix, (MAX_INT32) / 2), "radix = [2, (MAX_INT32)/2)");
-		_ASSERT_EXPR(StandardExtend::inRange(2, targetRadix, (MAX_INT32) / 2), "radix = [2, (MAX_INT32)/2)");
-		int originBitLeast = (int)std::ceil(MathExtend::logRadix(originRadix, this->bufferRadix));
-		int targetBitLeast = (int)std::ceil(MathExtend::logRadix(targetRadix, this->bufferRadix));
-		reSizeBuffer(repositoryBuffer.size() + resetBits(originBitLeast, targetBitLeast));
-		this->originRadix = originRadix;
-		this->targetRadix = targetRadix;
-	}
+	void reset(int originRadix, int targetRadix);
 
 	// 转换为任意进制的数字数组: 源进制->10进制->目标进制; (源进制最高位迭代器, 源进制最低位迭代器的后一个, 结果缓存)
 	// 返回最结果的高位迭代器topLeftIterator
