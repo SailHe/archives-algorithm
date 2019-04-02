@@ -27,7 +27,7 @@ namespace TransitionUtility {
 	7. 迭代器降级: 降低了迭代器的抽象级别, 使之必须支持任意合理值的迭代器加减运算
 	*/
 /*
-聚合类：
+聚合类(Struct)：
 	1. 数组
 	2. [没有]这些内容的类, 结构和联合: 
 		构造函数(使用new操作符时才能构造);
@@ -63,13 +63,13 @@ namespace TransitionUtility {
 				// DNT
 			}
 			else {
-				reallocInit(&digitArr_, newSize);
+				reallocProcess(&digitArr_, newSize);
 			}
 			init(digitArr_, __size, newSize);
 			__size = newSize;
 		}
 		void reserver(SizeType newCapacity) {
-			reallocInit(&digitArr_, newCapacity);
+			reallocProcess(&digitArr_, newCapacity);
 			// init(digitArr_, __capacity, newCapacity);
 			__capacity = newCapacity;
 		}
@@ -119,7 +119,7 @@ namespace TransitionUtility {
 
 	private:
 		// (重申请内存指针的指针, 新申请大小)
-		static void reallocInit(Digit **result, SizeType newSize) {
+		static void reallocProcess(Digit **result, SizeType newSize) {
 			*result = (Digit*)realloc(*result, sizeof(Digit)*newSize);
 			assert(*result != NULL);
 		}

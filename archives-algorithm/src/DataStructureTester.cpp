@@ -3,11 +3,104 @@
 #include "./nonlinear/CoordinatesMap.h"
 
 using namespace std;
-/**
-template<typename Iterator>
-std::string toString(Iterator begin, Iterator end, std::function<std::string(Iterator)> process) {
 
-}*/
+// 动态数组
+//template<class ET>
+class VirtualVariableArray {
+protected:
+	typedef typename int ET;
+	typedef typename ET *Position;
+	typedef typename ET *Iterator;
+	typedef unsigned SizeType;
+
+public:
+	VirtualVariableArray() {
+		resize(0);
+	}
+	VirtualVariableArray(SizeType size) {
+		resize(size);
+	}
+	~VirtualVariableArray() {
+		delete[] baseImplArr;
+		baseImplArr = nullptr;
+	}
+
+	void resize(SizeType newSize) {
+		if (newSize <= __capacity) {
+			// DNT
+		}
+		else {
+			reallocProcess(&baseImplArr, __size, newSize);
+		}
+		__size = newSize;
+	}
+	void reserver(SizeType newCapacity) {
+		reallocProcess(&baseImplArr, __size, newCapacity);
+		__capacity = newCapacity;
+	}
+	template<typename Iterator1>
+	void assign(Iterator1 begin, Iterator1 end) {
+		Iterator tBegin = this->begin();
+		Iterator tEnd = this->end();
+		while (begin != end) {
+			if (tBegin != tEnd) {
+				*tBegin = *begin;
+				++tBegin;
+			}
+			else {
+				push_back(*begin);
+			}
+			++begin;
+		}
+	}
+	void push_back(ET ele) {
+		if (__size < __capacity) {
+			// DNT
+		}
+		else {
+			reserver(2 * __size + 1);
+		}
+		resize(__size + 1);
+		*(end() - 1) = ele;
+	}
+	SizeType size() {
+		return __size;
+	}
+	void clear() {
+		__size = 0;
+	}
+	ET operator[](int i) {
+		assert(0 < i);
+		assert((SizeType)i < __size);
+		return baseImplArr[i];
+	}
+	Iterator begin() {
+		return baseImplArr;
+	}
+	Iterator end() {
+		return baseImplArr + __size;
+	}
+
+private:
+	// (重申请内存指针的指针, 新申请大小)
+	static void reallocProcess(ET **result, SizeType oldSize, SizeType newSize) {
+		Position newArr = new ET[newSize];
+		assert(newArr != nullptr);
+		SizeType tegSize = newSize > oldSize ? oldSize : newSize;
+		for (SizeType i = 0; i < tegSize; ++i) {
+			newArr[i] = (*result)[i];
+		}
+		delete[] (*result);
+		*result = newArr;
+	}
+
+	typedef typename Position BaseImpl;
+	BaseImpl baseImplArr = nullptr;
+	// 已使用的大小(一般与__capacity相等 这个可能没啥用会删除)
+	SizeType __size = 0u;
+	// 数组大小(已申请的容量)
+	SizeType __capacity = 0u;
+};
 
 int testForStack() {
 	int i = 0;
