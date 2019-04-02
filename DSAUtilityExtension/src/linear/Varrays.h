@@ -66,6 +66,9 @@ public:
 	SizeType size() {
 		return __size;
 	}
+	SizeType capacity() {
+		return __capacity;
+	}
 	void clear() {
 		__size = 0;
 	}
