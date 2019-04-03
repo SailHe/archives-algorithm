@@ -116,11 +116,8 @@ public:
 		virtual Position nodeCreater(Element const &tData) = 0;
 		// 结点擦除器 将结点置为未使用状态
 		virtual void nodeEraser(Position &del) = 0;
-		NodeManager(int &usedSize, Position &lastInsertPosition, bool &isInsert) :
-			usedSize(usedSize), lastInsertPosition(lastInsertPosition), isInsert(isInsert){}
+		NodeManager(int &usedSize) : usedSize(usedSize){}
 		int &usedSize;// 有效的元素个数
-		Position &lastInsertPosition;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
-		bool &isInsert;// 是否执行了插入操作(判断插入是否成功)
 	private:
 	};
 
@@ -128,10 +125,7 @@ public:
 	public:
 		typedef typename BinTree<T>::Position NodeArray;
 		using NodeManager::usedSize;
-		using NodeManager::lastInsertPosition;
-		using NodeManager::isInsert;
-		LinearNodeManager(int &usedSize, Position &lastInsertPosition, bool &isInsert) : 
-			NodeManager(usedSize, lastInsertPosition, isInsert){}
+		LinearNodeManager(int &usedSize) : NodeManager(usedSize){}
 		Position nodeCreater(Element const &tData) override {
 			Position newNode = nullptr;
 			if (full()) {
@@ -140,8 +134,6 @@ public:
 			else {
 				baseArray[usedSize].Data = tData;
 				newNode = baseArray + (usedSize++);
-				lastInsertPosition = newNode;
-				isInsert = lastInsertPosition == nullptr ? false : true;
 			}
 			return newNode;
 		}
@@ -175,15 +167,10 @@ public:
 	class NonLinearNodeManager :public NodeManager {
 	public:
 		using NodeManager::usedSize;
-		using NodeManager::lastInsertPosition;
-		using NodeManager::isInsert;
-		NonLinearNodeManager(int &usedSize, Position &lastInsertPosition, bool &isInsert) :
-			NodeManager(usedSize, lastInsertPosition, isInsert) {}
+		NonLinearNodeManager(int &usedSize) : NodeManager(usedSize) {}
 		Position nodeCreater(Element const &tData) override {
-			lastInsertPosition = new BTNode(tData);
-			isInsert = lastInsertPosition == nullptr ? false : true;
 			++usedSize;
-			return lastInsertPosition;
+			return new BTNode(tData);
 			/*
 			bST = (BST)malloc(sizeof(struct TNode));
 			memset(bST, 0, sizeof(struct TNode));
@@ -201,14 +188,14 @@ public:
 
 
 	BinTree(){
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		nodeManager = new NonLinearNodeManager(usedSize);
 	}
 	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
 	BinTree(const BinTree &rhs){
 		DE_PRINTF("BT拷贝构造");
 		assignment(root_, rhs.root_);
 		usedSize = rhs.usedSize;
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		nodeManager = new NonLinearNodeManager(usedSize);
 	}
 	// 移动构造 (保证完全一致)
 	BinTree(BinTree &&rvalue) {
@@ -217,16 +204,16 @@ public:
 		std::swap(usedSize, rvalue.usedSize);
 		std::swap(isInsert, rvalue.isInsert);
 		std::swap(lastInsertPosition, rvalue.lastInsertPosition);
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		nodeManager = new NonLinearNodeManager(usedSize);
 	}
 	// 先中序列构造 缺省的遍历序列放置元素个数
 	BinTree(Element const *preOrder, Element const *inOrder, int n){
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		nodeManager = new NonLinearNodeManager(usedSize);
 		prefInBuild(preOrder, inOrder, root_, n);
 	}
 	// 中后序列构造
 	BinTree(int n, Element const *inOrder, Element const *postOder){
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		nodeManager = new NonLinearNodeManager(usedSize);
 		postInBuild(root_, inOrder, postOder, n);
 	}
 	
@@ -255,7 +242,7 @@ public:
 			}
 		}
 		_ASSERT_EXPR(preOrder.size() == inOrder.size(), "Size Error");
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		nodeManager = new NonLinearNodeManager(usedSize);
 		prefInBuild(preOrder, 0, inOrder, 0, root_, preOrder.size());
 	}
 
@@ -408,10 +395,10 @@ protected:
 
 	BinTree(TreeImplTypeEnum implType) {
 		if (implType == NonlinearBlock) {
-			nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+			nodeManager = new NonLinearNodeManager(usedSize);
 		}
 		else {
-			nodeManager = new LinearNodeManager(usedSize, lastInsertPosition, isInsert);
+			nodeManager = new LinearNodeManager(usedSize);
 		}
 	}
 
@@ -715,7 +702,9 @@ protected:
 public:
 	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
 	Position nodeCreater(Element const &tData){
-		return nodeManager->nodeCreater(tData);
+		lastInsertPosition = nodeManager->nodeCreater(tData);
+		isInsert = lastInsertPosition == nullptr ? false : true;
+		return lastInsertPosition;
 	}
 	//结点擦除器 将结点置为未使用状态
 	void nodeEraser(Position &del){
