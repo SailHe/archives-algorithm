@@ -116,24 +116,28 @@ public:
 		virtual Position nodeCreater(Element const &tData) = 0;
 		// 结点擦除器 将结点置为未使用状态
 		virtual void nodeEraser(Position &del) = 0;
-		NodeManager(int &usedSize) : usedSize(usedSize){}
-		int &usedSize;// 有效的元素个数
+		// 返回现存有效的结点数
+		int validNodeCnt() {
+			return validNodeCnter;
+		}
+		NodeManager(){}
+		int validNodeCnter = 0;// 有效的元素个数
 	private:
 	};
 
 	class LinearNodeManager :public NodeManager {
 	public:
 		typedef typename BinTree<T>::Position NodeArray;
-		using NodeManager::usedSize;
-		LinearNodeManager(int &usedSize) : NodeManager(usedSize){}
+		using NodeManager::validNodeCnter;
+		LinearNodeManager(){}
 		Position nodeCreater(Element const &tData) override {
 			Position newNode = nullptr;
 			if (full()) {
 				// DNT
 			}
 			else {
-				baseArray[usedSize].Data = tData;
-				newNode = baseArray + (usedSize++);
+				baseArray[validNodeCnter].Data = tData;
+				newNode = baseArray + (validNodeCnter++);
 			}
 			return newNode;
 		}
@@ -144,10 +148,10 @@ public:
 			//静态数组的删除并非实际删除
 			del->Left = del->Right = nullptr;
 			del = nullptr;
-			--usedSize;
+			--validNodeCnter;
 		}
 		bool full() {
-			return usedSize == capacity;
+			return validNodeCnter == capacity;
 		}
 		// 返回数组内的结点编号 1号为root_ 0号为哨兵
 		int index(BinTree<T>::BT t) const {
@@ -166,10 +170,10 @@ public:
 	};
 	class NonLinearNodeManager :public NodeManager {
 	public:
-		using NodeManager::usedSize;
-		NonLinearNodeManager(int &usedSize) : NodeManager(usedSize) {}
+		using NodeManager::validNodeCnter;
+		NonLinearNodeManager() {}
 		Position nodeCreater(Element const &tData) override {
-			++usedSize;
+			++validNodeCnter;
 			return new BTNode(tData);
 			/*
 			bST = (BST)malloc(sizeof(struct TNode));
@@ -181,44 +185,36 @@ public:
 			// free(del); del = nullptr;
 			delete del;
 			del = nullptr;
-			--usedSize;
+			--validNodeCnter;
 		}
 		//private:
 	};
 
 
 	BinTree(){
-		nodeManager = new NonLinearNodeManager(usedSize);
+		nodeManager = new NonLinearNodeManager();
 	}
 	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
-	BinTree(const BinTree &rhs){
+	BinTree(const BinTree &rhs) : BinTree(){
 		DE_PRINTF("BT拷贝构造");
-		assignment(root_, rhs.root_);
-		usedSize = rhs.usedSize;
-		nodeManager = new NonLinearNodeManager(usedSize);
+		Assignment(root_, rhs.root_);
 	}
 	// 移动构造 (保证完全一致)
-	BinTree(BinTree &&rvalue) {
+	BinTree(BinTree &&rvalue) : BinTree() {
 		DE_PRINTF("BT移动构造");
-		std::swap(root_, rvalue.root_);
-		std::swap(usedSize, rvalue.usedSize);
-		std::swap(isInsert, rvalue.isInsert);
-		std::swap(lastInsertPosition, rvalue.lastInsertPosition);
-		nodeManager = new NonLinearNodeManager(usedSize);
+		*this = std::move(rvalue);
 	}
 	// 先中序列构造 缺省的遍历序列放置元素个数
-	BinTree(Element const *preOrder, Element const *inOrder, int n){
-		nodeManager = new NonLinearNodeManager(usedSize);
+	BinTree(Element const *preOrder, Element const *inOrder, int n) : BinTree() {
 		prefInBuild(preOrder, inOrder, root_, n);
 	}
 	// 中后序列构造
-	BinTree(int n, Element const *inOrder, Element const *postOder){
-		nodeManager = new NonLinearNodeManager(usedSize);
+	BinTree(int n, Element const *inOrder, Element const *postOder) : BinTree() {
 		postInBuild(root_, inOrder, postOder, n);
 	}
 	
 	// 先根序遍历操作堆栈构造 (堆栈操作获取方法, 结点数据获取方法)
-	BinTree(std::function<bool(std::string &)> getOrder, void(*getData)(T*)){
+	BinTree(std::function<bool(std::string &)> getOrder, void(*getData)(T*)) : BinTree() {
 		ArrayList<T> preOrder, inOrder;
 		stack<T> s;
 		std::string str;
@@ -242,7 +238,6 @@ public:
 			}
 		}
 		_ASSERT_EXPR(preOrder.size() == inOrder.size(), "Size Error");
-		nodeManager = new NonLinearNodeManager(usedSize);
 		prefInBuild(preOrder, 0, inOrder, 0, root_, preOrder.size());
 	}
 
@@ -258,25 +253,23 @@ public:
 	BinTree &operator= (const BinTree &rhs) {
 		// 先要析构自己的root_
 		destroy(root_);
-		assignment(root_, rhs.root_);
-		usedSize = rhs.usedSize;
+		Assignment(root_, rhs.root_);
 		return *this;
 	}
 	// 避免无意地二叉树移动(系统自动析构原lhs)
 	BinTree &operator= (BinTree &&rvalue) {
 		std::swap(root_, rvalue.root_);
-		std::swap(usedSize, rvalue.usedSize);
 		std::swap(isInsert, rvalue.isInsert);
-		std::swap(lastInsertPosition, rvalue.lastInsertPosition);
+		std::swap(lastCreateNode, rvalue.lastCreateNode);
+		std::swap(nodeManager, rvalue.nodeManager);
 		return *this;
 	}
 
 	// 清除所有内容(初始化所有结点的有效性, 结构一定会被摧毁, root_会保留)
 	void clear() {
 		destroy(root_);
-		lastInsertPosition = nullptr;
+		lastCreateNode = nullptr;
 		isInsert = false;
-		usedSize = 0;
 	}
 
 	Element getRootData() const {
@@ -289,7 +282,7 @@ public:
 	bool empty() const {
 		// (根结点为空表示整颗树为空 空表示当前结点不存在而非不存在子结点)
 		// return empty(root_);
-		return usedSize == 0;
+		return nodeManager->validNodeCnt() == 0;
 	}
 	// 返回树高度|深度 O(H)
 	int height() const {
@@ -379,14 +372,13 @@ public:
 		return fillData(dataA, 0, dataA.size(), root_);
 	}
 	int size(){
-		return usedSize;
+		return nodeManager->validNodeCnt();
 	}
 	
 protected:
 	const static int BT_NODE_LEN = sizeof(class BTNode);
 	Position root_ = nullptr;
-	int usedSize = 0;// 有效的元素个数
-	Position lastInsertPosition = nullptr;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
+	Position lastCreateNode = nullptr;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
 	bool isInsert = false;// 是否执行了插入操作(判断插入是否成功)
 	NodeManager *nodeManager = nullptr;
 	TreeImplTypeEnum BinTreeImplType = NonlinearBlock;
@@ -395,11 +387,22 @@ protected:
 
 	BinTree(TreeImplTypeEnum implType) {
 		if (implType == NonlinearBlock) {
-			nodeManager = new NonLinearNodeManager(usedSize);
+			nodeManager = new NonLinearNodeManager();
 		}
 		else {
-			nodeManager = new LinearNodeManager(usedSize);
+			nodeManager = new LinearNodeManager();
 		}
+	}
+
+	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
+	Position nodeCreater(Element const &tData) {
+		lastCreateNode = nodeManager->nodeCreater(tData);
+		isInsert = lastCreateNode == nullptr ? false : true;
+		return lastCreateNode;
+	}
+	//结点擦除器 将结点置为未使用状态
+	void nodeEraser(Position &del) {
+		return nodeManager->nodeEraser(del);
 	}
 
 	// 返回子二叉树的规模 O(N)
@@ -455,7 +458,7 @@ protected:
 					current->Right = nullptr;
 				}
 				if (BinTreeImplType == NonlinearBlock) {
-					delete current;
+					nodeEraser(current);
 				}
 				else {
 					// 线性的虚拟链接其内存不由此处管理 只需置空即可
@@ -507,27 +510,35 @@ protected:
 
 	//先中构建
 	void prefInBuild(Element const *preOrder, Element const *inOrder, Position &bt, int n){
-		int Ln;/*左子子树长度*/
-		if (n == 0)return;
+		// 左子子树长度
+		int Ln;
+		if (n == 0)
+			return;
 		if (bt == nullptr)
 			bt = nodeCreater(*preOrder);
-		else/*转化关系:先序遍历数组的首元素就是子树根*/
+		else// 转化关系:先序遍历数组的首元素就是子树根
 			bt->Data = *preOrder;
 		for (Ln = 0; Ln < n && inOrder[Ln] != *preOrder; Ln++);
-		prefInBuild(preOrder + 1, inOrder, bt->Left, Ln);/*先序遍历数组向左子树遍历一个元素 其余数组保持不变*/
-		prefInBuild(preOrder + Ln + 1, inOrder + Ln + 1, bt->Right, n - Ln - 1);/*向右子树遍历一个元素*/
+		// 先序遍历数组向左子树遍历一个元素 其余数组保持不变
+		prefInBuild(preOrder + 1, inOrder, bt->Left, Ln);
+		// 向右子树遍历一个元素
+		prefInBuild(preOrder + Ln + 1, inOrder + Ln + 1, bt->Right, n - Ln - 1);
 	}
 	//先中构建ArrayList
 	void prefInBuild(ArrayList<Element> &preOrder, int preRoot, ArrayList<Element> &inOrder, int inRoot, Position &bt, int n){
-		int Ln;/*左子子树长度*/
-		if (n == 0)return;
+		// 左子子树长度
+		int Ln;
+		if (n == 0)
+			return;
 		if (bt == nullptr)
 			bt = nodeCreater(preOrder[preRoot]);
-		else/*转化关系:先序遍历数组的首元素就是子树根*/
+		else// 转化关系:先序遍历数组的首元素就是子树根
 			bt->Data = preOrder[preRoot];
 		for (Ln = 0; Ln < n && inOrder[inRoot + Ln] != preOrder[preRoot]; Ln++);
-		prefInBuild(preOrder, preRoot + 1, inOrder, inRoot, bt->Left, Ln);/*先序遍历数组向左子树遍历一个元素 其余数组保持不变*/
-		prefInBuild(preOrder, preRoot + Ln + 1, inOrder, inRoot + Ln + 1, bt->Right, n - Ln - 1);/*向右子树遍历一个元素*/
+		// 先序遍历数组向左子树遍历一个元素 其余数组保持不变
+		prefInBuild(preOrder, preRoot + 1, inOrder, inRoot, bt->Left, Ln);
+		// 向右子树遍历一个元素
+		prefInBuild(preOrder, preRoot + Ln + 1, inOrder, inRoot + Ln + 1, bt->Right, n - Ln - 1);
 	}
 	//后中构建
 	void postInBuild(Position &bt, Element const *inOrder, Element const *postOder, int n){
@@ -678,11 +689,11 @@ protected:
 	}
 
 	// 递归拷贝赋值
-	static void assignment(Position &lhs, const Position rhs){
+	void Assignment(Position &lhs, const Position rhs){
 		if (!empty(rhs)){
-			lhs = new BTNode(*rhs);
-			assignment(lhs->Left, rhs->Left);
-			assignment(lhs->Right, rhs->Right);
+			lhs = nodeCreater(rhs->Data);
+			Assignment(lhs->Left, rhs->Left);
+			Assignment(lhs->Right, rhs->Right);
 		}
 	}
 	// 判断二叉树是否为空
@@ -694,22 +705,11 @@ protected:
 	void reAssignment(){}
 	// 重复插入处理
 	void repetitionInsert(Position bt){
-		//x==bt->Data 无需插入 手动更新lastInsertPosition
-		lastInsertPosition = bt;
+		//x==bt->Data 无需插入 手动更新lastCreateNode
+		lastCreateNode = bt;
 		isInsert = false;
 	}
 	
-public:
-	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
-	Position nodeCreater(Element const &tData){
-		lastInsertPosition = nodeManager->nodeCreater(tData);
-		isInsert = lastInsertPosition == nullptr ? false : true;
-		return lastInsertPosition;
-	}
-	//结点擦除器 将结点置为未使用状态
-	void nodeEraser(Position &del){
-		return nodeManager->nodeEraser(del);
-	}
 };
 
 /*二叉搜索（查找 排序 判定）树*/
@@ -745,7 +745,7 @@ public:
 	typedef typename BinTree<T>::Position Position;
 	typedef typename BinTree<T>::Element Element;
 	using BinTree<T>::root_;
-	using BinTree<T>::lastInsertPosition;
+	using BinTree<T>::lastCreateNode;
 	using BinTree<T>::traversal;
 	using BinTree<T>::empty;
 	using BinTree<T>::destroy;
@@ -807,7 +807,7 @@ public:
 		//(BinTree)(*this) = (BinTree)rhs;
 		// ==>强制转换其实是调用的拷贝构造方法(这样效率不高) 所以应当为子类编写自己的赋值函数(即使没有新增加的域)
 		BinTree<T>::destroy(root_);//先要销毁自己的root_
-		BinTree<T>::assignment(root_, rhs.root_);
+		BinTree<T>::Assignment(root_, rhs.root_);
 		return *this;
 	}
 
@@ -957,7 +957,7 @@ public:
 	JCE::pair<Position, bool> insert(Element const&x){
 		root_ = Insert(root_, x);
 		//与map的insert返回值类似，重复insert 返回<重复Position, false>，这个技巧在面试如何找出2个数组相同的数字的时候有奇效
-		return{ BinTree<T>::lastInsertPosition, BinTree<T>::isInsert };
+		return{ BinTree<T>::lastCreateNode, BinTree<T>::isInsert };
 	}
 	//序列插入 局部有序插入O(1) 无序O(logN) 但如果Avl使用此插入会使Avl退化为普通BST(相当于优化的链表: 插入效率变高 查找效率相对Avl退化)
 	//(例如654789)->4 5 [6] Orderly被置false 7 [手动]置true 8 9 可实现局部有序插入
@@ -968,18 +968,18 @@ public:
 		else{
 			if (!BinTree<T>::empty(root_)){
 				if (x < root_->Data){//若即将插入的数据在左子树
-					if (x < lastInsertPosition->Data){//x已位于左子树 若x还比lastInsertPosition小后者必定也在左子树
-						Insert(lastInsertPosition, x);//于是直接往lastInsertPosition的左边插即可
+					if (x < lastCreateNode->Data){//x已位于左子树 若x还比lastCreateNode小后者必定也在左子树
+						Insert(lastCreateNode, x);//于是直接往lastCreateNode的左边插即可
 						Orderly = true;
 					}
-					else{//否则应该插入的位置位于左子树:root_和lastInsertPosition中间
+					else{//否则应该插入的位置位于左子树:root_和lastCreateNode中间
 						Orderly = false;
 						root_ = Insert(root_, x);
 					}
 				}
 				else{//相等时直接传入使Insert判断
-					if (lastInsertPosition->Data < x){///@x > lastInsertPosition->Data
-						Insert(lastInsertPosition, x);
+					if (lastCreateNode->Data < x){///@x > lastCreateNode->Data
+						Insert(lastCreateNode, x);
 						Orderly = true;
 					}
 					else{
@@ -993,7 +993,7 @@ public:
 				root_ = Insert(root_, x);
 			}
 		}
-		return{ lastInsertPosition, BinTree<T>::isInsert };
+		return{ lastCreateNode, BinTree<T>::isInsert };
 	}
 	//删除 删除成功返回true
 	bool erase(Element const&x){
