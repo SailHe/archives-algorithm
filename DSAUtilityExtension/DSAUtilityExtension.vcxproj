@@ -147,15 +147,20 @@
     <ClInclude Include="src\linear\Stack.h" />
     <ClInclude Include="src\linear\Varrays.h" />
     <ClInclude Include="src\MathLibrary.h" />
+    <ClInclude Include="src\nonlinear\BinTreeAlgorithm.h" />
     <ClInclude Include="src\nonlinear\CoordinatesMap.h" />
     <ClInclude Include="src\nonlinear\ExpressionTree.h" />
     <ClInclude Include="src\nonlinear\Graph.h" />
     <ClInclude Include="src\nonlinear\GraphTemplate.h" />
     <ClInclude Include="src\nonlinear\GraphUtil.h" />
-    <ClInclude Include="src\nonlinear\HuffmanTree.h" />
+    <ClInclude Include="src\nonlinear\HuffmanTree.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\nonlinear\TreeObject.h" />
     <ClInclude Include="src\nonlinear\TreeUtility.h" />
-    <ClInclude Include="src\nonlinear\VirtualTree.h" />
+    <ClInclude Include="src\nonlinear\VirtualTree.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\SailHeAlgorithm.h" />
     <ClInclude Include="src\stdafx.h" />
@@ -184,7 +189,9 @@
     <ClCompile Include="src\_implement\nonlinear\Graph_C.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="src\_implement\nonlinear\HuffmanTree.cpp" />
+    <ClCompile Include="src\_implement\nonlinear\HuffmanTree.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\_implement\nonlinear\Tree_C.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>

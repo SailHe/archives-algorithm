@@ -32,6 +32,7 @@ class VirtualLinkedBinTree :public virtual BinTree<T> {
 protected:
 	typedef typename BinTree<T>::Position Position;
 	using BinTree<T>::root_;
+	using BinTree<T>::nodeManager;
 	using BinTree<T>::BinTreeImplType;
 public:
 	using BinTree<T>::layers;
@@ -72,7 +73,7 @@ protected:
 	using BinTree<T>::usedSize;
 
 	// 构造静态完全二叉树 (结点个数) 向上转型时会用到的root_和usedSize 必须需要子类初始化
-	VirtualLinkedBinTree(int nSize) {
+	VirtualLinkedBinTree(int nSize) : BinTree<T>(Tree::LinearBlock) {
 		BinTreeImplType = Tree::LinearBlock;
 		baseArray = new BTNode[nSize];
 		capacity = nSize;
@@ -203,7 +204,7 @@ protected:
 	using VirtualLinkedBinTree<T>::full;
 	// 仅用于CompleteBinSearchTree的初始化
 	VirtualLinkedBinSearchTree(int nSize) : VirtualLinkedBinTree<T>(nSize) {}
-
+	/*
 	Position nodeCreater(Element const &tData)override {
 		Position newNode = nullptr;
 		if (full()) {
@@ -226,6 +227,7 @@ protected:
 		del = nullptr;
 		--usedSize;
 	}
+	*/
 };
 
 /*完全二叉搜索树 使用数组构造 实现对其的静态二分查找 若需要动态增删功能 需要向上转型为二叉搜索树*/

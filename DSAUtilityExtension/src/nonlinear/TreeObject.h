@@ -106,12 +106,109 @@ public:
 	using BT = BTNode const *;
 	using Vister = std::function<void(BinTree<T>::BT const)>;
 
-	BinTree(){}
+
+
+	// 结点管理类
+	// (简单粗暴的实现的话可以直接判断语句判断 但这样会在类内部再次添加至少1个域: cap, 而且并非所有子类都会使用 因此采用继承方式)
+	class NodeManager {
+	public:
+		// 结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
+		virtual Position nodeCreater(Element const &tData) = 0;
+		// 结点擦除器 将结点置为未使用状态
+		virtual void nodeEraser(Position &del) = 0;
+		NodeManager(int &usedSize, Position &lastInsertPosition, bool &isInsert) :
+			usedSize(usedSize), lastInsertPosition(lastInsertPosition), isInsert(isInsert){}
+		int &usedSize;// 有效的元素个数
+		Position &lastInsertPosition;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
+		bool &isInsert;// 是否执行了插入操作(判断插入是否成功)
+	private:
+	};
+
+	class LinearNodeManager :public NodeManager {
+	public:
+		typedef typename BinTree<T>::Position NodeArray;
+		using NodeManager::usedSize;
+		using NodeManager::lastInsertPosition;
+		using NodeManager::isInsert;
+		LinearNodeManager(int &usedSize, Position &lastInsertPosition, bool &isInsert) : 
+			NodeManager(usedSize, lastInsertPosition, isInsert){}
+		Position nodeCreater(Element const &tData) override {
+			Position newNode = nullptr;
+			if (full()) {
+				// DNT
+			}
+			else {
+				baseArray[usedSize].Data = tData;
+				newNode = baseArray + (usedSize++);
+				lastInsertPosition = newNode;
+				isInsert = lastInsertPosition == nullptr ? false : true;
+			}
+			return newNode;
+		}
+		void nodeEraser(Position &del) override {
+			// 0代表初始状态 只为了标识用 并无特殊用处
+			// malloc就应用memeset初始化free释放 new自动初始化 赋值初始化 delete释放
+			// del->Data = 0; // {}
+			//静态数组的删除并非实际删除
+			del->Left = del->Right = nullptr;
+			del = nullptr;
+			--usedSize;
+		}
+		bool full() {
+			return usedSize == capacity;
+		}
+		// 返回数组内的结点编号 1号为root_ 0号为哨兵
+		int index(BinTree<T>::BT t) const {
+			/*第一个元素插入时root_=nullptr 所以链接左右孩子链接方法不能用root_ 更何况root_=1时的规律是针对数组成立的*/
+			return t - baseArray;
+		}
+		// 返回数组内的结点位置
+		Position position(int sub) {
+			return baseArray + sub;
+		}
+		// Left和Right储存左右孩子位于数组内的地址 Varrays
+		NodeArray baseArray = nullptr;
+		// 数组容量, 最多元素(nSize 结点个数)个数至少为1
+		int capacity = 0;
+		//private:
+	};
+	class NonLinearNodeManager :public NodeManager {
+	public:
+		using NodeManager::usedSize;
+		using NodeManager::lastInsertPosition;
+		using NodeManager::isInsert;
+		NonLinearNodeManager(int &usedSize, Position &lastInsertPosition, bool &isInsert) :
+			NodeManager(usedSize, lastInsertPosition, isInsert) {}
+		Position nodeCreater(Element const &tData) override {
+			lastInsertPosition = new BTNode(tData);
+			isInsert = lastInsertPosition == nullptr ? false : true;
+			++usedSize;
+			return lastInsertPosition;
+			/*
+			bST = (BST)malloc(sizeof(struct TNode));
+			memset(bST, 0, sizeof(struct TNode));
+			bST->Element = x;
+			*/
+		}
+		void nodeEraser(Position &del) override {
+			// free(del); del = nullptr;
+			delete del;
+			del = nullptr;
+			--usedSize;
+		}
+		//private:
+	};
+
+
+	BinTree(){
+		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+	}
 	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
 	BinTree(const BinTree &rhs){
 		DE_PRINTF("BT拷贝构造");
 		assignment(root_, rhs.root_);
 		usedSize = rhs.usedSize;
+		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
 	}
 	// 移动构造 (保证完全一致)
 	BinTree(BinTree &&rvalue) {
@@ -120,13 +217,16 @@ public:
 		std::swap(usedSize, rvalue.usedSize);
 		std::swap(isInsert, rvalue.isInsert);
 		std::swap(lastInsertPosition, rvalue.lastInsertPosition);
+		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
 	}
 	// 先中序列构造 缺省的遍历序列放置元素个数
 	BinTree(Element const *preOrder, Element const *inOrder, int n){
+		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
 		prefInBuild(preOrder, inOrder, root_, n);
 	}
 	// 中后序列构造
 	BinTree(int n, Element const *inOrder, Element const *postOder){
+		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
 		postInBuild(root_, inOrder, postOder, n);
 	}
 	
@@ -155,12 +255,15 @@ public:
 			}
 		}
 		_ASSERT_EXPR(preOrder.size() == inOrder.size(), "Size Error");
+		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
 		prefInBuild(preOrder, 0, inOrder, 0, root_, preOrder.size());
 	}
 
 	// destructor
 	virtual ~BinTree() {
 		destroy(root_);
+		delete nodeManager;
+		nodeManager = nullptr;
 		DE_PRINTF("BT析构");
 	}
 
@@ -298,9 +401,19 @@ protected:
 	int usedSize = 0;// 有效的元素个数
 	Position lastInsertPosition = nullptr;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
 	bool isInsert = false;// 是否执行了插入操作(判断插入是否成功)
+	NodeManager *nodeManager = nullptr;
 	TreeImplTypeEnum BinTreeImplType = NonlinearBlock;
 	// queue<Element*> freeMem;//空闲内存
 	// Element *memoryBlock = nullptr;//内存块 可将二叉树的局部储存在这里 超出部分使用外部分配的内存
+
+	BinTree(TreeImplTypeEnum implType) {
+		if (implType == NonlinearBlock) {
+			nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		}
+		else {
+			nodeManager = new LinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		}
+	}
 
 	// 返回子二叉树的规模 O(N)
 	static int scaleOf(BT t) {
@@ -601,23 +714,12 @@ protected:
 	
 public:
 	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
-	virtual Position nodeCreater(Element const &tData){
-		lastInsertPosition = new BTNode(tData);
-		isInsert = lastInsertPosition == nullptr ? false : true;
-		++usedSize;
-		return lastInsertPosition;
-		/*
-		bST = (BST)malloc(sizeof(struct TNode));
-		memset(bST, 0, sizeof(struct TNode));
-		bST->Element = x;
-		*/
+	Position nodeCreater(Element const &tData){
+		return nodeManager->nodeCreater(tData);
 	}
 	//结点擦除器 将结点置为未使用状态
-	virtual void nodeEraser(Position &del){
-		// free(del); del = nullptr;
-		delete del;
-		del = nullptr;
-		--usedSize;
+	void nodeEraser(Position &del){
+		return nodeManager->nodeEraser(del);
 	}
 };
 
