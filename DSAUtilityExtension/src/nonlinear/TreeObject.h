@@ -112,15 +112,23 @@ public:
 	// (简单粗暴的实现的话可以直接判断语句判断 但这样会在类内部再次添加至少1个域: cap, 而且并非所有子类都会使用 因此采用继承方式)
 	class NodeManager {
 	public:
+		NodeManager(int &usedSize) :
+			usedSize(usedSize), lastInsertPosition(lastInsertPosition){}
 		// 结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
 		virtual Position nodeCreater(Element const &tData) = 0;
 		// 结点擦除器 将结点置为未使用状态
 		virtual void nodeEraser(Position &del) = 0;
-		NodeManager(int &usedSize, Position &lastInsertPosition, bool &isInsert) :
-			usedSize(usedSize), lastInsertPosition(lastInsertPosition), isInsert(isInsert){}
+		void init(Position lp = nullptr) {
+			isInsert = false;
+			lastInsertPosition = lp;
+		}
+		JCE::pair<Position, bool> insertResult() {
+			return { lastInsertPosition , isInsert };
+		}
+
 		int &usedSize;// 有效的元素个数
-		Position &lastInsertPosition;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
-		bool &isInsert;// 是否执行了插入操作(判断插入是否成功)
+		Position lastInsertPosition;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
+		bool isInsert;// 是否执行了插入操作(判断插入是否成功)
 	private:
 	};
 
@@ -130,8 +138,7 @@ public:
 		using NodeManager::usedSize;
 		using NodeManager::lastInsertPosition;
 		using NodeManager::isInsert;
-		LinearNodeManager(int &usedSize, Position &lastInsertPosition, bool &isInsert) : 
-			NodeManager(usedSize, lastInsertPosition, isInsert){}
+		LinearNodeManager(int &usedSize) : NodeManager(usedSize){}
 		Position nodeCreater(Element const &tData) override {
 			Position newNode = nullptr;
 			if (full()) {
@@ -177,8 +184,7 @@ public:
 		using NodeManager::usedSize;
 		using NodeManager::lastInsertPosition;
 		using NodeManager::isInsert;
-		NonLinearNodeManager(int &usedSize, Position &lastInsertPosition, bool &isInsert) :
-			NodeManager(usedSize, lastInsertPosition, isInsert) {}
+		NonLinearNodeManager(int &usedSize) : NodeManager(usedSize) {}
 		Position nodeCreater(Element const &tData) override {
 			lastInsertPosition = new BTNode(tData);
 			isInsert = lastInsertPosition == nullptr ? false : true;
@@ -201,32 +207,30 @@ public:
 
 
 	BinTree(){
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		nodeManager = new NonLinearNodeManager(usedSize);
 	}
 	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
 	BinTree(const BinTree &rhs){
 		DE_PRINTF("BT拷贝构造");
 		assignment(root_, rhs.root_);
 		usedSize = rhs.usedSize;
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		nodeManager = new NonLinearNodeManager(usedSize);
 	}
 	// 移动构造 (保证完全一致)
 	BinTree(BinTree &&rvalue) {
 		DE_PRINTF("BT移动构造");
 		std::swap(root_, rvalue.root_);
 		std::swap(usedSize, rvalue.usedSize);
-		std::swap(isInsert, rvalue.isInsert);
-		std::swap(lastInsertPosition, rvalue.lastInsertPosition);
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		std::swap(nodeManager, rvalue.nodeManager);
 	}
 	// 先中序列构造 缺省的遍历序列放置元素个数
 	BinTree(Element const *preOrder, Element const *inOrder, int n){
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		nodeManager = new NonLinearNodeManager(usedSize);
 		prefInBuild(preOrder, inOrder, root_, n);
 	}
 	// 中后序列构造
 	BinTree(int n, Element const *inOrder, Element const *postOder){
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		nodeManager = new NonLinearNodeManager(usedSize);
 		postInBuild(root_, inOrder, postOder, n);
 	}
 	
@@ -255,7 +259,7 @@ public:
 			}
 		}
 		_ASSERT_EXPR(preOrder.size() == inOrder.size(), "Size Error");
-		nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+		nodeManager = new NonLinearNodeManager(usedSize);
 		prefInBuild(preOrder, 0, inOrder, 0, root_, preOrder.size());
 	}
 
@@ -279,16 +283,14 @@ public:
 	BinTree &operator= (BinTree &&rvalue) {
 		std::swap(root_, rvalue.root_);
 		std::swap(usedSize, rvalue.usedSize);
-		std::swap(isInsert, rvalue.isInsert);
-		std::swap(lastInsertPosition, rvalue.lastInsertPosition);
+		std::swap(nodeManager, rvalue.nodeManager);
 		return *this;
 	}
 
 	// 清除所有内容(初始化所有结点的有效性, 结构一定会被摧毁, root_会保留)
 	void clear() {
 		destroy(root_);
-		lastInsertPosition = nullptr;
-		isInsert = false;
+		nodeManager->init();
 		usedSize = 0;
 	}
 
@@ -399,8 +401,6 @@ protected:
 	const static int BT_NODE_LEN = sizeof(class BTNode);
 	Position root_ = nullptr;
 	int usedSize = 0;// 有效的元素个数
-	Position lastInsertPosition = nullptr;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
-	bool isInsert = false;// 是否执行了插入操作(判断插入是否成功)
 	NodeManager *nodeManager = nullptr;
 	TreeImplTypeEnum BinTreeImplType = NonlinearBlock;
 	// queue<Element*> freeMem;//空闲内存
@@ -408,10 +408,10 @@ protected:
 
 	BinTree(TreeImplTypeEnum implType) {
 		if (implType == NonlinearBlock) {
-			nodeManager = new NonLinearNodeManager(usedSize, lastInsertPosition, isInsert);
+			nodeManager = new NonLinearNodeManager(usedSize);
 		}
 		else {
-			nodeManager = new LinearNodeManager(usedSize, lastInsertPosition, isInsert);
+			nodeManager = new LinearNodeManager(usedSize);
 		}
 	}
 
@@ -708,8 +708,7 @@ protected:
 	// 重复插入处理
 	void repetitionInsert(Position bt){
 		//x==bt->Data 无需插入 手动更新lastInsertPosition
-		lastInsertPosition = bt;
-		isInsert = false;
+		nodeManager->init(bt);
 	}
 	
 public:
@@ -756,6 +755,7 @@ public:
 	typedef typename BinTree<T>::Position Position;
 	typedef typename BinTree<T>::Element Element;
 	using BinTree<T>::root_;
+	using BinTree<T>::nodeManager;
 	using BinTree<T>::lastInsertPosition;
 	using BinTree<T>::traversal;
 	using BinTree<T>::empty;
@@ -968,7 +968,7 @@ public:
 	JCE::pair<Position, bool> insert(Element const&x){
 		root_ = Insert(root_, x);
 		//与map的insert返回值类似，重复insert 返回<重复Position, false>，这个技巧在面试如何找出2个数组相同的数字的时候有奇效
-		return{ BinTree<T>::lastInsertPosition, BinTree<T>::isInsert };
+		return nodeManager->insertResult();
 	}
 	//序列插入 局部有序插入O(1) 无序O(logN) 但如果Avl使用此插入会使Avl退化为普通BST(相当于优化的链表: 插入效率变高 查找效率相对Avl退化)
 	//(例如654789)->4 5 [6] Orderly被置false 7 [手动]置true 8 9 可实现局部有序插入
@@ -1004,7 +1004,7 @@ public:
 				root_ = Insert(root_, x);
 			}
 		}
-		return{ lastInsertPosition, BinTree<T>::isInsert };
+		return nodeManager->insertResult();
 	}
 	//删除 删除成功返回true
 	bool erase(Element const&x){
