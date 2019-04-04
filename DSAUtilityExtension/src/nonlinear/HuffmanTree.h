@@ -47,7 +47,7 @@ public:
 			// return rhs->Weight < lhs->Weight ? : -1 : rhs->Weight == lhs->Weight ? 0 : 1;
 		});
 		for (int i = 0; i < nHuf; ++i)	h.push(new HuTrNode(character[i], freq[i]));
-		// 做usedSize-1次合并 每次将权值最小的两颗树合并 但是运算途中usedSize会变化 所以用n
+		// 做validNodeNum-1次合并 每次将权值最小的两颗树合并 但是运算途中validNodeNum会变化 所以用n
 		while (nHuf-- > 1) {
 			// 当泛型为char时 无效结点为'\0'不会输出(自动省略无效的非叶结点) 否则需要重写遍历方法
 			HuTr ht = new HuTrNode(0, 0);
@@ -73,7 +73,7 @@ public:
 	}
 	//返回长度为maxLen的char型字符串 若get = true自动调用gets(str);
 	static char* newSentence(int maxLen, bool get = false, char end = '\n') {
-		//str.resize(maxLen);//str的length() usedSize都是maxLen 于是弃用 但是若换成new char 又回到了内存管理的问题
+		//str.resize(maxLen);//str的length() validNodeNum都是maxLen 于是弃用 但是若换成new char 又回到了内存管理的问题
 		//cin.getline(&str[0], maxLen, end);
 		char* str = (char*)malloc(sizeof(char)* maxLen);
 		memset(str, 0, sizeof(char)* maxLen);

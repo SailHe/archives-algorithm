@@ -94,53 +94,49 @@ namespace BinTreeAlgorithm {
 	// (简单粗暴的实现的话可以直接判断语句判断 但这样会在类内部再次添加至少1个域: cap, 而且并非所有子类都会使用 因此采用继承方式)
 	template<typename T>
 	class NodeManager {
+
 	public:
 		typedef typename BinTreeAlgorithm::BinTreeNode<T> *Position;
 		// 结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
 		virtual Position nodeCreater(T const &tData) = 0;
 		// 结点擦除器 将结点置为未使用状态
 		virtual void nodeEraser(Position &del) = 0;
-		// 返回现存有效的结点数
-		int validNodeCnt() {
-			return validNodeCnter;
+		// 返回已创建的结点数
+		int createdNodeNum() {
+			return nodeBlockCounter;
 		}
 		NodeManager() {}
 		virtual Tree::TreeImplTypeEnum getTreeImplType() = 0;
 		virtual ~NodeManager() {}
-		int validNodeCnter = 0;// 有效的元素个数
-	private:
+
+	protected:
+		// 结点块计数器
+		int nodeBlockCounter = 0;
 	};
 	template<typename T>
 	class LinearNodeManager :public NodeManager<T> {
+
 	public:
-		typedef typename NodeManager<T>::Position Position;
-		typedef typename NodeManager<T>::Position NodeArray;
-		using NodeManager<T>::validNodeCnter;
+		typedef typename BinTreeAlgorithm::BinTreeNode<T> *Position;
+		typedef typename BinTreeAlgorithm::BinTreeNode<T> const *Block;
+		typedef typename Position NodeArray;
+		using NodeManager<T>::nodeBlockCounter;
 		LinearNodeManager(int nSize) : capacity(nSize) {
-			baseArray = new BinTreeAlgorithm::BinTreeNode<T>[nSize];
-		}
-		LinearNodeManager(NodeArray baseArray, int validNodeCnt, int nSize) :
-			baseArray(baseArray), capacity(nSize) {
-			validNodeCnter = validNodeCnt;
-		}
-		Tree::TreeImplTypeEnum getTreeImplType() override {
-			return Tree::LinearBlock;
+			momoryPool = new BinTreeAlgorithm::BinTreeNode<T>[nSize];
 		}
 		virtual ~LinearNodeManager() override {
-			delete[] baseArray;
-			baseArray = nullptr;
+			delete[] momoryPool;
+			momoryPool = nullptr;
 		}
-		bool full() {
-			return validNodeCnter == capacity;
-		}
+
 		Position nodeCreater(T const &tData) override {
 			Position newNode = nullptr;
 			if (full()) {
 				// DNT
 			}
 			else {
-				baseArray[validNodeCnter].Data = tData;
-				newNode = baseArray + (validNodeCnter++);
+				momoryPool[nodeBlockCounter].Data = tData;
+				newNode = momoryPool + (nodeBlockCounter++);
 			}
 			return newNode;
 		}
@@ -151,55 +147,45 @@ namespace BinTreeAlgorithm {
 			//静态数组的删除并非实际删除
 			del->Left = del->Right = nullptr;
 			del = nullptr;
-			--validNodeCnter;
+			--nodeBlockCounter;
 		}
-		// 通过输入构建树结构 返回根结点 (数组内孩子结点的下标获取函数)
-		Position buildBinTreeStructure(std::function<void(T *)> getData, std::function<void(Sub *, Sub *)> getSub, int noneSub, int customRootSub) {
-			int nSize = capacity;
-			int i, sum = (nSize - 1)*nSize / 2;
-			int leftSub, rightSub;
 
-			for (i = 0; i < nSize; i++) {
-				Position leftChild = nullptr, rightChild = nullptr;
-				getData(&baseArray[i].Data);
-				getSub(&leftSub, &rightSub);
-				if (leftSub != noneSub) {
-					leftChild = baseArray + leftSub;
-					sum -= leftSub;
-				}
-
-				if (rightSub != noneSub) {
-					rightChild = baseArray + rightSub;
-					sum -= rightSub;
-				}
-				baseArray[i].Left = leftChild, baseArray[i].Right = rightChild;
-			}
-			_ASSERT_EXPR(0 <= sum && sum < nSize, "给定数据有误!");
-			if (customRootSub > 0) {
-				_ASSERT_EXPR(customRootSub < capacity, "指定根下标越界!");
-				validNodeCnter = capacity - 1;
-				return baseArray + customRootSub;
-			}
-			else {
-				return nSize == 0 ? nullptr : position(sum);
-			}
+		Tree::TreeImplTypeEnum getTreeImplType() override {
+			return Tree::LinearBlock;
+		}
+		
+		bool full() const {
+			return nodeBlockCounter == capacity;
+		}
+		// 返回内存池内的结点编号
+		int index(Block block) const {
+			return block - momoryPool;
 		}
 		// 返回数组内的结点位置
 		Position position(int sub) {
 			assert(0 <= sub && sub < capacity);
-			return baseArray + sub;
+			return momoryPool + sub;
 		}
-		// Left和Right储存左右孩子位于数组内的地址 Varrays
-		NodeArray baseArray = nullptr;
-		// 数组容量, 最多元素(nSize 结点个数)个数至少为1
+
+		BinTreeAlgorithm::BinTreeNode<T> &operator[](int i) {
+			assert(0 <= i && i < capacity);
+			return momoryPool[i];
+		}
+
+	private:
+		// 内存池: Left和Right储存左右孩子位于池内的地址 Varrays
+		NodeArray momoryPool = nullptr;
+		// 内存池容量|最多元素个数|结点个数, 至少为1
 		int capacity = 0;
-		//private:
+		// queue<Element*> freeMem;//空闲内存
+		// Element *memoryBlock = nullptr;//内存块 可将二叉树的局部储存在这里 超出部分使用外部分配的内存
 	};
 	template<typename T>
 	class NonLinearNodeManager :public NodeManager<T> {
+
 	public:
 		typedef typename NodeManager<T>::Position Position;
-		using NodeManager<T>::validNodeCnter;
+		using NodeManager<T>::nodeBlockCounter;
 
 		NonLinearNodeManager() {}
 		Tree::TreeImplTypeEnum getTreeImplType() override {
@@ -207,7 +193,7 @@ namespace BinTreeAlgorithm {
 		}
 		// virtual ~NonLinearNodeManager() override {}
 		Position nodeCreater(T const &tData) override {
-			++validNodeCnter;
+			++nodeBlockCounter;
 			return new BinTreeAlgorithm::BinTreeNode<T>(tData);
 			/*
 			bST = (BST)malloc(sizeof(struct TNode));
@@ -219,9 +205,10 @@ namespace BinTreeAlgorithm {
 			// free(del); del = nullptr;
 			delete del;
 			del = nullptr;
-			--validNodeCnter;
+			--nodeBlockCounter;
 		}
-		//private:
+
+	private:
 	};
 
 }

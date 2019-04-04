@@ -31,7 +31,7 @@ public:
 
 
 	BinTree(){
-		nodeManager = new BinTreeAlgorithm::NonLinearNodeManager<T>();
+		nodeManager_ = new BinTreeAlgorithm::NonLinearNodeManager<T>();
 	}
 	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
 	BinTree(const BinTree &rhs) : BinTree(){
@@ -87,14 +87,22 @@ public:
 		int customRootSub = -1
 	) {
 		BinTreeAlgorithm::LinearNodeManager<T> *linearNodeManager = new BinTreeAlgorithm::LinearNodeManager<T>(nSize);
-		nodeManager = linearNodeManager;
-		root_ = linearNodeManager->buildBinTreeStructure(getData, getSub, noneSub, customRootSub);
+		nodeManager_ = linearNodeManager;
+		Sub rootSub = buildBinTreeStructure(*linearNodeManager, getData, getSub, noneSub, nSize);
+		if (customRootSub > 0) {
+			_ASSERT_EXPR(customRootSub < nSize, "指定根下标越界!");
+			rootSub = customRootSub;
+		}
+		else {
+			// DNT
+		}
+		root_ = linearNodeManager->position(rootSub);
 	}
 	// destructor
 	virtual ~BinTree() {
 		destroy(root_);
-		delete nodeManager;
-		nodeManager = nullptr;
+		delete nodeManager_;
+		nodeManager_ = nullptr;
 		DE_PRINTF("BT析构");
 	}
 
@@ -110,7 +118,7 @@ public:
 		std::swap(root_, rvalue.root_);
 		std::swap(isInsert, rvalue.isInsert);
 		std::swap(lastCreateNode, rvalue.lastCreateNode);
-		std::swap(nodeManager, rvalue.nodeManager);
+		std::swap(nodeManager_, rvalue.nodeManager_);
 		return *this;
 	}
 
@@ -128,13 +136,13 @@ public:
 		return root_;
 	}
 	int size() {
-		return nodeManager->validNodeCnt();
+		return nodeManager_->createdNodeNum();
 	}
 	// 若二叉树为空返回true (存在至少1个结点含有数据 ==> size() == 0) O(1)
 	bool empty() const {
 		// (根结点为空表示整颗树为空)
 		return empty(root_);
-		// return nodeManager->validNodeCnt() == 0;
+		// return nodeManager_->createdNodeNum() == 0;
 	}
 	// 返回树高度|深度 O(H)
 	int height() const {
@@ -231,32 +239,60 @@ public:
 	}
 	
 protected:
-	const static int BT_NODE_LEN = sizeof(class BinTreeAlgorithm::BinTreeNode<T>);
+	// const static int BT_NODE_LEN = sizeof(class BinTreeAlgorithm::BinTreeNode<T>);
 	Position root_ = nullptr;
 	Position lastCreateNode = nullptr;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
 	bool isInsert = false;// 是否执行了插入操作(判断插入是否成功)
-	BinTreeAlgorithm::NodeManager<T> *nodeManager = nullptr;
-	// queue<Element*> freeMem;//空闲内存
-	// Element *memoryBlock = nullptr;//内存块 可将二叉树的局部储存在这里 超出部分使用外部分配的内存
+	BinTreeAlgorithm::NodeManager<T> *nodeManager_ = nullptr;
 
 	// BinTree(TreeImplTypeEnum implType) {
 	// 	if (implType == NonlinearBlock) {
-	// 		nodeManager = new NonLinearNodeManager();
+	// 		nodeManager_ = new NonLinearNodeManager();
 	// 	}
 	// 	else {
-	// 		nodeManager = new LinearNodeManager();
+	// 		nodeManager_ = new LinearNodeManager();
 	// 	}
 	// }
 
 	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
 	Position nodeCreater(Element const &tData) {
-		lastCreateNode = nodeManager->nodeCreater(tData);
+		lastCreateNode = nodeManager_->nodeCreater(tData);
 		isInsert = lastCreateNode == nullptr ? false : true;
 		return lastCreateNode;
 	}
 	//结点擦除器 将结点置为未使用状态
 	void nodeEraser(Position &del) {
-		return nodeManager->nodeEraser(del);
+		return nodeManager_->nodeEraser(del);
+	}
+
+	// 通过输入构建树结构 返回根结点 (数组内孩子结点的下标获取函数)
+	static Sub buildBinTreeStructure(
+		BinTreeAlgorithm::LinearNodeManager<T> &nodeArray,
+		std::function<void(T *)> getData, 
+		std::function<void(Sub *, Sub *)> getSub, 
+		int noneSub, int capacity
+	) {
+		int nSize = capacity;
+		int sum = (nSize - 1)*nSize / 2;
+		int leftSub = -1, rightSub = -1;
+
+		for (int i = 0; i < nSize; i++) {
+			Position leftChild = nullptr, rightChild = nullptr;
+			getData(&nodeArray[i].Data);
+			getSub(&leftSub, &rightSub);
+			if (leftSub != noneSub) {
+				leftChild = nodeArray.position(leftSub);
+				sum -= leftSub;
+			}
+
+			if (rightSub != noneSub) {
+				rightChild = nodeArray.position(rightSub);
+				sum -= rightSub;
+			}
+			nodeArray[i].Left = leftChild, nodeArray[i].Right = rightChild;
+		}
+		_ASSERT_EXPR(0 <= sum && sum < nSize, "给定数据有误!");
+		return nSize == 0 ? -1 : sum;
 	}
 
 	// 返回子二叉树的规模 O(N)

@@ -31,7 +31,7 @@ BST			插入构造O(N*logN) 增删O(H) log(N-1) <= H(BST) <= N, 平均 H = log(N)+1
 可以传入一个重载了[]的容器给树 当作"结构内存"
 如果该容器是顺序容器的话 在树的内部呈现动态性 在外部呈现静态性
 这样一来静态实现与链接实现合二为一了 可是劣势也是明显的可以说又回到了当初创造链接结点的初衷:节约内存 以及在未知数据面前顺序实现的无力性
-上一问题可以解决:树数据结构内部存在两种内存申请方法 一种是在传入的容器内存里申请 一种是在外部申请(有一个注册表用于注销这一部分内存 可以通过对注册表baseArray(指针数组)的访问达到即时随机访问)
+上一问题可以解决:树数据结构内部存在两种内存申请方法 一种是在传入的容器内存里申请 一种是在外部申请(有一个注册表用于注销这一部分内存 可以通过对注册表baseNodeArray(指针数组)的访问达到即时随机访问)
 以上全是意淫,始终有一个问题没有解决:顺序表删除某条内容后那条记录作废了 但你需要新内存时如何知道哪里有空内存 于是又需要查找
 好吧可以将删除的内存指针与末尾内存指针交换(二叉树用的是指向数组的二级指针 相当于用到了三级指针(呸)) 但,这与普通的链接式二叉树又完全没区别了 这是理解了系统内存的运作方式?
 */
@@ -51,30 +51,32 @@ BST			插入构造O(N*logN) 增删O(H) log(N-1) <= H(BST) <= N, 平均 H = log(N)+1
 // 完全二叉树
 template<typename T>
 class CompleteBinTree :public BinTree<T> {
-	using BinTree<T>::root_;
-	using BinTree<T>::nodeManager;
-	using BinTree<T>::BTNode;
+
 	using CBT = typename BinTree<T>::BT;
+	using Position = typename BinTree<T>::Position;
+	using BinTree<T>::BTNode;
+
+	using BinTree<T>::root_;
+	using BinTree<T>::nodeManager_;
 
 public:
-	using Position = typename BinTree<T>::Position;
 
 	// 直接把数组copy进静态数组里
-	CompleteBinTree(T *iniA, int nSize) : CompleteBinTree(nSize){
-		assert(iniA != nullptr);
-		root_ = baseArray;
-		for (int i = 0; i < nSize; ++i)
-			root_[i].Data = iniA[i];
-		initEnd(nSize);
-	}
-	// sort(iniA, iniA + n, less<T>());
-	// 翻转构造:sort(iniA, iniA + n, greater<T>()); 完全二叉树的左大右小树不支持左小右大树的镜像翻转 普通BinTree支持
+	// CompleteBinTree(T *initArr, int nSize) : CompleteBinTree(nSize){
+	// 	assert(initArr != nullptr);
+	// 	root_ = baseNodeArray;
+	// 	for (int i = 0; i < nSize; ++i)
+	// 		root_[i].Data = initArr[i];
+	// 	initEnd(nSize);
+	// }
+
+	// sort(initArr, initArr + n, less<T>());
+	// 翻转构造:sort(initArr, initArr + n, greater<T>()); 完全二叉树的左大右小树不支持左小右大树的镜像翻转 普通BinTree支持
 	// 使用数组构造唯一的完全二叉树 tips::若数组有序 则为搜索树
-	CompleteBinTree(int nSize, T *iniA) : CompleteBinTree(nSize) {
-		assert(iniA != nullptr);
+	CompleteBinTree(int nSize, T *initArr) : CompleteBinTree(nSize) {
+		assert(initArr != nullptr);
 		// 0表示根结点的Sub
-		root_ = buildCompleteTree(iniA, iniA + nSize, 0);
-		initEnd(nSize);
+		root_ = buildCompleteTree(initArr, initArr + nSize, 0);
 	}
 	virtual ~CompleteBinTree() {
 		DE_PRINTF("CBT析构");
@@ -96,19 +98,19 @@ public:
 		if (n == 0)
 			return nullptr;
 		int nl = getLeftScaleL(n);
-		baseArray[rootSub].Data = first[nl];
-		// first由0开始数nl个即是子树根 (root_在baseArray中sub为0 左子树sub = 2*rootSub + 1)
-		baseArray[rootSub].Left = buildCompleteTree(first, first + nl, 2 * rootSub + 1);
-		baseArray[rootSub].Right = buildCompleteTree(first + nl + 1, last, 2 * rootSub + 2);
-		return baseArray + rootSub;
+		baseNodeArray[rootSub].Data = first[nl];
+		// first由0开始数nl个即是子树根 (root_在baseNodeArray中sub为0 左子树sub = 2*rootSub + 1)
+		baseNodeArray[rootSub].Left = buildCompleteTree(first, first + nl, 2 * rootSub + 1);
+		baseNodeArray[rootSub].Right = buildCompleteTree(first + nl + 1, last, 2 * rootSub + 2);
+		return baseNodeArray + rootSub;
 	}
 	// 完全二叉树层序遍历(顺序遍历有序数组)
 	void levelTraversal(CBT bT, std::function<void(CBT)> visit) {
 		//无法override 但名字应该覆盖了
 		if (bT == nullptr)
 			return;
-		FOR(i, 0, usedSize) {
-			//bT必须是root_不能是baseArray(root_ = baseArray+1)
+		FOR(i, 0, baseNodeArray.createdNodeNum()) {
+			//bT必须是root_不能是baseNodeArray(root_ = baseNodeArray+1)
 			if (!visit(bT + i))
 				return;//中止
 		}
@@ -116,7 +118,7 @@ public:
 	
 	//返回两个结点的公共祖先 越界返回哨兵(0号结点)
 	Position ancestor(int i1, int i2) {
-		if (i1 > usedSize || i2 > usedSize || i1 < 0 || i2 < 0)
+		if (i1 > baseNodeArray.createdNodeNum() || i2 > baseNodeArray.createdNodeNum() || i1 < 0 || i2 < 0)
 			return position(0);
 		if (i1 == i2)
 			return position(i1);
@@ -125,38 +127,29 @@ public:
 		else
 			ancestor(i1, index(getParent(position(i2))));//return
 	}
+
 protected:
-	
 	// 初始化构造
-	CompleteBinTree(int nSize) {
-		assert(nSize > 0);
-		baseArray = new BTNode<T>[nSize];
-		capacity = nSize;
-	}
-	// 初始化结束
-	void initEnd(int nSize) {
-		nodeManager = new BinTreeAlgorithm::LinearNodeManager<T>(baseArray, nSize, nSize);
+	CompleteBinTree(int nSize) : baseNodeArray(*new BinTreeAlgorithm::LinearNodeManager<T>(nSize)) {
+		nodeManager_ = &baseNodeArray;
 	}
 
-	bool full() {
-		return usedSize == capacity;
+	bool full() const {
+		return baseNodeArray.full();
 	}
 	// 返回数组内的结点编号 1号为root_ 0号为哨兵
 	int index(CBT t) const {
 		// 第一个元素插入时root_=nullptr 所以链接左右孩子链接方法不能用root_ 更何况root_=1时的规律是针对数组成立的
-		return t - baseArray;
+		return baseNodeArray.index(t);
 	}
 	// 返回数组内的结点位置
 	Position position(int sub) {
-		assert(0 <= sub && sub < capacity);
-		return baseArray + sub;
+		return baseNodeArray.position(sub);
 	}
 	
-
-	Position baseArray = nullptr;
-	int usedSize = 0;
+	// 此内存不归此类管理
+	BinTreeAlgorithm::LinearNodeManager<T> &baseNodeArray;
 private:
-	int capacity = 0;
 };
 
 /*
@@ -180,34 +173,29 @@ is_heap_until:	找出区间中第一个不满足heap条件的位置. O(N)
 */
 template<class T>
 class Heap : public CompleteBinTree<T> {
+
 	typedef T Element;
-	typedef typename CompleteBinTree<T>::Position Position;
+	typedef typename BinTree<T>::Position Position;
+
 	using BinTree<T>::root_;
-	using BinTree<T>::nodeManager;
-	using CompleteBinTree<T>::baseArray;
-	// 由于Heap中0号充当哨兵, 不计入总结点数, 故Heap中既是baseArray尾元素的下标, 又是结点总数
-	using CompleteBinTree<T>::usedSize;
-	using CompleteBinTree<T>::initEnd;
+	using BinTree<T>::nodeManager_;
+	using CompleteBinTree<T>::baseNodeArray;
 
 	using CompleteBinTree<T>::position;
 	using CompleteBinTree<T>::index;
 
-	//使用less<T> greater<T> 或 比较符号重载 都有同样地问题: 两者没有同一个表示方法(带有重载()的父类)不便于大堆小堆的即时重构
-	int(*cmper_)(const T &, const T &) = nullptr;
 public:
 	using CompleteBinTree<T>::full;
 	using CompleteBinTree<T>::empty;
 
-	/*
-	(堆的大小, 哨兵, 小于比较方法, 任意初始化序列序列 该序列的元素个数) 
-	最小堆 参数: moreCmper(大于)哨兵(最小值)	注意: 负数太小减法会变正:传入MAX_INT32/2即可
-	最大堆 参数: lessCmper(小于)哨兵(最大值)
-	注意: 用数组构造的堆与插入初始化的堆 的结构不一样
-	*/
-	Heap(int heapSize, T sentry, int(*cmper)(const T &, const T &), T *iniA = nullptr, int IniASize = 0)
+	// (堆的大小, 哨兵, 小于比较方法, 任意初始化序列序列 该序列的元素个数) 
+	// 最小堆 参数: moreCmper(大于)哨兵(最小值)	注意: 负数太小减法会变正:传入MAX_INT32/2即可
+	// 最大堆 参数: lessCmper(小于)哨兵(最大值)
+	// 注意: 用数组构造的堆与插入初始化的堆 的结构不一样
+	Heap(int heapSize, T sentry, int(*cmper)(const T &, const T &), T *initArr = nullptr, int initArrSize = 0)
 		: CompleteBinTree<T>(heapSize + 1) {
-		build(iniA, IniASize, sentry, cmper);
-		initEnd(IniASize);
+		build(initArr, initArrSize, sentry, cmper);
+		validNodeNum = initArrSize;
 	}
 	virtual ~Heap() override {
 		DE_PRINTF("Heap析构");
@@ -217,7 +205,7 @@ public:
 		bool result = true;
 		if (isNotInit()) {
 			// 一般只可能是pop变空了, 重新使用之前的数据初始化即可
-			initialize(baseArray[0].Data);
+			initialize(baseNodeArray[0].Data);
 		}
 		if (full()) {
 			result = false;
@@ -226,15 +214,15 @@ public:
 		else {
 			// @TODO 已提出的percolateUp函数是怎么回事
 			// i指向[插入后]堆中最后一个元素的位置 i=[1, capbility)
-			int i = ++usedSize;
-			for (int parI = -1; cmper_(baseArray[(parI = getParentSub(i))].Data, Item) < 0; i = parI) {
+			int i = ++validNodeNum;
+			for (int parI = -1; cmper_(baseNodeArray[(parI = getParentSub(i))].Data, Item) < 0; i = parI) {
 				// 从最后一个有孩子的结点开始 向上过滤结点
-				baseArray[i].Data = baseArray[parI].Data;
+				baseNodeArray[i].Data = baseNodeArray[parI].Data;
 			}
 			// 压入
-			baseArray[i].Data = Item;
+			baseNodeArray[i].Data = Item;
 			// 因为新加入的元素始终在尾部 因此直接链接尾部的元素即可保证新添元素的链接
-			linkToChildren(getParent(usedSize));
+			linkToChildren(getParent(validNodeNum));
 		}
 		return result;
 	}
@@ -247,9 +235,9 @@ public:
 			// 取出即将返回的值
 			Element Item = root_->Data;
 			// 从堆根开始下滤 删除尾元素(useedSize--即可)
-			percolateDown(index(root_), usedSize--);
+			percolateDown(index(root_), validNodeNum--);
 			// 解除已删除的尾元素与父结点的链接
-			unlinkToParent(usedSize + 1);
+			unlinkToParent(validNodeNum + 1);
 			return Item;
 		}
 	}
@@ -265,7 +253,7 @@ public:
 		取出该结点
 		每次从左右结点中挑一个"大"的结点做[下滤]操作开始调整到根节点1
 		*/
-		for (int i = getParentSub(usedSize); i > 0; i--) {
+		for (int i = getParentSub(validNodeNum); i > 0; i--) {
 			percolateDown(i, i);
 		}
 	}
@@ -273,32 +261,32 @@ public:
 	// 初始化
 	void initialize(T sentry, int(*cmper)(const T &, const T &) = nullptr) {
 		// 更改比较方法一定得更改哨兵 反之不一定
-		baseArray[0].Data = sentry;
+		baseNodeArray[0].Data = sentry;
 		if (cmper != nullptr) {
 			cmper_ = cmper;
 		}
 		assert(cmper_ != nullptr);
 		if (empty(root_)) {
 			// root_不包括哨兵(0号) 内存空间会自动多申请一个
-			root_ = baseArray + 1;
-			usedSize = nodeManager->validNodeCnt();
+			root_ = position(1);
+			validNodeNum = 0;
 		}
 	}
 
 	// 构建堆
-	void build(T *iniA, int IniASize, T sentry, int(*cmper)(const T &, const T &) = nullptr) {
+	void build(T *initArr, int initArrSize, T sentry, int(*cmper)(const T &, const T &) = nullptr) {
 		initialize(sentry, cmper);
 		// 重设已使用结点数目(否则无法链接)
-		usedSize = IniASize;
+		validNodeNum = initArrSize;
 		// 链接root_
 		linkToChildren(root_);
 		// 为每个元素赋初始权值
-		for (Position t = root_; t < root_ + IniASize; ++t) {
+		for (Position t = root_; t < root_ + initArrSize; ++t) {
 			// 若T类型不是基本类型 需要重载赋值号
-			t->Data = iniA[t - root_];
+			t->Data = initArr[t - root_];
 			// 确保哨兵是列表中所有元素的极值(最小堆对应极小值, 最大堆对应极大值), 即lhs比rhs大或小恒成立, 成立则比较值>0,不成立则<0,相等则=0
-			assert(cmper_(baseArray[0].Data, t->Data) > 0);
-			// 只要没越界就链接->遍历时以usedSize为结束遍历的标志 而不是子结点是否为空?
+			assert(cmper_(baseNodeArray[0].Data, t->Data) > 0);
+			// 只要没越界就链接->遍历时以validNodeNum为结束遍历的标志 而不是子结点是否为空?
 			linkToChildren(t);
 		}
 
@@ -307,50 +295,49 @@ public:
 	}
 
 protected:
-	
 	//上滤 push调整
-	void PercolateUp_DEL(int i, Element *baseArray, int usedSize) {
-		// i指向堆中需上滤元素的位置
-		Element Item = baseArray[i];
-		for (; baseArray[i / 2] - Item > 0; i /= 2) {
+	void PercolateUp_DEL(int I, Element ElementArray[]) {
+		// I指向堆中需上滤元素的位置
+		Element Item = ElementArray[I];
+		for (; ElementArray[I / 2] - Item > 0; I /= 2) {
 			// 从上滤结点的父结点开始 向上过滤结点 若父结点大于子结点则继续
-			baseArray[i] = baseArray[i / 2];
+			ElementArray[I] = ElementArray[I / 2];
 		}
-		baseArray[i] = Item;
+		ElementArray[I] = Item;
 	}
 	//下滤 :rebuild|pop调整(从末结点开始提升 等价于从最后一个父结点开始下滤)
-	void PercolateDown_DEL(int Parent, Element *baseArray, int usedSize) {
+	void PercolateDown_DEL(int Parent, Element ElementArray[], int UsedSize) {
 		int Child;
-		Element x = baseArray[Parent];//取出需要下滤的值
-		for (; 2 * Parent <= usedSize; Parent = Child) {
-			Child = 2 * Parent;//若左儿子==usedSize; 则右儿子不存在
-			if (Child != usedSize && baseArray[Child] - baseArray[Child + 1] > 0)
+		Element x = ElementArray[Parent];//取出需要下滤的值
+		for (; 2 * Parent <= UsedSize; Parent = Child) {
+			Child = 2 * Parent;//若左儿子==UsedSize; 则右儿子不存在
+			if (Child != UsedSize && ElementArray[Child] - ElementArray[Child + 1] > 0)
 				++Child;//选取左右儿子中小的一个
-			if (x - baseArray[Child] < 0)//插入元素小于目标时终止 大于时继续
+			if (x - ElementArray[Child] < 0)//插入元素小于目标时终止 大于时继续
 				break;
 			else//将孩子上移<==>将temp下移
-				baseArray[Parent] = baseArray[Child];
+				ElementArray[Parent] = ElementArray[Child];
 		}
-		baseArray[Parent] = x;
+		ElementArray[Parent] = x;
 	}
 
-	// 下滤 将Heap中pdIndex处的元素提升至parentSub处 然后将以 baseArray + parentSub 为根的子堆调整为最大或最小或最小堆
+	// 下滤 将Heap中pdIndex处的元素提升至parentSub处 然后将以 position(parentSub) 为根的子堆调整为最大或最小或最小堆
 	void percolateDown(int parentSub, int pdIndex) {
 		// 取出需要下滤的值
-		Element pdEle = baseArray[pdIndex].Data;
-		for (int childSub = -1; (childSub = getLeftChildSub(parentSub)) <= usedSize; parentSub = childSub) {
+		Element pdEle = baseNodeArray[pdIndex].Data;
+		for (int childSub = -1; (childSub = getLeftChildSub(parentSub)) <= validNodeNum; parentSub = childSub) {
 			// 选取存在的左右儿子中大或小的一个
-			if (childSub != usedSize && cmper_(baseArray[childSub].Data, baseArray[childSub + 1].Data) < 0)
+			if (childSub != validNodeNum && cmper_(baseNodeArray[childSub].Data, baseNodeArray[childSub + 1].Data) < 0)
 				childSub++;
 
-			if (cmper_(pdEle, baseArray[childSub].Data) >= 0)
+			if (cmper_(pdEle, baseNodeArray[childSub].Data) >= 0)
 				break;
 			else {
 				// 将孩子上移 <==> 将pdEle下移 由于childSub还要作为parentSub参与后续的比较因此不能移动
-				baseArray[parentSub].Data = baseArray[childSub].Data;
+				baseNodeArray[parentSub].Data = baseNodeArray[childSub].Data;
 			}
 		}
-		baseArray[parentSub].Data = std::move(pdEle);
+		baseNodeArray[parentSub].Data = std::move(pdEle);
 	}
 	// 返回是否已初始化
 	bool isNotInit() {
@@ -368,12 +355,12 @@ protected:
 		if (!empty(parent)) {
 			// 置空无效子结点
 			int lSub = getLeftChildSub(parentIndex);
-			if (lSub > usedSize) {
+			if (lSub > validNodeNum) {
 				parent->Left = nullptr;
 			}
 			else;
 			int rSub = getRightChildSub(parentIndex);
-			if (rSub > usedSize) {
+			if (rSub > validNodeNum) {
 				parent->Right = nullptr;
 			}
 			else;
@@ -386,31 +373,32 @@ protected:
 			Sub parentIndex = index(parent);
 			// 置空无效子结点
 			int lSub = getLeftChildSub(parentIndex);
-			if (lSub > usedSize) {
+			if (lSub > validNodeNum) {
 				parent->Left = nullptr;
 			}
 			else;
 			int rSub = getRightChildSub(parentIndex);
-			if (rSub > usedSize) {
+			if (rSub > validNodeNum) {
 				parent->Right = nullptr;
 			}
 			else;
 
 			// 当子结点是root_的时候需要将root_置为空
-			if (parent == baseArray) {
+			if (parent == position(0)) {
 				root_ = nullptr;
 			}
 		}
 	}
 
 	// 0号是哨兵; 1号是根结点
+
 	// 返回左子树下标
 	Sub getLeftChildSub(int parentIndex) {
 		return 2 * parentIndex;
 	}
 	Position getLeftChild(int parentIndex) {
 		int sub = getLeftChildSub(parentIndex);
-		return 0 < sub && sub <= usedSize ? position(sub) : nullptr;
+		return 0 < sub && sub <= validNodeNum ? position(sub) : nullptr;
 	}
 	// 返回右子树下标
 	Sub getRightChildSub(int parentIndex) {
@@ -418,22 +406,28 @@ protected:
 	}
 	Position getRightChild(int parentIndex) {
 		int sub = getRightChildSub(parentIndex);
-		return 0 < sub && sub <= usedSize ? baseArray + sub : nullptr;
+		return 0 < sub && sub <= validNodeNum ? position(sub) : nullptr;
 	}
 	// 返回父结点下标 root_的父结点对应哨兵
 	Sub getParentSub(int sonIndex) {
 		return sonIndex / 2;
 	}
 	Position getParent(int sonIndex) {
-		return baseArray + getParentSub(sonIndex);
+		return position(getParentSub(sonIndex));
 	}
 	// 返回兄弟结点
 	Position getSibling(int sibIndex) {
 		// 1号是根结点没有兄弟
 		return sibIndex > 1 ?
-			sibIndex % 2 == 0 ? baseArray + sibIndex + 1 : baseArray + sibIndex - 1
+			sibIndex % 2 == 0 ? position(sibIndex + 1) : position(sibIndex - 1)
 			: nullptr;
 	}
 
+private:
+	// 使用less<T> greater<T> 或 比较符号重载 都有同样地问题: 两者没有同一个表示方法(带有重载()的父类)不便于大堆小堆的即时重构
+	int(*cmper_)(const T &, const T &) = nullptr;
+	// 由于Heap中0号充当哨兵, 不计入总结点数, 故Heap中既是baseNodeArray尾元素的下标, 又是结点总数
+	// 只有Heap中的这个值的含义与其余的有差别 故这个挪到这里才最合适
+	int validNodeNum = 0;
 };
 
