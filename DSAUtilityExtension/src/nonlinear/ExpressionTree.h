@@ -62,7 +62,7 @@ bool ExpressionTree::check(ExpressionTree::ExpressionTypeEnum should, Expression
 		return false;
 	}
 	else {
-		if (should == ORDER_PREFIX_ROOT) {
+		if (should == Tree::ORDER_PREFIX_ROOT) {
 			int i = 0, countNum = 0, countOp = 0;
 			char num[10] = { 0 };
 			do {
@@ -90,7 +90,7 @@ bool ExpressionTree::check(ExpressionTree::ExpressionTypeEnum should, Expression
 
 JCE::String ExpressionTree::nextOper() {
 	static size_t ind = 0;
-	string next;
+	JCE::String next;
 	for (; ind < expression.size(); ind++) {
 		if (expression[ind] != ' ')
 			next += expression[ind];
@@ -102,7 +102,7 @@ JCE::String ExpressionTree::nextOper() {
 }
 
 JCE::String ExpressionTree::prefixToPost() {
-	string next = nextOper(), ans;
+	JCE::String next = nextOper(), ans;
 	if (!isdigit(next[0])) {
 		Position node = nodeCreater(next);//µÝ¹é¹¹ÔìÊ÷
 		node->Left = nodeCreater(prefixToPost());
@@ -172,7 +172,7 @@ double ExpressionTree::evalPostfix() {
 	int i = 0;
 	char c = 0;
 	static char num[50] = { 0 };
-	stack<double> ps;
+	Tree::stack<double> ps;
 	double po1, po2;
 	do {
 		if ((c = getNum(&i, expression.c_str(), num)) == '\0') {

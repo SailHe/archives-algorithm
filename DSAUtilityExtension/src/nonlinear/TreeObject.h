@@ -17,182 +17,21 @@
 *这一完全的树对象继承关系的优势在于相互间的转换很方便不费时(但本身效率比不上单独实现的)
 */
 /*树 抽象类(接口类)*/
-class Tree{
-public:
-	// 遍历的顺序类型枚举
-	enum TraversalOrderEnum{
-		ORDER_PREFIX_ROOT, // 先根序
-		ORDER_INFIX_ROOT, // 中根序
-		ORDER_POST_ROOT, // 后根序
-		ORDER_LEVEL, // 层序
-	};
-	enum TreeImplTypeEnum {
-		// 线性内存块 Virtual Linked
-		LinearBlock,
-		// 非线性内存块 Real Linked
-		NonlinearBlock,
-	};
-	int Min(int a, int b){
-		return a < b ? a : b;
-	}
-	int Max(int a, int b){
-		return a > b ? a : b;
-	}
-protected:
-	//数组表
-	template<typename T> using ArrayList = std::vector<T>;
-	template<typename T> using stack = std::stack<T>;
-	template<typename T> using queue = std::queue<T>;
-	template<typename T> using priority_queue = std::priority_queue<T>;
-	template<typename T> using greater = std::greater<T>;
-	using string = std::string;
-	//template<typename T> using vector = StandardExtend::ArrayList<T>;
-};
 
 /*二叉(度)树*/
-template<class T>
-class BinTree :public Tree{
+template<typename T>
+class BinTree {
 public:
 	typedef T Element;
-	// 二叉树结点
-	typedef class BTNode{
-	public:
-		BTNode(){}
-		// 获取子类height字段
-		virtual int getHeight(){
-			return depthOf(this);
-		}
-		// 设置子类height字段
-		virtual void setHeight(int){}
-		// 获取子类的添加字段:weight (曾考虑过在这里添加字段 并重载比较符号 但极容易引起误会以及存在其它很多劣势故作罢)
-		virtual int getValue(){
-			return 0;
-		}
-		// 设置子类添加字段
-		virtual void setValue(int){}
-
-		// 这样无需默认构造函数
-		BTNode(Element const&tData) : Data(tData){}
-		// 拷贝构造 仅拷贝数据 子结点置nullptr
-		BTNode(BTNode &rhs){
-			(*this) = rhs;
-			Left = Right = nullptr;
-		}
-		virtual ~BTNode(){
-			DE_PRINTF("BTNode析构");
-		}
-		// 赋值 默认的全域赋值
-		BTNode &operator=(const BTNode&) = default;
-
-		int height(){
-			return depthOf(this);
-		}
-		// 叶子结点判断
-		bool isLeave() const {
-			return Left == nullptr && Right == nullptr;
-		}
-
-		// 指向左子树
-		BTNode* Left = nullptr;
-		// 指向右子树
-		BTNode* Right = nullptr;
-		// 表示是否visit过此结点
-		bool v = false;
-		// 结点数据:若为结构体,结构体提供比较方法key(增删查都会使用的关键字)在结构体内 否则key就是Data weight-height不能作为key(不唯一)
-		Element Data;
-
-	} *Position;
+	template<typename T> using BTNode = BinTreeAlgorithm::BinTreeNode<T>;
+	using Position = BTNode<T> *;
 	// 简单说Position有修改权限 对应的BT没有
-	using BT = BTNode const *;
-	using Vister = std::function<void(BinTree<T>::BT const)>;
-
-
-
-	// 结点管理类
-	// (简单粗暴的实现的话可以直接判断语句判断 但这样会在类内部再次添加至少1个域: cap, 而且并非所有子类都会使用 因此采用继承方式)
-	class NodeManager {
-	public:
-		// 结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
-		virtual Position nodeCreater(Element const &tData) = 0;
-		// 结点擦除器 将结点置为未使用状态
-		virtual void nodeEraser(Position &del) = 0;
-		// 返回现存有效的结点数
-		int validNodeCnt() {
-			return validNodeCnter;
-		}
-		NodeManager(){}
-		int validNodeCnter = 0;// 有效的元素个数
-	private:
-	};
-
-	class LinearNodeManager :public NodeManager {
-	public:
-		typedef typename BinTree<T>::Position NodeArray;
-		using NodeManager::validNodeCnter;
-		LinearNodeManager(){}
-		Position nodeCreater(Element const &tData) override {
-			Position newNode = nullptr;
-			if (full()) {
-				// DNT
-			}
-			else {
-				baseArray[validNodeCnter].Data = tData;
-				newNode = baseArray + (validNodeCnter++);
-			}
-			return newNode;
-		}
-		void nodeEraser(Position &del) override {
-			// 0代表初始状态 只为了标识用 并无特殊用处
-			// malloc就应用memeset初始化free释放 new自动初始化 赋值初始化 delete释放
-			// del->Data = 0; // {}
-			//静态数组的删除并非实际删除
-			del->Left = del->Right = nullptr;
-			del = nullptr;
-			--validNodeCnter;
-		}
-		bool full() {
-			return validNodeCnter == capacity;
-		}
-		// 返回数组内的结点编号 1号为root_ 0号为哨兵
-		int index(BinTree<T>::BT t) const {
-			/*第一个元素插入时root_=nullptr 所以链接左右孩子链接方法不能用root_ 更何况root_=1时的规律是针对数组成立的*/
-			return t - baseArray;
-		}
-		// 返回数组内的结点位置
-		Position position(int sub) {
-			return baseArray + sub;
-		}
-		// Left和Right储存左右孩子位于数组内的地址 Varrays
-		NodeArray baseArray = nullptr;
-		// 数组容量, 最多元素(nSize 结点个数)个数至少为1
-		int capacity = 0;
-		//private:
-	};
-	class NonLinearNodeManager :public NodeManager {
-	public:
-		using NodeManager::validNodeCnter;
-		NonLinearNodeManager() {}
-		Position nodeCreater(Element const &tData) override {
-			++validNodeCnter;
-			return new BTNode(tData);
-			/*
-			bST = (BST)malloc(sizeof(struct TNode));
-			memset(bST, 0, sizeof(struct TNode));
-			bST->Element = x;
-			*/
-		}
-		void nodeEraser(Position &del) override {
-			// free(del); del = nullptr;
-			delete del;
-			del = nullptr;
-			--validNodeCnter;
-		}
-		//private:
-	};
+	using BT = BTNode<T> const *;
+	using Vister = std::function<void(BT)>;
 
 
 	BinTree(){
-		nodeManager = new NonLinearNodeManager();
+		nodeManager = new BinTreeAlgorithm::NonLinearNodeManager<T>();
 	}
 	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
 	BinTree(const BinTree &rhs) : BinTree(){
@@ -214,10 +53,10 @@ public:
 	}
 	
 	// 先根序遍历操作堆栈构造 (堆栈操作获取方法, 结点数据获取方法)
-	BinTree(std::function<bool(std::string &)> getOrder, void(*getData)(T*)) : BinTree() {
-		ArrayList<T> preOrder, inOrder;
-		stack<T> s;
-		std::string str;
+	BinTree(std::function<bool(Tree::string &)> getOrder, void(*getData)(T*)) : BinTree() {
+		Tree::ArrayList<T> preOrder, inOrder;
+		Tree::stack<T> s;
+		Tree::string str;
 		while (getOrder(str)) {
 			int len = -1;
 			Utility::AssertToSignedNum(str.length(), len);
@@ -240,7 +79,17 @@ public:
 		_ASSERT_EXPR(preOrder.size() == inOrder.size(), "Size Error");
 		prefInBuild(preOrder, 0, inOrder, 0, root_, preOrder.size());
 	}
-
+	// 构建基于数组的虚拟链接二叉树
+	BinTree(
+		int nSize,
+		std::function<void(T *)> getData,
+		std::function<void(Sub *, Sub *)> getSub, int noneSub,
+		int customRootSub = -1
+	) {
+		BinTreeAlgorithm::LinearNodeManager<T> *linearNodeManager = new BinTreeAlgorithm::LinearNodeManager<T>(nSize);
+		nodeManager = linearNodeManager;
+		root_ = linearNodeManager->buildBinTreeStructure(getData, getSub, noneSub, customRootSub);
+	}
 	// destructor
 	virtual ~BinTree() {
 		destroy(root_);
@@ -278,11 +127,14 @@ public:
 	BT getRoot() const {
 		return root_;
 	}
-	// 若二叉树为空返回true (存在至少1个结点含有数据) O(1)
+	int size() {
+		return nodeManager->validNodeCnt();
+	}
+	// 若二叉树为空返回true (存在至少1个结点含有数据 ==> size() == 0) O(1)
 	bool empty() const {
-		// (根结点为空表示整颗树为空 空表示当前结点不存在而非不存在子结点)
-		// return empty(root_);
-		return nodeManager->validNodeCnt() == 0;
+		// (根结点为空表示整颗树为空)
+		return empty(root_);
+		// return nodeManager->validNodeCnt() == 0;
 	}
 	// 返回树高度|深度 O(H)
 	int height() const {
@@ -307,12 +159,18 @@ public:
 		while (!q.empty()) {
 			auto p = q.front();
 			q.pop();
+
 			if (!empty(p.first->Left))
 				q.push({ p.first->Left, p.second + 1 });
+
 			if (!empty(p.first->Right))
 				q.push({ p.first->Right, p.second + 1 });
-			if (p.first->isLeave() && p.second == layer)
-				++count;
+
+			if (p.second == layer) {
+				if (p.first->isLeave()) {
+					++count;
+				}
+			}
 			else if (p.second > layer)
 				break;
 			//else continue;
@@ -321,14 +179,14 @@ public:
 	}
 
 	// Θ(2*N)     Tree::ORDER, void visit(BinTree<T>::BT node)
-	void traversal(TraversalOrderEnum type, Vister visit){
-		if (type == ORDER_PREFIX_ROOT)
+	void traversal(Tree::TraversalOrderEnum type, Vister visit){
+		if (type == Tree::ORDER_PREFIX_ROOT)
 			preTraversal(root_, visit);
-		else if (type == ORDER_INFIX_ROOT)
+		else if (type == Tree::ORDER_INFIX_ROOT)
 			infTraversal(root_, visit);
-		else if (type == ORDER_POST_ROOT)
+		else if (type == Tree::ORDER_POST_ROOT)
 			postTraversal(root_, visit);
-		else if(type == ORDER_LEVEL)
+		else if(type == Tree::ORDER_LEVEL)
 			levelTraversal(root_, visit);
 		else
 			_ASSERT_EXPR(false, "遍历参数错误 NONE_ORDER 不作traversal_");
@@ -346,7 +204,7 @@ public:
 	}
 	// 镜像树: mirroring reversal镜像反转 转换后不能使用原来的任何基于比较的方法(若是搜索树:左小右大->左大右小)
 	void mirReversal(){
-		queue<Position> q;
+		Tree::queue<Position> q;
 		q.push(root_);
 		while (!q.empty()){
 			Position t = q.front();
@@ -368,31 +226,27 @@ public:
 	// 普通二叉树->传入中序遍历结果可以获得确定的一颗树
 	// 有序数组->数据符合二叉搜索树要求
 	// 完全二叉树->有数组的构造方法(但仅对完全二叉搜索树有实际意义)
-	bool fillData(ArrayList<T> &dataA){
+	bool fillData(Tree::ArrayList<T> &dataA){
 		return fillData(dataA, 0, dataA.size(), root_);
-	}
-	int size(){
-		return nodeManager->validNodeCnt();
 	}
 	
 protected:
-	const static int BT_NODE_LEN = sizeof(class BTNode);
+	const static int BT_NODE_LEN = sizeof(class BinTreeAlgorithm::BinTreeNode<T>);
 	Position root_ = nullptr;
 	Position lastCreateNode = nullptr;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
 	bool isInsert = false;// 是否执行了插入操作(判断插入是否成功)
-	NodeManager *nodeManager = nullptr;
-	TreeImplTypeEnum BinTreeImplType = NonlinearBlock;
+	BinTreeAlgorithm::NodeManager<T> *nodeManager = nullptr;
 	// queue<Element*> freeMem;//空闲内存
 	// Element *memoryBlock = nullptr;//内存块 可将二叉树的局部储存在这里 超出部分使用外部分配的内存
 
-	BinTree(TreeImplTypeEnum implType) {
-		if (implType == NonlinearBlock) {
-			nodeManager = new NonLinearNodeManager();
-		}
-		else {
-			nodeManager = new LinearNodeManager();
-		}
-	}
+	// BinTree(TreeImplTypeEnum implType) {
+	// 	if (implType == NonlinearBlock) {
+	// 		nodeManager = new NonLinearNodeManager();
+	// 	}
+	// 	else {
+	// 		nodeManager = new LinearNodeManager();
+	// 	}
+	// }
 
 	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
 	Position nodeCreater(Element const &tData) {
@@ -422,7 +276,7 @@ protected:
 			return 0;
 	}
 	// 按原结构填充数据 (数组, 根结点数据下标, 当前根下的数据个数, 结构来源树) O(N^2)
-	static bool fillData(ArrayList<T> &dataA, int dataRootSub, int dataSize, Position bt){
+	static bool fillData(Tree::ArrayList<T> &dataA, int dataRootSub, int dataSize, Position bt){
 		if (empty(bt))
 			return true;
 		// 左右子树规模 这里可以小小的优化一下: 右子树规模可以通过已知的size减去左子树-1算出 但要修改参数比较麻烦(优化后复杂度仍是N^2)
@@ -438,7 +292,7 @@ protected:
 		fillData(dataA, dataRootSub + nl + 1, dataSize - nl - 1, bt->Right);
 		return true;
 	}
-	// 销毁结点(只保证调用后结点内容无效, 不一定会析构结点)
+	// 销毁结点的抽象结构 (不一定会析构结点)
 	void destroy(Position &r){
 		if (empty(r)) {
 			// DNT
@@ -457,12 +311,7 @@ protected:
 					q.emplace(current->Right);
 					current->Right = nullptr;
 				}
-				if (BinTreeImplType == NonlinearBlock) {
-					nodeEraser(current);
-				}
-				else {
-					// 线性的虚拟链接其内存不由此处管理 只需置空即可
-				}
+				nodeEraser(current);
 			}
 			r = nullptr;
 		}
@@ -472,7 +321,7 @@ protected:
 	static void levelTraversal(BT bT, Vister visit){
 		if (empty(bT))
 			return;
-		queue<BT> q;
+		Tree::queue<BT> q;
 		q.push(bT);
 		while (!q.empty()){
 			bT = q.front(); q.pop();
@@ -524,8 +373,8 @@ protected:
 		// 向右子树遍历一个元素
 		prefInBuild(preOrder + Ln + 1, inOrder + Ln + 1, bt->Right, n - Ln - 1);
 	}
-	//先中构建ArrayList
-	void prefInBuild(ArrayList<Element> &preOrder, int preRoot, ArrayList<Element> &inOrder, int inRoot, Position &bt, int n){
+	//先中构建Tree::ArrayList
+	void prefInBuild(Tree::ArrayList<Element> &preOrder, int preRoot, Tree::ArrayList<Element> &inOrder, int inRoot, Position &bt, int n){
 		// 左子子树长度
 		int Ln;
 		if (n == 0)
@@ -573,11 +422,11 @@ protected:
 		return bt;
 	}
 
-	static void calcPostOrder(string const &sPre, string const &sMed, string &sPostBuffer){
+	static void calcPostOrder(Tree::string const &sPre, Tree::string const &sMed, Tree::string &sPostBuffer){
 		//中序中的根所在位置
-		string::size_type medRootSub = sMed.find(sPre[0]);
+		Tree::string::size_type medRootSub = sMed.find(sPre[0]);
 		//左子树的长度
-		string::size_type leftSubLen = medRootSub;
+		Tree::string::size_type leftSubLen = medRootSub;
 		/*
 		A B CD	前序(Root Left Right)
 		B A DC	中序(Left Root Right)
@@ -588,9 +437,9 @@ protected:
 		//若存在左子树则向左子树递归
 		if (leftSubLen > 0){
 			//先序第一个值(root_)右边取左子树的长度即是左子树
-			string sPreLeftSub = sPre.substr(1, leftSubLen);
+			Tree::string sPreLeftSub = sPre.substr(1, leftSubLen);
 			//root_的左边
-			string sMedLeftSub = sMed.substr(0, leftSubLen);
+			Tree::string sMedLeftSub = sMed.substr(0, leftSubLen);
 			calcPostOrder(sPreLeftSub, sMedLeftSub, sPostBuffer);
 		}
 		else{
@@ -600,16 +449,16 @@ protected:
 		//若存在右子树则向右子树递归
 		if (medRootSub + 1 < sMed.size()){
 			//先序第一个值(root_)的右边跳过左子树长度取所有即是右子树
-			string sPreRightSub = sPre.substr(1 + leftSubLen);
+			Tree::string sPreRightSub = sPre.substr(1 + leftSubLen);
 			//root_的右边
-			string sMedRightSub = sMed.substr(medRootSub + 1);
+			Tree::string sMedRightSub = sMed.substr(medRootSub + 1);
 			calcPostOrder(sPreRightSub, sMedRightSub, sPostBuffer);
 		}
 		else{
 			//do nothing
 		}
 
-		if (medRootSub != string::npos){
+		if (medRootSub != Tree::string::npos){
 			//加上root_
 			sPostBuffer += sMed.at(medRootSub);
 		}
@@ -1112,7 +961,6 @@ class AvlTree :public LinkedBinSearchTree<T> {
 	typedef typename LinkedBinSearchTree<T>::Position Position;
 	typedef typename BinTree<T>::BT BT;
 	using Element = T;
-	using Tree::Max;
 	using LinkedBinSearchTree<T>::root_;
 	typedef class AvlNode : public BinTree<T>::BTNode{
 	public:
@@ -1143,7 +991,7 @@ class AvlTree :public LinkedBinSearchTree<T> {
 		if (!t)
 			return 0;
 		else if (t->Left && t->Right)
-			return Max(t->Left->getHeight(), t->Right->getHeight()) + 1;
+			return Tree::Max(t->Left->getHeight(), t->Right->getHeight()) + 1;
 		else if (t->Left)
 			return t->Left->getHeight() + 1;
 		else if (t->Right)
@@ -1151,7 +999,7 @@ class AvlTree :public LinkedBinSearchTree<T> {
 		else
 			return 1;
 		/*展开下一层后效率提高特别大 优于下面的简易写法*/
-		//return t ? Max(heightOf(t->Left), heightOf(t->Right)) + 1 : 0;
+		//return t ? Tree::Max(heightOf(t->Left), heightOf(t->Right)) + 1 : 0;
 	}
 	/*两种概念:Rotation(旋转) 和 Elevate提升
 	(本实现与书上经典实现相同 但并没有旋转概念)
@@ -1165,8 +1013,8 @@ class AvlTree :public LinkedBinSearchTree<T> {
 		Position B = A->Left;
 		A->Left = B->Right;
 		B->Right = A;
-		A->setHeight(Max(heightOf(A->Left), heightOf(A->Right)) + 1);
-		B->setHeight(Max(heightOf(B->Left), A->getHeight()) + 1);//a的height上面已经计算 直接获取即可
+		A->setHeight(Tree::Max(heightOf(A->Left), heightOf(A->Right)) + 1);
+		B->setHeight(Tree::Max(heightOf(B->Left), A->getHeight()) + 1);//a的height上面已经计算 直接获取即可
 		return B;
 	}
 	/*右侧提升(RR) :将的左子节点B做提升至A处,A变为B提升方向上的子结点 更新树高 返回新根B*/
@@ -1174,8 +1022,8 @@ class AvlTree :public LinkedBinSearchTree<T> {
 		Position B = A->Right;
 		A->Right = B->Left;
 		B->Left = A;
-		A->setHeight(Max(heightOf(A->Left), heightOf(A->Right)) + 1);
-		B->setHeight(Max(heightOf(B->Right), A->getHeight()) + 1);
+		A->setHeight(Tree::Max(heightOf(A->Left), heightOf(A->Right)) + 1);
+		B->setHeight(Tree::Max(heightOf(B->Right), A->getHeight()) + 1);
 		return B;
 	}
 	/*问题出现在左子树的右侧:先对A的左子树做右侧提升 再对A做左侧提升*/
@@ -1214,7 +1062,7 @@ class AvlTree :public LinkedBinSearchTree<T> {
 		else{
 			BinTree<T>::repetitionInsert(avlT);
 		}
-		avlT->setHeight(Max(heightOf(avlT->Left), heightOf(avlT->Right)) + 1);/*更新树高*/
+		avlT->setHeight(Tree::Max(heightOf(avlT->Left), heightOf(avlT->Right)) + 1);/*更新树高*/
 		return avlT;
 	}
 public:

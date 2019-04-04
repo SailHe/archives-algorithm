@@ -2,6 +2,7 @@
 #include "TreeObject.h"
 
 
+
 /*
 静态储存:将数组视为内存块, 在此内存块内"申请"结点实现二叉树的话 这与普通的链接实现无异 而且更为费事 不予考虑
 顺序储存:将数组按顺序编号,1号作为根结点,之后 编号为2n是左子结点 2n+1是右子结点 是理想的完全二叉树存储方式
@@ -22,157 +23,6 @@ BST			插入构造O(N*logN) 增删O(H) log(N-1) <= H(BST) <= N, 平均 H = log(N)+1
 顺序CBT实现的Heap:构造 O(N),		push O(logN)		pop O(logN)
 使用顺序储存实现堆是最佳选择
 */
-/*
-使用数组虚拟的二叉树(不是ArrayBinTree)
-静态二叉树Static Binary Tree(用数组储存的二叉树不一定是完全二叉树)
-用StaBinTree实现便于方法内的子树下标的计算
-*/
-template<class T>
-class VirtualLinkedBinTree :public virtual BinTree<T> {
-protected:
-	typedef typename BinTree<T>::Position Position;
-	using BinTree<T>::root_;
-	using BinTree<T>::nodeManager;
-	using BinTree<T>::BinTreeImplType;
-public:
-	using BinTree<T>::layers;
-	using BinTree<T>::empty;
-	typedef typename BinTree<T>::BT BTS;
-	// 结构已知构造(结点数目, 数据获取方法, 下标获取方法, 空下标) 若结构并不总是完整的 但root_是特定已知的 可以指定root_的下标
-	VirtualLinkedBinTree(
-		int nSize, 
-		std::function<void(T *)> getData, 
-		std::function<void(Sub *, Sub *)> getSub, int noneSub, 
-		int rootSub = -1
-	) :VirtualLinkedBinTree(nSize) {
-		// 构建链接二叉树
-		root_ = buildStructure(getData, getSub, noneSub);
-		if (rootSub > 0) {
-			_ASSERT_EXPR(rootSub < capacity, "指定根下标越界!");
-			root_ = baseArray + rootSub;
-		}
-		usedSize = capacity - 1;
-	}
-	virtual ~VirtualLinkedBinTree() override {
-		//free(baseArray);
-		delete[] baseArray;
-		// 保证基类的正常析构
-		root_ = nullptr;
-		DE_PRINTF("VBT析构");
-	}
-	
-protected:
-	typedef typename BinTree<T>::Position NodeArray;
-	using BinTree<T>::BTNode;
-	typedef T ElementSBT;
-	// Left和Right储存左右孩子位于数组内的地址 Varrays
-	NodeArray baseArray = nullptr;
-	// 数组容量, 最多元素(nSize 结点个数)个数至少为1
-	int capacity = 0;
-	// 有效的元素个数|已储存的|已使用的容量
-	using BinTree<T>::usedSize;
-
-	// 构造静态完全二叉树 (结点个数) 向上转型时会用到的root_和usedSize 必须需要子类初始化
-	VirtualLinkedBinTree(int nSize) : BinTree<T>(Tree::LinearBlock) {
-		BinTreeImplType = Tree::LinearBlock;
-		baseArray = new BTNode[nSize];
-		capacity = nSize;
-	}
-
-	// 通过输入构建树结构 返回根结点 (数组内孩子结点的下标获取函数)
-	Position buildStructure(std::function<void(T *)> getData, std::function<void(Sub *, Sub *)> getSub, int noneSub) {
-		int nSize = capacity;
-		int i, sum = (nSize - 1)*nSize / 2;
-		int leftSub, rightSub;
-
-		for (i = 0; i < nSize; i++) {
-			Position leftChild = nullptr, rightChild = nullptr;
-			getData(&baseArray[i].Data);
-			getSub(&leftSub, &rightSub);
-			if (leftSub != noneSub) {
-				leftChild = baseArray + leftSub;
-				sum -= leftSub;
-			}
-
-			if (rightSub != noneSub) {
-				rightChild = baseArray + rightSub;
-				sum -= rightSub;
-			}
-			baseArray[i].Left = leftChild, baseArray[i].Right = rightChild;
-		}
-		_ASSERT_EXPR(0 <= sum && sum < nSize, "给定数据有误!");
-		return nSize == 0 ? nullptr : baseArray + sum;
-	}
-	bool full() {
-		return usedSize == capacity;
-	}
-	// 返回数组内的结点编号 1号为root_ 0号为哨兵
-	int index(BTS t) const {
-		/*第一个元素插入时root_=nullptr 所以链接左右孩子链接方法不能用root_ 更何况root_=1时的规律是针对数组成立的*/
-		return t - baseArray;
-	}
-	// 返回数组内的结点位置
-	Position position(int sub) {
-		return baseArray + sub;
-	}
-};
-
-// 完全二叉树
-template<typename T>
-class CompleteBinTree :public VirtualLinkedBinTree<T> {
-	using VirtualLinkedBinTree<T>::root_;
-public:
-	// 直接把数组copy进静态数组里
-	CompleteBinTree(T *iniA, int nSize): VirtualLinkedBinTree<T>(nSize){
-		assert(iniA != nullptr && nSize > 0);
-		root_ = baseArray;
-		for (int i = 0; i < nSize; ++i)
-			root_[i].Data = iniA[i];
-		usedSize = nSize;
-	}
-	virtual ~CompleteBinTree() {
-		DE_PRINTF("CBT析构");
-	}
-
-protected:
-	using VirtualLinkedBinTree<T>::baseArray;
-	using VirtualLinkedBinTree<T>::usedSize;
-	using VirtualLinkedBinTree<T>::index;
-	using Position = typename VirtualLinkedBinTree<T>::Position;
-
-	// 用于Heap和VirtualLinkedBinSearchTree的初始化
-	CompleteBinTree(int nSize) : VirtualLinkedBinTree<T>(nSize) {}
-
-	Sub getLeftChildSub(int parentIndex) {
-		return 2 * parentIndex;
-	}
-	Position getLeftChild(int parentIndex) {
-		int sub = getLeftChildSub(parentIndex);
-		return 0 < sub && sub <= usedSize ? baseArray + sub : nullptr;
-	}
-	Sub getRightChildSub(int parentIndex) {
-		return 2 * parentIndex + 1;
-	}
-	Position getRightChild(int parentIndex) {
-		int sub = getRightChildSub(parentIndex);
-		return 0 < sub && sub <= usedSize ? baseArray + sub : nullptr;
-	}
-	// 返回父结点下标 1号是根结点没有父结点返回哨兵:0
-	Sub getParentSub(int sonIndex) {
-		return sonIndex / 2;
-	}
-	Position getParent(int sonIndex) {
-		return baseArray + getParentSub(sonIndex);
-	}
-	Position getSibling(int SibIndex) {
-		// 1号是根结点没有兄弟
-		return SibIndex > 1 ?
-			SibIndex % 2 == 0 ? baseArray + SibIndex + 1 : baseArray + SibIndex - 1
-			: nullptr;
-	}
-
-};
-
 
 //说白了就是被限制了内存空间的链接二叉树 但由于普通二叉树不常用(没有有存在意义的insert方法)
 //出现这种冲突的根本原因在于 我将链接结点实现的 二叉树当成了一个既成标准(接口) 而初衷仅仅是为了可以便于向上转型 所以出现了一些矛盾
@@ -187,115 +37,83 @@ protected:
 */
 /*静态二叉搜索树Static Binary Search Tree*/
 /*SequentialBinTree顺序储存的二叉树*/
-template<class T>//虚继承(virtual必须写在中间) 解决多继承中菱形继承的情况下的基类成员的冲突
-class VirtualLinkedBinSearchTree :public VirtualLinkedBinTree<T>, public virtual LinkedBinSearchTree<T> {
-public:
-	virtual ~VirtualLinkedBinSearchTree() override {
-		DE_PRINTF("SCBT析构");
-	}
-protected:
-	typedef typename BinTree<T>::Position Position;
-	typedef typename BinTree<T>::BT VBT;
-	typedef T Element;
-	typedef Position structArray;
-	using BinTree<T>::root_;
-	using VirtualLinkedBinTree<T>::baseArray;
-	using VirtualLinkedBinTree<T>::usedSize;
-	using VirtualLinkedBinTree<T>::full;
-	// 仅用于CompleteBinSearchTree的初始化
-	VirtualLinkedBinSearchTree(int nSize) : VirtualLinkedBinTree<T>(nSize) {}
-	/*
-	Position nodeCreater(Element const &tData)override {
-		Position newNode = nullptr;
-		if (full()) {
-			// DNT
-		}
-		else {
-			baseArray[usedSize].Data = tData;
-			newNode = baseArray + (usedSize++);
-			BinTree<T>::lastInsertPosition = newNode;
-			BinTree<T>::isInsert = BinTree<T>::lastInsertPosition == nullptr ? false : true;
-		}
-		return newNode;
-	}
-	virtual void nodeEraser(Position &del) override {
-		// 0代表初始状态 只为了标识用 并无特殊用处
-		// malloc就应用memeset初始化free释放 new自动初始化 赋值初始化 delete释放
-		// del->Data = 0; // {}
-		//静态数组的删除并非实际删除
-		del->Left = del->Right = nullptr;
-		del = nullptr;
-		--usedSize;
-	}
-	*/
-};
+//虚继承(virtual必须写在中间) 解决多继承中菱形继承的情况下的基类成员的冲突
 
 /*完全二叉搜索树 使用数组构造 实现对其的静态二分查找 若需要动态增删功能 需要向上转型为二叉搜索树*/
 /*与二分查找是有区别的 二分查找的序列是有序的 建立CBST需要有序序列 但建立完后其本身的内置序列并非有序的(其首元素相当于序列中值)*/
 /*这其实该叫顺序储存的二叉树而不是完全二叉树 只是说完全二叉树用顺序存储很完美*/
-template<class T>
-class CompleteBinSearchTree :public CompleteBinTree<T>, public virtual VirtualLinkedBinSearchTree<T> {
-public:
-	using Position = typename VirtualLinkedBinSearchTree<T>::Position;
-	using VirtualLinkedBinTree<T>::full;
-	using VirtualLinkedBinTree<T>::index;
-	using VirtualLinkedBinTree<T>::position;
-protected:
-	typedef typename BinTree<T>::BT BT;
-	typedef Position structArray;
-	typedef T Element;
-	using VirtualLinkedBinTree<T>::root_;
-	using VirtualLinkedBinTree<T>::baseArray;
-	using VirtualLinkedBinTree<T>::usedSize;
-	using BinTree<T>::empty;
-	using Tree::Min;
 
-	/*返回StaBinSearchTree左子树的规模 (总结点数)*/
-	int getLeftScaleL(double n) {
-		/*2^h - 1 + x = n*/
-		int h = (int)log2(n + 1);/*向下取整*/
-		int x = (int)(n + 1 - pow(2.0, h));/*最下层单出的结点数*/
-		return (int)pow(2.0, h - 1) - 1 + Min(x, (int)pow(2.0, h - 1));
+/*VirtualLinkedBinTree
+使用数组虚拟的二叉树(不是ArrayBinTree)
+静态二叉树Static Binary Tree(用数组储存的二叉树不一定是完全二叉树)
+用StaBinTree实现便于方法内的子树下标的计算
+*/
+// 完全二叉树
+template<typename T>
+class CompleteBinTree :public BinTree<T> {
+	using BinTree<T>::root_;
+	using BinTree<T>::nodeManager;
+	using BinTree<T>::BTNode;
+	using CBT = typename BinTree<T>::BT;
+
+public:
+	using Position = typename BinTree<T>::Position;
+
+	// 直接把数组copy进静态数组里
+	CompleteBinTree(T *iniA, int nSize) : CompleteBinTree(nSize){
+		assert(iniA != nullptr);
+		root_ = baseArray;
+		for (int i = 0; i < nSize; ++i)
+			root_[i].Data = iniA[i];
+		initEnd(nSize);
+	}
+	// sort(iniA, iniA + n, less<T>());
+	// 翻转构造:sort(iniA, iniA + n, greater<T>()); 完全二叉树的左大右小树不支持左小右大树的镜像翻转 普通BinTree支持
+	// 使用数组构造唯一的完全二叉树 tips::若数组有序 则为搜索树
+	CompleteBinTree(int nSize, T *iniA) : CompleteBinTree(nSize) {
+		assert(iniA != nullptr);
+		// 0表示根结点的Sub
+		root_ = buildCompleteTree(iniA, iniA + nSize, 0);
+		initEnd(nSize);
+	}
+	virtual ~CompleteBinTree() {
+		DE_PRINTF("CBT析构");
 	}
 
-	//[完全二叉树]的序列构建  数据源数组(fitst, last) 目标数组baseArray		func(A, A+n, 0);
-	Position buildComplete(T *first, T *last, int rootSub) {
+	// 返回StaBinSearchTree左子树的规模 (总结点数)
+	static int getLeftScaleL(double n) {
+		// 2^h - 1 + x = n
+		// 向下取整
+		int h = (int)log2(n + 1);
+		// 最下层单出的结点数
+		int x = (int)(n + 1 - pow(2.0, h));
+		return (int)pow(2.0, h - 1) - 1 + Tree::Min(x, (int)pow(2.0, h - 1));
+	}
+
+	// [完全二叉树]的序列构建  (数据源 根结点下标) 返回根结点
+	Position buildCompleteTree(T *first, T *last, int rootSub) {
 		int n = last - first;
 		if (n == 0)
 			return nullptr;
 		int nl = getLeftScaleL(n);
 		baseArray[rootSub].Data = first[nl];
 		// first由0开始数nl个即是子树根 (root_在baseArray中sub为0 左子树sub = 2*rootSub + 1)
-		baseArray[rootSub].Left = buildComplete(first, first + nl, 2 * rootSub + 1);
-		baseArray[rootSub].Right = buildComplete(first + nl + 1, last, 2 * rootSub + 2);
+		baseArray[rootSub].Left = buildCompleteTree(first, first + nl, 2 * rootSub + 1);
+		baseArray[rootSub].Right = buildCompleteTree(first + nl + 1, last, 2 * rootSub + 2);
 		return baseArray + rootSub;
 	}
-	/*完全二叉树层序遍历(顺序遍历有序数组)*/
-	template<class Fun>
-	void levelTraversal(BT bT, Fun visit) {//无法override 但名字应该覆盖了
-		if (bT == nullptr)return;
-		FOR(i, 0, usedSize) {//bT必须时root_不能是baseArray(root_ = baseArray+1)
+	// 完全二叉树层序遍历(顺序遍历有序数组)
+	void levelTraversal(CBT bT, std::function<void(CBT)> visit) {
+		//无法override 但名字应该覆盖了
+		if (bT == nullptr)
+			return;
+		FOR(i, 0, usedSize) {
+			//bT必须是root_不能是baseArray(root_ = baseArray+1)
 			if (!visit(bT + i))
 				return;//中止
 		}
 	}
-public:
-	/*sort(iniA, iniA + n, less<T>());
-	**翻转构造:sort(iniA, iniA + n, greater<T>()); 完全二叉树的左大右小树不支持左小右大树的镜像翻转 普通BinTree支持*/
-	//使用数组构造唯一的完全二叉树 (由于完全二叉树不能增删 没有usedSize和capacity之分) tips::若数组有序 则为搜索树
-	CompleteBinSearchTree(int nSize, T *iniA) : CompleteBinTree<T>(nSize), VirtualLinkedBinSearchTree<T>(nSize) {
-		assert(iniA != nullptr && nSize > 0);
-		// 0表示根结点的Sub
-		root_ = buildComplete(iniA, iniA + nSize, 0);
-		this->usedSize = nSize;
-	}
-	virtual ~CompleteBinSearchTree() override {
-		DE_PRINTF("CBT析构");
-	}
-
-	/*Position find(Element x){
-		return nullptr;//not impl
-	}*/
+	
 	//返回两个结点的公共祖先 越界返回哨兵(0号结点)
 	Position ancestor(int i1, int i2) {
 		if (i1 > usedSize || i2 > usedSize || i1 < 0 || i2 < 0)
@@ -303,10 +121,42 @@ public:
 		if (i1 == i2)
 			return position(i1);
 		else if (i1 > i2)
-			ancestor(index(getParent(position(i1))), i2);//return 加不加只要最终有返回都会返回 效果一样
+			return ancestor(index(getParent(position(i1))), i2);
 		else
 			ancestor(i1, index(getParent(position(i2))));//return
 	}
+protected:
+	
+	// 初始化构造
+	CompleteBinTree(int nSize) {
+		assert(nSize > 0);
+		baseArray = new BTNode<T>[nSize];
+		capacity = nSize;
+	}
+	// 初始化结束
+	void initEnd(int nSize) {
+		nodeManager = new BinTreeAlgorithm::LinearNodeManager<T>(baseArray, nSize, nSize);
+	}
+
+	bool full() {
+		return usedSize == capacity;
+	}
+	// 返回数组内的结点编号 1号为root_ 0号为哨兵
+	int index(CBT t) const {
+		// 第一个元素插入时root_=nullptr 所以链接左右孩子链接方法不能用root_ 更何况root_=1时的规律是针对数组成立的
+		return t - baseArray;
+	}
+	// 返回数组内的结点位置
+	Position position(int sub) {
+		assert(0 <= sub && sub < capacity);
+		return baseArray + sub;
+	}
+	
+
+	Position baseArray = nullptr;
+	int usedSize = 0;
+private:
+	int capacity = 0;
 };
 
 /*
@@ -331,21 +181,16 @@ is_heap_until:	找出区间中第一个不满足heap条件的位置. O(N)
 template<class T>
 class Heap : public CompleteBinTree<T> {
 	typedef T Element;
-	typedef typename LinkedBinSearchTree<T>::Position Position;
+	typedef typename CompleteBinTree<T>::Position Position;
 	using BinTree<T>::root_;
+	using BinTree<T>::nodeManager;
 	using CompleteBinTree<T>::baseArray;
 	// 由于Heap中0号充当哨兵, 不计入总结点数, 故Heap中既是baseArray尾元素的下标, 又是结点总数
 	using CompleteBinTree<T>::usedSize;
+	using CompleteBinTree<T>::initEnd;
 
-	using VirtualLinkedBinTree<T>::index;
-	using VirtualLinkedBinTree<T>::nodeEraser;
-	using CompleteBinTree<T>::getLeftChildSub;
-	using CompleteBinTree<T>::getLeftChild;
-	using CompleteBinTree<T>::getRightChildSub;
-	using CompleteBinTree<T>::getRightChild;
-	using CompleteBinTree<T>::getParentSub;
-	using CompleteBinTree<T>::getParent;
-	using CompleteBinTree<T>::getSibling;
+	using CompleteBinTree<T>::position;
+	using CompleteBinTree<T>::index;
 
 	//使用less<T> greater<T> 或 比较符号重载 都有同样地问题: 两者没有同一个表示方法(带有重载()的父类)不便于大堆小堆的即时重构
 	int(*cmper_)(const T &, const T &) = nullptr;
@@ -359,11 +204,12 @@ public:
 	最大堆 参数: lessCmper(小于)哨兵(最大值)
 	注意: 用数组构造的堆与插入初始化的堆 的结构不一样
 	*/
-	Heap(int heapSize, T sentry, int(*cmper)(const T &, const T &), T *iniA = nullptr, int IniASize = 0) 
+	Heap(int heapSize, T sentry, int(*cmper)(const T &, const T &), T *iniA = nullptr, int IniASize = 0)
 		: CompleteBinTree<T>(heapSize + 1) {
 		build(iniA, IniASize, sentry, cmper);
+		initEnd(IniASize);
 	}
-	virtual ~Heap()override {
+	virtual ~Heap() override {
 		DE_PRINTF("Heap析构");
 	}
 
@@ -435,6 +281,7 @@ public:
 		if (empty(root_)) {
 			// root_不包括哨兵(0号) 内存空间会自动多申请一个
 			root_ = baseArray + 1;
+			usedSize = nodeManager->validNodeCnt();
 		}
 	}
 
@@ -555,5 +402,38 @@ protected:
 			}
 		}
 	}
+
+	// 0号是哨兵; 1号是根结点
+	// 返回左子树下标
+	Sub getLeftChildSub(int parentIndex) {
+		return 2 * parentIndex;
+	}
+	Position getLeftChild(int parentIndex) {
+		int sub = getLeftChildSub(parentIndex);
+		return 0 < sub && sub <= usedSize ? position(sub) : nullptr;
+	}
+	// 返回右子树下标
+	Sub getRightChildSub(int parentIndex) {
+		return 2 * parentIndex + 1;
+	}
+	Position getRightChild(int parentIndex) {
+		int sub = getRightChildSub(parentIndex);
+		return 0 < sub && sub <= usedSize ? baseArray + sub : nullptr;
+	}
+	// 返回父结点下标 root_的父结点对应哨兵
+	Sub getParentSub(int sonIndex) {
+		return sonIndex / 2;
+	}
+	Position getParent(int sonIndex) {
+		return baseArray + getParentSub(sonIndex);
+	}
+	// 返回兄弟结点
+	Position getSibling(int sibIndex) {
+		// 1号是根结点没有兄弟
+		return sibIndex > 1 ?
+			sibIndex % 2 == 0 ? baseArray + sibIndex + 1 : baseArray + sibIndex - 1
+			: nullptr;
+	}
+
 };
 

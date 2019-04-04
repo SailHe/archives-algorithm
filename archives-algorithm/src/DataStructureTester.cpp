@@ -280,7 +280,7 @@ int subTestForBinTree() {
 		StandardExtend::testAssert(btIns.height(), (int)std::ceil(MathExtend::logRadix(size, 2.0)));
 		StandardExtend::testAssert(btIns.getRoot()->Data, '1');
 		std::string resultReal;
-		btIns.traversal(BinTree<char>::ORDER_PREFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+		btIns.traversal(Tree::ORDER_PREFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
 			StandardExtend::formatStrAppend(resultReal, tmp);
@@ -288,7 +288,7 @@ int subTestForBinTree() {
 		StandardExtend::testAndOut("BT 先根序", resultReal, std::string("1 2 3 4 5 6"));
 
 		resultReal.clear();
-		btIns.traversal(BinTree<char>::ORDER_POST_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+		btIns.traversal(Tree::ORDER_POST_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
 			StandardExtend::formatStrAppend(resultReal, tmp);
@@ -296,7 +296,7 @@ int subTestForBinTree() {
 		StandardExtend::testAndOut("BT 后根序", resultReal, std::string("3 4 2 6 5 1"));
 
 		resultReal.clear();
-		btIns.traversal(BinTree<char>::ORDER_INFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+		btIns.traversal(Tree::ORDER_INFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
 			StandardExtend::formatStrAppend(resultReal, tmp);
@@ -304,7 +304,7 @@ int subTestForBinTree() {
 		StandardExtend::testAndOut("BT 中根序", resultReal, std::string("3 2 4 1 6 5"));
 
 		resultReal.clear();
-		btIns.traversal(BinTree<char>::ORDER_LEVEL, [&resultReal](BinTree<char>::BT bNode) {
+		btIns.traversal(Tree::ORDER_LEVEL, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
 			StandardExtend::formatStrAppend(resultReal, tmp);
@@ -388,7 +388,7 @@ int subTestForBinTree() {
 		StandardExtend::testAssert(btIns.height(), (int)std::ceil(MathExtend::logRadix(size, 2.0)));
 		StandardExtend::testAssert(btIns.getRoot()->Data, '1');
 		std::string resultReal;
-		btIns.traversal(BinTree<char>::ORDER_PREFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+		btIns.traversal(Tree::ORDER_PREFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
 			StandardExtend::formatStrAppend(resultReal, tmp);
@@ -397,7 +397,7 @@ int subTestForBinTree() {
 		StandardExtend::testAndOut("BT 镜像先根序", resultReal, std::string("1 5 6 2 4 3"));
 
 		resultReal.clear();
-		btIns.traversal(BinTree<char>::ORDER_POST_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+		btIns.traversal(Tree::ORDER_POST_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
 			StandardExtend::formatStrAppend(resultReal, tmp);
@@ -406,7 +406,7 @@ int subTestForBinTree() {
 		StandardExtend::testAndOut("BT 镜像后根序", resultReal, std::string("6 5 4 3 2 1"));
 
 		resultReal.clear();
-		btIns.traversal(BinTree<char>::ORDER_INFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
+		btIns.traversal(Tree::ORDER_INFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
 			StandardExtend::formatStrAppend(resultReal, tmp);
@@ -415,7 +415,7 @@ int subTestForBinTree() {
 		StandardExtend::testAndOut("BT 镜像中根序", resultReal, std::string("5 6 1 4 2 3"));
 
 		resultReal.clear();
-		btIns.traversal(BinTree<char>::ORDER_LEVEL, [&resultReal](BinTree<char>::BT bNode) {
+		btIns.traversal(Tree::ORDER_LEVEL, [&resultReal](BinTree<char>::BT bNode) {
 			std::string tmp;
 			tmp += bNode->Data;
 			StandardExtend::formatStrAppend(resultReal, tmp);
@@ -450,7 +450,7 @@ int subTestForBinTree() {
 	*/
 	// StandardExtend::refreshStdin();
 	char btsSub[][4] = { "1 -", "- -", "0 -","2 7", "- -", "- -", "5 -", "4 6" };
-	VirtualLinkedBinTree<char> btStIns1 = VirtualLinkedBinTree<char>(8, [](char *tData) {
+	BinTree<char> btStIns1 = BinTree<char>(8, [](char *tData) {
 		static int i = 0;
 		*tData = TransitionUtility::toAlphOrAscllNum(i++);
 	}, [&btsSub](int *lSub, int *rSub) {
@@ -462,7 +462,7 @@ int subTestForBinTree() {
 		*lSub = lSubC -'0', *rSub = rSubC -'0';
 	}, '-' - '0');
 	std::string resultReal;
-	btStIns1.traversal(BinTree<char>::ORDER_PREFIX_ROOT, [&resultReal](VirtualLinkedBinTree<char>::BTS bNode) {
+	btStIns1.traversal(Tree::ORDER_PREFIX_ROOT, [&resultReal](BinTree<char>::BT bNode) {
 		std::string tmp;
 		tmp += bNode->Data;
 		StandardExtend::formatStrAppend(resultReal, tmp);
@@ -489,7 +489,7 @@ int subTestForBinTree() {
 	const int nSizeBtS2 = 9;
 	std::vector<std::vector<int>> nBstSub = { {1, 6},{2, 3},{-1, -1},{-1, 4 },{5, -1 },{-1, -1},{7, -1 },{-1, 8 },{-1, -1} };
 	std::vector<int> nPre = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-	VirtualLinkedBinTree<int> btStIns2 = VirtualLinkedBinTree<int>(nSizeBtS2, [](int *tData){
+	BinTree<int> btStIns2 = BinTree<int>(nSizeBtS2, [](int *tData){
 		static int i = 0;
 		*tData = i++;
 	}, [&nBstSub](int *lSub, int *rSub) {
@@ -499,7 +499,7 @@ int subTestForBinTree() {
 		++r;
 	}, -1);
 	std::vector<int> preBts2Real;
-	btStIns2.traversal(BinTree<int>::ORDER_PREFIX_ROOT, [&preBts2Real](VirtualLinkedBinTree<int>::BTS bNode) {
+	btStIns2.traversal(Tree::ORDER_PREFIX_ROOT, [&preBts2Real](BinTree<int>::BT bNode) {
 		preBts2Real.emplace_back(bNode->Data);
 	});
 	StandardExtend::testAssert(preBts2Real, nPre);
@@ -514,6 +514,7 @@ int subTestForBinTree() {
 	// VirtualLinkedBinTree共计测试3个方法, 两组用例, 公有方法3个, 完全覆盖
 	return 16;
 }
+/**
 int subTestForCompleteBinSearchTree() {
 	// 0 1 2 [[3 4 5 [6] 7 8]] 9
 	int preData1[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -524,6 +525,7 @@ int subTestForCompleteBinSearchTree() {
 	StandardExtend::testAssert(cbtIns1.getRootData(), 6);
 	return 2;
 }
+/**/
 int subTestForBinSearchTree(LinkedBinSearchTree<std::string> &bst, std::string const &insName) {
 
 	bst.clear();
@@ -612,7 +614,7 @@ int subTestForHeapRebuild() {
 	heapIns.rebuild();
 	for (JCE::SizeType i = 0; i < heapData.size(); heapIns.push(heapData[i++]));
 	std::string resultHeapStr;
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
+	heapIns.traversal(Tree::ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
 		StandardExtend::formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
 	StandardExtend::testAndOut("Heap-层序", resultHeapStr, std::string("15 15 13 11 14 7 8 10 9 6 12 3 5 0 4 1 2"));
@@ -668,7 +670,7 @@ int subTestForHeapClearBuild() {
 	heapIns.push(8);
 	heapIns.push(11);
 	std::string resultHeap;
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
+	heapIns.traversal(Tree::ORDER_LEVEL, [&resultHeap](BinTree<int>::BT b) {
 		StandardExtend::formatStrAppend(resultHeap, std::to_string(b->Data));
 	});
 	StandardExtend::testAndOut("Heap-层序", resultHeap, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
@@ -700,13 +702,13 @@ int subTestForHeap() {
 		heapIns.push(heapData[i]);
 	}
 	std::string resultHeapStr;
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
+	heapIns.traversal(Tree::ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
 		StandardExtend::formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
 	StandardExtend::testAndOut("Heap-层序", resultHeapStr, std::string("0 6 1 8 9 5 2 10 12 15 14 7 13 4 3 15 11"));
 	heapRealDataList.emplace_back(heapIns.pop());
 	resultHeapStr.clear();
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
+	heapIns.traversal(Tree::ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
 		StandardExtend::formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
 	// 中间过程是否正常链接
@@ -728,7 +730,7 @@ int subTestForHeap() {
 	StandardExtend::testAssert(heapRealDataList, std::vector<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 }));
 
 	resultHeapStr.clear();
-	heapIns.traversal(heapIns.ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
+	heapIns.traversal(Tree::ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
 		StandardExtend::formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});
 	StandardExtend::testAssert(resultHeapStr, std::string(""));
@@ -841,10 +843,10 @@ int testForTree() {
 	sumTestCnt += subTestForBinSearchTree(bsTreeIns, "BST-");
 	AvlTree<std::string> avlTreeIns = AvlTree<std::string>();
 	sumTestCnt += subTestForBinSearchTree(avlTreeIns, "AVLT-");
-	sumTestCnt += subTestForCompleteBinSearchTree();
-	std::string preData3[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-	CompleteBinSearchTree<std::string> cbtIns3 = CompleteBinSearchTree<std::string>(10, preData3);
-	sumTestCnt += subTestForBinSearchTree(cbtIns3, "CBST-");
+	//sumTestCnt += subTestForCompleteBinSearchTree();
+	//std::string preData3[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+	//CompleteBinSearchTree<std::string> cbtIns3 = CompleteBinSearchTree<std::string>(10, preData3);
+	//sumTestCnt += subTestForBinSearchTree(cbtIns3, "CBST-");
 	sumTestCnt += subTestForHeap();
 
 	sumTestCnt += testForHuffumanTree();

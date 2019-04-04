@@ -16,7 +16,7 @@ protected:
 	//子类需要递归子结点的地方必定用到Left-Right只能用BinTree的Position-论getValue()存在的必要性
 	using Position = typename BinTree<T>::Position;
 	using Element = typename BinTree<T>::Element;
-	typedef class HuTrNode : public BinTree<T>::BTNode {
+	typedef class HuTrNode : public BinTreeAlgorithm::BinTreeNode<T> {
 	public:
 		int Weight = 0;//权重  Data作为 编码字符
 		int getValue()override {
@@ -26,7 +26,7 @@ protected:
 			Weight = w;
 		}
 		HuTrNode(int tData, int weight_)
-			:BinTree<T>::BTNode(tData) {
+			:BinTreeAlgorithm::BinTreeNode<T>(tData) {
 			Weight = weight_;
 		}
 		~HuTrNode()override {
