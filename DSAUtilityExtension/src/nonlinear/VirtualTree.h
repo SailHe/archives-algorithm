@@ -278,8 +278,6 @@ public:
 		initialize(sentry, cmper);
 		// 重设已使用结点数目(否则无法链接)
 		validNodeNum = initArrSize;
-		// 链接root_
-		linkToChildren(root_);
 		// 为每个元素赋初始权值
 		for (Position t = root_; t < root_ + initArrSize; ++t) {
 			// 若T类型不是基本类型 需要重载赋值号
@@ -343,42 +341,29 @@ protected:
 	bool isNotInit() {
 		return root_ == nullptr;
 	}
-	//子结点链接:链接当前结点的孩子结点 链接关系只与位置有关 与数据无关 因此除非是实际使用的位置增减 否则不用重链
+
+	// 链接关系只与位置有关 与数据无关 因此除非是实际使用的位置增减 否则不用重链
+
+	// 链接指定结点的子结点(只要未超过有效结点数即链接)
 	void linkToChildren(Position parent) {
 		int i = index(parent);
 		parent->Left = getLeftChild(i);
 		parent->Right = getRightChild(i);
 	}
-	//子结点分离:解除父亲结点对孩子结点的链接
-	void unlinkToChildren(int parentIndex) {
-		Position parent = getParent(parentIndex);
-		if (!empty(parent)) {
-			// 置空无效子结点
-			int lSub = getLeftChildSub(parentIndex);
-			if (lSub > validNodeNum) {
-				parent->Left = nullptr;
-			}
-			else;
-			int rSub = getRightChildSub(parentIndex);
-			if (rSub > validNodeNum) {
-				parent->Right = nullptr;
-			}
-			else;
-		}
-	}
-	//子结点分离:解除父亲结点对孩子结点的链接
+	// 解除指定子结点和其父结点间的链接
 	void unlinkToParent(int childIndex) {
 		Position parent = getParent(childIndex);
 		if (!empty(parent)) {
 			Sub parentIndex = index(parent);
 			// 置空无效子结点
 			int lSub = getLeftChildSub(parentIndex);
-			if (lSub > validNodeNum) {
+			int rSub = getRightChildSub(parentIndex);
+			if (lSub == childIndex) {
+				// baseNodeArray.nodeEraser(parent->Left);
 				parent->Left = nullptr;
 			}
-			else;
-			int rSub = getRightChildSub(parentIndex);
-			if (rSub > validNodeNum) {
+			else if (rSub == childIndex) {
+				// baseNodeArray.nodeEraser(parent->Right);
 				parent->Right = nullptr;
 			}
 			else;
