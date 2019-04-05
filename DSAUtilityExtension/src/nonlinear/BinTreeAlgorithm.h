@@ -145,9 +145,11 @@ namespace BinTreeAlgorithm {
 			// malloc就应用memeset初始化free释放 new自动初始化 赋值初始化 delete释放
 			// del->Data = 0; // {}
 			//静态数组的删除并非实际删除
-			del->Left = del->Right = nullptr;
-			del = nullptr;
-			--nodeBlockCounter;
+			if (del != nullptr) {
+				del->Left = del->Right = nullptr;
+				del = nullptr;
+				--nodeBlockCounter;
+			}
 		}
 
 		Tree::TreeImplTypeEnum getTreeImplType() override {
