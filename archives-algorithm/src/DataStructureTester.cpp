@@ -643,6 +643,15 @@ int subTestForHeapRebuild() {
 	}
 	StandardExtend::testAssert(heapRealDataList, std::vector<int>({ 15,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0 }));
 
+	// 4. build后的链接测试
+	heapIns.clear();
+	resultHeapStr.clear();
+	heapIns.build(&heapData[0], (int)heapData.size(), MIN_INT32, GreaterIntegerCmper);
+	heapIns.traversal(Tree::ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
+		StandardExtend::formatStrAppend(resultHeapStr, std::to_string(b->Data));
+	});
+	StandardExtend::testAndOut("Heap-层序", resultHeapStr, std::string("0 1 3 2 9 5 4 11 10 15 14 7 13 6 8 12 15"));
+
 	// 花式rebuild, 一组数据, 共3组用例
 	return 1;
 }
