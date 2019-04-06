@@ -626,7 +626,7 @@ int subTestForHeapRebuild() {
 	StandardExtend::testAssert(heapRealDataList, std::vector<int>({ 15,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0 }));
 
 	// 2. 使用新的数据构建
-	heapIns.build(&heapData[0], (int)heapData.size(), MIN_INT32, GreaterIntegerCmper);
+	heapIns.build(heapData.begin(), heapData.end(), MIN_INT32, GreaterIntegerCmper);
 	heapRealDataList.clear();
 	while (!heapIns.empty()) {
 		heapRealDataList.emplace_back(heapIns.pop());
@@ -634,7 +634,7 @@ int subTestForHeapRebuild() {
 	StandardExtend::testAssert(heapRealDataList, std::vector<int>({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 }));
 
 	// 3. 使用新的数据构建(上一个用例已确认此方法可以重建出合理的堆)
-	heapIns.build(&heapData[0], (int)heapData.size(), MIN_INT32, GreaterIntegerCmper);
+	heapIns.build(heapData.begin(), heapData.end(), MIN_INT32, GreaterIntegerCmper);
 	// 最小堆重建为最大堆(数据不变)
 	heapIns.initialize(MAX_INT32, LessIntegerCmper);
 	heapIns.rebuild();
@@ -647,7 +647,7 @@ int subTestForHeapRebuild() {
 	// 4. build后的链接测试
 	heapIns.clear();
 	resultHeapStr.clear();
-	heapIns.build(&heapData[0], (int)heapData.size(), MIN_INT32, GreaterIntegerCmper);
+	heapIns.build(heapData.begin(), heapData.end(), MIN_INT32, GreaterIntegerCmper);
 	heapIns.traversal(Tree::ORDER_LEVEL, [&resultHeapStr](BinTree<int>::BT b) {
 		StandardExtend::formatStrAppend(resultHeapStr, std::to_string(b->Data));
 	});

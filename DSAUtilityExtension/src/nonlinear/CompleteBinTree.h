@@ -171,7 +171,8 @@ public:
 	// 最大堆 参数: lessCmper(小于)哨兵(最大值)
 	Heap(int heapSize, T sentry, int(*cmper)(const T &, const T &), T *initArr = nullptr, int initArrSize = 0)
 		: CompleteBinTree<T>(heapSize + 1) {
-		build(initArr, initArrSize, sentry, cmper);
+		// @TODO + 原地初始化建堆
+		build(initArr, initArr + initArrSize, sentry, cmper);
 	}
 	virtual ~Heap() override {
 		DE_PRINTF("Heap析构");
@@ -244,14 +245,15 @@ public:
 		}
 	}
 
-	// 构建堆
-	void build(T *initArr, int initArrSize, T sentry, int(*cmper)(const T &, const T &) = nullptr) {
+	// 构建堆 (支持自加和解引用的迭代器范围, 哨兵, 比较方法)
+	template<typename Iterator>
+	void build(Iterator begin, Iterator end, T sentry, int(*cmper)(const T &, const T &) = nullptr) {
 		initialize(sentry, cmper);
-		for (int i = 0; i < initArrSize; ++i) {
+		while(begin != end) {
 			// 确保哨兵是列表中所有元素的极值(最小堆对应极小值, 最大堆对应极大值), 即lhs比rhs大或小恒成立, 成立则比较值>0,不成立则<0,相等则=0
-			assert(cmperFun(baseNodeArray[0].Data, *initArr) > 0);
-			linkNewNodeToParent(*initArr);
-			++initArr;
+			assert(cmperFun(baseNodeArray[0].Data, *begin) > 0);
+			linkNewNodeToParent(*begin);
+			++begin;
 		}
 
 		// 数据改变一定得重建堆
