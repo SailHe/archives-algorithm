@@ -189,9 +189,11 @@ public:
 			throw std::exception("堆已满 无法压入");
 		}
 		else {
-			percolateUp(item);
+			// puSub指向[插入后]堆中最后一个元素的位置 puSub=[1, capbility)
+			int puSub = validNodeNum + 1;
 			// 因为新加入的元素始终在尾部 因此直接链接尾部的元素即可保证新添元素的链接
-			linkToParent(validNodeNum + 1);
+			linkToParent(puSub, item);
+			percolateUp(puSub);
 		}
 		return result;
 	}
@@ -246,8 +248,8 @@ public:
 		for (int i = 0; i < initArrSize; ++i) {
 			// 确保哨兵是列表中所有元素的极值(最小堆对应极小值, 最大堆对应极大值), 即lhs比rhs大或小恒成立, 成立则比较值>0,不成立则<0,相等则=0
 			assert(cmperFun(baseNodeArray[0].Data, *initArr) > 0);
-			baseNodeArray[1 + i].Data = *initArr;
-			linkToParent(1 + i);
+			// baseNodeArray[1 + i].Data = *initArr;
+			linkToParent(1 + i, *initArr);
 			++initArr;
 		}
 
@@ -257,10 +259,10 @@ public:
 
 protected:
 	// 上滤 将尾部元素item与父结点逐个比较, 并置于合适的位置; push调整
-	void percolateUp(Element const &item) {
-		// puSub指向[插入后]堆中最后一个元素的位置 puSub=[1, capbility)
-		int puSub = validNodeNum + 1;
-		for (int parentSub = -1; cmperFun(baseNodeArray[(parentSub = calcParentSubPosition(puSub))].Data, item) < 0; puSub = parentSub) {
+	void percolateUp(Sub puSub) {
+		Element item = baseNodeArray[puSub].Data;
+		for (int parentSub = -1;
+			cmperFun(baseNodeArray[(parentSub = calcParentSubPosition(puSub))].Data, item) < 0; puSub = parentSub) {
 			// 从最后一个有孩子的结点开始 向上过滤结点
 			baseNodeArray[puSub].Data = baseNodeArray[parentSub].Data;
 		}
@@ -295,7 +297,7 @@ protected:
 	// =>链接关系只与位置有关 与数据无关 因此除非是实际使用的位置增减 否则不用重链
 
 	// 在指定子结点和其父结点间建立链接
-	void linkToParent(int childIndex) {
+	void linkToParent(int childIndex, Element const &item) {
 		int parentIndex = calcParentSubPosition(childIndex);
 		Position parent = position(parentIndex);
 		if (!empty(parent)) {
@@ -305,11 +307,13 @@ protected:
 				// 若抽象成功 则就算之前使用数组实现的Heap都可以转换为链接实现了
 				// baseNodeArray.nodeCreater(parent->Left);
 				parent->Left = position(lSub);
+				parent->Left->Data = item;
 				++validNodeNum;
 			}
 			else if (rSub == childIndex) {
 				// baseNodeArray.nodeCreater(parent->Right);
 				parent->Right = position(rSub);
+				parent->Right->Data = item;
 				++validNodeNum;
 			}
 			else;
