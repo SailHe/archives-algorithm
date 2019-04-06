@@ -1,5 +1,6 @@
 #include "Teater.h"
 #include "linear/Varrays.h"
+#include "./nonlinear/CompleteBinTree.h"
 #include "./nonlinear/ExpressionTree.h"
 #include "./nonlinear/CoordinatesMap.h"
 

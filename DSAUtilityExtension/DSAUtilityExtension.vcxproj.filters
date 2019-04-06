@@ -81,9 +81,6 @@
     <ClInclude Include="src\nonlinear\GraphUtil.h">
       <Filter>头文件\DataStructure\NonlinearStructure\Graph</Filter>
     </ClInclude>
-    <ClInclude Include="src\nonlinear\VirtualTree.h">
-      <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
-    </ClInclude>
     <ClInclude Include="src\nonlinear\TreeUtility.h">
       <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
     </ClInclude>
@@ -139,6 +136,9 @@
       <Filter>头文件\Utility</Filter>
     </ClInclude>
     <ClInclude Include="src\nonlinear\BinTreeAlgorithm.h">
+      <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nonlinear\CompleteBinTree.h">
       <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
     </ClInclude>
   </ItemGroup>

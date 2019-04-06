@@ -5,7 +5,6 @@
 #include "./linear/Queue.h"
 
 #include "./nonlinear/TreeObject.h"
-#include "./nonlinear/VirtualTree.h"
 #include "./nonlinear/HuffmanTree.h"
 #include "./nonlinear/Graph.h"
 #include "./nonlinear/GraphTemplate.h"

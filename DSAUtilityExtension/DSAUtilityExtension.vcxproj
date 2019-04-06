@@ -158,7 +158,7 @@
     </ClInclude>
     <ClInclude Include="src\nonlinear\TreeObject.h" />
     <ClInclude Include="src\nonlinear\TreeUtility.h" />
-    <ClInclude Include="src\nonlinear\VirtualTree.h">
+    <ClInclude Include="src\nonlinear\CompleteBinTree.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="src\pch.h" />

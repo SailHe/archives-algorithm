@@ -1,6 +1,6 @@
 #pragma once
 #include "TreeObject.h"
-#include "VirtualTree.h"
+#include "CompleteBinTree.h"
 
 
 /*
