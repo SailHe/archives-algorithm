@@ -123,7 +123,7 @@ protected:
 	}
 	// 返回数组内的结点编号 1号为root_ 0号为哨兵
 	int index(CBT t) const {
-		// 第一个元素插入时root_=nullptr 所以链接左右孩子链接方法不能用root_ 更何况root_=1时的规律是针对数组成立的
+		// 第一个元素插入时root_=nullptr 所以连接左右孩子连接方法不能用root_ 更何况root_=1时的规律是针对数组成立的
 		return t - baseNodeArray;
 	}
 	// 返回数组内的结点位置
@@ -169,7 +169,6 @@ public:
 	// (堆的大小, 哨兵, 小于比较方法, 任意初始化序列序列 该序列的元素个数) 
 	// 最小堆 参数: moreCmper(大于)哨兵(最小值)	注意: 负数太小减法会变正:传入MAX_INT32/2即可
 	// 最大堆 参数: lessCmper(小于)哨兵(最大值)
-	// 注意: 用数组构造的堆与插入初始化的堆 的结构不一样
 	Heap(int heapSize, T sentry, int(*cmper)(const T &, const T &), T *initArr = nullptr, int initArrSize = 0)
 		: CompleteBinTree<T>(heapSize + 1) {
 		build(initArr, initArrSize, sentry, cmper);
@@ -178,6 +177,7 @@ public:
 		DE_PRINTF("Heap析构");
 	}
 
+	// 向堆中压入一个新项 注意: 用数组初始化构造的堆与push出的堆两者结构不一样
 	bool push(Element const &item) {
 		bool result = true;
 		if (isNotInit()) {
@@ -189,15 +189,16 @@ public:
 			throw std::exception("堆已满 无法压入");
 		}
 		else {
-			// puSub指向[插入后]堆中最后一个元素的位置 puSub=[1, capbility)
+			// [插入后]堆中最后一个元素的下标
 			int puSub = validNodeNum + 1;
-			// 因为新加入的元素始终在尾部 因此直接链接尾部的元素即可保证新添元素的链接
-			linkToParent(puSub, item);
+			// 新增一个元素(validNodeNum++)
+			linkNewNodeToParent(item);
 			percolateUp(puSub);
 		}
 		return result;
 	}
 
+	// 弹出堆中的根结点对应的数据
 	Element pop() {
 		if (empty()) {
 			throw std::exception("堆已空 无法抛出");
@@ -205,10 +206,11 @@ public:
 		else {
 			// 取出即将返回的值
 			Element item = root_->Data;
+			// 当前尾元素下标
 			int delSub = validNodeNum;
-			// 解除已删除的尾元素与父结点的链接
-			unlinkToParent(delSub);
-			// 从堆根开始下滤 删除尾元素(validNodeNum--即可)
+			// 删除尾元素(validNodeNum--)
+			unlinkLastNodeToparent();
+			// 从堆根开始下滤
 			percolateDown(1, delSub);
 			return item;
 		}
@@ -238,7 +240,7 @@ public:
 		if (empty(root_)) {
 			// root_不包括哨兵(0号) 内存空间会自动多申请一个
 			root_ = position(1);
-			validNodeNum = 0;
+			_ASSERT_EXPR(validNodeNum == 0, "初始化仍能进行 但恐怕删除元素时计数器没有变动!");
 		}
 	}
 
@@ -248,8 +250,7 @@ public:
 		for (int i = 0; i < initArrSize; ++i) {
 			// 确保哨兵是列表中所有元素的极值(最小堆对应极小值, 最大堆对应极大值), 即lhs比rhs大或小恒成立, 成立则比较值>0,不成立则<0,相等则=0
 			assert(cmperFun(baseNodeArray[0].Data, *initArr) > 0);
-			// baseNodeArray[1 + i].Data = *initArr;
-			linkToParent(1 + i, *initArr);
+			linkNewNodeToParent(*initArr);
 			++initArr;
 		}
 
@@ -270,11 +271,12 @@ protected:
 		baseNodeArray[puSub].Data = item;
 	}
 
-	// 下滤 将Heap中pdSub处的元素提升至parentSub处 然后将以 position(parentSub) 为根的子堆调整为最大或最小或最小堆; build|pop调整
+	// 下滤 将Heap中pdSub处的元素提升至parentSub处 然后将以 position(parentSub) 为根的子堆调整为最大或最小或最小堆; build | pop调整
 	void percolateDown(int parentSub, int pdSub) {
 		// 取出需要下滤的值
 		Element pdEle = baseNodeArray[pdSub].Data;
-		for (int childSub = -1; (childSub = calcLeftChildSub(parentSub)) <= validNodeNum; parentSub = childSub) {
+		for (int childSub = -1; 
+			(childSub = calcLeftChildSub(parentSub)) <= validNodeNum; parentSub = childSub) {
 			// 选取存在的左右儿子中大或小的一个
 			if (childSub != validNodeNum && cmperFun(baseNodeArray[childSub].Data, baseNodeArray[childSub + 1].Data) < 0)
 				childSub++;
@@ -294,9 +296,9 @@ protected:
 		return root_ == nullptr;
 	}
 
-	// =>链接关系只与位置有关 与数据无关 因此除非是实际使用的位置增减 否则不用重链
+	// =>连接关系只与位置有关 与数据无关 因此除非是实际使用的位置增减 否则不用重链
 
-	// 在指定子结点和其父结点间建立链接
+	// 在指定子结点和间建立连接
 	void linkToParent(int childIndex, Element const &item) {
 		int parentIndex = calcParentSubPosition(childIndex);
 		Position parent = position(parentIndex);
@@ -304,7 +306,7 @@ protected:
 			int lSub = calcLeftChildSub(parentIndex);
 			int rSub = calcRightChildSub(parentIndex);
 			if (lSub == childIndex) {
-				// 若抽象成功 则就算之前使用数组实现的Heap都可以转换为链接实现了
+				// 若抽象成功 则就算之前使用数组实现的Heap都可以转换为连接实现了
 				// baseNodeArray.nodeCreater(parent->Left);
 				parent->Left = position(lSub);
 				parent->Left->Data = item;
@@ -319,7 +321,11 @@ protected:
 			else;
 		}
 	}
-	// 解除指定子结点和其父结点间的链接
+	// 在尾部新建一个结点并与其父结点连接
+	void linkNewNodeToParent(Element const &item) {
+		linkToParent(validNodeNum + 1, item);
+	}
+	// 解除指定子结点和其父结点间的连接
 	void unlinkToParent(int childIndex) {
 		Position parent = calcParentPosition(childIndex);
 		if (!empty(parent)) {
@@ -344,6 +350,10 @@ protected:
 				root_ = nullptr;
 			}
 		}
+	}
+	// 解除尾部结点与其父结点的连接
+	void unlinkLastNodeToparent() {
+		unlinkToParent(validNodeNum);
 	}
 
 	// =>0号是哨兵; 1号是根结点
