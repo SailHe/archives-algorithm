@@ -115,6 +115,7 @@ namespace BinTreeAlgorithm {
 		// 结点块计数器
 		int nodeBlockCounter = 0;
 	};
+	// 其实该称完全二叉结点分配器
 	template<typename T>
 	class LinearNodeManager :public NodeManager<T> {
 
@@ -133,7 +134,7 @@ namespace BinTreeAlgorithm {
 
 		Position nodeCreater(T const &tData) override {
 			Position newNode = nullptr;
-			if (full()) {
+			if (nodeBlockCounter == capacity) {
 				// DNT
 			}
 			else {
@@ -153,24 +154,15 @@ namespace BinTreeAlgorithm {
 				--nodeBlockCounter;
 			}
 		}
-
-		Tree::TreeImplTypeEnum getTreeImplType() override {
-			return Tree::LinearBlock;
-		}
-		
-		bool full() const {
-			return nodeBlockCounter == capacity;
-		}
-		// 返回内存池内的结点编号
-		int index(Block block) const {
-			return block - momoryPool;
-		}
 		// 返回数组内的结点位置
 		Position position(int sub) {
 			assert(0 <= sub && sub < capacity);
 			return momoryPool + sub;
 		}
-
+		Tree::TreeImplTypeEnum getTreeImplType() override {
+			return Tree::LinearBlock;
+		}
+		
 		BinTreeAlgorithm::BinTreeNode<T> &operator[](int i) {
 			assert(0 <= i && i < capacity);
 			return momoryPool[i];

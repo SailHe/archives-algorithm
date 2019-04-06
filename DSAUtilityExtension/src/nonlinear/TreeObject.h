@@ -29,99 +29,6 @@ public:
 	using BT = BTNode<T> const *;
 	using Vister = std::function<void(BT)>;
 
-
-	BinTree(){
-		nodeManager_ = new BinTreeAlgorithm::NonLinearNodeManager<T>();
-	}
-	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
-	BinTree(const BinTree &rhs) : BinTree(){
-		DE_PRINTF("BT拷贝构造");
-		Assignment(root_, rhs.root_);
-	}
-	// 移动构造 (保证完全一致)
-	BinTree(BinTree &&rvalue) : BinTree() {
-		DE_PRINTF("BT移动构造");
-		*this = std::move(rvalue);
-	}
-	// 先中序列构造 缺省的遍历序列放置元素个数
-	BinTree(Element const *preOrder, Element const *inOrder, int n) : BinTree() {
-		prefInBuild(preOrder, inOrder, root_, n);
-	}
-	// 中后序列构造
-	BinTree(int n, Element const *inOrder, Element const *postOder) : BinTree() {
-		postInBuild(root_, inOrder, postOder, n);
-	}
-	
-	// 先根序遍历操作堆栈构造 (堆栈操作获取方法, 结点数据获取方法)
-	BinTree(std::function<bool(Tree::string &)> getOrder, void(*getData)(T*)) : BinTree() {
-		Tree::ArrayList<T> preOrder, inOrder;
-		Tree::stack<T> s;
-		Tree::string str;
-		while (getOrder(str)) {
-			int len = -1;
-			Utility::AssertToSignedNum(str.length(), len);
-			if (len == 4) {//Push
-				T ele;
-				getData(&ele);
-				// 第一次遇到时(先序)
-				preOrder.push_back(ele);
-				s.push(ele);
-			}
-			else if (len == 3){//Pop
-				// 第二次遇到时(中序)
-				inOrder.push_back(s.top());
-				s.pop();
-			}
-			else {
-				throw std::exception("Order error!");
-			}
-		}
-		_ASSERT_EXPR(preOrder.size() == inOrder.size(), "Size Error");
-		prefInBuild(preOrder, 0, inOrder, 0, root_, preOrder.size());
-	}
-	// 构建基于数组的虚拟链接二叉树
-	BinTree(
-		int nSize,
-		std::function<void(T *)> getData,
-		std::function<void(Sub *, Sub *)> getSub, int noneSub,
-		int customRootSub = -1
-	) {
-		BinTreeAlgorithm::LinearNodeManager<T> *linearNodeManager = new BinTreeAlgorithm::LinearNodeManager<T>(nSize);
-		nodeManager_ = linearNodeManager;
-		Sub rootSub = buildBinTreeStructure(*linearNodeManager, getData, getSub, noneSub, nSize);
-		if (customRootSub > 0) {
-			_ASSERT_EXPR(customRootSub < nSize, "指定根下标越界!");
-			rootSub = customRootSub;
-		}
-		else {
-			// DNT
-		}
-		root_ = linearNodeManager->position(rootSub);
-	}
-	// destructor
-	virtual ~BinTree() {
-		destroy(root_);
-		delete nodeManager_;
-		nodeManager_ = nullptr;
-		DE_PRINTF("BT析构");
-	}
-
-	// 避免无意地二叉树赋值(赋值操作析构原lhs 且只能保证内容一致)
-	BinTree &operator= (const BinTree &rhs) {
-		// 先要析构自己的root_
-		destroy(root_);
-		Assignment(root_, rhs.root_);
-		return *this;
-	}
-	// 避免无意地二叉树移动(系统自动析构原lhs)
-	BinTree &operator= (BinTree &&rvalue) {
-		std::swap(root_, rvalue.root_);
-		std::swap(isInsert, rvalue.isInsert);
-		std::swap(lastCreateNode, rvalue.lastCreateNode);
-		std::swap(nodeManager_, rvalue.nodeManager_);
-		return *this;
-	}
-
 	// 清除所有内容(初始化所有结点的有效性, 结构一定会被摧毁, root_会保留)
 	void clear() {
 		destroy(root_);
@@ -135,9 +42,7 @@ public:
 	BT getRoot() const {
 		return root_;
 	}
-	int size() {
-		return nodeManager_->createdNodeNum();
-	}
+	virtual int size() = 0;
 	// 若二叉树为空返回true (存在至少1个结点含有数据 ==> size() == 0) O(1)
 	bool empty() const {
 		// (根结点为空表示整颗树为空)
@@ -187,23 +92,24 @@ public:
 	}
 
 	// Θ(2*N)     Tree::ORDER, void visit(BinTree<T>::BT node)
-	void traversal(Tree::TraversalOrderEnum type, Vister visit){
+	void traversal(Tree::TraversalOrderEnum type, Vister visit) {
 		if (type == Tree::ORDER_PREFIX_ROOT)
 			preTraversal(root_, visit);
 		else if (type == Tree::ORDER_INFIX_ROOT)
 			infTraversal(root_, visit);
 		else if (type == Tree::ORDER_POST_ROOT)
 			postTraversal(root_, visit);
-		else if(type == Tree::ORDER_LEVEL)
+		else if (type == Tree::ORDER_LEVEL)
 			levelTraversal(root_, visit);
 		else
 			_ASSERT_EXPR(false, "遍历参数错误 NONE_ORDER 不作traversal_");
 	}
+
 	// 镜像树: mirroring reversal镜像反转 转换后不能使用原来的任何基于比较的方法(若是搜索树:左小右大->左大右小)
-	void mirReversal(){
+	void mirReversal() {
 		Tree::queue<Position> q;
 		q.push(root_);
-		while (!q.empty()){
+		while (!q.empty()) {
 			Position t = q.front();
 			q.pop();
 			// 将所有非空子树送入转换队列
@@ -216,25 +122,253 @@ public:
 		}
 	}
 	// 同构判断
-	bool omorphism(BinTree const &T2){
+	bool omorphism(BinTree const &T2) {
 		return isomorphic(this->root_, T2.root_);
 	}
 	// 向现有的树结构中填充数据(可利用静态二叉树储存输入结构 或是原结构)
 	// 普通二叉树->传入中序遍历结果可以获得确定的一颗树
 	// 有序数组->数据符合二叉搜索树要求
 	// 完全二叉树->有数组的构造方法(但仅对完全二叉搜索树有实际意义)
-	bool fillData(Tree::ArrayList<T> &dataA){
+	bool fillData(Tree::ArrayList<T> &dataA) {
 		return fillData(dataA, 0, dataA.size(), root_);
 	}
-	
+
 protected:
-	// const static int BT_NODE_LEN = sizeof(class BinTreeAlgorithm::BinTreeNode<T>);
 	Position root_ = nullptr;
 	Position lastCreateNode = nullptr;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
 	bool isInsert = false;// 是否执行了插入操作(判断插入是否成功)
+
+	// 返回子二叉树的规模 O(N)
+	static int scaleOf(BT t) {
+		return empty(t) ? 0 : scaleOf(t->Left) + scaleOf(t->Right) + 1;
+	}
+	// 返回结点深度 (空树深度为零 有root则为1)
+	static int depthOf(Position bT) {
+		int HL, HR;
+		if (bT) {
+			HL = depthOf(bT->Left);
+			HR = depthOf(bT->Right);
+			// (根据公式 Height = max(Hl, Hr) + 1 由后序遍历改编实现)
+			return (HL > HR ? HL : HR) + 1;
+		}
+		else
+			return 0;
+	}
+	// 按原结构填充数据 (数组, 根结点数据下标, 当前根下的数据个数, 结构来源树) O(N^2)
+	static bool fillData(Tree::ArrayList<T> &dataA, int dataRootSub, int dataSize, Position bt) {
+		if (empty(bt))
+			return true;
+		// 左右子树规模 这里可以小小的优化一下: 右子树规模可以通过已知的size减去左子树-1算出 但要修改参数比较麻烦(优化后复杂度仍是N^2)
+		int nl = scaleOf(bt->Left), nr = scaleOf(bt->Right);
+		// 整棵树的规模需与数据规模相等
+		if (nl + nr + 1 != dataSize)
+			return false;
+		//数据填充
+		bt->Data = dataA[dataRootSub + nl];
+		//左子树递归							//1是1个根结点
+		fillData(dataA, dataRootSub, dataSize - nr - 1, bt->Left);
+		//右子树递归      //根1和左子树nl 都"小于"右子树
+		fillData(dataA, dataRootSub + nl + 1, dataSize - nl - 1, bt->Right);
+		return true;
+	}
+	
+	// 层序遍历---从上到下->从左到右(队列实现)
+	static void levelTraversal(BT bT, Vister visit) {
+		if (empty(bT))
+			return;
+		Tree::queue<BT> q;
+		q.push(bT);
+		while (!q.empty()) {
+			bT = q.front(); q.pop();
+			visit(bT);
+			if (bT->Left)
+				q.push(bT->Left);
+			if (bT->Right)
+				q.push(bT->Right);
+		}
+	}
+	// 先序---子树根->左子树->右子树;(递归实现)
+	static void preTraversal(BT bT, Vister visit) {
+		if (!empty(bT)) {
+			visit(bT);
+			preTraversal(bT->Left, visit);
+			preTraversal(bT->Right, visit);
+		}
+	}
+	// 中序---左子树->子树根->右子树;
+	static void infTraversal(BT bT, Vister visit) {
+		if (!empty(bT)) {
+			infTraversal(bT->Left, visit);
+			visit(bT);
+			infTraversal(bT->Right, visit);
+		}
+	}
+	// 后序---左子树->右子树->子树根;
+	static void postTraversal(BT bT, Vister visit) {
+		if (!empty(bT)) {
+			postTraversal(bT->Left, visit);
+			postTraversal(bT->Right, visit);
+			visit(bT);
+		}
+	}
+
+	// 返回是否T1与T2是否同构 isomorphic(adj. [物] 同构的；同形的)  isomorphism_(n. 类质同像，[物化] 类质同晶；同形)
+	static bool isomorphic(BT T1, BT T2) {
+		// 深度不同
+		if ((T1 == nullptr && T2 != nullptr) || (T1 != nullptr && T2 == nullptr))
+			return false;
+		// 叶子结点
+		else if (T1 == nullptr && T2 == nullptr)
+			return true;
+		else {// 两颗树都不为空
+			// 数据不同
+			if (T1->Data != T2->Data)
+				return false;
+			else { // 当前数据相等
+				// 按当前顺序尝试匹配左右子树
+				if (isomorphic(T1->Left, T2->Left))
+					return isomorphic(T1->Right, T2->Right);
+				else { // 否则转换左右子树匹配
+					if (isomorphic(T1->Left, T2->Right))
+						return isomorphic(T1->Right, T2->Left);
+					else
+						return false;
+				}
+			}
+		}
+	}
+
+	// 判断二叉树是否为空
+	static bool empty(BT bT) {
+		return bT == nullptr;
+	}
+
+	virtual void destroy(Position &r) = 0;
+	//镜像赋值(负号)
+	void reAssignment() {}
+	// 重复插入处理
+	void repetitionInsert(Position bt) {
+		//x==bt->Data 无需插入 手动更新lastCreateNode
+		lastCreateNode = bt;
+		isInsert = false;
+	}
+
+};
+
+template<typename T>
+class LinkedBinTree : public BinTree<T> {
+	using BinTree<T>::root_;
+	using BinTree<T>::empty;
+	using BinTree<T>::isInsert;
+	using BinTree<T>::lastCreateNode;
+	using BinTree<T>::destroy;
+public:
+	typedef T Element;
+	template<typename T> using BTNode = BinTreeAlgorithm::BinTreeNode<T>;
+	using Position = BTNode<T> *;
+	// 简单说Position有修改权限 对应的BT没有
+	using BT = BTNode<T> const *;
+	using Vister = std::function<void(BT)>;
+
+
+	LinkedBinTree() {
+		nodeManager_ = new BinTreeAlgorithm::NonLinearNodeManager<T>();
+	}
+	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
+	LinkedBinTree(const LinkedBinTree &rhs) : LinkedBinTree() {
+		DE_PRINTF("BT拷贝构造");
+		Assignment(root_, rhs.root_);
+	}
+	// 移动构造 (保证完全一致)
+	LinkedBinTree(LinkedBinTree &&rvalue) : LinkedBinTree() {
+		DE_PRINTF("BT移动构造");
+		*this = std::move(rvalue);
+	}
+	// 先中序列构造 缺省的遍历序列放置元素个数
+	LinkedBinTree(Element const *preOrder, Element const *inOrder, int n) : LinkedBinTree() {
+		prefInBuild(preOrder, inOrder, root_, n);
+	}
+	// 中后序列构造
+	LinkedBinTree(int n, Element const *inOrder, Element const *postOder) : LinkedBinTree() {
+		postInBuild(root_, inOrder, postOder, n);
+	}
+
+	// 先根序遍历操作堆栈构造 (堆栈操作获取方法, 结点数据获取方法)
+	LinkedBinTree(std::function<bool(Tree::string &)> getOrder, void(*getData)(T*)) : LinkedBinTree() {
+		Tree::ArrayList<T> preOrder, inOrder;
+		Tree::stack<T> s;
+		Tree::string str;
+		while (getOrder(str)) {
+			int len = -1;
+			Utility::AssertToSignedNum(str.length(), len);
+			if (len == 4) {//Push
+				T ele;
+				getData(&ele);
+				// 第一次遇到时(先序)
+				preOrder.push_back(ele);
+				s.push(ele);
+			}
+			else if (len == 3) {//Pop
+				// 第二次遇到时(中序)
+				inOrder.push_back(s.top());
+				s.pop();
+			}
+			else {
+				throw std::exception("Order error!");
+			}
+		}
+		_ASSERT_EXPR(preOrder.size() == inOrder.size(), "Size Error");
+		prefInBuild(preOrder, 0, inOrder, 0, root_, preOrder.size());
+	}
+	// 构建基于数组的虚拟链接二叉树
+	LinkedBinTree(
+		int nSize,
+		std::function<void(T *)> getData,
+		std::function<void(Sub *, Sub *)> getSub, int noneSub,
+		int customRootSub = -1
+	) {
+		BinTreeAlgorithm::LinearNodeManager<T> *linearNodeManager = new BinTreeAlgorithm::LinearNodeManager<T>(nSize);
+		nodeManager_ = linearNodeManager;
+		Sub rootSub = buildBinTreeStructure(*linearNodeManager, getData, getSub, noneSub, nSize);
+		if (customRootSub > 0) {
+			_ASSERT_EXPR(customRootSub < nSize, "指定根下标越界!");
+			rootSub = customRootSub;
+		}
+		else {
+			// DNT
+		}
+		root_ = linearNodeManager->position(rootSub);
+	}
+	// destructor
+	virtual ~LinkedBinTree() {
+		destroy(root_);
+		delete nodeManager_;
+		nodeManager_ = nullptr;
+		DE_PRINTF("BT析构");
+	}
+	int size() override {
+		return nodeManager_->createdNodeNum();
+	}
+	// 避免无意地二叉树赋值(赋值操作析构原lhs 且只能保证内容一致)
+	LinkedBinTree &operator= (const LinkedBinTree &rhs) {
+		// 先要析构自己的root_
+		destroy(root_);
+		Assignment(root_, rhs.root_);
+		return *this;
+	}
+	// 避免无意地二叉树移动(系统自动析构原lhs)
+	LinkedBinTree &operator= (LinkedBinTree &&rvalue) {
+		std::swap(root_, rvalue.root_);
+		std::swap(isInsert, rvalue.isInsert);
+		std::swap(lastCreateNode, rvalue.lastCreateNode);
+		std::swap(nodeManager_, rvalue.nodeManager_);
+		return *this;
+	}
+
+protected:
 	BinTreeAlgorithm::NodeManager<T> *nodeManager_ = nullptr;
 
-	// BinTree(TreeImplTypeEnum implType) {
+	// LinkedBinTree(TreeImplTypeEnum implType) {
 	// 	if (implType == NonlinearBlock) {
 	// 		nodeManager_ = new NonLinearNodeManager();
 	// 	}
@@ -253,12 +387,108 @@ protected:
 	void nodeEraser(Position &del) {
 		return nodeManager_->nodeEraser(del);
 	}
+	// 销毁结点的抽象结构 (不一定会析构结点)
+	void destroy(Position &r) override {
+		if (empty(r)) {
+			// DNT
+		}
+		else {
+			std::queue<Position> q;
+			q.emplace(r);
+			while (!q.empty()) {
+				Position current = q.front();
+				q.pop();
+				if (!empty(current->Left)) {
+					q.emplace(current->Left);
+					current->Left = nullptr;
+				}
+				if (!empty(current->Right)) {
+					q.emplace(current->Right);
+					current->Right = nullptr;
+				}
+				nodeEraser(current);
+			}
+			r = nullptr;
+		}
+	}
+	// 递归拷贝赋值
+	void Assignment(Position &lhs, const Position rhs) {
+		if (!empty(rhs)) {
+			lhs = nodeCreater(rhs->Data);
+			Assignment(lhs->Left, rhs->Left);
+			Assignment(lhs->Right, rhs->Right);
+		}
+	}
+	//先中构建
+	void prefInBuild(Element const *preOrder, Element const *inOrder, Position &bt, int n) {
+		// 左子子树长度
+		int Ln;
+		if (n == 0)
+			return;
+		if (bt == nullptr)
+			bt = nodeCreater(*preOrder);
+		else// 转化关系:先序遍历数组的首元素就是子树根
+			bt->Data = *preOrder;
+		for (Ln = 0; Ln < n && inOrder[Ln] != *preOrder; Ln++);
+		// 先序遍历数组向左子树遍历一个元素 其余数组保持不变
+		prefInBuild(preOrder + 1, inOrder, bt->Left, Ln);
+		// 向右子树遍历一个元素
+		prefInBuild(preOrder + Ln + 1, inOrder + Ln + 1, bt->Right, n - Ln - 1);
+	}
+	//先中构建Tree::ArrayList
+	void prefInBuild(Tree::ArrayList<Element> &preOrder, int preRoot, Tree::ArrayList<Element> &inOrder, int inRoot, Position &bt, int n) {
+		// 左子子树长度
+		int Ln;
+		if (n == 0)
+			return;
+		if (bt == nullptr)
+			bt = nodeCreater(preOrder[preRoot]);
+		else// 转化关系:先序遍历数组的首元素就是子树根
+			bt->Data = preOrder[preRoot];
+		for (Ln = 0; Ln < n && inOrder[inRoot + Ln] != preOrder[preRoot]; Ln++);
+		// 先序遍历数组向左子树遍历一个元素 其余数组保持不变
+		prefInBuild(preOrder, preRoot + 1, inOrder, inRoot, bt->Left, Ln);
+		// 向右子树遍历一个元素
+		prefInBuild(preOrder, preRoot + Ln + 1, inOrder, inRoot + Ln + 1, bt->Right, n - Ln - 1);
+	}
+	//后中构建
+	void postInBuild(Position &bt, Element const *inOrder, Element const *postOder, int n) {
+		// 左子树长度
+		int Ln = -1;
+		if (n == 0)return;
+		if (bt == nullptr)
+			bt = nodeCreater(postOder[n - 1]);
+		else// 转化关系:后序遍历数组的尾元素就是子树根
+			bt->Data = postOder[n - 1];
+		// 获取左子树长度
+		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; Ln++);
+		// 先序遍历数组进入左子树
+		postInBuild(bt->Left, inOrder, postOder, Ln);
+		// 进入右子树
+		postInBuild(bt->Right, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);
+	}
+	//后中构建 优化版
+	static Position postInBuild(Element const *inOrder, Element const *postOder, int n) {
+		// 左子树长度
+		int Ln = -1;
+		if (n == 0)
+			return nullptr;
+		// 转化关系:后序遍历数组的尾元素就是子树根
+		Position bt = new BTNode(postOder[n - 1]);
+		// 获取左子树长度
+		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; Ln++);
+		// 先序遍历数组进入左子树
+		bt->Left = postInBuild(inOrder, postOder, Ln);
+		// 进入右子树
+		bt->Right = postInBuild(inOrder + Ln + 1, postOder + Ln, n - Ln - 1);
+		return bt;
+	}
 
 	// 通过输入构建树结构 返回根结点 (数组内孩子结点的下标获取函数)
 	static Sub buildBinTreeStructure(
 		BinTreeAlgorithm::LinearNodeManager<T> &nodeArray,
-		std::function<void(T *)> getData, 
-		std::function<void(Sub *, Sub *)> getSub, 
+		std::function<void(T *)> getData,
+		std::function<void(Sub *, Sub *)> getSub,
 		int noneSub, int capacity
 	) {
 		int nSize = capacity;
@@ -284,218 +514,8 @@ protected:
 		return nSize == 0 ? -1 : sum;
 	}
 
-	// 返回子二叉树的规模 O(N)
-	static int scaleOf(BT t) {
-		return empty(t) ? 0 : scaleOf(t->Left) + scaleOf(t->Right) + 1;
-	}
-	// 返回结点深度 (空树深度为零 有root则为1)
-	static int depthOf(Position bT){
-		int HL, HR;
-		if (bT) {
-			HL = depthOf(bT->Left);
-			HR = depthOf(bT->Right);
-			// (根据公式 Height = max(Hl, Hr) + 1 由后序遍历改编实现)
-			return (HL > HR ? HL : HR) + 1;
-		}
-		else
-			return 0;
-	}
-	// 按原结构填充数据 (数组, 根结点数据下标, 当前根下的数据个数, 结构来源树) O(N^2)
-	static bool fillData(Tree::ArrayList<T> &dataA, int dataRootSub, int dataSize, Position bt){
-		if (empty(bt))
-			return true;
-		// 左右子树规模 这里可以小小的优化一下: 右子树规模可以通过已知的size减去左子树-1算出 但要修改参数比较麻烦(优化后复杂度仍是N^2)
-		int nl = scaleOf(bt->Left), nr = scaleOf(bt->Right);
-		// 整棵树的规模需与数据规模相等
-		if (nl + nr + 1 != dataSize)
-			return false;
-		//数据填充
-		bt->Data = dataA[dataRootSub + nl];
-		//左子树递归							//1是1个根结点
-		fillData(dataA, dataRootSub, dataSize - nr - 1, bt->Left);
-		//右子树递归      //根1和左子树nl 都"小于"右子树
-		fillData(dataA, dataRootSub + nl + 1, dataSize - nl - 1, bt->Right);
-		return true;
-	}
-	// 销毁结点的抽象结构 (不一定会析构结点)
-	void destroy(Position &r){
-		if (empty(r)) {
-			// DNT
-		}
-		else {
-			std::queue<Position> q;
-			q.emplace(r);
-			while (!q.empty()) {
-				Position current = q.front();
-				q.pop();
-				if (!empty(current->Left)) {
-					q.emplace(current->Left);
-					current->Left = nullptr;
-				}
-				if (!empty(current->Right)) {
-					q.emplace(current->Right);
-					current->Right = nullptr;
-				}
-				nodeEraser(current);
-			}
-			r = nullptr;
-		}
-	}
-
-	// 层序遍历---从上到下->从左到右(队列实现)
-	static void levelTraversal(BT bT, Vister visit){
-		if (empty(bT))
-			return;
-		Tree::queue<BT> q;
-		q.push(bT);
-		while (!q.empty()){
-			bT = q.front(); q.pop();
-			visit(bT);
-			if (bT->Left)
-				q.push(bT->Left);
-			if (bT->Right)
-				q.push(bT->Right);
-		}
-	}
-	// 先序---子树根->左子树->右子树;(递归实现)
-	static void preTraversal(BT bT, Vister visit){
-		if (!empty(bT)){
-			visit(bT);
-			preTraversal(bT->Left, visit);
-			preTraversal(bT->Right, visit);
-		}
-	}
-	// 中序---左子树->子树根->右子树;
-	static void infTraversal(BT bT, Vister visit){
-		if (!empty(bT)){
-			infTraversal(bT->Left, visit);
-			visit(bT);
-			infTraversal(bT->Right, visit);
-		}
-	}
-	// 后序---左子树->右子树->子树根;
-	static void postTraversal(BT bT, Vister visit){
-		if (!empty(bT)){
-			postTraversal(bT->Left, visit);
-			postTraversal(bT->Right, visit);
-			visit(bT);
-		}
-	}
-
-	//先中构建
-	void prefInBuild(Element const *preOrder, Element const *inOrder, Position &bt, int n){
-		// 左子子树长度
-		int Ln;
-		if (n == 0)
-			return;
-		if (bt == nullptr)
-			bt = nodeCreater(*preOrder);
-		else// 转化关系:先序遍历数组的首元素就是子树根
-			bt->Data = *preOrder;
-		for (Ln = 0; Ln < n && inOrder[Ln] != *preOrder; Ln++);
-		// 先序遍历数组向左子树遍历一个元素 其余数组保持不变
-		prefInBuild(preOrder + 1, inOrder, bt->Left, Ln);
-		// 向右子树遍历一个元素
-		prefInBuild(preOrder + Ln + 1, inOrder + Ln + 1, bt->Right, n - Ln - 1);
-	}
-	//先中构建Tree::ArrayList
-	void prefInBuild(Tree::ArrayList<Element> &preOrder, int preRoot, Tree::ArrayList<Element> &inOrder, int inRoot, Position &bt, int n){
-		// 左子子树长度
-		int Ln;
-		if (n == 0)
-			return;
-		if (bt == nullptr)
-			bt = nodeCreater(preOrder[preRoot]);
-		else// 转化关系:先序遍历数组的首元素就是子树根
-			bt->Data = preOrder[preRoot];
-		for (Ln = 0; Ln < n && inOrder[inRoot + Ln] != preOrder[preRoot]; Ln++);
-		// 先序遍历数组向左子树遍历一个元素 其余数组保持不变
-		prefInBuild(preOrder, preRoot + 1, inOrder, inRoot, bt->Left, Ln);
-		// 向右子树遍历一个元素
-		prefInBuild(preOrder, preRoot + Ln + 1, inOrder, inRoot + Ln + 1, bt->Right, n - Ln - 1);
-	}
-	//后中构建
-	void postInBuild(Position &bt, Element const *inOrder, Element const *postOder, int n){
-		// 左子树长度
-		int Ln = -1;
-		if (n == 0)return;
-		if (bt == nullptr)
-			bt = nodeCreater(postOder[n - 1]);
-		else// 转化关系:后序遍历数组的尾元素就是子树根
-			bt->Data = postOder[n - 1];
-		// 获取左子树长度
-		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; Ln++);
-		// 先序遍历数组进入左子树
-		postInBuild(bt->Left, inOrder, postOder, Ln);
-		// 进入右子树
-		postInBuild(bt->Right, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);
-	}
-	//后中构建 优化版
-	static Position postInBuild(Element const *inOrder, Element const *postOder, int n){
-		// 左子树长度
-		int Ln = -1;
-		if (n == 0)
-			return nullptr;
-		// 转化关系:后序遍历数组的尾元素就是子树根
-		Position bt = new BTNode(postOder[n - 1]);
-		// 获取左子树长度
-		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; Ln++);
-		// 先序遍历数组进入左子树
-		bt->Left = postInBuild(inOrder, postOder, Ln);
-		// 进入右子树
-		bt->Right = postInBuild(inOrder + Ln + 1, postOder + Ln, n - Ln - 1);
-		return bt;
-	}
-
-	// 返回是否T1与T2是否同构 isomorphic(adj. [物] 同构的；同形的)  isomorphism_(n. 类质同像，[物化] 类质同晶；同形)
-	static bool isomorphic(BT T1, BT T2){
-		// 深度不同
-		if ((T1 == nullptr && T2 != nullptr) || (T1 != nullptr && T2 == nullptr))
-			return false;
-		// 叶子结点
-		else if (T1 == nullptr && T2 == nullptr)
-			return true;
-		else {// 两颗树都不为空
-			// 数据不同
-			if (T1->Data != T2->Data)
-				return false;
-			else { // 当前数据相等
-				// 按当前顺序尝试匹配左右子树
-				if (isomorphic(T1->Left, T2->Left))
-					return isomorphic(T1->Right, T2->Right);
-				else { // 否则转换左右子树匹配
-					if (isomorphic(T1->Left, T2->Right))
-						return isomorphic(T1->Right, T2->Left);
-					else
-						return false;
-				}
-			}
-		}
-	}
-
-	// 递归拷贝赋值
-	void Assignment(Position &lhs, const Position rhs){
-		if (!empty(rhs)){
-			lhs = nodeCreater(rhs->Data);
-			Assignment(lhs->Left, rhs->Left);
-			Assignment(lhs->Right, rhs->Right);
-		}
-	}
-	// 判断二叉树是否为空
-	static bool empty(BT bT) {
-		return bT == nullptr;
-	}
-
-	//镜像赋值(负号)
-	void reAssignment(){}
-	// 重复插入处理
-	void repetitionInsert(Position bt){
-		//x==bt->Data 无需插入 手动更新lastCreateNode
-		lastCreateNode = bt;
-		isInsert = false;
-	}
-	
 };
+
 
 /*二叉搜索（查找 排序 判定）树*/
 /*折半查找的判定树:按照比较的次数生成判定树，比较1次的是根结点，比较2次的在第二层，比较3次的在第三层...
@@ -517,7 +537,7 @@ n个结点的判定树depthOf = [log2(n)]+1
 4层满二叉树的平均查找次数ASL = (4*8+3*4+2*2+1*1)/15
 */
 template<class T>
-class LinkedBinSearchTree : public virtual BinTree<T> {
+class LinkedBinSearchTree : public virtual LinkedBinTree<T> {
 public:
 	enum TraversalOrderStopEnum {
 		ORDER_SEQUENCE, // 顺序 (<=>可中止的先根序)
@@ -534,12 +554,12 @@ public:
 	using BinTree<T>::traversal;
 	using BinTree<T>::empty;
 	using BinTree<T>::destroy;
-	using BinTree<T>::nodeCreater;
-	using BinTree<T>::nodeEraser;
+	using LinkedBinTree<T>::nodeCreater;
+	using LinkedBinTree<T>::nodeEraser;
 	//constructor
-	LinkedBinSearchTree(){}
+	LinkedBinSearchTree() {}
 	//拷贝构造 直接调的父类方法
-	LinkedBinSearchTree(const LinkedBinSearchTree &rhs) :BinTree<T>(rhs)/*这样并未发生强制转换*/{
+	LinkedBinSearchTree(const LinkedBinSearchTree &rhs) :LinkedBinTree<T>(rhs)/*这样并未发生强制转换*/ {
 		DE_PRINTF("BST拷贝构造");
 	}
 	/*只要不改变左右子树各自的先序插入序列其插入结果与先构建左子树或先构建右子树无关
@@ -547,9 +567,9 @@ public:
 	[先序序列]:[82] 76 23 80 | 90 95
 	[插入序列] 82 90 76 23 95 80 构建的树与其是同一棵树*/
 	//先序构造 (先序遍历序列左端,序列右端+元素个数)
-	LinkedBinSearchTree(Element *preLeft, Element *preRight, int eqaul = 0){
-		while (preLeft < preRight){
-			if (!insert(*preLeft)){
+	LinkedBinSearchTree(Element *preLeft, Element *preRight, int eqaul = 0) {
+		while (preLeft < preRight) {
+			if (!insert(*preLeft)) {
 				puts("构造失败!");
 				system("pause");
 			}
@@ -557,7 +577,7 @@ public:
 		}
 	}
 	//先序构造 ArrayList
-	LinkedBinSearchTree(JCE::ArrayList<Element> &preOrder, int eqaul = 0){
+	LinkedBinSearchTree(JCE::ArrayList<Element> &preOrder, int eqaul = 0) {
 		/*若preOrder参数不是引用
 		**会发生:
 		**ArrayList拷贝构造
@@ -575,30 +595,30 @@ public:
 		preOrder是引用的话上面所有的屁事都没了
 		*/
 		for (int i = 0; i < preOrder.size(); ++i) {
-			if (!insert(preOrder[i])){
+			if (!insert(preOrder[i])) {
 				puts("构造失败!");
 				system("pause");
 			}
 		}
 	}
 	//析构deleter
-	virtual ~LinkedBinSearchTree() override{
+	virtual ~LinkedBinSearchTree() override {
 		DE_PRINTF("BST析构");
 	}
 	//赋值 很费时间 避免无意间的二叉树赋值
-	LinkedBinSearchTree& operator= (const LinkedBinSearchTree& rhs){
+	LinkedBinSearchTree& operator= (const LinkedBinSearchTree& rhs) {
 		DE_PRINTF("BST赋值");
 		//<==>两次父类拷贝构造 一次父类赋值 两次父类析构
-		//(BinTree)(*this) = (BinTree)rhs;
+		//(LinkedBinTree)(*this) = (LinkedBinTree)rhs;
 		// ==>强制转换其实是调用的拷贝构造方法(这样效率不高) 所以应当为子类编写自己的赋值函数(即使没有新增加的域)
-		BinTree<T>::destroy(root_);//先要销毁自己的root_
-		BinTree<T>::Assignment(root_, rhs.root_);
+		LinkedBinTree<T>::destroy(root_);//先要销毁自己的root_
+		LinkedBinTree<T>::Assignment(root_, rhs.root_);
 		return *this;
 	}
 
 	//返回倒数第k大的元素位置 不存在返回nullptr;(利用BST中序遍历是顺序的特点:反过来是逆序)
-	BST findRKth(BST t, int *k){
-		if (t){
+	BST findRKth(BST t, int *k) {
+		if (t) {
 			BST r = findRKth(t->Right, k);//1.<阶段一>一直到最右边
 			if (r) return r;//中转返回: 若不是2返回而来(3或4)则返回
 
@@ -611,19 +631,19 @@ public:
 		return nullptr;//2.终点返回: 到头 返回nullptr
 	}
 	//返回正数第k个元素(序号为k的元素 从1开始)
-	BST findKth(int k){
+	BST findKth(int k) {
 		int id = 1;
 		Position t;
-		traversal(Tree::ORDER_SEQUENCE, [&](Position bt){
+		traversal(Tree::ORDER_SEQUENCE, [&](Position bt) {
 			t = bt;
 			return id++ == k;//找到就中止
 		});
 		return t;
 	}
 	//返回特定元素的等级(比参数大的元素的个数) O(2*N)
-	int getRankOf(T &x){
+	int getRankOf(T &x) {
 		int rank = 1;
-		traversal(Tree::ORDER_REVERSE, [&](Position bt){
+		traversal(Tree::ORDER_REVERSE, [&](Position bt) {
 			//15 30 40 45 50 50   rank(45) = 3 不是序号3 更不是2
 			if (bt->Data > x)//去掉这句就是求序号
 				++rank;
@@ -633,12 +653,12 @@ public:
 	}
 	//计算所有元素的等级 (计算完毕后将total sort一下再用类似的方法遍历一下统计出总排名即可) Θ(2*N)范程
 	//虽然N个insert(O(logN))与N个读取后sort(O(N*logN))的效率差不多 但论遍历效率tree Θ(2*N), ArrayList Θ(N)
-	void calcRank(JCE::ArrayList<T> &total, int cnt = -1){
-		cnt = cnt < 0 ? BinTree<T>::size() : cnt;//默认计算所有人的排名
+	void calcRank(JCE::ArrayList<T> &total, int cnt = -1) {
+		cnt = cnt < 0 ? LinkedBinTree<T>::size() : cnt;//默认计算所有人的排名
 		int pastId = 0;//序号
 		int reCnt = 0;//当前元素现在的重复个数
 		Position pastP = nullptr;
-		traversal(Tree::ORDER_REVERSE, [&](Position bt){
+		traversal(Tree::ORDER_REVERSE, [&](Position bt) {
 			if (pastP != nullptr && pastP->Data.score == bt->Data.score)
 				++reCnt;
 			else
@@ -650,7 +670,7 @@ public:
 		});
 	}
 	/*返回二叉搜索树bST中最小元结点的指针；*/
-	Position findMin(){
+	Position findMin() {
 		BST bST = root_;
 		while (bST && bST->Left)
 			bST = bST->Left;
@@ -668,7 +688,7 @@ public:
 		*/
 	}
 	/*返回二叉搜索树bST中最大元结点的指针。*/
-	Position findMax(){
+	Position findMax() {
 		BST bST = root_;
 		while (bST && bST->Right)
 			bST = bST->Right;
@@ -676,15 +696,15 @@ public:
 	}
 
 	//返回是否是二叉搜索树
-	bool IsBST(BST t){
-		if (t){
+	bool IsBST(BST t) {
+		if (t) {
 			if (!IsBST(t->Left))
 				return false;
 			if (!IsBST(t->Right))
 				return false;
-			if (t->Left){
+			if (t->Left) {
 				bool is = t->Left->Data < t->Data;
-				if (t->Right){
+				if (t->Right) {
 					is = is && t->Data < t->Right->Data;
 					if (!is) return false;
 					is = is && findMin(t->Right) > t->Data;//右子树最小元素大于根结点
@@ -697,8 +717,8 @@ public:
 		return true;
 	}
 	//返回两个结点的公共祖先(先序) 优化遍历方式: 算法效率O(n)->O(h)不再死板地按照先序先左后右 LCA
-	Position ancestor(Position t, int u, int v){
-		if (t){
+	Position ancestor(Position t, int u, int v) {
+		if (t) {
 			/*都小向左 都大向右*/
 			if (u < t->Data && v < t->Data)
 				return ancestor(t->Left, u, v);
@@ -709,9 +729,9 @@ public:
 		}
 		return nullptr;
 	}
-	void clearVisit(Tree::TraversalOrderEnum type_){
-		BinTree<T>::traversal(type_, [&](Position const t){
-			if (t->v){
+	void clearVisit(Tree::TraversalOrderEnum type_) {
+		LinkedBinTree<T>::traversal(type_, [&](Position const t) {
+			if (t->v) {
 				t->v = false;
 				return true;
 			}
@@ -730,65 +750,65 @@ public:
 			_ASSERT_EXPR(false, "遍历参数错误 NONE_ORDER 不作traversal_");
 	}
 	/*返回x在二叉搜索树bST中的位置; 若找不到则返回nullptr*/
-	Position find(T const&x){
+	Position find(T const&x) {
 		return findOf(root_, x);
 	}
 	//自定义查找(自定义小于符号)
 	template<typename LessCmp>
-	Position find(T const&x, LessCmp less){
+	Position find(T const&x, LessCmp less) {
 		return findOf(root_, x, less);
 	}
 	//插入 O(logN)
-	JCE::pair<Position, bool> insert(Element const&x){
+	JCE::pair<Position, bool> insert(Element const&x) {
 		root_ = Insert(root_, x);
 		//与map的insert返回值类似，重复insert 返回<重复Position, false>，这个技巧在面试如何找出2个数组相同的数字的时候有奇效
 		return{ BinTree<T>::lastCreateNode, BinTree<T>::isInsert };
 	}
 	//序列插入 局部有序插入O(1) 无序O(logN) 但如果Avl使用此插入会使Avl退化为普通BST(相当于优化的链表: 插入效率变高 查找效率相对Avl退化)
 	//(例如654789)->4 5 [6] Orderly被置false 7 [手动]置true 8 9 可实现局部有序插入
-	JCE::pair<Position, bool> insertOrderly(Element const&x, bool &Orderly){
-		if (!Orderly){//若已经不是有序的插入 则退化为普通插入
+	JCE::pair<Position, bool> insertOrderly(Element const&x, bool &Orderly) {
+		if (!Orderly) {//若已经不是有序的插入 则退化为普通插入
 			root_ = Insert(root_, x);
 		}
-		else{
-			if (!BinTree<T>::empty(root_)){
-				if (x < root_->Data){//若即将插入的数据在左子树
-					if (x < lastCreateNode->Data){//x已位于左子树 若x还比lastCreateNode小后者必定也在左子树
+		else {
+			if (!LinkedBinTree<T>::empty(root_)) {
+				if (x < root_->Data) {//若即将插入的数据在左子树
+					if (x < lastCreateNode->Data) {//x已位于左子树 若x还比lastCreateNode小后者必定也在左子树
 						Insert(lastCreateNode, x);//于是直接往lastCreateNode的左边插即可
 						Orderly = true;
 					}
-					else{//否则应该插入的位置位于左子树:root_和lastCreateNode中间
+					else {//否则应该插入的位置位于左子树:root_和lastCreateNode中间
 						Orderly = false;
 						root_ = Insert(root_, x);
 					}
 				}
-				else{//相等时直接传入使Insert判断
-					if (lastCreateNode->Data < x){///@x > lastCreateNode->Data
+				else {//相等时直接传入使Insert判断
+					if (lastCreateNode->Data < x) {///@x > lastCreateNode->Data
 						Insert(lastCreateNode, x);
 						Orderly = true;
 					}
-					else{
+					else {
 						Orderly = false;
 						root_ = Insert(root_, x);
 					}
 				}
 			}
-			else{
+			else {
 				Orderly = true;
 				root_ = Insert(root_, x);
 			}
 		}
-		return{ lastCreateNode, BinTree<T>::isInsert };
+		return{ BinTree<T>::lastCreateNode, BinTree<T>::isInsert };
 	}
 	//删除 删除成功返回true
-	bool erase(Element const&x){
+	bool erase(Element const&x) {
 		bool succeed = true;
 		root_ = Delete(root_, x, succeed);
 		return succeed;
 	}
 protected:
-	Position findOf(Position bST, T const &x){
-		while (bST){
+	Position findOf(Position bST, T const &x) {
+		while (bST) {
 			//@调试结果 增删改查 的这个顺序应该保持一致 或者只用一种比较符号
 			if (x < bST->Data)
 				bST = bST->Left;
@@ -796,12 +816,12 @@ protected:
 				bST = bST->Right;/*向右子树移动继续查找*/
 			else
 				return  bST;
- 		}
+		}
 		return nullptr;
 	}
 	template<typename LessCmp>
-	Position findOf(Position bST, T const&x, LessCmp less){
-		while (bST){
+	Position findOf(Position bST, T const&x, LessCmp less) {
+		while (bST) {
 			if (less(bST->Data, x))
 				bST = bST->Right;/*向右子树移动继续查找*/
 			else if (less(x, bST->Data))
@@ -812,7 +832,7 @@ protected:
 		return nullptr;
 	}
 	/*函数Insert将x插入二叉搜索树bST并返回结果树的根结点指针*/
-	virtual Position Insert(Position bST, Element const&x){
+	virtual Position Insert(Position bST, Element const&x) {
 		if (empty(bST))//树空 返回一个未使用结点
 			bST = nodeCreater(x);
 		else if (x < bST->Data)
@@ -820,12 +840,12 @@ protected:
 		else if (bST->Data < x)//@x > bST->Data
 			bST->Right = Insert(bST->Right, x);
 		else {
-			BinTree<T>::repetitionInsert(bST);
+			LinkedBinTree<T>::repetitionInsert(bST);
 		}
 		return bST;
 	}
 	/*从二叉搜索树bST中删除x,返回新根; 若x不在树中tag->!tag 返回原树根*/
-	virtual Position Delete(Position bST, Element const&x, bool &tag){
+	virtual Position Delete(Position bST, Element const&x, bool &tag) {
 		Position del = bST;
 		/*阶段一:查找对应元素*/
 		if (!bST)//未找到匹配元素 删除失败
@@ -835,7 +855,7 @@ protected:
 		else if (bST->Data < x)//@x > t->Data
 			bST->Right = Delete(bST->Right, x, tag);
 		/*阶段二:删除匹配元素*/
-		else if (bST->Left && bST->Right){
+		else if (bST->Left && bST->Right) {
 			del = findMinOf(bST->Right);//用右子树的最小(或左子树最大)元素填充需删除的结点
 			bST->Data = del->Data;
 			/*阶段三:维持结构*/
@@ -851,12 +871,12 @@ protected:
 		return bST;
 	}
 	//Delete时要用
-	Position findMinOf(Position bST){
+	Position findMinOf(Position bST) {
 		while (bST && bST->Left)
 			bST = bST->Left;
 		return bST;
 	}
-	Position findMaxOf(BST bST){
+	Position findMaxOf(BST bST) {
 		while (bST && bST->Right)
 			bST = bST->Right;
 		return bST;
@@ -895,35 +915,35 @@ template<class T>//多重继承
 class AvlTree :public LinkedBinSearchTree<T> {
 	typedef typename LinkedBinSearchTree<T>::BST AVLT;
 	typedef typename LinkedBinSearchTree<T>::Position Position;
-	typedef typename BinTree<T>::BT BT;
+	typedef typename LinkedBinTree<T>::BT BT;
 	using Element = T;
 	using LinkedBinSearchTree<T>::root_;
-	typedef class AvlNode : public BinTree<T>::BTNode{
+	typedef class AvlNode : public LinkedBinTree<T>::BTNode {
 	public:
-		int Height = 0;//树高  Data意义同BinTree
-		int getValue()override{
+		int Height = 0;//树高  Data意义同LinkedBinTree
+		int getValue()override {
 			return Height;
 		}
-		void setValue(int h)override{
+		void setValue(int h)override {
 			Height = h;
 		}
-		int getHeight()override{
+		int getHeight()override {
 			return Height;
 		}
-		void setHeight(int h)override{
+		void setHeight(int h)override {
 			Height = h;
 		}
 		AvlNode(int tData, int height_)
-			:BinTree<T>::BTNode(tData){
-				Height = height_;
-			}
-		virtual ~AvlNode()override{
+			:LinkedBinTree<T>::BTNode(tData) {
+			Height = height_;
+		}
+		virtual ~AvlNode()override {
 			DE_PRINTF("AvlNode析构");
 		}
 	}*AvlTr;
 
 	//计算avl树t的高度(深)
-	int heightOf(AVLT t){//其实与BinTree的depth一样 只不过为了提高效率avl增加了一个height域并且对算法略作优化
+	int heightOf(AVLT t) {//其实与LinkedBinTree的depth一样 只不过为了提高效率avl增加了一个height域并且对算法略作优化
 		if (!t)
 			return 0;
 		else if (t->Left && t->Right)
@@ -945,7 +965,7 @@ class AvlTree :public LinkedBinSearchTree<T> {
 	给了原有算法一个新的解释 达到了无歧义的理解效果*/
 
 	/*左侧提升(LL) :将的左子节点B做提升至A处,A变为B提升方向上的子结点 更新树高 返回新根B*/
-	Position leftElevate(Position A){
+	Position leftElevate(Position A) {
 		Position B = A->Left;
 		A->Left = B->Right;
 		B->Right = A;
@@ -954,7 +974,7 @@ class AvlTree :public LinkedBinSearchTree<T> {
 		return B;
 	}
 	/*右侧提升(RR) :将的左子节点B做提升至A处,A变为B提升方向上的子结点 更新树高 返回新根B*/
-	Position rightElevate(Position A){
+	Position rightElevate(Position A) {
 		Position B = A->Right;
 		A->Right = B->Left;
 		B->Left = A;
@@ -963,47 +983,47 @@ class AvlTree :public LinkedBinSearchTree<T> {
 		return B;
 	}
 	/*问题出现在左子树的右侧:先对A的左子树做右侧提升 再对A做左侧提升*/
-	Position LR(Position A){
+	Position LR(Position A) {
 		A->Left = rightElevate(A->Left);
 		return leftElevate(A);
 	}
 	/*问题出现在右子树的左侧:先对A的右子树做左侧提升 再对A做右侧提升*/
-	Position RL(Position A){
+	Position RL(Position A) {
 		A->Right = leftElevate(A->Right);/*更新A的右子树*/
 		return rightElevate(A);
 	}
 	/*将x插入平衡树 并返回调整后的平衡树*/
-	Position Insert(Position avlT, Element const&x)override{
-		if (!avlT){/*若插入空树 则新建一个包含结点的树*/
-			avlT = BinTree<T>::nodeCreater(x);
+	Position Insert(Position avlT, Element const&x)override {
+		if (!avlT) {/*若插入空树 则新建一个包含结点的树*/
+			avlT = LinkedBinTree<T>::nodeCreater(x);
 		}
-		else if (x < avlT->Data){/*往左子树插入*/
+		else if (x < avlT->Data) {/*往左子树插入*/
 			avlT->Left = Insert(avlT->Left, x);/*avlT的平衡因子BF*/
-			if (heightOf(avlT->Left) - heightOf(avlT->Right) == 2){/*若插入后其高度height不平衡*/
+			if (heightOf(avlT->Left) - heightOf(avlT->Right) == 2) {/*若插入后其高度height不平衡*/
 				if (x < avlT->Left->Data)/*LL型 直接做左侧提升即可*/
 					avlT = leftElevate(avlT);
 				else/*LR型调用LR方法*/
 					avlT = LR(avlT);
 			}
 		}
-		else if (x > avlT->Data){
+		else if (x > avlT->Data) {
 			avlT->Right = Insert(avlT->Right, x);
-			if (heightOf(avlT->Left) - heightOf(avlT->Right) == -2){
+			if (heightOf(avlT->Left) - heightOf(avlT->Right) == -2) {
 				if (x > avlT->Right->Data)
 					avlT = rightElevate(avlT);
 				else
 					avlT = RL(avlT);
 			}
 		}
-		else{
-			BinTree<T>::repetitionInsert(avlT);
+		else {
+			LinkedBinTree<T>::repetitionInsert(avlT);
 		}
 		avlT->setHeight(Tree::Max(heightOf(avlT->Left), heightOf(avlT->Right)) + 1);/*更新树高*/
 		return avlT;
 	}
 public:
-	AvlTree(){}
-	~AvlTree(){
+	AvlTree() {}
+	~AvlTree() {
 		DE_PRINTF("AVL析构");
 	}
 };

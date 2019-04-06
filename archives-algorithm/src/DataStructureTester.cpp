@@ -269,9 +269,9 @@ int subTestForBinTree() {
 	std::string preReal[len] = {};
 	std::string postReal[len] = {};
 	// 遍历序列转换
-	BinTree<std::string>::orderTranslation(preReal, nullptr, in, post, len);
+	BinTreeAlgorithm::calcPrefOrder(preReal, in, post, len);
 	StandardExtend::testAssert(StandardExtend::isEqual(preReal, preReal + len, pre), true);
-	BinTree<std::string>::orderTranslation(postReal, pre, in, nullptr, len);
+	BinTreeAlgorithm::calcPostOrder(pre, in, postReal, len);
 	StandardExtend::testAssert(StandardExtend::isEqual(postReal, postReal + len, post), true);
 	
 	const int size = 6;
@@ -337,7 +337,7 @@ int subTestForBinTree() {
 	*/
 	int index = 0;
 	static char order2D[12][size] = { "Push","Push","Push","Pop","Pop","Push","Pop","Pop","Push","Push","Pop","Pop" };
-	BinTree<char> btIns1 = BinTree<char>([&index](std::string &order) {
+	LinkedBinTree<char> btIns1 = LinkedBinTree<char>([&index](std::string &order) {
 		order = std::string(order2D[index++]);
 		return index < 13;
 	}, [](char *num) {
@@ -357,23 +357,23 @@ int subTestForBinTree() {
 	// 后序 3  4  2  6  5 [1]
 	// { 3, 4, 2, 6, 5, 1 }
 	char postOrder[size + 1] = "342651";
-	BinTree<char> btIns2 = BinTree<char>(preOrder, inOrder, size);
+	LinkedBinTree<char> btIns2 = LinkedBinTree<char>(preOrder, inOrder, size);
 	subTest(btIns2);
-	BinTree<char> btIns3 = BinTree<char>(size, inOrder, postOrder);
+	LinkedBinTree<char> btIns3 = LinkedBinTree<char>(size, inOrder, postOrder);
 	subTest(btIns3);
 	// 拷贝构造
-	BinTree<char> btIns4 = btIns3;
+	LinkedBinTree<char> btIns4 = btIns3;
 	subTest(btIns4);
 
 	auto newBtFun = [&size, &inOrder, &postOrder]() {
-		return BinTree<char>(size, inOrder, postOrder);
+		return LinkedBinTree<char>(size, inOrder, postOrder);
 	};
 
 	// 移动构造(@TODO 此处不是移动构造)
-	BinTree<char> btIns5(newBtFun());
-	btIns5 = BinTree<char>(size, inOrder, postOrder);
+	LinkedBinTree<char> btIns5(newBtFun());
+	btIns5 = LinkedBinTree<char>(size, inOrder, postOrder);
 	btIns5.clear();
-	btIns5 = BinTree<char>(size, inOrder, postOrder);
+	btIns5 = LinkedBinTree<char>(size, inOrder, postOrder);
 	subTest(btIns5);
 	// 这算stl的bug吗? 一定要比原空间大才能复制
 	JCE::ArrayList<char> fillData(size + 1);
@@ -450,7 +450,7 @@ int subTestForBinTree() {
 	*/
 	// StandardExtend::refreshStdin();
 	char btsSub[][4] = { "1 -", "- -", "0 -","2 7", "- -", "- -", "5 -", "4 6" };
-	BinTree<char> btStIns1 = BinTree<char>(8, [](char *tData) {
+	LinkedBinTree<char> btStIns1 = LinkedBinTree<char>(8, [](char *tData) {
 		static int i = 0;
 		*tData = TransitionUtility::toAlphOrAscllNum(i++);
 	}, [&btsSub](int *lSub, int *rSub) {
@@ -489,7 +489,7 @@ int subTestForBinTree() {
 	const int nSizeBtS2 = 9;
 	std::vector<std::vector<int>> nBstSub = { {1, 6},{2, 3},{-1, -1},{-1, 4 },{5, -1 },{-1, -1},{7, -1 },{-1, 8 },{-1, -1} };
 	std::vector<int> nPre = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-	BinTree<int> btStIns2 = BinTree<int>(nSizeBtS2, [](int *tData){
+	LinkedBinTree<int> btStIns2 = LinkedBinTree<int>(nSizeBtS2, [](int *tData){
 		static int i = 0;
 		*tData = i++;
 	}, [&nBstSub](int *lSub, int *rSub) {

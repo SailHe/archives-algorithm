@@ -10,7 +10,7 @@ n个叶子结点的huffman树的节点数=2n-1
 /*带权路径最小的二叉树称为最优二叉树或huffman树(结构并不唯一)
 huffman树的判断标准:最优前缀编码树 <==>最优编码(WPL或textLen最小) && 前缀码(短码不能是长码的前缀)*/
 template<class T>
-class HuffmanTree : public BinTree<T> {
+class HuffmanTree : public LinkedBinTree<T> {
 protected:
 	using BinTree<T>::root_;
 	//子类需要递归子结点的地方必定用到Left-Right只能用BinTree的Position-论getValue()存在的必要性

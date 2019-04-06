@@ -14,7 +14,7 @@ template class BinTree<JCE::String>;
 */
 
 //表达式树 @TODO 并未通过PTA测试(主要是后缀表达式计算时的负号问题 考虑添加前缀表达式计算)
-class ExpressionTree : private BinTree<JCE::String> {
+class ExpressionTree : private LinkedBinTree<JCE::String> {
 public:
 	enum ExpressionTypeEnum {
 		PREFIX_EXPRESSION,//前缀表达式
