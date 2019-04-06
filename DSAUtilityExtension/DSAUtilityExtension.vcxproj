@@ -178,6 +178,7 @@
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\nonlinear\BinTreeAlgorithm.cpp" />
     <ClCompile Include="src\_implement\ExtendSpace.cpp" />
     <ClCompile Include="src\_implement\linear\Polynomial.cpp" />
     <ClCompile Include="src\_implement\linear\Queue.cpp">

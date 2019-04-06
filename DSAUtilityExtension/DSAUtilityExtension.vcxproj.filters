@@ -197,5 +197,8 @@
     <ClCompile Include="src\_implement\utility\Transition.cpp">
       <Filter>源文件\Utility\Radix</Filter>
     </ClCompile>
+    <ClCompile Include="src\nonlinear\BinTreeAlgorithm.cpp">
+      <Filter>源文件\DataStructure\NonlinearStructure</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

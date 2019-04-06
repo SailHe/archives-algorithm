@@ -1,4 +1,6 @@
 #pragma once
+#include "../stdafx.h"
+#include "../DSAUEdll.h"
 
 namespace Tree {
 	// 遍历的顺序类型枚举
@@ -213,4 +215,54 @@ namespace BinTreeAlgorithm {
 	private:
 	};
 
+	// must know inorder
+
+	/*根据先序和中序遍历输出后序遍历序列 (先 中 后 子树元素个数)*/
+	void calcPostOrder(Tree::string const &sPre, Tree::string const &sMed, Tree::string &sPostBuffer);
+	template<class Iterator>
+	// 支持加减运算的迭代器(裸指针也行 postOder对应的容器必须具有至少n个元素)
+	void calcPostOrder(Iterator preOrder, Iterator inOrder, Iterator postOder, int n) {
+		int Ln;/*左子子树长度*/
+		if (n == 0)return;
+		postOder[n - 1] = *preOrder;/*转化关系:先序遍历数组的首元素就是子树根*/
+		for (Ln = 0; Ln < n && inOrder[Ln] != *preOrder; ++Ln);
+		calcPostOrder(preOrder + 1, inOrder, postOder, Ln);/*先序遍历数组向左子树遍历一个元素 其余数组保持不变*/
+		calcPostOrder(preOrder + Ln + 1, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);/*向右子树遍历一个元素*/
+	}
+	template<class Element>
+	void calcPostOrder(Element *preOrder, Element *inOrder, Element *postOder, int n) {
+		int Ln;/*左子子树长度*/
+		if (n == 0)return;
+		postOder[n - 1] = *preOrder;/*转化关系:先序遍历数组的首元素就是子树根*/
+		for (Ln = 0; Ln < n && inOrder[Ln] != *preOrder; ++Ln);
+		calcPostOrder(preOrder + 1, inOrder, postOder, Ln);/*先序遍历数组向左子树遍历一个元素 其余数组保持不变*/
+		calcPostOrder(preOrder + Ln + 1, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);/*向右子树遍历一个元素*/
+	}
+
+	/*根据后序和中序遍历输出先序遍历序列 只修改中间两句话即可*/
+	template<class Iterator>
+	void calcPrefOrder(Iterator preOrder, Iterator inOrder, Iterator postOder, int n) {
+		int Ln;/*左子树长度*/
+		if (n == 0)return;
+		*preOrder = postOder[n - 1];/*转化关系:后序遍历数组的尾元素就是子树根*/
+		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; ++Ln);//获取左子树长度
+		calcPrefOrder(preOrder + 1, inOrder, postOder, Ln);/*先序遍历数组进入左子树*/
+		calcPrefOrder(preOrder + Ln + 1, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);/*进入右子树*/
+	}
+	template<class Element>
+	void calcPrefOrder(Element *preOrder, Element *inOrder, Element *postOder, int n) {
+		int Ln;/*左子树长度*/
+		if (n == 0)return;
+		*preOrder = postOder[n - 1];/*转化关系:后序遍历数组的尾元素就是子树根*/
+		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; Ln++);//获取左子树长度
+		calcPrefOrder(preOrder + 1, inOrder, postOder, Ln);/*先序遍历数组进入左子树*/
+		calcPrefOrder(preOrder + Ln + 1, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);/*进入右子树*/
+	}
+
+	/*根据后序和中序遍历输出层序遍历序列 后中->先->先序建树->层序遍历*/
+	template<class Element>
+	void calcLeveOrder(Element *preOrder, Element *inOrder, Element *postOder, int n) {
+		_ASSERT_EXPR(false, "has not impl");
+		exit(-1);
+	}
 }

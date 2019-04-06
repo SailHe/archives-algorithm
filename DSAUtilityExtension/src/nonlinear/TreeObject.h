@@ -199,17 +199,6 @@ public:
 		else
 			_ASSERT_EXPR(false, "遍历参数错误 NONE_ORDER 不作traversal_");
 	}
-	
-	static void orderTranslation(Element *buf, Element *preOrder, Element *inOrder, Element *postOder, int n){
-		if (inOrder == nullptr)
-			throw std::exception("must know inorder");
-		else if (preOrder == nullptr && postOder != nullptr)
-			calcPrefOrder(buf, inOrder, postOder, n);
-		else if (postOder == nullptr)
-			calcPostOrder(preOrder, inOrder, buf, n);
-		else
-			throw std::exception("Does not meet the conversion conditions");
-	}
 	// 镜像树: mirroring reversal镜像反转 转换后不能使用原来的任何基于比较的方法(若是搜索树:左小右大->左大右小)
 	void mirReversal(){
 		Tree::queue<Position> q;
@@ -456,95 +445,6 @@ protected:
 		// 进入右子树
 		bt->Right = postInBuild(inOrder + Ln + 1, postOder + Ln, n - Ln - 1);
 		return bt;
-	}
-
-	static void calcPostOrder(Tree::string const &sPre, Tree::string const &sMed, Tree::string &sPostBuffer){
-		//中序中的根所在位置
-		Tree::string::size_type medRootSub = sMed.find(sPre[0]);
-		//左子树的长度
-		Tree::string::size_type leftSubLen = medRootSub;
-		/*
-		A B CD	前序(Root Left Right)
-		B A DC	中序(Left Root Right)
-
-		BDC A	后序(Left Right Root)
-		*/
-
-		//若存在左子树则向左子树递归
-		if (leftSubLen > 0){
-			//先序第一个值(root_)右边取左子树的长度即是左子树
-			Tree::string sPreLeftSub = sPre.substr(1, leftSubLen);
-			//root_的左边
-			Tree::string sMedLeftSub = sMed.substr(0, leftSubLen);
-			calcPostOrder(sPreLeftSub, sMedLeftSub, sPostBuffer);
-		}
-		else{
-			//do nothing
-		}
-
-		//若存在右子树则向右子树递归
-		if (medRootSub + 1 < sMed.size()){
-			//先序第一个值(root_)的右边跳过左子树长度取所有即是右子树
-			Tree::string sPreRightSub = sPre.substr(1 + leftSubLen);
-			//root_的右边
-			Tree::string sMedRightSub = sMed.substr(medRootSub + 1);
-			calcPostOrder(sPreRightSub, sMedRightSub, sPostBuffer);
-		}
-		else{
-			//do nothing
-		}
-
-		if (medRootSub != Tree::string::npos){
-			//加上root_
-			sPostBuffer += sMed.at(medRootSub);
-		}
-		else{
-			//do nothing
-		}
-	}
-	/*根据先序和中序遍历输出后序遍历序列 (先 中 后 子树元素个数)*/
-	template<class Iterator>
-	//支持加减运算的迭代器(裸指针也行 postOder对应的容器必须具有至少n个元素)
-	static void calcPostOrder(Iterator preOrder, Iterator inOrder, Iterator postOder, int n){
-		int Ln;/*左子子树长度*/
-		if (n == 0)return;
-		postOder[n - 1] = *preOrder;/*转化关系:先序遍历数组的首元素就是子树根*/
-		for (Ln = 0; Ln < n && inOrder[Ln] != *preOrder; ++Ln);
-		calcPostOrder(preOrder + 1, inOrder, postOder, Ln);/*先序遍历数组向左子树遍历一个元素 其余数组保持不变*/
-		calcPostOrder(preOrder + Ln + 1, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);/*向右子树遍历一个元素*/
-	}
-	/*根据先序和中序遍历输出后序遍历序列 (先 中 后 子树元素个数)*/
-	static void calcPostOrder(Element *preOrder, Element *inOrder, Element *postOder, int n){
-		int Ln;/*左子子树长度*/
-		if (n == 0)return;
-		postOder[n - 1] = *preOrder;/*转化关系:先序遍历数组的首元素就是子树根*/
-		for (Ln = 0; Ln < n && inOrder[Ln] != *preOrder; Ln++);
-		calcPostOrder(preOrder + 1, inOrder, postOder, Ln);/*先序遍历数组向左子树遍历一个元素 其余数组保持不变*/
-		calcPostOrder(preOrder + Ln + 1, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);/*向右子树遍历一个元素*/
-	}
-	/*根据后序和中序遍历输出先序遍历序列 只修改中间两句话即可*/
-	template<class Iterator>
-	static void calcPrefOrder(Iterator preOrder, Iterator inOrder, Iterator postOder, int n){
-		int Ln;/*左子树长度*/
-		if (n == 0)return;
-		*preOrder = postOder[n - 1];/*转化关系:后序遍历数组的尾元素就是子树根*/
-		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; ++Ln);//获取左子树长度
-		calcPrefOrder(preOrder + 1, inOrder, postOder, Ln);/*先序遍历数组进入左子树*/
-		calcPrefOrder(preOrder + Ln + 1, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);/*进入右子树*/
-	}
-	/*根据后序和中序遍历输出先序遍历序列 只修改中间两句话即可*/
-	static void calcPrefOrder(Element *preOrder, Element *inOrder, Element *postOder, int n){
-		int Ln;/*左子树长度*/
-		if (n == 0)return;
-		*preOrder = postOder[n - 1];/*转化关系:后序遍历数组的尾元素就是子树根*/
-		for (Ln = 0; Ln < n && inOrder[Ln] != postOder[n - 1]; Ln++);//获取左子树长度
-		calcPrefOrder(preOrder + 1, inOrder, postOder, Ln);/*先序遍历数组进入左子树*/
-		calcPrefOrder(preOrder + Ln + 1, inOrder + Ln + 1, postOder + Ln, n - Ln - 1);/*进入右子树*/
-	}
-	/*根据后序和中序遍历输出层序遍历序列 后中->先->先序建树->层序遍历*/
-	static void calcLeveOrder(Element *preOrder, Element *inOrder, Element *postOder, int n){
-		_ASSERT_EXPR(false, "has not impl");
-		exit(-1);
 	}
 
 	// 返回是否T1与T2是否同构 isomorphic(adj. [物] 同构的；同形的)  isomorphism_(n. 类质同像，[物化] 类质同晶；同形)
