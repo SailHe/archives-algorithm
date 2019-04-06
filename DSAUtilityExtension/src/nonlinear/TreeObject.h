@@ -245,7 +245,9 @@ protected:
 
 	virtual void destroy(Position &r) = 0;
 	//镜像赋值(负号)
-	void reAssignment() {}
+	void reAssignment() {
+		_ASSERT_EXPR(false, "Not Impl!");
+	}
 	// 重复插入处理
 	void repetitionInsert(Position bt) {
 		//x==bt->Data 无需插入 手动更新lastCreateNode
@@ -277,7 +279,7 @@ public:
 	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
 	LinkedBinTree(const LinkedBinTree &rhs) : LinkedBinTree() {
 		DE_PRINTF("BT拷贝构造");
-		Assignment(root_, rhs.root_);
+		assignment(root_, rhs.root_);
 	}
 	// 移动构造 (保证完全一致)
 	LinkedBinTree(LinkedBinTree &&rvalue) : LinkedBinTree() {
@@ -335,7 +337,7 @@ public:
 	LinkedBinTree &operator= (const LinkedBinTree &rhs) {
 		// 先要析构自己的root_
 		destroy(root_);
-		Assignment(root_, rhs.root_);
+		assignment(root_, rhs.root_);
 		return *this;
 	}
 	// 避免无意地二叉树移动(系统自动析构原lhs)
@@ -385,11 +387,11 @@ protected:
 		}
 	}
 	// 递归拷贝赋值
-	void Assignment(Position &lhs, const Position rhs) {
+	void assignment(Position &lhs, const Position rhs) {
 		if (!empty(rhs)) {
 			lhs = nodeCreater(rhs->Data);
-			Assignment(lhs->Left, rhs->Left);
-			Assignment(lhs->Right, rhs->Right);
+			assignment(lhs->Left, rhs->Left);
+			assignment(lhs->Right, rhs->Right);
 		}
 	}
 	//先中构建
@@ -555,7 +557,7 @@ public:
 		//(LinkedBinTree)(*this) = (LinkedBinTree)rhs;
 		// ==>强制转换其实是调用的拷贝构造方法(这样效率不高) 所以应当为子类编写自己的赋值函数(即使没有新增加的域)
 		LinkedBinTree<T>::destroy(root_);//先要销毁自己的root_
-		LinkedBinTree<T>::Assignment(root_, rhs.root_);
+		LinkedBinTree<T>::assignment(root_, rhs.root_);
 		return *this;
 	}
 
