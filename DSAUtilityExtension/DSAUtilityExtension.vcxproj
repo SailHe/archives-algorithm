@@ -147,7 +147,7 @@
     <ClInclude Include="src\linear\Stack.h" />
     <ClInclude Include="src\linear\Varrays.h" />
     <ClInclude Include="src\MathLibrary.h" />
-    <ClInclude Include="src\nonlinear\BinTreeAlgorithm.h" />
+    <ClInclude Include="src\nonlinear\BinTreeUtil.h" />
     <ClInclude Include="src\nonlinear\CoordinatesMap.h" />
     <ClInclude Include="src\nonlinear\ExpressionTree.h" />
     <ClInclude Include="src\nonlinear\Graph.h" />
@@ -178,7 +178,7 @@
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\nonlinear\BinTreeAlgorithm.cpp" />
+    <ClCompile Include="src\nonlinear\BinTreeUtil.cpp" />
     <ClCompile Include="src\_implement\ExtendSpace.cpp" />
     <ClCompile Include="src\_implement\linear\Polynomial.cpp" />
     <ClCompile Include="src\_implement\linear\Queue.cpp">

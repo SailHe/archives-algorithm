@@ -34,8 +34,8 @@ namespace Tree {
 	//template<typename T> using vector = StandardExtend::ArrayList<T>;
 }
 
-// 二度树效用算法集
-namespace BinTreeAlgorithm {
+// 二度树效用工具集
+namespace BinTreeUtil {
 
 	// 二叉树结点
 	template<typename T>
@@ -98,7 +98,7 @@ namespace BinTreeAlgorithm {
 	class NodeManager {
 
 	public:
-		typedef typename BinTreeAlgorithm::BinTreeNode<T> *Position;
+		typedef typename BinTreeUtil::BinTreeNode<T> *Position;
 		// 结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
 		virtual Position nodeCreater(T const &tData) = 0;
 		// 结点擦除器 将结点置为未使用状态
@@ -115,44 +115,53 @@ namespace BinTreeAlgorithm {
 		// 结点块计数器
 		int nodeBlockCounter = 0;
 	};
-	// 其实该称完全二叉结点分配器
+
+	// [完全]结点分配器 (完全: 与完全二叉树的完全二字定义一致)
 	template<typename T>
-	class LinearNodeManager :public NodeManager<T> {
+	class CompleteNodeManager :public NodeManager<T> {
 
 	public:
-		typedef typename BinTreeAlgorithm::BinTreeNode<T> *Position;
-		typedef typename BinTreeAlgorithm::BinTreeNode<T> const *Block;
+		typedef typename BinTreeUtil::BinTreeNode<T> *Position;
+		typedef typename BinTreeUtil::BinTreeNode<T> const *Block;
 		typedef typename Position NodeArray;
 		using NodeManager<T>::nodeBlockCounter;
-		LinearNodeManager(int nSize) : capacity(nSize) {
-			momoryPool = new BinTreeAlgorithm::BinTreeNode<T>[nSize];
+		CompleteNodeManager(int nSize) : capacity(nSize) {
+			momoryPool = new BinTreeUtil::BinTreeNode<T>[nSize];
 		}
-		virtual ~LinearNodeManager() override {
+		virtual ~CompleteNodeManager() override {
 			delete[] momoryPool;
 			momoryPool = nullptr;
 		}
 
 		Position nodeCreater(T const &tData) override {
 			Position newNode = nullptr;
-			if (nodeBlockCounter == capacity) {
+			if (full()) {
 				// DNT
 			}
 			else {
-				momoryPool[nodeBlockCounter].Data = tData;
-				newNode = momoryPool + (nodeBlockCounter++);
+				newNode = position(nodeBlockCounter);
+				newNode->Data = tData;
+				++nodeBlockCounter;
 			}
 			return newNode;
 		}
 		void nodeEraser(Position &del) override {
-			// 0代表初始状态 只为了标识用 并无特殊用处
-			// malloc就应用memeset初始化free释放 new自动初始化 赋值初始化 delete释放
-			// del->Data = 0; // {}
-			//静态数组的删除并非实际删除
 			if (del != nullptr) {
+				// 解除其连接关系
 				del->Left = del->Right = nullptr;
+				// 假删
 				del = nullptr;
 				--nodeBlockCounter;
 			}
+		}
+		void clear() {
+			nodeBlockCounter = 0;
+		}
+		int index(Block b) const {
+			return b - momoryPool;
+		}
+		bool full() const {
+			return nodeBlockCounter == capacity;
 		}
 		// 返回数组内的结点位置
 		Position position(int sub) {
@@ -163,19 +172,19 @@ namespace BinTreeAlgorithm {
 			return Tree::LinearBlock;
 		}
 		
-		BinTreeAlgorithm::BinTreeNode<T> &operator[](int i) {
+		BinTreeUtil::BinTreeNode<T> &operator[](int i) {
 			assert(0 <= i && i < capacity);
 			return momoryPool[i];
 		}
 
 	private:
-		// 内存池: Left和Right储存左右孩子位于池内的地址 Varrays
+		// '内存'池: Left和Right储存左右孩子位于池内的地址 Varrays
 		NodeArray momoryPool = nullptr;
-		// 内存池容量|最多元素个数|结点个数, 至少为1
+		// '内存'池容量 | 最多元素个数 | 结点个数   至少为1
 		int capacity = 0;
-		// queue<Element*> freeMem;//空闲内存
-		// Element *memoryBlock = nullptr;//内存块 可将二叉树的局部储存在这里 超出部分使用外部分配的内存
 	};
+
+	// 非线性结点分配器 其分配的内存是没有规律的
 	template<typename T>
 	class NonLinearNodeManager :public NodeManager<T> {
 
@@ -190,7 +199,7 @@ namespace BinTreeAlgorithm {
 		// virtual ~NonLinearNodeManager() override {}
 		Position nodeCreater(T const &tData) override {
 			++nodeBlockCounter;
-			return new BinTreeAlgorithm::BinTreeNode<T>(tData);
+			return new BinTreeUtil::BinTreeNode<T>(tData);
 			/*
 			bST = (BST)malloc(sizeof(struct TNode));
 			memset(bST, 0, sizeof(struct TNode));
@@ -198,6 +207,7 @@ namespace BinTreeAlgorithm {
 			*/
 		}
 		void nodeEraser(Position &del) override {
+			// malloc就应用memeset初始化free释放 new自动初始化 赋值初始化 delete释放
 			// free(del); del = nullptr;
 			delete del;
 			del = nullptr;
@@ -206,6 +216,11 @@ namespace BinTreeAlgorithm {
 
 	private:
 	};
+
+	// 线性结点分配器 分配仍没有规律 但使用数组作为一块'虚拟内存' 分配效率[可能]略高 (结点关系: 与CompleteNodeManager同属于虚拟链接)
+	// class LinearNodeManager
+	// queue<Element*> freeBlock; // 空闲块
+	// Element *blockPool = nullptr; // 块池
 
 	// must know inorder
 

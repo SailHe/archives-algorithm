@@ -135,10 +135,10 @@
     <ClInclude Include="src\linear\Varrays.h">
       <Filter>头文件\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="src\nonlinear\BinTreeAlgorithm.h">
+    <ClInclude Include="src\nonlinear\CompleteBinTree.h">
       <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
     </ClInclude>
-    <ClInclude Include="src\nonlinear\CompleteBinTree.h">
+    <ClInclude Include="src\nonlinear\BinTreeUtil.h">
       <Filter>头文件\DataStructure\NonlinearStructure\Tree</Filter>
     </ClInclude>
   </ItemGroup>
@@ -197,7 +197,7 @@
     <ClCompile Include="src\_implement\utility\Transition.cpp">
       <Filter>源文件\Utility\Radix</Filter>
     </ClCompile>
-    <ClCompile Include="src\nonlinear\BinTreeAlgorithm.cpp">
+    <ClCompile Include="src\nonlinear\BinTreeUtil.cpp">
       <Filter>源文件\DataStructure\NonlinearStructure</Filter>
     </ClCompile>
   </ItemGroup>

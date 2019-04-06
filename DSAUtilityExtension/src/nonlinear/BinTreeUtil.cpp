@@ -1,6 +1,6 @@
-#include "BinTreeAlgorithm.h"
+#include "CompleteBinTree.h"
 
-namespace BinTreeAlgorithm{
+namespace BinTreeUtil{
 	void calcPostOrder(Tree::string const &sPre, Tree::string const &sMed, Tree::string &sPostBuffer) {
 		//中序中的根所在位置
 		Tree::string::size_type medRootSub = sMed.find(sPre[0]);
