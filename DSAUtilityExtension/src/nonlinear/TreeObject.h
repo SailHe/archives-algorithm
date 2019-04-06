@@ -3,7 +3,7 @@
 
 #include "../stdafx.h"
 #include "../ExtendSpace.h"
-#include "BinTreeAlgorithm.h"
+#include "./BinTreeUtil.h"
 
 /*
 *结语:
@@ -23,7 +23,7 @@ template<typename T>
 class BinTree {
 public:
 	typedef T Element;
-	template<typename T> using BTNode = BinTreeAlgorithm::BinTreeNode<T>;
+	template<typename T> using BTNode = BinTreeUtil::BinTreeNode<T>;
 	using Position = BTNode<T> *;
 	// 简单说Position有修改权限 对应的BT没有
 	using BT = BTNode<T> const *;
@@ -264,7 +264,7 @@ class LinkedBinTree : public BinTree<T> {
 	using BinTree<T>::destroy;
 public:
 	typedef T Element;
-	template<typename T> using BTNode = BinTreeAlgorithm::BinTreeNode<T>;
+	template<typename T> using BTNode = BinTreeUtil::BinTreeNode<T>;
 	using Position = BTNode<T> *;
 	// 简单说Position有修改权限 对应的BT没有
 	using BT = BTNode<T> const *;
@@ -272,7 +272,7 @@ public:
 
 
 	LinkedBinTree() {
-		nodeManager_ = new BinTreeAlgorithm::NonLinearNodeManager<T>();
+		nodeManager_ = new BinTreeUtil::NonLinearNodeManager<T>();
 	}
 	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
 	LinkedBinTree(const LinkedBinTree &rhs) : LinkedBinTree() {
@@ -320,25 +320,7 @@ public:
 		_ASSERT_EXPR(preOrder.size() == inOrder.size(), "Size Error");
 		prefInBuild(preOrder, 0, inOrder, 0, root_, preOrder.size());
 	}
-	// 构建基于数组的虚拟链接二叉树
-	LinkedBinTree(
-		int nSize,
-		std::function<void(T *)> getData,
-		std::function<void(Sub *, Sub *)> getSub, int noneSub,
-		int customRootSub = -1
-	) {
-		BinTreeAlgorithm::LinearNodeManager<T> *linearNodeManager = new BinTreeAlgorithm::LinearNodeManager<T>(nSize);
-		nodeManager_ = linearNodeManager;
-		Sub rootSub = buildBinTreeStructure(*linearNodeManager, getData, getSub, noneSub, nSize);
-		if (customRootSub > 0) {
-			_ASSERT_EXPR(customRootSub < nSize, "指定根下标越界!");
-			rootSub = customRootSub;
-		}
-		else {
-			// DNT
-		}
-		root_ = linearNodeManager->position(rootSub);
-	}
+	
 	// destructor
 	virtual ~LinkedBinTree() {
 		destroy(root_);
@@ -366,16 +348,7 @@ public:
 	}
 
 protected:
-	BinTreeAlgorithm::NodeManager<T> *nodeManager_ = nullptr;
-
-	// LinkedBinTree(TreeImplTypeEnum implType) {
-	// 	if (implType == NonlinearBlock) {
-	// 		nodeManager_ = new NonLinearNodeManager();
-	// 	}
-	// 	else {
-	// 		nodeManager_ = new LinearNodeManager();
-	// 	}
-	// }
+	BinTreeUtil::NodeManager<T> *nodeManager_ = nullptr;
 
 	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
 	Position nodeCreater(Element const &tData) {
@@ -482,36 +455,6 @@ protected:
 		// 进入右子树
 		bt->Right = postInBuild(inOrder + Ln + 1, postOder + Ln, n - Ln - 1);
 		return bt;
-	}
-
-	// 通过输入构建树结构 返回根结点 (数组内孩子结点的下标获取函数)
-	static Sub buildBinTreeStructure(
-		BinTreeAlgorithm::LinearNodeManager<T> &nodeArray,
-		std::function<void(T *)> getData,
-		std::function<void(Sub *, Sub *)> getSub,
-		int noneSub, int capacity
-	) {
-		int nSize = capacity;
-		int sum = (nSize - 1)*nSize / 2;
-		int leftSub = -1, rightSub = -1;
-
-		for (int i = 0; i < nSize; i++) {
-			Position leftChild = nullptr, rightChild = nullptr;
-			getData(&nodeArray[i].Data);
-			getSub(&leftSub, &rightSub);
-			if (leftSub != noneSub) {
-				leftChild = nodeArray.position(leftSub);
-				sum -= leftSub;
-			}
-
-			if (rightSub != noneSub) {
-				rightChild = nodeArray.position(rightSub);
-				sum -= rightSub;
-			}
-			nodeArray[i].Left = leftChild, nodeArray[i].Right = rightChild;
-		}
-		_ASSERT_EXPR(0 <= sum && sum < nSize, "给定数据有误!");
-		return nSize == 0 ? -1 : sum;
 	}
 
 };

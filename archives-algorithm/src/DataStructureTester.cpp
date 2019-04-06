@@ -270,9 +270,9 @@ int subTestForBinTree() {
 	std::string preReal[len] = {};
 	std::string postReal[len] = {};
 	// ±éÀúÐòÁÐ×ª»»
-	BinTreeAlgorithm::calcPrefOrder(preReal, in, post, len);
+	BinTreeUtil::calcPrefOrder(preReal, in, post, len);
 	StandardExtend::testAssert(StandardExtend::isEqual(preReal, preReal + len, pre), true);
-	BinTreeAlgorithm::calcPostOrder(pre, in, postReal, len);
+	BinTreeUtil::calcPostOrder(pre, in, postReal, len);
 	StandardExtend::testAssert(StandardExtend::isEqual(postReal, postReal + len, post), true);
 	
 	const int size = 6;
@@ -451,7 +451,7 @@ int subTestForBinTree() {
 	*/
 	// StandardExtend::refreshStdin();
 	char btsSub[][4] = { "1 -", "- -", "0 -","2 7", "- -", "- -", "5 -", "4 6" };
-	LinkedBinTree<char> btStIns1 = LinkedBinTree<char>(8, [](char *tData) {
+	CompleteBinTree<char> btStIns1 = CompleteBinTree<char>(8, [](char *tData) {
 		static int i = 0;
 		*tData = TransitionUtility::toAlphOrAscllNum(i++);
 	}, [&btsSub](int *lSub, int *rSub) {
@@ -490,7 +490,7 @@ int subTestForBinTree() {
 	const int nSizeBtS2 = 9;
 	std::vector<std::vector<int>> nBstSub = { {1, 6},{2, 3},{-1, -1},{-1, 4 },{5, -1 },{-1, -1},{7, -1 },{-1, 8 },{-1, -1} };
 	std::vector<int> nPre = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-	LinkedBinTree<int> btStIns2 = LinkedBinTree<int>(nSizeBtS2, [](int *tData){
+	CompleteBinTree<int> btStIns2 = CompleteBinTree<int>(nSizeBtS2, [](int *tData){
 		static int i = 0;
 		*tData = i++;
 	}, [&nBstSub](int *lSub, int *rSub) {
@@ -674,7 +674,10 @@ int subTestForHeapClearBuild() {
 	// heapIns.rebuild(-1, GreaterIntegerCmper);
 	heapIns.clear();
 	// heapIns.initialize(-1);
-	for (JCE::SizeType i = 0; i < heapData.size(); heapIns.push(heapData[i++]));
+	for (JCE::SizeType i = 0; i < heapData.size(); ++i) {
+		heapIns.push(heapData[i]);
+		StandardExtend::testAssert(heapIns.size(), int(i + 1));
+	}
 	heapIns.push(0);
 	heapIns.push(1);
 	heapIns.push(8);
