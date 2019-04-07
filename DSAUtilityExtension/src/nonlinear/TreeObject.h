@@ -29,11 +29,40 @@ public:
 	using BT = BTNode<T> const *;
 	using Vister = std::function<void(BT)>;
 
-	// 清除所有内容(初始化所有结点的有效性, 结构一定会被摧毁, root_会保留)
-	void clear() {
+	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
+	BinTree(const BinTree &rhs) {
+		DE_PRINTF("BT拷贝构造");
+		*this = rhs;
+	}
+	// 移动构造 (保证完全一致)
+	BinTree(BinTree &&rvalue) {
+		DE_PRINTF("BT移动构造");
+		*this = std::move(rvalue);
+	}
+	// destructor
+	virtual ~BinTree() {
 		destroy(root_);
-		lastCreateNode = nullptr;
-		isInsert = false;
+		DE_PRINTF("BT析构");
+	}
+
+	// 避免无意地二叉树赋值(赋值操作析构原lhs 且只能保证内容一致)
+	BinTree &operator= (const BinTree &rhs) {
+		// 先要析构自己的root_
+		destroy(root_);
+		assignment(root_, rhs.root_);
+		return *this;
+	}
+	// 避免无意地二叉树移动(系统自动析构原lhs)
+	BinTree &operator= (BinTree &&rvalue) {
+		std::swap(root_, rvalue.root_);
+		return *this;
+	}
+
+	virtual int size() = 0;
+
+	// 清除所有内容(初始化所有结点的有效性, 结构一定会被摧毁, root_会保留)
+	virtual void clear() {
+		destroy(root_);
 	}
 
 	Element getRootData() const {
@@ -42,14 +71,13 @@ public:
 	BT getRoot() const {
 		return root_;
 	}
-	virtual int size() = 0;
 	// 若二叉树为空返回true (存在至少1个结点含有数据 ==> size() == 0) O(1)
 	bool empty() const {
 		// (根结点为空表示整颗树为空)
 		return empty(root_);
 		// return nodeManager_->createdNodeNum() == 0;
 	}
-	// 返回树高度|深度 O(H)
+	// 返回树高度 | 深度 O(H)
 	int height() const {
 		// 若已知size则为log的复杂度(貌似差不多的样子)
 		// ceil(log(size, 2))
@@ -135,8 +163,8 @@ public:
 
 protected:
 	Position root_ = nullptr;
-	Position lastCreateNode = nullptr;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
-	bool isInsert = false;// 是否执行了插入操作(判断插入是否成功)
+	
+	BinTree() {}
 
 	// 返回子二叉树的规模 O(N)
 	static int scaleOf(BT t) {
@@ -242,17 +270,49 @@ protected:
 	static bool empty(BT bT) {
 		return bT == nullptr;
 	}
+	
+	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
+	virtual Position nodeCreater(Element const &tData) = 0;
+	//结点擦除器 将结点置为未使用状态
+	virtual void nodeEraser(Position &del) = 0;
 
-	virtual void destroy(Position &r) = 0;
-	//镜像赋值(负号)
-	void reAssignment() {
-		_ASSERT_EXPR(false, "Not Impl!");
+	// 销毁结点的抽象结构 (不一定会析构结点)
+	void destroy(Position &r) {
+		if (empty(r)) {
+			// DNT
+		}
+		else {
+			std::queue<Position> q;
+			q.emplace(r);
+			while (!q.empty()) {
+				Position current = q.front();
+				q.pop();
+				if (!empty(current->Left)) {
+					q.emplace(current->Left);
+					current->Left = nullptr;
+				}
+				if (!empty(current->Right)) {
+					q.emplace(current->Right);
+					current->Right = nullptr;
+				}
+				nodeEraser(current);
+			}
+			r = nullptr;
+		}
 	}
-	// 重复插入处理
-	void repetitionInsert(Position bt) {
-		//x==bt->Data 无需插入 手动更新lastCreateNode
-		lastCreateNode = bt;
-		isInsert = false;
+
+private:
+	// 递归拷贝赋值
+	static void assignment(Position &lhs, const Position rhs) {
+		if (!empty(rhs)) {
+			lhs = nodeCreater(rhs->Data);
+			assignment(lhs->Left, rhs->Left);
+			assignment(lhs->Right, rhs->Right);
+		}
+	}
+	//镜像赋值(负号)
+	static void reAssignment() {
+		_ASSERT_EXPR(false, "Not Impl!");
 	}
 
 };
@@ -260,10 +320,12 @@ protected:
 template<typename T>
 class LinkedBinTree : public BinTree<T> {
 	using BinTree<T>::root_;
-	using BinTree<T>::empty;
-	using BinTree<T>::isInsert;
-	using BinTree<T>::lastCreateNode;
+	//using BinTree<T>::isInsert;
+	//using BinTree<T>::lastCreateNode;
+	//using BinTree<T>::nodeManager_;
+
 	using BinTree<T>::destroy;
+
 public:
 	typedef T Element;
 	template<typename T> using BTNode = BinTreeUtil::BinTreeNode<T>;
@@ -276,16 +338,6 @@ public:
 	LinkedBinTree() {
 		nodeManager_ = new BinTreeUtil::NonLinearNodeManager<T>();
 	}
-	// 拷贝构造 (拷贝只保证结点内容一致; 引用参数=>拷贝构造)
-	LinkedBinTree(const LinkedBinTree &rhs) : LinkedBinTree() {
-		DE_PRINTF("BT拷贝构造");
-		assignment(root_, rhs.root_);
-	}
-	// 移动构造 (保证完全一致)
-	LinkedBinTree(LinkedBinTree &&rvalue) : LinkedBinTree() {
-		DE_PRINTF("BT移动构造");
-		*this = std::move(rvalue);
-	}
 	// 先中序列构造 缺省的遍历序列放置元素个数
 	LinkedBinTree(Element const *preOrder, Element const *inOrder, int n) : LinkedBinTree() {
 		prefInBuild(preOrder, inOrder, root_, n);
@@ -294,7 +346,6 @@ public:
 	LinkedBinTree(int n, Element const *inOrder, Element const *postOder) : LinkedBinTree() {
 		postInBuild(root_, inOrder, postOder, n);
 	}
-
 	// 先根序遍历操作堆栈构造 (堆栈操作获取方法, 结点数据获取方法)
 	LinkedBinTree(std::function<bool(Tree::string &)> getOrder, void(*getData)(T*)) : LinkedBinTree() {
 		Tree::ArrayList<T> preOrder, inOrder;
@@ -323,76 +374,53 @@ public:
 		prefInBuild(preOrder, 0, inOrder, 0, root_, preOrder.size());
 	}
 	
-	// destructor
+	LinkedBinTree(LinkedBinTree const &rhs) : nodeManager_(new BinTreeUtil::NonLinearNodeManager<T>()), BinTree<T>(rhs){
+		*this = rhs;
+		DE_PRINTF("LBT拷贝构造");
+	}
+	LinkedBinTree(LinkedBinTree &&rvalue) : nodeManager_(new BinTreeUtil::NonLinearNodeManager<T>()), BinTree<T>(rvalue) {
+		*this = std::move(rvalue);
+		DE_PRINTF("LBT移动构造");
+	}
+	LinkedBinTree &operator= (LinkedBinTree const &rhs) {
+		nodeManager_ = new BinTreeUtil::NonLinearNodeManager<T>();
+		return *this;
+	}
+	LinkedBinTree &operator= (LinkedBinTree &&rvalue) {
+		std::swap(nodeManager_, rvalue.nodeManager_);
+		std::swap(isInsert, rvalue.isInsert);
+		std::swap(lastCreateNode, rvalue.lastCreateNode);
+		return *this;
+	}
 	virtual ~LinkedBinTree() {
-		destroy(root_);
 		delete nodeManager_;
 		nodeManager_ = nullptr;
-		DE_PRINTF("BT析构");
+		DE_PRINTF("LBT析构");
 	}
+
 	int size() override {
 		return nodeManager_->createdNodeNum();
 	}
-	// 避免无意地二叉树赋值(赋值操作析构原lhs 且只能保证内容一致)
-	LinkedBinTree &operator= (const LinkedBinTree &rhs) {
-		// 先要析构自己的root_
+	void clear() override {
 		destroy(root_);
-		assignment(root_, rhs.root_);
-		return *this;
-	}
-	// 避免无意地二叉树移动(系统自动析构原lhs)
-	LinkedBinTree &operator= (LinkedBinTree &&rvalue) {
-		std::swap(root_, rvalue.root_);
-		std::swap(isInsert, rvalue.isInsert);
-		std::swap(lastCreateNode, rvalue.lastCreateNode);
-		std::swap(nodeManager_, rvalue.nodeManager_);
-		return *this;
+		lastCreateNode = nullptr;
+		isInsert = false;
 	}
 
 protected:
-	BinTreeUtil::NodeManager<T> *nodeManager_ = nullptr;
+	//using BinTree<T>::empty;
+	//using BinTree<T>::nodeCreater;
+	Position lastCreateNode = nullptr;// 结点生成器最后生成的结点 (无法用这个判断插入成功与否)
+	bool isInsert = false;// 是否执行了插入操作(判断插入是否成功)
 
-	//结点生成器 返回一个未使用的结点 若不存在未使用结点 返回nullptr 只能插入使用
-	Position nodeCreater(Element const &tData) {
+
+	Position nodeCreater(Element const &tData) override {
 		lastCreateNode = nodeManager_->nodeCreater(tData);
 		isInsert = lastCreateNode == nullptr ? false : true;
 		return lastCreateNode;
 	}
-	//结点擦除器 将结点置为未使用状态
-	void nodeEraser(Position &del) {
+	void nodeEraser(Position &del) override {
 		return nodeManager_->nodeEraser(del);
-	}
-	// 销毁结点的抽象结构 (不一定会析构结点)
-	void destroy(Position &r) override {
-		if (empty(r)) {
-			// DNT
-		}
-		else {
-			std::queue<Position> q;
-			q.emplace(r);
-			while (!q.empty()) {
-				Position current = q.front();
-				q.pop();
-				if (!empty(current->Left)) {
-					q.emplace(current->Left);
-					current->Left = nullptr;
-				}
-				if (!empty(current->Right)) {
-					q.emplace(current->Right);
-					current->Right = nullptr;
-				}
-				nodeEraser(current);
-			}
-			r = nullptr;
-		}
-	}
-	// 递归拷贝赋值
-	void assignment(Position &lhs, const Position rhs) {
-		if (!empty(rhs)) {
-			lhs = nodeCreater(rhs->Data);
-			assignment(lhs->Left, rhs->Left);
-			assignment(lhs->Right, rhs->Right);
-		}
 	}
 	//先中构建
 	void prefInBuild(Element const *preOrder, Element const *inOrder, Position &bt, int n) {
@@ -458,6 +486,15 @@ protected:
 		bt->Right = postInBuild(inOrder + Ln + 1, postOder + Ln, n - Ln - 1);
 		return bt;
 	}
+	// 重复插入处理
+	void repetitionInsert(Position bt) {
+		//x==bt->Data 无需插入 手动更新lastCreateNode
+		lastCreateNode = bt;
+		isInsert = false;
+	}
+
+private:
+	BinTreeUtil::NodeManager<T> *nodeManager_;
 
 };
 
@@ -494,8 +531,10 @@ public:
 	//using Position = BinTree<T>::Position;错误用法
 	typedef typename BinTree<T>::Position Position;
 	typedef typename BinTree<T>::Element Element;
+
 	using BinTree<T>::root_;
-	using BinTree<T>::lastCreateNode;
+	using LinkedBinTree<T>::lastCreateNode;
+
 	using BinTree<T>::traversal;
 	using BinTree<T>::empty;
 	using BinTree<T>::destroy;
@@ -707,7 +746,7 @@ public:
 	JCE::pair<Position, bool> insert(Element const&x) {
 		root_ = Insert(root_, x);
 		//与map的insert返回值类似，重复insert 返回<重复Position, false>，这个技巧在面试如何找出2个数组相同的数字的时候有奇效
-		return{ BinTree<T>::lastCreateNode, BinTree<T>::isInsert };
+		return{ LinkedBinTree<T>::lastCreateNode, LinkedBinTree<T>::isInsert };
 	}
 	//序列插入 局部有序插入O(1) 无序O(logN) 但如果Avl使用此插入会使Avl退化为普通BST(相当于优化的链表: 插入效率变高 查找效率相对Avl退化)
 	//(例如654789)->4 5 [6] Orderly被置false 7 [手动]置true 8 9 可实现局部有序插入

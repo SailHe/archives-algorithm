@@ -14,7 +14,6 @@ class CompleteBinTree :public BinTree<T> {
 	//using BinTree<T>::nodeManager_;
 
 public:
-
 	// 直接把数组copy进静态数组里
 	// CompleteBinTree(T *initArr, int nSize) : CompleteBinTree(nSize){
 	// 	assert(initArr != nullptr);
@@ -38,7 +37,7 @@ public:
 		std::function<void(T *)> getData,
 		std::function<void(Sub *, Sub *)> getSub, int noneSub,
 		int customRootSub = -1
-	) : baseNodeArray(nSize) {
+	) : CompleteBinTree(nSize) {
 		// 其实这个方法得到的不一定是完全二叉树 但姑且只能这么实现了
 		Sub rootSub = buildBinTreeStructure(baseNodeArray, getData, getSub, noneSub, nSize);
 		if (customRootSub > 0) {
@@ -50,9 +49,28 @@ public:
 		}
 		root_ = position(rootSub);
 	}
+
+	CompleteBinTree(CompleteBinTree const &rhs) : BinTree<T>(rhs) {
+		DE_PRINTF("CBT拷贝构造");
+		*this = rhs;
+	}
+	CompleteBinTree(CompleteBinTree &&rvalue) : BinTree<T>(rvalue) {
+		DE_PRINTF("CBT移动构造");
+		*this = std::move(rvalue);
+	}
+	CompleteBinTree &operator= (CompleteBinTree const &rhs) {
+		baseNodeArray = BinTreeUtil::CompleteNodeManager<T>(rhs.size());
+		return *this;
+	}
+	CompleteBinTree &operator= (CompleteBinTree &&rvalue) {
+		std::swap(baseNodeArray, rvalue.baseNodeArray);
+		return *this;
+	}
+
 	virtual ~CompleteBinTree() {
 		// delete[] baseNodeArray;
 		// baseNodeArray = nullptr;
+		//root_ = nullptr;
 		DE_PRINTF("CBT析构");
 	}
 
@@ -101,6 +119,13 @@ protected:
 		// capacity = nSize;
 	}
 
+	Position nodeCreater(T const &tData) override {
+		return baseNodeArray.nodeCreater(tData);
+	}
+	void nodeEraser(Position &del) override {
+		return baseNodeArray.nodeEraser(del);
+	}
+
 	// [完全二叉树]的序列构建  (数据源 根结点下标) 返回根结点
 	template<typename Iterator>
 	Position buildCompleteTree(Iterator begin, Iterator end, int rootSub) {
@@ -143,31 +168,6 @@ protected:
 		}
 		_ASSERT_EXPR(0 <= sum && sum < nSize, "给定数据有误!");
 		return nSize == 0 ? -1 : sum;
-	}
-
-
-	void destroy(Position &r) override {
-		if (empty(r)) {
-			// DNT
-		}
-		else {
-			std::queue<Position> q;
-			q.emplace(r);
-			while (!q.empty()) {
-				Position current = q.front();
-				q.pop();
-				if (!empty(current->Left)) {
-					q.emplace(current->Left);
-					current->Left = nullptr;
-				}
-				if (!empty(current->Right)) {
-					q.emplace(current->Right);
-					current->Right = nullptr;
-				}
-				baseNodeArray.nodeEraser(current);
-			}
-			r = nullptr;
-		}
 	}
 
 	bool full() const {
@@ -315,31 +315,9 @@ public:
 	}
 
 protected:
-	void destroy(Position &r) override {
-		if (empty(r)) {
-			// DNT
-		}
-		else {
-			std::queue<Position> q;
-			q.emplace(r);
-			while (!q.empty()) {
-				Position current = q.front();
-				q.pop();
-				if (!empty(current->Left)) {
-					q.emplace(current->Left);
-					current->Left = nullptr;
-				}
-				if (!empty(current->Right)) {
-					q.emplace(current->Right);
-					current->Right = nullptr;
-				}
-				if (!empty(current)) {
-					--validNodeNum;
-				}
-				baseNodeArray.nodeEraser(current);
-			}
-			r = nullptr;
-		}
+	void nodeEraser(Position &del) override {
+		baseNodeArray.nodeEraser(del);
+		validNodeNum = baseNodeArray.createdNodeNum() - 1;
 	}
 	// 上滤 将尾部元素item与父结点逐个比较, 并置于合适的位置; push调整
 	void percolateUp(Sub puSub) {
