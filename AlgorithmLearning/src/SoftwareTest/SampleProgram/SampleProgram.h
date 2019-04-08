@@ -159,7 +159,7 @@ int main() {
 	return 0;
 	*/
 	// 需要生成1000条测试用例数据
-	int testCaseCnt = 10;
+	int testCaseCnt = 1000;
 	std::string testCaseFolderName("_TestCaseData"), fileName("0");
 	DataGenerater::trainServices(SampleProgram_03_20(), testCaseCnt, testCaseFolderName, fileName);
 	return 0;

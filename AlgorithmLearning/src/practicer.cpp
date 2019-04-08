@@ -13,9 +13,9 @@
 
 //#include "MathLibrary.h"
 #include "ExtendSpace.h"
-#include "./else/TransitionUtility.h"
-#include "./else/Transition.h"
-// #include "./else/BigInteger.h"
+#include "./utility/TransitionUtility.h"
+#include "./utility/Transition.h"
+// #include "./utility/BigInteger.h"
 // using namespace std;
 
 // 类中的静态方法->命名空间普通方法(若不考虑java移植的话)
