@@ -3,7 +3,7 @@
 
 #include "../stdafx.h"
 #include "../ExtendSpace.h"
-#include "BinTreeAlgorithm.h"
+//#include "BinTreeAlgorithm.h"
 
 /*
 *Ω·”Ô:

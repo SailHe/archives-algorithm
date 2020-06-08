@@ -13,8 +13,8 @@
 
 //#include "MathLibrary.h"
 #include "ExtendSpace.h"
-#include "./else/TransitionUtility.h"
-#include "./else/Transition.h"
+#include "./utility/TransitionUtility.h"
+#include "./utility/Transition.h"
 // #include "./else/BigInteger.h"
 // using namespace std;
 
